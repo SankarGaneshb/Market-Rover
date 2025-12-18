@@ -1,0 +1,31 @@
+# CrewAI Framework
+crewai>=0.28.0
+crewai-tools>=0.1.0
+
+# LLM Integration
+langchain-google-genai>=1.0.0
+google-generativeai>=0.3.0
+
+# Stock Data & Analysis
+yfinance>=0.2.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# News Scraping
+newspaper3k>=0.2.8
+lxml>=4.9.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Optional: NSEPython (may not be available on all systems)
+# nsepython>=1.2.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Date/Time Handling
+python-dateutil>=2.8.0
+
+# Utilities
+pydantic>=2.0.0
+colorama>=0.4.6
