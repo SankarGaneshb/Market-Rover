@@ -21,6 +21,63 @@ Market Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 4. **Market Context Agent**: Analyzes Nifty 50 and sector trends
 5. **Report Generator Agent**: Creates final intelligence report
 
+### Use Case Diagram
+
+```mermaid
+graph TB
+    User["👤 Stock Investor"]
+    
+    subgraph "Market Rover System"
+        UC1["Manage Portfolio"]
+        UC2["Configure System"]
+        UC3["Run Weekly Analysis"]
+        UC4["View Intelligence Report"]
+        UC5["Monitor Costs"]
+        
+        subgraph "AI Agents"
+            A1["Portfolio Manager"]
+            A2["News Researcher"]
+            A3["Sentiment Analyzer"]
+            A4["Market Analyst"]
+            A5["Report Generator"]
+        end
+        
+        subgraph "External Services"
+            OpenAI["OpenAI API"]
+            MC["Moneycontrol"]
+            YF["yfinance/NSE"]
+        end
+    end
+    
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    
+    UC1 -.->|uses| A1
+    UC3 -.->|triggers| A1
+    UC3 -.->|triggers| A2
+    UC3 -.->|triggers| A3
+    UC3 -.->|triggers| A4
+    UC3 -.->|triggers| A5
+    
+    A1 -.->|reads| YF
+    A2 -.->|scrapes| MC
+    A3 -.->|analyzes| OpenAI
+    A4 -.->|fetches| YF
+    A5 -.->|generates| OpenAI
+    
+    UC4 -.->|produces| A5
+```
+
+**Key Use Cases:**
+- **Manage Portfolio**: Add/remove stocks in CSV file
+- **Configure System**: Set API keys, preferences, automation
+- **Run Analysis**: Execute multi-agent intelligence gathering
+- **View Reports**: Review generated insights and recommendations
+- **Monitor Costs**: Track OpenAI API usage and expenses
+
 ## 🚀 Quick Start
 
 ### Prerequisites
