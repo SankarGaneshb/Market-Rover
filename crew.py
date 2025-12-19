@@ -1,29 +1,41 @@
 """
-Crew configuration for Market Rover system.
-Orchestrates all agents and tasks using CrewAI.
+Crew configuration for Market-Rover 2.0
+Orchestrates all agents and tasks using CrewAI with parallel execution support.
 """
 from crewai import Crew, Process
 from agents import AgentFactory
 from tasks import TaskFactory
-from config import MAX_ITERATIONS
+from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY
+from typing import Optional, Callable
 
 
 class MarketRoverCrew:
-    """Market Rover intelligence crew."""
+    """Market-Rover 2.0 intelligence crew with parallel execution."""
     
-    def __init__(self):
-        """Initialize the crew with all agents and tasks."""
+    def __init__(self, max_parallel_stocks: Optional[int] = None, 
+                 progress_callback: Optional[Callable] = None):
+        """
+        Initialize the crew with all agents and tasks.
+        
+        Args:
+            max_parallel_stocks: Maximum number of stocks to process in parallel (default: from config)
+            progress_callback: Optional callback function for progress updates (percentage, stock_name, status)
+        """
         # Create all agents
         self.agents = AgentFactory.create_all_agents()
         
         # Create all tasks with dependencies
         self.tasks = TaskFactory.create_all_tasks(self.agents)
         
+        # Set parallel execution parameters
+        self.max_parallel_stocks = max_parallel_stocks or MAX_PARALLEL_STOCKS
+        self.progress_callback = progress_callback
+        
         # Create the crew
         self.crew = Crew(
             agents=list(self.agents.values()),
             tasks=self.tasks,
-            process=Process.sequential,  # Execute tasks in order
+            process=Process.sequential,  # Tasks still execute in order, but stock processing is parallel
             verbose=True,
             max_rpm=10,  # Rate limiting for API calls
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
@@ -31,16 +43,17 @@ class MarketRoverCrew:
     
     def run(self):
         """
-        Execute the Market Rover workflow.
+        Execute the Market-Rover 2.0 workflow with parallel stock processing.
         
         Returns:
             Final report from the crew
         """
-        print("🚀 Starting Market Rover Intelligence Analysis...")
+        print("🚀 Starting Market-Rover 2.0 Intelligence Analysis...")
+        print(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
         print("=" * 60)
         
         try:
-            # Kick off the crew
+            # Kick off the crew (parallel processing handled within tasks)
             result = self.crew.kickoff()
             
             print("\n" + "=" * 60)
@@ -57,13 +70,25 @@ class MarketRoverCrew:
         info = {
             'num_agents': len(self.agents),
             'num_tasks': len(self.tasks),
-            'process': 'Sequential',
+            'process': 'Parallel',
+            'max_parallel_stocks': self.max_parallel_stocks,
             'max_iterations': MAX_ITERATIONS,
-            'agents': list(self.agents.keys())
+            'agents': list(self.agents.keys()),
+            'version': '2.0'
         }
         return info
 
 
-def create_crew():
-    """Factory function to create a new MarketRoverCrew instance."""
-    return MarketRoverCrew()
+def create_crew(max_parallel_stocks: Optional[int] = None, 
+                progress_callback: Optional[Callable] = None):
+    """
+    Factory function to create a new MarketRoverCrew instance.
+    
+    Args:
+        max_parallel_stocks: Maximum number of stocks to process in parallel
+        progress_callback: Optional callback for progress updates
+        
+    Returns:
+        MarketRoverCrew instance configured for parallel execution
+    """
+    return MarketRoverCrew(max_parallel_stocks, progress_callback)

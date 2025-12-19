@@ -35,6 +35,18 @@ BSE_SUFFIX = ".BO"
 SENTIMENT_POSITIVE_THRESHOLD = 0.3
 SENTIMENT_NEGATIVE_THRESHOLD = -0.3
 
+# Parallel Execution Settings (Market-Rover 2.0)
+MAX_PARALLEL_STOCKS = int(os.getenv("MAX_PARALLEL_STOCKS", "5"))
+RATE_LIMIT_DELAY = float(os.getenv("RATE_LIMIT_DELAY", "1.0"))
+
+# Web UI Settings (Market-Rover 2.0)
+UPLOAD_DIR = PROJECT_ROOT / os.getenv("UPLOAD_DIR", "uploads")
+WEB_PORT = int(os.getenv("WEB_PORT", "8501"))
+WEB_HOST = os.getenv("WEB_HOST", "0.0.0.0")
+
+# Create upload directory if it doesn't exist
+UPLOAD_DIR.mkdir(exist_ok=True)
+
 # News Sources
 MONEYCONTROL_BASE_URL = "https://www.moneycontrol.com"
 

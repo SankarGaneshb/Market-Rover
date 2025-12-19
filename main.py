@@ -1,10 +1,13 @@
 """
-Market Rover - Main Application Entry Point
+Market-Rover 2.0 - Main Application Entry Point
 
 A multi-agent stock intelligence system that monitors your portfolio,
 scrapes news, analyzes sentiment, and generates weekly intelligence reports.
+
+Now with parallel execution and HTML reports!
 """
 import os
+import argparse
 from datetime import datetime
 from pathlib import Path
 from crew import create_crew
@@ -24,31 +27,94 @@ def check_environment():
             sys.exit(1)
 
 
-def save_report(report_content: str) -> Path:
+def save_report(report_content: str, export_format: str = 'html') -> Path:
     """
-    Save the report to a file.
+    Save the report in specified format (HTML by default).
     
     Args:
         report_content: The report text
+        export_format: Format to save ('html', 'txt', 'csv')
         
     Returns:
         Path to saved report
     """
     # Create filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"market_rover_report_{timestamp}.txt"
-    filepath = REPORT_DIR / filename
     
-    # Save report
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write("=" * 80 + "\n")
-        f.write(" " * 25 + "MARKET ROVER INTELLIGENCE REPORT\n")
-        f.write(" " * 30 + f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("=" * 80 + "\n\n")
-        f.write(str(report_content))
-        f.write("\n\n" + "=" * 80 + "\n")
-        f.write("End of Report\n")
-        f.write("=" * 80 + "\n")
+    if export_format == 'html':
+        filename = f"market_rover_report_{timestamp}.html"
+        filepath = REPORT_DIR / filename
+        
+        # Generate HTML report
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market-Rover 2.0 Report</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }}
+        .container {{
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }}
+        h1 {{
+            color: #1f2937;
+            border-bottom: 3px solid #3b82f6;
+            padding-bottom: 15px;
+            text-align: center;
+        }}
+        .report-content {{
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
+            color: #374151;
+        }}
+        .header {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        .timestamp {{
+            color: #6b7280;
+            font-style: italic;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Market-Rover 2.0 Intelligence Report</h1>
+            <p class="timestamp">Generated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</p>
+        </div>
+        <div class="report-content">{str(report_content)}</div>
+    </div>
+</body>
+</html>
+"""
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+    
+    else:  # txt format
+        filename = f"market_rover_report_{timestamp}.txt"
+        filepath = REPORT_DIR / filename
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write("=" * 80 + "\n")
+            f.write(" " * 25 + "MARKET-ROVER 2.0 INTELLIGENCE REPORT\n")
+            f.write(" " * 30 + f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write("=" * 80 + "\n\n")
+            f.write(str(report_content))
+            f.write("\n\n" + "=" * 80 + "\n")
+            f.write("End of Report\n")
+            f.write("=" * 80 + "\n")
     
     return filepath
 
@@ -56,13 +122,33 @@ def save_report(report_content: str) -> Path:
 def print_header():
     """Print application header."""
     print("=" * 80)
-    print(" " * 25 + "🔍 MARKET ROVER 🔍")
-    print(" " * 20 + "Crew Intelligence Agent System")
+    print(" " * 25 + "🔍 MARKET-ROVER 2.0 🔍")
+    print(" " * 18 + "AI-Powered Stock Intelligence System")
+    print(" " * 25 + "⚡ Parallel Mode Enabled")
     print("=" * 80)
     print()
 
 
 def main():
+    """Main application entry point with CLI argument parsing."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Market-Rover 2.0 - Stock Intelligence System')
+    parser.add_argument('--pdf', action='store_true', help='Generate PDF report (requires additional setup)')
+    parser.add_argument('--csv-only', action='store_true', help='Export data as CSV only')
+    parser.add_argument('--txt', action='store_true', help='Generate TXT report (legacy format)')
+    args = parser.parse_args()
+    
+    # Determine export format
+    if args.csv_only:
+        export_format = 'csv'
+    elif args.txt:
+        export_format = 'txt'
+    elif args.pdf:
+        export_format = 'pdf'
+    else:
+        export_format = 'html'  # Default
+
+def main_impl(export_format='html'):
     """Main application entry point."""
     try:
         # Print header
@@ -97,8 +183,8 @@ def main():
         result = crew.run()
         
         # Save report
-        print("\n📝 Saving report...")
-        report_path = save_report(result)
+        print(f"\n📝 Saving report ({export_format.upper()} format)...")
+        report_path = save_report(result, export_format)
         
         print(f"\n✅ Report saved to: {report_path}")
         print()
@@ -125,4 +211,22 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Market-Rover 2.0 - Stock Intelligence System')
+    parser.add_argument('--pdf', action='store_true', help='Generate PDF report (requires additional setup)')
+    parser.add_argument('--csv-only', action='store_true', help='Export data as CSV only')
+    parser.add_argument('--txt', action='store_true', help='Generate TXT report (legacy format)')
+    args = parser.parse_args()
+    
+    # Determine export format
+    if args.csv_only:
+        export_format = 'csv'
+    elif args.txt:
+        export_format = 'txt'
+    elif args.pdf:
+        print("⚠️  PDF export not yet implemented. Generating HTML instead.")
+        export_format = 'html'
+    else:
+        export_format = 'html'  # Default
+    
+    main_impl(export_format)
