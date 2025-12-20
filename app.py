@@ -17,6 +17,12 @@ from config import UPLOAD_DIR, REPORT_DIR
 from utils.job_manager import JobManager
 from utils.mock_data import mock_generator, simulate_analysis_delay
 from utils.report_visualizer import ReportVisualizer
+from utils.logger import get_logger, log_analysis_start, log_analysis_complete, log_error
+from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
+                           get_error_stats, track_performance, track_api_call)
+
+# Initialize logger
+logger = get_logger(__name__)
 
 
 # Page configuration
@@ -84,6 +90,66 @@ def main():
         
         if test_mode:
             st.info("🧪 Test mode enabled - using mock data")
+        
+        # Observability metrics
+        st.markdown("---")
+        with st.expander("📊 Observability", expanded=False):
+            st.markdown("### Real-Time Metrics")
+            
+            # API Usage
+            api_usage = get_api_usage()
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
+            with col2:
+                st.metric("Remaining", api_usage['remaining'])
+            
+            # Progress bar for API quota
+            quota_pct = api_usage['today'] / api_usage['limit']
+            st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
+            
+            st.markdown("---")
+            
+            # Performance Stats
+            perf_stats = get_performance_stats()
+            if perf_stats['total_analyses'] > 0:
+                st.markdown("**Performance**")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(
+                        "Total Analyses",
+                        perf_stats['total_analyses']
+                    )
+                with col2:
+                    st.metric(
+                        "Avg Duration",
+                        f"{perf_stats['avg_duration']:.1f}s"
+                    )
+                st.markdown("---")
+            
+            # Cache Stats
+            cache_stats = get_cache_stats()
+            total_cache = cache_stats['hits'] + cache_stats['misses']
+            if total_cache > 0:
+                st.markdown("**Cache Performance**")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Hit Rate", f"{cache_stats['hit_rate']:.0f}%")
+                with col2:
+                    st.metric("Total Ops", total_cache)
+                st.markdown("---")
+            
+            # Error Stats
+            error_stats = get_error_stats()
+            if error_stats['total'] > 0:
+                st.markdown("**Errors**")
+                st.metric("Total Errors", error_stats['total'])
+                if error_stats['by_type']:
+                    st.json(error_stats['by_type'], expanded=False)
+            
+            # Refresh button
+            if st.button("🔄 Refresh Metrics", use_container_width=True):
+                st.rerun()
         
         st.markdown("---")
         st.markdown("### 📚 Recent Reports")

@@ -44,8 +44,11 @@ reports/*.pdf
 # Uploads (user data only)
 uploads/*.csv
 
-# Logs
+# Logs and metrics
+logs/
 *.log
+metrics/
+metrics_*.json
 
 # OS
 .DS_Store
