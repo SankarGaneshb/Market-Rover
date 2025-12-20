@@ -9,7 +9,10 @@ A multi-agent AI system powered by CrewAI that monitors your stock portfolio, sc
 - **🧠 Sentiment Analysis**: AI-powered classification of news as Positive/Negative/Neutral
 - **📈 Market Context**: Analyzes Nifty 50 and sector trends for broader market understanding
 - **📝 Weekly Reports**: Generates comprehensive intelligence briefings with risk highlights
-- **💰 Cost-Effective**: Affordable for small portfolios using OpenAI's free tier ($5 credit)
+- **💰 Cost-Effective**: Free tier available with Google Gemini API
+- **🌐 Web Interface**: User-friendly Streamlit web UI (v2.0)
+- **📊 Interactive Charts**: Real-time visualizations with Plotly (v2.0)
+- **⚡ Parallel Processing**: 5x faster multi-stock analysis (v2.0)
 
 ## 🏗️ Architecture
 
@@ -43,7 +46,7 @@ graph TB
         end
         
         subgraph "External Services"
-            OpenAI["OpenAI API"]
+            Gemini["Google Gemini API"]
             MC["Moneycontrol"]
             YF["yfinance/NSE"]
         end
@@ -64,9 +67,9 @@ graph TB
     
     A1 -.->|reads| YF
     A2 -.->|scrapes| MC
-    A3 -.->|analyzes| OpenAI
+    A3 -.->|analyzes| Gemini
     A4 -.->|fetches| YF
-    A5 -.->|generates| OpenAI
+    A5 -.->|generates| Gemini
     
     UC4 -.->|produces| A5
 ```
@@ -83,7 +86,7 @@ graph TB
 ### Prerequisites
 
 - Python 3.8 or higher
-- OpenAI API key (get $5 free credit from [OpenAI Platform](https://platform.openai.com/api-keys))
+- Google Gemini API key (free tier available from [Google AI Studio](https://makersuite.google.com/app/apikey))
 
 ### Installation
 
@@ -102,8 +105,8 @@ pip install -r requirements.txt
 # Copy the example file
 copy .env.example .env
 
-# Edit .env and add your OpenAI API key
-# OPENAI_API_KEY=sk-proj-your-actual-openai-key-here
+# Edit .env and add your Google Gemini API key
+# GOOGLE_API_KEY=your-google-api-key-here
 ```
 
 4. **Prepare your portfolio**:
@@ -113,7 +116,21 @@ copy .env.example .env
 
 ### Usage
 
-Run the weekly analysis:
+#### Option 1: Web UI (Recommended for v2.0)
+```bash
+streamlit run app.py
+# Opens browser at http://localhost:8501
+```
+
+**Features:**
+- Upload portfolio via drag-and-drop
+- Real-time progress tracking
+- Interactive visualizations
+- Test mode (mock data, no API costs)
+- View saved reports with charts
+- Download in multiple formats (TXT, HTML, CSV)
+
+#### Option 2: Command Line
 ```bash
 python main.py
 ```
@@ -178,35 +195,64 @@ RISK HIGHLIGHTS
 
 ## 💰 Cost Breakdown
 
-### Current Setup (OpenAI with Free Tier)
-- **LLM**: OpenAI GPT-3.5-turbo
-- **Free credit**: $5 (25-50 runs)
-- **Data**: yfinance + Newspaper3k (both free)
-- **Infrastructure**: Run locally
-- **Cost per run**: ~$0.10-0.20
+### Current Setup (Google Gemini API - December 2025)
 
-### Monthly Estimates
-- **3 stocks, weekly**: ~$0.60/month (after free credit)
-- **10 stocks, weekly**: ~$1.50/month
-- **20 stocks, daily**: ~$12/month
+**Free Tier (Updated Dec 2025):**
+- **Gemini 2.5 Flash**: 2 requests per minute (RPM), 20 requests per day (RPD)
+- **Note**: Free tier was reduced from 250 RPD to 20 RPD in early December 2025
+- **Best for**: Learning, proof-of-concept, light usage (under 20 requests/day)
+- **Alternative**: Gemini 2.5 Flash-Lite offers 30 RPM and 1,500 RPD for free
 
-See OpenAI pricing: https://openai.com/api/pricing/
+**Pay-As-You-Go Pricing:**
+- **Model**: Gemini 2.5-flash
+- **Input tokens**: $0.175 per 1 million tokens
+- **Output tokens**: $0.75 per 1 million tokens
+- **Data sources**: yfinance + Newspaper3k (both free)
+- **Infrastructure**: Run locally (no hosting costs)
+
+### Cost Estimates
+
+**Free Tier Usage:**
+- ✅ **1-2 stocks, daily**: Within free limit (under 20 requests/day)
+- ✅ **3-5 stocks, weekly**: Comfortably within free tier
+- ⚠️ **10+ stocks, daily**: Will exceed free tier (20 RPD limit)
+
+**Paid Tier Estimates (if exceeding free tier):**
+- **Cost per analysis run**: ~$0.01-0.05 per stock
+- **3 stocks, weekly**: ~$0.60/month (likely free tier sufficient)
+- **10 stocks, weekly**: ~$1-2/month
+- **20 stocks, daily**: ~$10-15/month
+
+**Comparison:**
+- 🎉 **Significantly cheaper than OpenAI** (was ~$0.10-0.20 per run)
+- 💰 **10-20x cost reduction** compared to GPT-3.5-turbo
+
+**Recommendation**: Start with free tier for testing, upgrade to pay-as-you-go only if needed.
+
+See official pricing: https://ai.google.dev/pricing
 
 ## 🛠️ Technology Stack
 
+### Core AI & Backend
 - **CrewAI**: Multi-agent orchestration framework
-- **OpenAI GPT-3.5-turbo**: Large Language Model for reasoning
+- **Google Gemini 2.5-flash**: Large Language Model for reasoning
+- **langchain-google-genai**: LLM integration layer
 - **yfinance**: Free NSE/BSE stock data
 - **Newspaper3k**: Web scraping for news articles
-- **NSEPython**: Data verification (optional)
 - **Pandas**: Data manipulation
+
+### Web UI & Visualizations (v2.0)
+- **Streamlit**: Interactive web interface
+- **Plotly**: Interactive charts and visualizations
+- **HTML Export**: Reports with embedded charts
 
 ## 📁 Project Structure
 
 ```
 Market-Rover/
-├── main.py                 # Application entry point
-├── agents.py               # Agent definitions
+├── main.py                 # CLI entry point
+├── app.py                  # Web UI entry point (v2.0)
+├── agents.py               # Agent definitions (Gemini LLM)
 ├── tasks.py                # Task definitions
 ├── crew.py                 # Crew orchestration
 ├── config.py               # Configuration
@@ -219,7 +265,14 @@ Market-Rover/
 │   ├── news_scraper_tool.py   # Moneycontrol scraper
 │   ├── stock_data_tool.py     # Stock data fetcher
 │   └── market_context_tool.py # Market analyzer
-└── reports/                # Generated reports
+├── utils/                  # v2.0 utilities
+│   ├── job_manager.py         # Job tracking
+│   ├── mock_data.py           # Mock data generator
+│   ├── parallel_processor.py  # Parallel execution
+│   └── report_visualizer.py   # Chart generation
+├── test_mock_data.py       # Mock data tests
+├── test_gemini_api.py      # API connection test
+└── reports/                # Generated reports (TXT, HTML)
 ```
 
 ## 🔧 Troubleshooting

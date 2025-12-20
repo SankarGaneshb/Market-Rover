@@ -2,11 +2,26 @@
 Agent definitions for Market Rover system.
 """
 from crewai import Agent
+from langchain_google_genai import ChatGoogleGenerativeAI
 from tools.portfolio_tool import read_portfolio
 from tools.news_scraper_tool import scrape_moneycontrol_news
 from tools.stock_data_tool import get_stock_data
 from tools.market_context_tool import analyze_market_context
-from config import MAX_ITERATIONS
+from config import MAX_ITERATIONS, GOOGLE_API_KEY
+import os
+
+# Set up Gemini LLM for all agents
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY not found in environment variables. Please check your .env file.")
+
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+
+# Initialize Gemini LLM with current supported model (2025)
+gemini_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",  # Current supported model as of 2025 (gemini-pro was deprecated)
+    temperature=0.3,
+    convert_system_message_to_human=True  # Required for compatibility
+)
 
 
 def create_portfolio_manager_agent():
@@ -25,7 +40,8 @@ def create_portfolio_manager_agent():
         tools=[read_portfolio],
         verbose=True,
         max_iter=MAX_ITERATIONS,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
 
@@ -46,7 +62,8 @@ def create_news_scraper_agent():
         tools=[scrape_moneycontrol_news],
         verbose=True,
         max_iter=MAX_ITERATIONS,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
 
@@ -68,7 +85,8 @@ def create_sentiment_analyzer_agent():
         tools=[],  # Uses LLM reasoning only
         verbose=True,
         max_iter=MAX_ITERATIONS,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
 
@@ -89,7 +107,8 @@ def create_market_context_agent():
         tools=[analyze_market_context, get_stock_data],
         verbose=True,
         max_iter=MAX_ITERATIONS,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
 
@@ -113,7 +132,8 @@ def create_report_generator_agent():
         tools=[],  # Uses LLM reasoning to synthesize information
         verbose=True,
         max_iter=MAX_ITERATIONS,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
 

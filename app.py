@@ -99,6 +99,19 @@ def main():
         show_reports_tab()
 
 
+@st.cache_data(ttl=1800)  # Cache for 30 minutes
+def load_portfolio_file(file_bytes, filename):
+    """Load and validate portfolio CSV with caching"""
+    import io
+    df = pd.read_csv(io.BytesIO(file_bytes))
+    
+    # Validate columns
+    required_columns = ['Symbol', 'Company Name']
+    if not all(col in df.columns for col in required_columns):
+        raise ValueError(f"CSV must contain columns: {', '.join(required_columns)}")
+    
+    return df
+
 def show_upload_tab(max_parallel: int):
     """Show the upload and analysis tab"""
     
@@ -114,13 +127,9 @@ def show_upload_tab(max_parallel: int):
     if uploaded_file is not None:
         # Display portfolio preview
         try:
-            df = pd.read_csv(uploaded_file)
-            
-            # Validate columns
-            required_columns = ['Symbol', 'Company Name']
-            if not all(col in df.columns for col in required_columns):
-                st.error(f"❌ CSV must contain columns: {', '.join(required_columns)}")
-                return
+            # Use cached loading for better performance
+            file_bytes = uploaded_file.read()
+            df = load_portfolio_file(file_bytes, uploaded_file.name)
             
             st.success(f"✅ Portfolio loaded: {len(df)} stocks")
             
@@ -466,6 +475,12 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             st.code(str(e), language="text")
 
 
+@st.cache_data(ttl=900)  # Cache for 15 minutes
+def load_report_content(report_path_str):
+    """Load report content with caching"""
+    with open(report_path_str, 'r', encoding='utf-8') as f:
+        return f.read()
+
 def show_reports_tab():
     """Show the reports viewing tab"""
     
@@ -473,30 +488,134 @@ def show_reports_tab():
     
     # List all reports
     if REPORT_DIR.exists():
-        reports = sorted(REPORT_DIR.glob("market_rover_report_*.txt"), reverse=True)
+        # Get all report files (both HTML and TXT)
+        txt_reports = sorted(REPORT_DIR.glob("market_rover_report_*.txt"), reverse=True)
+        html_reports = sorted(REPORT_DIR.glob("market_rover_report_*.html"), reverse=True)
         
-        if reports:
-            st.success(f"Found {len(reports)} reports")
+        # Group reports by timestamp (basename without extension)
+        report_groups = {}
+        for txt_path in txt_reports:
+            timestamp = txt_path.stem  # e.g., "market_rover_report_20251219_183658"
+            if timestamp not in report_groups:
+                report_groups[timestamp] = {}
+            report_groups[timestamp]['txt'] = txt_path
+        
+        for html_path in html_reports:
+            timestamp = html_path.stem
+            if timestamp not in report_groups:
+                report_groups[timestamp] = {}
+            report_groups[timestamp]['html'] = html_path
+        
+        if report_groups:
+            st.success(f"Found {len(report_groups)} reports")
             
-            for report_path in reports[:10]:  # Show last 10 reports
-                with st.expander(f"📄 {report_path.name}"):
-                    with open(report_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
+            # Display reports (last 10)
+            for timestamp in sorted(report_groups.keys(), reverse=True)[:10]:
+                files = report_groups[timestamp]
+                
+                # Extract timestamp for display
+                timestamp_str = timestamp.replace("market_rover_report_", "")
+                try:
+                    dt = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+                    display_name = dt.strftime("%B %d, %Y - %I:%M:%S %p")
+                except:
+                    display_name = timestamp_str
+                
+                # Determine available formats
+                has_html = 'html' in files
+                has_txt = 'txt' in files
+                
+                format_badges = []
+                if has_html:
+                    format_badges.append("📊 HTML")
+                if has_txt:
+                    format_badges.append("📄 TXT")
+                
+                with st.expander(f"📈 {display_name} - {' | '.join(format_badges)}"):
+                    # Format selector
+                    if has_html and has_txt:
+                        view_format = st.radio(
+                            "View Format:",
+                            options=["HTML (with visualizations)", "Plain Text"],
+                            horizontal=True,
+                            key=f"format_{timestamp}"
+                        )
+                    elif has_html:
+                        view_format = "HTML (with visualizations)"
+                        st.info("📊 HTML report with interactive visualizations")
+                    else:
+                        view_format = "Plain Text"
+                        st.info("📄 Text-only report")
                     
-                    st.text_area(
-                        "Report Content",
-                        content,
-                        height=300,
-                        key=report_path.name
-                    )
+                    # Display content based on format
+                    if view_format == "HTML (with visualizations)" and has_html:
+                        # Display HTML report with visualizations
+                        html_path = files['html']
+                        
+                        try:
+                            # Use cached loading for better performance
+                            html_content = load_report_content(str(html_path))
+                            
+                            # Use Streamlit's HTML component to render the full report
+                            st.components.v1.html(html_content, height=800, scrolling=True)
+                            
+                        except Exception as e:
+                            st.error(f"❌ Error loading HTML report: {str(e)}")
+                            # Fallback to TXT if available
+                            if has_txt:
+                                st.warning("Showing text version instead...")
+                                with open(files['txt'], 'r', encoding='utf-8') as f:
+                                    st.text_area(
+                                        "Report Content",
+                                        f.read(),
+                                        height=300,
+                                        key=f"fallback_{timestamp}"
+                                    )
                     
-                    st.download_button(
-                        label="📥 Download",
-                        data=content,
-                        file_name=report_path.name,
-                        mime="text/plain",
-                        key=f"download_{report_path.name}"
-                    )
+                    else:
+                        # Display plain text report
+                        txt_path = files['txt']
+                        # Use cached loading
+                        content = load_report_content(str(txt_path))
+                        
+                        st.text_area(
+                            "Report Content",
+                            content,
+                            height=400,
+                            key=f"txt_{timestamp}"
+                        )
+                    
+                    # Download buttons
+                    st.markdown("---")
+                    download_cols = st.columns(3 if has_html and has_txt else 2)
+                    
+                    col_idx = 0
+                    if has_txt:
+                        with download_cols[col_idx]:
+                            with open(files['txt'], 'r', encoding='utf-8') as f:
+                                txt_content = f.read()
+                            st.download_button(
+                                label="📄 Download TXT",
+                                data=txt_content,
+                                file_name=files['txt'].name,
+                                mime="text/plain",
+                                key=f"download_txt_{timestamp}",
+                                use_container_width=True
+                            )
+                        col_idx += 1
+                    
+                    if has_html:
+                        with download_cols[col_idx]:
+                            with open(files['html'], 'r', encoding='utf-8') as f:
+                                html_content = f.read()
+                            st.download_button(
+                                label="🌐 Download HTML",
+                                data=html_content,
+                                file_name=files['html'].name,
+                                mime="text/html",
+                                key=f"download_html_{timestamp}",
+                                use_container_width=True
+                            )
         else:
             st.info("ℹ️ No reports found. Analyze a portfolio to generate reports.")
     else:
