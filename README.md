@@ -13,6 +13,7 @@ A multi-agent AI system powered by CrewAI that monitors your stock portfolio, sc
 - **🌐 Web Interface**: User-friendly Streamlit web UI (v2.0)
 - **📊 Interactive Charts**: Real-time visualizations with Plotly (v2.0)
 - **⚡ Parallel Processing**: 5x faster multi-stock analysis (v2.0)
+- **📈 Observability**: Built-in monitoring with API quota tracking, performance metrics, and error logging (v2.0)
 
 ## 🏗️ Architecture
 
@@ -269,11 +270,52 @@ Market-Rover/
 │   ├── job_manager.py         # Job tracking
 │   ├── mock_data.py           # Mock data generator
 │   ├── parallel_processor.py  # Parallel execution
-│   └── report_visualizer.py   # Chart generation
+│   ├── report_visualizer.py   # Chart generation
+│   ├── logger.py              # Structured logging (v2.0)
+│   └── metrics.py             # Metrics tracking (v2.0)
 ├── test_mock_data.py       # Mock data tests
 ├── test_gemini_api.py      # API connection test
 └── reports/                # Generated reports (TXT, HTML)
 ```
+
+## 📈 Observability & Monitoring (v2.0)
+
+Market-Rover 2.0 includes built-in observability features with **zero additional cost**:
+
+### Features
+
+**📊 Real-Time Dashboard** (in sidebar)
+- **API Quota Tracking**: Monitor Gemini API usage (daily limit: 20 requests)
+- **Performance Metrics**: Track analysis duration and efficiency
+- **Cache Statistics**: Monitor cache hit rates for optimization
+- **Error Tracking**: Categorized error counting and logging
+
+**📝 Structured Logging**
+- Automatic log rotation (daily, keep 7 days)
+- Multiple log levels (DEBUG, INFO, WARNING, ERROR)
+- Logs stored in `logs/market_rover.log`
+- View logs in Streamlit Cloud dashboard
+
+**💾 Metrics Storage**
+- Daily metrics persisted to JSON files
+- Thread-safe in-memory tracking
+- Historical data in `metrics/` directory
+
+### How to Use
+
+1. **View Metrics**: In the sidebar, expand "📊 Observability"
+2. **Monitor API Quota**: Track your daily Gemini API usage (20/day limit)
+3. **Check Performance**: See average analysis duration
+4. **Review Errors**: If any errors occur, they're tracked and categorized
+5. **Refresh**: Click "🔄 Refresh Metrics" for latest stats
+
+### Cost Impact
+
+**$0** - All observability features are free:
+- Uses local file logging (included)
+- In-memory metrics (minimal RAM: ~5-10 MB)
+- No external monitoring services
+- Auto-rotation prevents disk space issues
 
 ## 🔧 Troubleshooting
 
