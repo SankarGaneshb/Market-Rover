@@ -10,6 +10,13 @@ from tools.market_context_tool import analyze_market_context
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
 import os
 
+# Import metrics tracking
+from utils.metrics import track_api_call, track_error
+from utils.logger import get_logger
+
+# Initialize logger
+logger = get_logger(__name__)
+
 # Set up Gemini LLM for all agents
 if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY not found in environment variables. Please check your .env file.")
@@ -17,11 +24,26 @@ if not GOOGLE_API_KEY:
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Initialize Gemini LLM with current supported model (2025)
-gemini_llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",  # Current supported model as of 2025 (gemini-pro was deprecated)
-    temperature=0.3,
-    convert_system_message_to_human=True  # Required for compatibility
-)
+try:
+    from langchain.callbacks.base import BaseCallbackHandler
+    
+    class MetricsCallbackHandler(BaseCallbackHandler):
+        """Track API calls for observability"""
+        def on_llm_start(self, *args, **kwargs):
+            track_api_call("gemini", "generate")
+            logger.debug("Gemini API call started")
+    
+    gemini_llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.3,
+        convert_system_message_to_human=True,
+        callbacks=[MetricsCallbackHandler()]
+    )
+    logger.info("Gemini LLM initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize Gemini LLM: {e}")
+    track_error("llm_initialization")
+    raise
 
 
 def create_portfolio_manager_agent():

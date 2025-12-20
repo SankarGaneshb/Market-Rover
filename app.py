@@ -147,8 +147,8 @@ def main():
                 if error_stats['by_type']:
                     st.json(error_stats['by_type'], expanded=False)
             
-            # Refresh button
-            if st.button("🔄 Refresh Metrics", use_container_width=True):
+            # Refresh button (note: refreshes entire app)
+            if st.button("🔄 Refresh App", use_container_width=True, help="Refreshes the entire app to update all metrics"):
                 st.rerun()
         
         st.markdown("---")
