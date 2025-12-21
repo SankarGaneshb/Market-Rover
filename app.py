@@ -20,6 +20,7 @@ from utils.report_visualizer import ReportVisualizer
 from utils.logger import get_logger, log_analysis_start, log_analysis_complete, log_error
 from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
                            get_error_stats, track_performance, track_api_call)
+from utils.visualizer_interface import generate_market_snapshot
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -156,13 +157,62 @@ def main():
         show_recent_reports()
     
     # Main content area
-    tab1, tab2 = st.tabs(["📤 Upload & Analyze", "📊 View Reports"])
+    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer"])
     
     with tab1:
         show_upload_tab(max_parallel)
     
     with tab2:
         show_reports_tab()
+
+    with tab3:
+        show_visualizer_tab()
+
+def show_visualizer_tab():
+    """Show the Market Visualizer tab"""
+    st.header("📈 Market Visualizer")
+    st.markdown("Generate high-fidelity market snapshots with AI-powered analysis.")
+    
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        ticker = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN").upper()
+        
+        if st.button("Generate Snapshot", type="primary", use_container_width=True):
+            if not ticker:
+                st.error("Please enter a ticker symbol.")
+                return
+                
+            with st.spinner(f"🎨 Generating snapshot for {ticker}... This may take a minute."):
+                try:
+                    result = generate_market_snapshot(ticker)
+                    
+                    if result['success']:
+                        st.success("✅ Snapshot generated successfully!")
+                        
+                        # Display Image
+                        if result['image_path']:
+                            st.image(result['image_path'], caption=f"Market Snapshot: {ticker}", use_container_width=True)
+                        
+                        # Display Summary
+                        st.markdown("### 📝 Analysis Summary")
+                        st.markdown(result['message'])
+                        
+                    else:
+                        st.error("❌ Generation Failed")
+                        st.error(result['message'])
+                        
+                except Exception as e:
+                    st.error(f"An unexpected error occurred: {str(e)}")
+    
+    with col2:
+        st.info("💡 **Tip:** Use liquid stocks with F&O data for the best results (Heatmap + OI Analysis).")
+        st.markdown("""
+        **What you get:**
+        - 📊 **Price Chart**: With volatility bands and time-adjusted targets.
+        - 🌡️ **Monthly Heatmap**: Historical performance from IPO to date.
+        - 🧱 **OI Walls**: Support & Resistance levels based on Open Interest.
+        - 🎯 **Scenario Targets**: Bull/Bear/Neutral levels for the current expiry.
+        """)
 
 
 @st.cache_data(ttl=1800)  # Cache for 30 minutes

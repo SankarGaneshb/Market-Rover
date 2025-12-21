@@ -7,6 +7,7 @@ from tools.portfolio_tool import read_portfolio
 from tools.news_scraper_tool import scrape_moneycontrol_news
 from tools.stock_data_tool import get_stock_data
 from tools.market_context_tool import analyze_market_context
+from tools.visualizer_tool import generate_market_snapshot
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
 import os
 
@@ -25,7 +26,7 @@ os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Initialize Gemini LLM with current supported model (2025)
 try:
-    from langchain.callbacks.base import BaseCallbackHandler
+    from langchain_core.callbacks import BaseCallbackHandler
     
     class MetricsCallbackHandler(BaseCallbackHandler):
         """Track API calls for observability"""
@@ -171,5 +172,30 @@ class AgentFactory:
             'news_scraper': create_news_scraper_agent(),
             'sentiment_analyzer': create_sentiment_analyzer_agent(),
             'market_context': create_market_context_agent(),
-            'report_generator': create_report_generator_agent()
+            'report_generator': create_report_generator_agent(),
+            'visualizer': create_visualizer_agent()
         }
+
+
+def create_visualizer_agent():
+    """
+    Agent F: Visualizer Agent
+    Generates high-fidelity market snapshots with derivative analysis.
+    """
+    return Agent(
+        role="Market Data Visualizer",
+        goal="Generate premium visual dashboards with quantitative derivative analysis",
+        backstory=(
+            "You are a specialized visualizer agent that turns complex market data "
+            "into beautiful, easy-to-understand dashboards. You analyze Option Chain "
+            "dynamics (PCR, Max Pain) and volatility to forecast price ranges. "
+            "Your output is not just numbers, but a visual story of the market."
+        ),
+        tools=[generate_market_snapshot],
+        verbose=True,
+        max_iter=MAX_ITERATIONS,
+        allow_delegation=False,
+        llm=gemini_llm
+    )
+
+

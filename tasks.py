@@ -148,6 +148,25 @@ def create_report_generation_task(agent, context):
     )
 
 
+def create_market_snapshot_task(agent, ticker):
+    """
+    Task 6: Generate Market Snapshot.
+    """
+    return Task(
+        description=dedent(f"""
+            Generate a high-fidelity market snapshot for {{ticker}}.
+            
+            1. Fetch real-time data (LTP, Option Chain).
+            2. Perform derivative analysis (PCR, Max Pain, Volatility).
+            3. Generate a visual dashboard showing Price Action, Volatility Bands, and OI Support/Resistance.
+            
+            Return the path to the generated image and a summary of key metrics.
+        """).format(ticker=ticker),
+        agent=agent,
+        expected_output="A summary of market metrics and a path to the generated dashboard image."
+    )
+
+
 # Task factory for easy access
 class TaskFactory:
     """Factory class to create all tasks with proper dependencies."""

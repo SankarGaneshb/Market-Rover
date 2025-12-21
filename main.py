@@ -13,6 +13,9 @@ from pathlib import Path
 from crew import create_crew
 from config import GOOGLE_API_KEY, REPORT_DIR
 import sys
+from agents import create_visualizer_agent
+from tasks import create_market_snapshot_task
+from crewai import Crew, Process
 
 
 def check_environment():
@@ -136,6 +139,7 @@ def main():
     parser.add_argument('--pdf', action='store_true', help='Generate PDF report (requires additional setup)')
     parser.add_argument('--csv-only', action='store_true', help='Export data as CSV only')
     parser.add_argument('--txt', action='store_true', help='Generate TXT report (legacy format)')
+    parser.add_argument('--visualize', type=str, help='Generate Market Snapshot for a specific ticker (e.g., SBIN)')
     args = parser.parse_args()
     
     # Determine export format
@@ -147,6 +151,33 @@ def main():
         export_format = 'pdf'
     else:
         export_format = 'html'  # Default
+
+        export_format = 'html'  # Default
+    
+    # Handle Visualizer Mode
+    if args.visualize:
+        run_visualizer(args.visualize)
+        return
+
+def run_visualizer(ticker):
+    """Runs the Visualizer Agent for a specific ticker."""
+    from utils.visualizer_interface import generate_market_snapshot
+    
+    print_header()
+    print(f"🎨 Starting Market Rover Visualizer for {ticker}...")
+    
+    result = generate_market_snapshot(ticker)
+    
+    print("\n" + "=" * 60)
+    if result['success']:
+        print("✅ Visualization Complete!")
+        print(result['message'])
+        if result['image_path']:
+            print(f"\nDashboard saved to: {result['image_path']}")
+    else:
+        print("❌ Visualization Failed!")
+        print(result['message'])
+    print("=" * 60)
 
 def main_impl(export_format='html'):
     """Main application entry point."""
@@ -216,6 +247,7 @@ if __name__ == "__main__":
     parser.add_argument('--pdf', action='store_true', help='Generate PDF report (requires additional setup)')
     parser.add_argument('--csv-only', action='store_true', help='Export data as CSV only')
     parser.add_argument('--txt', action='store_true', help='Generate TXT report (legacy format)')
+    parser.add_argument('--visualize', type=str, help='Generate Market Snapshot for a specific ticker (e.g., SBIN)')
     args = parser.parse_args()
     
     # Determine export format
@@ -226,7 +258,8 @@ if __name__ == "__main__":
     elif args.pdf:
         print("⚠️  PDF export not yet implemented. Generating HTML instead.")
         export_format = 'html'
+    # Handle Visualizer Mode
+    if args.visualize:
+        run_visualizer(args.visualize)
     else:
-        export_format = 'html'  # Default
-    
-    main_impl(export_format)
+        main_impl(export_format)
