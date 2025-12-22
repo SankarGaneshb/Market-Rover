@@ -89,71 +89,13 @@ def main():
             help="Number of stocks to analyze simultaneously"
         )
         
-        # Test mode toggle
-        st.markdown("---")
-        st.markdown("### 🧪 Testing")
+        # Test mode toggle (compact)
         test_mode = st.checkbox(
-            "Test Mode (No API Calls)",
+            "🧪 Test Mode",
             value=st.session_state.test_mode,
-            help="Use mock data for testing without API rate limits"
+            help="Use mock data without API calls"
         )
         st.session_state.test_mode = test_mode
-        
-        if test_mode:
-            st.info("🧪 Test mode enabled - using mock data")
-        
-        # Observability metrics
-        st.markdown("---")
-        with st.expander("📊 Observability", expanded=False):
-            st.markdown("### Real-Time Metrics")
-            
-            # API Usage
-            api_usage = get_api_usage()
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
-            with col2:
-                st.metric("Remaining", api_usage['remaining'])
-            
-            # Progress bar for API quota
-            quota_pct = api_usage['today'] / api_usage['limit']
-            st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
-            
-            st.markdown("---")
-            
-            # Performance Stats
-            perf_stats = get_performance_stats()
-            if perf_stats['total_analyses'] > 0:
-                st.markdown("**Performance**")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric(
-                        "Total Analyses",
-                        perf_stats['total_analyses']
-                    )
-                with col2:
-                    st.metric(
-                        "Avg Duration",
-                        f"{perf_stats['avg_duration']:.1f}s"
-                    )
-                st.markdown("---")
-            
-            # Error Stats
-            error_stats = get_error_stats()
-            if error_stats['total'] > 0:
-                st.markdown("**Errors**")
-                st.metric("Total Errors", error_stats['total'])
-                if error_stats['by_type']:
-                    st.json(error_stats['by_type'], expanded=False)
-            
-            # Refresh button (note: refreshes entire app)
-            if st.button("🔄 Refresh App", use_container_width=True, help="Refreshes the entire app to update all metrics"):
-                st.rerun()
-        
-        st.markdown("---")
-        # Make Recent Reports collapsible to save space
-        with st.expander("📚 Recent Reports", expanded=False):
-            show_recent_reports()
     
     # Main content area
     tab1, tab2, tab3 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
