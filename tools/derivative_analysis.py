@@ -496,15 +496,17 @@ class DerivativeAnalyzer:
             
             # Predict FOR test_year, using data UP TO test_year-1
             cutoff_date = pd.Timestamp(f"{test_year-1}-12-31")
+            # Ensure we catch data even if timestamps are slightly off
             train_df = history_df[history_df.index <= cutoff_date]
             test_df = history_df[history_df.index.year == test_year]
             
-            if len(train_df) < 252 or test_df.empty: # Need enough history
+            # Relaxed constraint: Need at least ~6 months (126 trading days) of history to form a trend
+            if len(train_df) < 126 or test_df.empty: 
                 continue
                 
             # Generate Forecasts
-            res_med = self.calculate_median_strategy_forecast(train_df)
-            res_sd = self.calculate_sd_strategy_forecast(train_df)
+            res_med = self.calculate_median_strategy_forecast(train_df, target_date=f"{test_year}-12-31")
+            res_sd = self.calculate_sd_strategy_forecast(train_df, target_date=f"{test_year}-12-31")
             
             if not res_med or not res_sd:
                 continue
