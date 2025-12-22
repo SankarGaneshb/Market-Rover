@@ -197,7 +197,7 @@ def main():
 
 def show_visualizer_tab():
     """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
-    st.header("📈 Market Visualizer (V3.0)")
+    st.header("📈 Market Visualizer")
     st.markdown("Generate **comprehensive market snapshot** with Price Chart, OI Analysis, and Scenario Targets.")
     
     col1, col2 = st.columns([1, 2])
@@ -255,7 +255,7 @@ def show_visualizer_tab():
 
 def show_heatmap_tab():
     """Show the Monthly Heatmap & 2026 Forecast tab (V4.0) - Interactive historical analysis and predictions"""
-    st.header("🔥 Monthly Heatmap & 2026 Forecast (V4.0)")
+    st.header("🔥 Monthly Heatmap & 2026 Forecast")
     st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions** with interactive charts.")
     
     # Compact input row at top
