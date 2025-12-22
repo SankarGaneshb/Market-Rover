@@ -1,7 +1,7 @@
 from crewai.tools import BaseTool
 from tools.market_data import MarketDataFetcher
 from tools.derivative_analysis import DerivativeAnalyzer
-from tools.visualizer import Visualizer
+from tools.dashboard_renderer import DashboardRenderer
 import os
 from typing import Type
 from pydantic import BaseModel, Field
@@ -25,7 +25,7 @@ class MarketSnapshotTool(BaseTool):
         # Initialize components
         fetcher = MarketDataFetcher()
         analyzer = DerivativeAnalyzer()
-        visualizer = Visualizer()
+        visualizer = DashboardRenderer()
 
         # 1. Fetch Data
         print(f"Fetching data for {ticker}...")

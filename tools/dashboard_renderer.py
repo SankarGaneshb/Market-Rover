@@ -6,10 +6,14 @@ import io
 from PIL import Image
 
 # Set premium style
-plt.style.use('dark_background')
+try:
+    plt.style.use('dark_background')
+except:
+    pass # Fallback
+
 sns.set_theme(style="darkgrid", rc={"axes.facecolor": "#121212", "grid.color": "#2A2A2A"})
 
-class Visualizer:
+class DashboardRenderer:
     def __init__(self):
         pass
 
@@ -20,6 +24,9 @@ class Visualizer:
         2. Monthly Returns Heatmap (Historical Performance)
         3. Open Interest Distribution (Support/Resistance)
         """
+        # Ensure non-interactive backend for production safety
+        plt.switch_backend('Agg')
+        
         fig = plt.figure(figsize=(16, 14), constrained_layout=True)
         gs = fig.add_gridspec(3, 2, height_ratios=[1.5, 1.5, 1])
 
@@ -142,5 +149,4 @@ class Visualizer:
         ax.text(0.5, 0.1, "Market Rover 3.0", color='#333333', fontsize=20, ha='center', fontweight='bold', alpha=0.5)
 
 if __name__ == "__main__":
-    # Test stub
     pass
