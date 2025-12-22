@@ -344,6 +344,86 @@ class DerivativeAnalyzer:
             }
         }
 
+    def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31"):
+        """
+        Forecasts price based on 'Strategy Median'.
+        Logic:
+        1. Calculate Monthly Returns & Remove Outliers.
+        2. Stats for 'Last 1 Year' and 'Historical Jan'.
+        3. If Median(Last1Y) > Median(Jan):
+             If Avg(Last1Y) > Avg(Jan): Bearish -> Use Median(Jan)
+             Else: Bullish -> Use Avg(Last1Y)
+           Else:
+             Bullish -> Use Avg(Jan)
+        4. Compound this monthly rate to 2026.
+        """
+        if history_df.empty:
+            return None
+
+        # 1. Prepare Monthly Returns
+        history_df = history_df.copy()
+        if history_df.index.tz is not None:
+             history_df.index = history_df.index.tz_localize(None)
+             
+        monthly_returns = history_df['Close'].resample('ME').last().pct_change().dropna()
+        
+        if monthly_returns.empty: 
+            return None
+
+        # 2. Define Groups
+        last_1_year = monthly_returns.iloc[-12:]
+        jan_returns = monthly_returns[monthly_returns.index.month == 1]
+        
+        if len(last_1_year) < 6 or len(jan_returns) < 2:
+            return None
+            
+        # 3. Remove Outliers
+        last_1_year_clean = self._remove_outliers(last_1_year)
+        jan_clean = self._remove_outliers(jan_returns)
+        
+        # 4. Calculate Stats
+        median_last_1y = last_1_year_clean.median()
+        avg_last_1y = last_1_year_clean.mean()
+        
+        median_jan = jan_clean.median()
+        avg_jan = jan_clean.mean()
+        
+        # 5. Apply Strategy Logic
+        strategy_msg = ""
+        growth_rate_monthly = 0.0
+        
+        if median_last_1y > median_jan:
+            if avg_last_1y > avg_jan:
+                # Bearish
+                growth_rate_monthly = median_jan
+                strategy_msg = "Bearish (Median High & Avg High) -> Target: Median of Jan"
+            else:
+                # Bullish
+                growth_rate_monthly = avg_last_1y
+                strategy_msg = "Bullish (Median High & Avg Low) -> Target: Avg of Last 1 Year"
+        else:
+            # Bullish
+            growth_rate_monthly = avg_jan
+            strategy_msg = "Bullish (Median Low) -> Target: Avg of Jan"
+            
+        # 6. Project to Target Date
+        current_price = history_df['Close'].iloc[-1]
+        today = pd.Timestamp.now()
+        target_dt = pd.Timestamp(target_date)
+        
+        days_to_target = (target_dt - today).days
+        months_to_target = days_to_target / 30.44
+        
+        forecast_price = current_price * ((1 + growth_rate_monthly) ** months_to_target)
+        annualized_growth = ((1 + growth_rate_monthly) ** 12 - 1) * 100
+        
+        return {
+            "forecast_price": forecast_price,
+            "annualized_growth": annualized_growth,
+            "monthly_growth": growth_rate_monthly * 100,
+            "strategy_description": strategy_msg
+        }
+
     def calculate_2026_forecast(self, history_df):
         """
         Generates a long-term price forecast for year-end 2026 using 3 models:

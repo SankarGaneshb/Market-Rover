@@ -356,27 +356,31 @@ def show_heatmap_tab():
                 # === VISUALIZATION 3: 2026 Forecast ===
                 # === VISUALIZATION 3: 2026 Forecast ===
                 st.markdown("### 🔮 2026 Forecast")
-                st.markdown("**AI-powered prediction based on 'Strategy SD' (Volatility Analysis)**")
+                st.markdown("**AI-powered prediction based on Seasonal Strategies**")
                 
-                # Calculate Forecast using SD Strategy
-                forecast_result = analyzer.calculate_sd_strategy_forecast(history)
+                # Calculate Forecasts
+                forecast_median = analyzer.calculate_median_strategy_forecast(history)
+                forecast_sd = analyzer.calculate_sd_strategy_forecast(history)
                 
-                if forecast_result:
+                if forecast_median and forecast_sd:
                     current_price = history['Close'].iloc[-1]
-                    baseline_growth = forecast_result['annualized_growth']
-                    forecast_baseline = forecast_result['forecast_price']
-                    monthly_growth = forecast_result['monthly_growth']
                     
-                    # Define Conservative/Aggressive relative to Baseline
-                    # Conservative: 80% of baseline rate (or baseline - 5% if very low)
-                    # Aggressive: 120% of baseline rate (or baseline + 5% if very low)
+                    # We will use Median Strategy as the main "Baseline" for visual consistency
+                    # But show SD Strategy as a comparison point
                     
+                    baseline_growth = forecast_median['annualized_growth']
+                    forecast_baseline = forecast_median['forecast_price']
+                    
+                    baseline_sd_growth = forecast_sd['annualized_growth']
+                    forecast_sd_price = forecast_sd['forecast_price']
+                    
+                    # Define Conservative/Aggressive relative to Median Baseline
                     if baseline_growth > 0:
                         conservative_growth = baseline_growth * 0.8
                         aggressive_growth = baseline_growth * 1.2
                     else:
-                        conservative_growth = baseline_growth * 1.2 # More negative
-                        aggressive_growth = baseline_growth * 0.8 # Less negative
+                        conservative_growth = baseline_growth * 1.2 
+                        aggressive_growth = baseline_growth * 0.8
                         
                     today = pd.Timestamp.now()
                     end_of_2026 = pd.Timestamp('2026-12-31')
@@ -392,7 +396,7 @@ def show_heatmap_tab():
                         st.metric(
                             "📍 Current Price",
                             f"₹{current_price:.2f}",
-                            f"Strategy: {forecast_result['strategy_description'].split('->')[0].strip()}"
+                            f"SD Strat: {baseline_sd_growth:.1f}%"
                         )
                     with col_b:
                         st.metric(
@@ -402,7 +406,7 @@ def show_heatmap_tab():
                         )
                     with col_c:
                         st.metric(
-                            "🎯 Baseline (Strategy)",
+                            "🎯 Baseline (Median Strat)",
                             f"₹{forecast_baseline:.2f}",
                             f"{baseline_growth:.1f}% p.a."
                         )
@@ -414,7 +418,9 @@ def show_heatmap_tab():
                         )
                     
                     # Explanation of Strategy
-                    st.info(f"💡 **Strategy Logic:** {forecast_result['strategy_description']}")
+                    with st.expander("💡 Strategy Explanation", expanded=True):
+                        st.write(f"**active (Median):** {forecast_median['strategy_description']}")
+                        st.write(f"**Alternative (SD):** {forecast_sd['strategy_description']}")
                     
                     # Projection chart
                     projection_dates = pd.date_range(today, end_of_2026, freq='ME')
@@ -431,6 +437,7 @@ def show_heatmap_tab():
                     conservative_proj = project_curve(current_price, conservative_growth, projection_dates)
                     baseline_proj = project_curve(current_price, baseline_growth, projection_dates)
                     aggressive_proj = project_curve(current_price, aggressive_growth, projection_dates)
+                    sd_proj = project_curve(current_price, baseline_sd_growth, projection_dates)
                     
                     fig_forecast = go.Figure()
                     fig_forecast.add_trace(go.Scatter(
@@ -440,8 +447,13 @@ def show_heatmap_tab():
                     ))
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=baseline_proj,
-                        mode='lines', name='Baseline (Strategy SD)',
+                        mode='lines', name='Median Strategy',
                         line=dict(color='blue', width=4)
+                    ))
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=sd_proj,
+                        mode='lines', name='SD Strategy',
+                        line=dict(color='purple', dash='dot', width=2)
                     ))
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=aggressive_proj,
@@ -459,7 +471,7 @@ def show_heatmap_tab():
                     ))
                     
                     fig_forecast.update_layout(
-                        title=f"{ticker} - 2026 Price Projection (Monthly Growth: {monthly_growth:.2f}%)",
+                        title=f"{ticker} - Forecast Strategies Comparison",
                         xaxis_title="Date",
                         yaxis_title="Price (₹)",
                         height=500,
