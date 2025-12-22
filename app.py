@@ -446,9 +446,10 @@ def show_heatmap_tab():
                         st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
                         st.markdown(f"**Alternative ({alt_name}):** {alt_res['strategy_description']}")
                         if backtest_res['years_tested']:
-                            st.caption(f"Tested on years: {backtest_res['years_tested']}")
+                            st.caption(f"✅ Backtest completed for years: {', '.join(map(str, backtest_res['years_tested']))}")
                         else:
-                            st.caption("Insufficient historical data for extensive backtesting.")
+                            start_avail = history.index[0].strftime('%Y-%m-%d')
+                            st.caption(f"⚠️ Backtest skipped due to limited history (Data starts: {start_avail}). Forecast uses all available data.")
                     
                     # Projection chart
                     fig_forecast = go.Figure()
