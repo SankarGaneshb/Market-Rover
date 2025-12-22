@@ -344,21 +344,83 @@ class DerivativeAnalyzer:
             }
         }
 
+        return {
+            "forecast_price": forecast_price,
+            "annualized_growth": annualized_growth,
+            "monthly_growth": None, # Variable
+            "strategy_description": strategy_msg,
+             "projection_path": projection_path # List of {date, price}
+        }
+
+    def _get_strategy_monthly_rate(self, monthly_returns, target_month_idx, strategy_type='median'):
+        """
+        Calculates the projected return for a specific month (1-12) based on the strategy logic.
+        """
+        # Data Prep
+        last_1_year = monthly_returns.iloc[-12:]
+        if len(last_1_year) < 6: return 0.0
+        
+        # Historic data for this specific month (e.g. all Februaries)
+        month_hist = monthly_returns[monthly_returns.index.month == target_month_idx]
+        if len(month_hist) < 2: return 0.0 # Not enough history
+        
+        # Remove outliers
+        last_1_clean = self._remove_outliers(last_1_year)
+        hist_clean = self._remove_outliers(month_hist)
+        
+        if len(last_1_clean) == 0 or len(hist_clean) == 0: return 0.0
+
+        # Stats
+        mu_l1 = last_1_clean.mean()
+        mu_hist = hist_clean.mean()
+        
+        rate = 0.0
+        
+        if strategy_type == 'median':
+            med_l1 = last_1_clean.median()
+            med_hist = hist_clean.median()
+            
+            # Logic: If Median(L1) > Median(Hist)
+            if med_l1 > med_hist:
+                if mu_l1 > mu_hist:
+                     # Bearish -> Median Hist
+                     rate = med_hist
+                else:
+                     # Bullish -> Avg L1
+                     rate = mu_l1
+            else:
+                # Bullish -> Avg Hist
+                rate = mu_hist
+                
+        elif strategy_type == 'sd':
+            sd_l1 = last_1_clean.std()
+            sd_hist = hist_clean.std()
+            
+            # Logic: If SD(L1) > SD(Hist)
+            if sd_l1 > sd_hist:
+                if mu_l1 > mu_hist:
+                    # Bearish -> Median Hist
+                    rate = hist_clean.median()
+                else:
+                    # Bullish -> Avg L1
+                    rate = mu_l1
+            else:
+                 # Bullish -> Avg Hist
+                 rate = mu_hist
+                 
+        return rate
+
     def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31"):
+        return self._calculate_iterative_forecast(history_df, target_date, 'median')
+
+    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31"):
+         return self._calculate_iterative_forecast(history_df, target_date, 'sd')
+
+    def _calculate_iterative_forecast(self, history_df, target_date, strategy_type):
         """
-        Forecasts price based on 'Strategy Median'.
-        Logic:
-        1. Calculate Monthly Returns & Remove Outliers.
-        2. Stats for 'Last 1 Year' and 'Historical Jan'.
-        3. If Median(Last1Y) > Median(Jan):
-             If Avg(Last1Y) > Avg(Jan): Bearish -> Use Median(Jan)
-             Else: Bullish -> Use Avg(Last1Y)
-           Else:
-             Bullish -> Use Avg(Jan)
-        4. Compound this monthly rate to 2026.
+        Project price month-by-month using the specified strategy logic for EACH month.
         """
-        if history_df.empty:
-            return None
+        if history_df.empty: return None
 
         # 1. Prepare Monthly Returns
         history_df = history_df.copy()
@@ -366,62 +428,50 @@ class DerivativeAnalyzer:
              history_df.index = history_df.index.tz_localize(None)
              
         monthly_returns = history_df['Close'].resample('ME').last().pct_change().dropna()
-        
-        if monthly_returns.empty: 
-            return None
+        if monthly_returns.empty: return None
 
-        # 2. Define Groups
-        last_1_year = monthly_returns.iloc[-12:]
-        jan_returns = monthly_returns[monthly_returns.index.month == 1]
-        
-        if len(last_1_year) < 6 or len(jan_returns) < 2:
-            return None
-            
-        # 3. Remove Outliers
-        last_1_year_clean = self._remove_outliers(last_1_year)
-        jan_clean = self._remove_outliers(jan_returns)
-        
-        # 4. Calculate Stats
-        median_last_1y = last_1_year_clean.median()
-        avg_last_1y = last_1_year_clean.mean()
-        
-        median_jan = jan_clean.median()
-        avg_jan = jan_clean.mean()
-        
-        # 5. Apply Strategy Logic
-        strategy_msg = ""
-        growth_rate_monthly = 0.0
-        
-        if median_last_1y > median_jan:
-            if avg_last_1y > avg_jan:
-                # Bearish
-                growth_rate_monthly = median_jan
-                strategy_msg = "Bearish (Median High & Avg High) -> Target: Median of Jan"
-            else:
-                # Bullish
-                growth_rate_monthly = avg_last_1y
-                strategy_msg = "Bullish (Median High & Avg Low) -> Target: Avg of Last 1 Year"
-        else:
-            # Bullish
-            growth_rate_monthly = avg_jan
-            strategy_msg = "Bullish (Median Low) -> Target: Avg of Jan"
-            
-        # 6. Project to Target Date
         current_price = history_df['Close'].iloc[-1]
         today = pd.Timestamp.now()
         target_dt = pd.Timestamp(target_date)
         
-        days_to_target = (target_dt - today).days
-        months_to_target = days_to_target / 30.44
+        # Generate range of month-ends from now to target
+        dates = pd.date_range(start=today, end=target_dt, freq='ME')
+        # Ensure we start from next month if today is close to month end, or just project forward
+        # Simplification: specific month ends
         
-        forecast_price = current_price * ((1 + growth_rate_monthly) ** months_to_target)
-        annualized_growth = ((1 + growth_rate_monthly) ** 12 - 1) * 100
+        projection_path = []
+        running_price = current_price
         
+        strategy_logic_log = []
+        
+        for d in dates:
+            month_idx = d.month
+            # Calculate rate for THIS specific month
+            rate = self._get_strategy_monthly_rate(monthly_returns, month_idx, strategy_type)
+            
+            # Apply rate
+            running_price = running_price * (1 + rate)
+            projection_path.append({'date': d, 'price': running_price})
+            
+        if not projection_path: return None
+        
+        final_price = projection_path[-1]['price']
+        
+        # Calculate resulting CAGR
+        days_total = (target_dt - today).days
+        if days_total > 0:
+            annualized_growth = ((final_price / current_price) ** (365 / days_total) - 1) * 100
+        else:
+            annualized_growth = 0
+            
+        strategy_msg = f"Iterative {strategy_type.title()} Strategy (Month-by-Month)"
+
         return {
-            "forecast_price": forecast_price,
+            "forecast_price": final_price,
             "annualized_growth": annualized_growth,
-            "monthly_growth": growth_rate_monthly * 100,
-            "strategy_description": strategy_msg
+            "monthly_growth": None, 
+            "strategy_description": strategy_msg,
+            "projection_path": projection_path
         }
 
     def backtest_strategies(self, history_df, lookback_years=3):
