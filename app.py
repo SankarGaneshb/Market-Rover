@@ -176,25 +176,19 @@ def main():
                 st.rerun()
         
         st.markdown("---")
-        st.markdown("### 📚 Recent Reports")
-        show_recent_reports()
+        # Make Recent Reports collapsible to save space
+        with st.expander("📚 Recent Reports", expanded=False):
+            show_recent_reports()
     
-    # Investment Disclaimer - Critical for legal protection
+    # Investment Disclaimer - At bottom for easy access without scrolling
     with st.sidebar:
         st.markdown("---")
-        with st.expander("⚠️ Investment Disclaimer", expanded=False):
-            st.warning("""
-            **For Informational Purposes Only**
-            
-            Market-Rover is an educational tool and does NOT provide investment, financial, legal, or tax advice.
-            
-            - ⚠️ Analyses may be inaccurate or incomplete
-            - 📊 Past performance ≠ future results
-            - 💼 Consult a qualified financial advisor
-            - 🚫 No liability for financial losses
-            - 📈 NSE/Yahoo data not guaranteed
-            
-            **By using this app, you acknowledge these risks.**
+        with st.expander("⚠️ Disclaimer", expanded=False):
+            st.caption("""
+            **Market-Rover is for informational purposes only.**  
+            Not financial advice. Past performance ≠ future results.  
+            Consult a qualified advisor. No liability for losses.  
+            By using this app, you accept these terms.
             """)
     
     # Main content area
