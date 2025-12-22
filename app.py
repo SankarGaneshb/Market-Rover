@@ -457,35 +457,10 @@ def show_heatmap_tab():
                     def get_path_xy(path_data):
                         return [p['date'] for p in path_data], [p['price'] for p in path_data]
                     
-                    # 1. Active Strategy Path (Winner)
-                    if 'projection_path' in active_res:
-                         x_active, y_active = get_path_xy(active_res['projection_path'])
-                         fig_forecast.add_trace(go.Scatter(
-                            x=x_active, y=y_active,
-                            mode='lines', name=f'Active: {active_name}',
-                            line=dict(color=active_color, width=4)
-                        ))
-                         
-                         # Derive Bounds from this path (simplistic +/- 20% relative to path)
-                         y_con = [p * (1 + conservative_growth/100 * ((d-today).days/365)) / (1 + baseline_growth/100 * ((d-today).days/365)) for d, p in zip(pd.to_datetime(x_active), y_active)]
-                         y_agg = [p * (1 + aggressive_growth/100 * ((d-today).days/365)) / (1 + baseline_growth/100 * ((d-today).days/365)) for d, p in zip(pd.to_datetime(x_active), y_active)]
-                         
-                         # Or just simple smoothing for bounds to avoid noise
-                         # We'll stick to smooth bounds for context, but rigorous path for active
-                         dates = pd.to_datetime(x_active)
-                    
-                    # 2. Alternative Strategy Path
-                    if 'projection_path' in alt_res:
-                        x_alt, y_alt = get_path_xy(alt_res['projection_path'])
-                        fig_forecast.add_trace(go.Scatter(
-                            x=x_alt, y=y_alt,
-                            mode='lines', name=f'Alt: {alt_name}',
-                            line=dict(color=alt_color, dash='dot', width=2),
-                            opacity=0.6
-                        ))
-
-                    # 3. Add Smooth Conservative/Aggressive Bounds (for reference corridor)
+                    # 1. Calculate Smooth Bounds (Cone of Uncertainty)
+                    # We use the Conservative and Aggressive rates to defined the outer limits
                     projection_dates = pd.date_range(today, end_of_2026, freq='ME')
+                    
                     def project_smooth(start_price, growth_rate, dates):
                         values = []
                         for d in dates:
@@ -497,30 +472,56 @@ def show_heatmap_tab():
                     conservative_proj = project_smooth(current_price, conservative_growth, projection_dates)
                     aggressive_proj = project_smooth(current_price, aggressive_growth, projection_dates)
 
+                    # Trace 0: Conservative Bound (Invisible, just for fill target)
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=conservative_proj,
-                        mode='lines', name='Conservative Bound',
-                        line=dict(color='red', dash='dash', width=1),
-                        opacity=0.5
-                    ))
-                    fig_forecast.add_trace(go.Scatter(
-                        x=projection_dates, y=aggressive_proj,
-                        mode='lines', name='Aggressive Bound',
-                        line=dict(color='green', dash='dash', width=1),
-                        opacity=0.5
+                        mode='lines', name='Conservative',
+                        line=dict(width=0),
+                        showlegend=False,
+                        hoverinfo='skip'
                     ))
                     
-                    # Add current price
+                    # Trace 1: Aggressive Bound (Fills down to Conservative)
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=aggressive_proj,
+                        mode='lines', name='Uncertainty Range',
+                        fill='tonexty', # Fills to previous trace (Conservative)
+                        fillcolor='rgba(200, 200, 200, 0.2)', # Light gray transparent
+                        line=dict(width=0),
+                        hoverinfo='skip'
+                    ))
+
+                    # 2. Alternative Strategy Path (Dotted)
+                    if 'projection_path' in alt_res:
+                        x_alt, y_alt = get_path_xy(alt_res['projection_path'])
+                        fig_forecast.add_trace(go.Scatter(
+                            x=x_alt, y=y_alt,
+                            mode='lines', name=f'Alt: {alt_name}',
+                            line=dict(color=alt_color, dash='dot', width=2),
+                            opacity=0.7
+                        ))
+                    
+                    # 3. Active Strategy Path (Winner - Solid & Prominent)
+                    if 'projection_path' in active_res:
+                         x_active, y_active = get_path_xy(active_res['projection_path'])
+                         fig_forecast.add_trace(go.Scatter(
+                            x=x_active, y=y_active,
+                            mode='lines', name=f'Active: {active_name}',
+                            line=dict(color=active_color, width=3)
+                        ))
+
+                    # Add current price marker
                     fig_forecast.add_trace(go.Scatter(
                         x=[today],
                         y=[current_price],
                         mode='markers',
                         name='Current Price',
-                        marker=dict(color='orange', size=12, symbol='star')
+                        marker=dict(color='orange', size=10, symbol='circle')
                     ))
                     
+                    # Layout updates
                     fig_forecast.update_layout(
-                        title=f"{ticker} - Iterative Forecast (Month-by-Month)",
+                        title=f"{ticker} - Iterative Forecast (Comparison with Range)",
                         xaxis_title="Date",
                         yaxis_title="Price (₹)",
                         height=500,
@@ -531,7 +532,8 @@ def show_heatmap_tab():
                             y=1.02,
                             xanchor="right",
                             x=1
-                        )
+                        ),
+                        margin=dict(l=20, r=20, t=60, b=20)
                     )
                     st.plotly_chart(fig_forecast, width="stretch")
                     
