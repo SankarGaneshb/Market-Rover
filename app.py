@@ -181,18 +181,15 @@ def main():
             """)
     
     # Main content area
-    tab1, tab2, tab3, tab4 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
+    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", " Market Visualizer", "🔥 Monthly Heatmap"])
     
     with tab1:
         show_upload_tab(max_parallel)
     
     with tab2:
-        show_reports_tab()
-
-    with tab3:
         show_visualizer_tab()
 
-    with tab4:
+    with tab3:
         show_heatmap_tab()
 
 def show_visualizer_tab():
@@ -597,6 +594,13 @@ def show_upload_tab(max_parallel: int):
                 'Average Price': [2450.50, 3550.00, 1450.75]
             })
             st.dataframe(example_df, use_container_width=True)
+    
+    # Add reports viewing section
+    st.markdown("---")
+    st.subheader("📊 View Previous Reports")
+    
+    # Call the reports viewing functionality
+    show_reports_tab()
 
 
 def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
