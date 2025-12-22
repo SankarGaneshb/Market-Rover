@@ -192,6 +192,13 @@ class DerivativeAnalyzer:
             try:
                 expiry_dt = pd.to_datetime(expiry_date, format="%d-%b-%Y")
                 today = pd.Timestamp.now().normalize()
+                
+                # Handle timezone if expiry_dt is timezone-aware
+                if expiry_dt.tz is not None and today.tz is None:
+                    today = today.tz_localize(expiry_dt.tz)
+                elif expiry_dt.tz is None and today.tz is not None:
+                    expiry_dt = expiry_dt.tz_localize(today.tz)
+                
                 days_remaining = (expiry_dt - today).days
                 days_remaining = max(1, days_remaining)
             except:

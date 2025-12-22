@@ -21,7 +21,6 @@ from utils.logger import get_logger, log_analysis_start, log_analysis_complete, 
 from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
                            get_error_stats, track_performance, track_api_call)
 from utils.visualizer_interface import generate_market_snapshot
-from utils.security import sanitize_ticker, RateLimiter, validate_csv_content
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -29,7 +28,7 @@ logger = get_logger(__name__)
 
 # Page configuration
 st.set_page_config(
-    page_title="Market-Rover - AI Stock Intelligence",
+    page_title="Market-Rover 2.0",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,11 +43,6 @@ if 'analysis_complete' not in st.session_state:
     st.session_state.analysis_complete = False
 if 'test_mode' not in st.session_state:
     st.session_state.test_mode = False
-# Rate limiters for API protection
-if 'visualizer_limiter' not in st.session_state:
-    st.session_state.visualizer_limiter = RateLimiter(max_requests=30, time_window_seconds=60)
-if 'heatmap_limiter' not in st.session_state:
-    st.session_state.heatmap_limiter = RateLimiter(max_requests=20, time_window_seconds=60)
 
 
 def main():
@@ -162,26 +156,8 @@ def main():
         st.markdown("### 📚 Recent Reports")
         show_recent_reports()
     
-    # Investment Disclaimer - Critical for legal protection
-    with st.sidebar:
-        st.markdown("---")
-        with st.expander("⚠️ Investment Disclaimer", expanded=False):
-            st.warning("""
-            **For Informational Purposes Only**
-            
-            Market-Rover is an educational tool and does NOT provide investment, financial, legal, or tax advice.
-            
-            - ⚠️ Analyses may be inaccurate or incomplete
-            - 📊 Past performance ≠ future results
-            - 💼 Consult a qualified financial advisor
-            - 🚫 No liability for financial losses
-            - 📈 NSE/Yahoo data not guaranteed
-            
-            **By using this app, you acknowledge these risks.**
-            """)
-    
     # Main content area
-    tab1, tab2, tab3, tab4 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
+    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer"])
     
     with tab1:
         show_upload_tab(max_parallel)
@@ -192,31 +168,18 @@ def main():
     with tab3:
         show_visualizer_tab()
 
-    with tab4:
-        show_heatmap_tab()
-
 def show_visualizer_tab():
-    """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
-    st.header("📈 Market Visualizer (V3.0)")
-    st.markdown("Generate **comprehensive market snapshot** with Price Chart, OI Analysis, and Scenario Targets.")
+    """Show the Market Visualizer tab"""
+    st.header("📈 Market Visualizer")
+    st.markdown("Generate high-fidelity market snapshots with AI-powered analysis.")
     
     col1, col2 = st.columns([1, 2])
     with col1:
-        ticker_raw = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN", key="viz_ticker")
+        ticker = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN").upper()
         
-        if st.button("Generate Snapshot", type="primary", use_container_width=True, key="btn_viz"):
-            # Sanitize input
-            ticker = sanitize_ticker(ticker_raw)
+        if st.button("Generate Snapshot", type="primary", use_container_width=True):
             if not ticker:
-                st.error("❌ Invalid ticker format. Please enter a valid stock symbol (e.g., SBIN, TCS, RELIANCE)")
-                return
-            
-            # Check rate limit
-            allowed, message = st.session_state.visualizer_limiter.is_allowed()
-            if not allowed:
-                st.warning(f"⏱️ {message}")
-                remaining = st.session_state.visualizer_limiter.get_remaining()
-                st.info(f"Remaining requests: {remaining}/30 per minute")
+                st.error("Please enter a ticker symbol.")
                 return
                 
             with st.spinner(f"🎨 Generating snapshot for {ticker}... This may take a minute."):
@@ -242,299 +205,14 @@ def show_visualizer_tab():
                     st.error(f"An unexpected error occurred: {str(e)}")
     
     with col2:
-        st.info("💡 **Tip:** Use liquid stocks with F&O data for best results (Heatmap + OI Analysis).")
+        st.info("💡 **Tip:** Use liquid stocks with F&O data for the best results (Heatmap + OI Analysis).")
         st.markdown("""
-        **What you get (Single composite image):**
-        - 📊 **Price Chart**: 6-month price action with volatility bands and scenario targets
-        - 🌡️ **Monthly Heatmap**: Historical monthly returns matrix (color-coded)
-        - 🧱 **OI Walls**: Support & Resistance levels from Options Open Interest
-        - 🎯 **Scenario Targets**: Bull/Bear/Neutral price targets for current expiry
-        
-        **Output:** Premium dashboard image (PNG) with all 4 panels combined
+        **What you get:**
+        - 📊 **Price Chart**: With volatility bands and time-adjusted targets.
+        - 🌡️ **Monthly Heatmap**: Historical performance from IPO to date.
+        - 🧱 **OI Walls**: Support & Resistance levels based on Open Interest.
+        - 🎯 **Scenario Targets**: Bull/Bear/Neutral levels for the current expiry.
         """)
-
-def show_heatmap_tab():
-    """Show the Monthly Heatmap & 2026 Forecast tab (V4.0) - Interactive historical analysis and predictions"""
-    st.header("🔥 Monthly Heatmap & 2026 Forecast (V4.0)")
-    st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions** with interactive charts.")
-    
-    # Compact input row at top
-    col_input, col_button, col_info = st.columns([2, 2, 3])
-    with col_input:
-        ticker_raw = st.text_input("Stock Ticker", value="SBIN", key="heatmap_ticker", placeholder="e.g., SBIN, TCS")
-    
-    with col_button:
-        st.write("")  # Spacer for alignment
-        analyze_button = st.button("📊 Generate Analysis", type="primary", use_container_width=True, key="btn_heatmap")
-    
-    with col_info:
-        with st.expander("ℹ️ What you get", expanded=False):
-            st.markdown("""
-            **Interactive Analysis:**
-            - 🌡️ Monthly Heatmap (Year × Month returns)
-            - 📅 Seasonality Trends (Best/worst months)
-            - 🔮 2026 Forecast (Conservative/Baseline/Aggressive)
-            - 📈 Projection Chart + Key Insights
-            """)
-    
-    st.markdown("---")
-    
-    # Full-width area for chart display
-    if analyze_button:
-        # Sanitize input
-        ticker = sanitize_ticker(ticker_raw)
-        if not ticker:
-            st.error("❌ Invalid ticker format. Please enter a valid stock symbol (e.g., SBIN, TCS, RELIANCE)")
-            return
-        
-        # Check rate limit
-        allowed, message = st.session_state.heatmap_limiter.is_allowed()
-        if not allowed:
-            st.warning(f"⏱️ {message}")
-            remaining = st.session_state.heatmap_limiter.get_remaining()
-            st.info(f"Remaining requests: {remaining}/20 per minute")
-            return
-            
-        with st.spinner(f"🔥 Analyzing {ticker}... Fetching historical data & building forecast..."):
-            try:
-                # Import necessary modules
-                from tools.market_data import MarketDataFetcher
-                from tools.derivative_analysis import DerivativeAnalyzer
-                import plotly.graph_objects as go
-                import plotly.express as px
-                from plotly.subplots import make_subplots
-                import pandas as pd
-                import numpy as np
-                
-                # Fetch data
-                fetcher = MarketDataFetcher()
-                analyzer = DerivativeAnalyzer()
-                
-                st.info(f"📥 Fetching historical data for {ticker}...")
-                history = fetcher.fetch_full_history(ticker)
-                
-                if history.empty:
-                    st.error(f"❌ Could not fetch data for {ticker}")
-                    return
-                
-                # Calculate monthly returns matrix
-                st.info("🧮 Calculating monthly returns...")
-                returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
-                
-                # Calculate seasonality
-                seasonality_stats = analyzer.calculate_seasonality(history)
-                
-                # Display success
-                st.success(f"✅ Analysis complete! Analyzed {len(history)} trading days")
-                
-                # === VISUALIZATION 1: Monthly Returns Heatmap ===
-                st.markdown("### 🌡️ Monthly Returns Heatmap")
-                st.markdown(f"**Historical performance matrix showing monthly % returns for {ticker}**")
-                
-                if not returns_matrix.empty:
-                    fig_heatmap = px.imshow(
-                        returns_matrix,
-                        labels=dict(x="Month", y="Year", color="Return %"),
-                        x=returns_matrix.columns,
-                        y=returns_matrix.index,
-                        color_continuous_scale="RdYlGn",
-                        color_continuous_midpoint=0,
-                        aspect="auto",
-                        text_auto=".1f"
-                    )
-                    fig_heatmap.update_layout(
-                        title=f"{ticker} - Monthly Returns Heatmap (% Change)",
-                        height=600,  # Increased from 500
-                        xaxis_title="Month",
-                        yaxis_title="Year"
-                    )
-                    st.plotly_chart(fig_heatmap, use_container_width=True)
-                else:
-                    st.warning("No monthly data available for heatmap")
-                
-                # === VISUALIZATION 2: Seasonality Analysis ===
-                st.markdown("### 📅 Seasonality Trends")
-                st.markdown("**Which months historically perform best?**")
-                
-                if seasonality_stats:
-                    months = list(seasonality_stats.keys())
-                    avg_returns = [seasonality_stats[m]['mean'] * 100 for m in months]
-                    
-                    fig_seasonality = go.Figure()
-                    fig_seasonality.add_trace(go.Bar(
-                        x=months,
-                        y=avg_returns,
-                        marker_color=['green' if x > 0 else 'red' for x in avg_returns],
-                        text=[f"{x:.2f}%" for x in avg_returns],
-                        textposition='auto'
-                    ))
-                    fig_seasonality.update_layout(
-                        title=f"{ticker} - Average Monthly Performance",
-                        xaxis_title="Month",
-                        yaxis_title="Average Return (%)",
-                        height=450  # Increased from 400
-                    )
-                    st.plotly_chart(fig_seasonality, use_container_width=True)
-                
-                # === VISUALIZATION 3: 2026 Forecast ===
-                st.markdown("### 🔮 2026 Forecast")
-                st.markdown("**AI-powered prediction based on 2025 YTD performance**")
-                
-                # Get current price
-                current_price = history['Close'].iloc[-1]
-                
-                # Calculate 2025 YTD growth rate
-                today = pd.Timestamp.now()
-                start_of_2025 = pd.Timestamp('2025-01-01')
-                
-                # Make start_of_2025 timezone-aware if history index is timezone-aware
-                if history.index.tz is not None:
-                    start_of_2025 = start_of_2025.tz_localize(history.index.tz)
-                    if today.tz is None:
-                        today = today.tz_localize(history.index.tz)
-                
-                # Filter for 2025 data
-                history_2025 = history[history.index >= start_of_2025]
-                
-                if len(history_2025) > 0:
-                    price_start_2025 = history_2025['Close'].iloc[0]
-                    price_current = history_2025['Close'].iloc[-1]
-                    
-                    # Calculate YTD return
-                    ytd_return = ((price_current / price_start_2025) - 1) * 100
-                    
-                    # Annualize the YTD return
-                    # Use timezone-aware today for calculation
-                    days_elapsed_2025 = (today - start_of_2025).days
-                    if days_elapsed_2025 > 0:
-                        annual_growth = (((price_current / price_start_2025) ** (365 / days_elapsed_2025)) - 1) * 100
-                    else:
-                        annual_growth = 0
-                else:
-                    # Fallback to 1-year if no 2025 data
-                    if len(history) >= 252:
-                        year_ago_price = history['Close'].iloc[-252]
-                        annual_growth = ((current_price / year_ago_price) - 1) * 100
-                        ytd_return = annual_growth
-                    else:
-                        annual_growth = 0
-                        ytd_return = 0
-                
-                # Project to 2026 - ensure end_of_2026 is also timezone-aware
-                end_of_2026 = pd.Timestamp('2026-12-31')
-                if history.index.tz is not None:
-                    end_of_2026 = end_of_2026.tz_localize(history.index.tz)
-                
-                days_to_2026 = (end_of_2026 - today).days
-                years_fraction = days_to_2026 / 365
-                
-                # Conservative, baseline, and aggressive scenarios based on 2025 performance
-                conservative_growth = annual_growth * 0.5  # Half the 2025 rate
-                baseline_growth = annual_growth  # Same as 2025
-                aggressive_growth = annual_growth * 1.5  # 1.5x the 2025 rate
-                
-                forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
-                forecast_baseline = current_price * (1 + baseline_growth/100) ** years_fraction
-                forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
-                
-                # Display forecast - now in full width
-                col_a, col_b, col_c, col_d = st.columns(4)
-                with col_a:
-                    st.metric(
-                        "� Current Price",
-                        f"₹{current_price:.2f}",
-                        f"{annual_growth:.1f}% p.a."
-                    )
-                with col_b:
-                    st.metric(
-                        "� Conservative",
-                        f"₹{forecast_conservative:.2f}",
-                        f"+{((forecast_conservative/current_price - 1) * 100):.1f}%"
-                    )
-                with col_c:
-                    st.metric(
-                        "� Baseline",
-                        f"₹{forecast_baseline:.2f}",
-                        f"+{((forecast_baseline/current_price - 1) * 100):.1f}%"
-                    )
-                with col_d:
-                    st.metric(
-                        "🐂 Aggressive",
-                        f"₹{forecast_aggressive:.2f}",
-                        f"+{((forecast_aggressive/current_price - 1) * 100):.1f}%"
-                    )
-                
-                # Projection chart - full width
-                projection_dates = pd.date_range(today, end_of_2026, freq='ME')
-                conservative_proj = [current_price * (1 + conservative_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                baseline_proj = [current_price * (1 + baseline_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                aggressive_proj = [current_price * (1 + aggressive_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                
-                fig_forecast = go.Figure()
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=conservative_proj,
-                    mode='lines', name='Conservative',
-                    line=dict(color='red', dash='dash', width=2)
-                ))
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=baseline_proj,
-                    mode='lines', name='Baseline',
-                    line=dict(color='blue', width=4)
-                ))
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=aggressive_proj,
-                    mode='lines', name='Aggressive',
-                    line=dict(color='green', dash='dash', width=2)
-                ))
-                
-                # Add current price as starting point
-                fig_forecast.add_trace(go.Scatter(
-                    x=[today],
-                    y=[current_price],
-                    mode='markers',
-                    name='Current Price',
-                    marker=dict(color='orange', size=12, symbol='star')
-                ))
-                
-                fig_forecast.update_layout(
-                    title=f"{ticker} - 2026 Price Projection (Based on 2025 YTD: {annual_growth:.1f}% annualized)",
-                    xaxis_title="Date",
-                    yaxis_title="Price (₹)",
-                    height=500,  # Increased from 400
-                    hovermode='x unified',
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1
-                    )
-                )
-                st.plotly_chart(fig_forecast, use_container_width=True)
-                
-                # Summary insights - compact
-                st.markdown("### 📝 Key Insights")
-                best_month = max(seasonality_stats.items(), key=lambda x: x[1]['mean'])[0] if seasonality_stats else "N/A"
-                worst_month = min(seasonality_stats.items(), key=lambda x: x[1]['mean'])[0] if seasonality_stats else "N/A"
-                
-                col_insight1, col_insight2 = st.columns(2)
-                with col_insight1:
-                    st.markdown(f"""
-                    - **Best Historical Month:** {best_month}
-                    - **Worst Historical Month:** {worst_month}
-                    - **2026 Baseline Target:** ₹{forecast_baseline:.2f}
-                    """)
-                with col_insight2:
-                    st.markdown(f"""
-                    - **Projected Annual Return:** {baseline_growth:.2f}%
-                    - **Potential Upside:** +{((forecast_aggressive/current_price - 1) * 100):.1f}%
-                    - **Data Range:** {history.index[0].strftime('%Y-%m-%d')} to {history.index[-1].strftime('%Y-%m-%d')}
-                    """)
-                
-            except Exception as e:
-                st.error(f"❌ Analysis Failed: {str(e)}")
-                with st.expander("🔍 Error Details"):
-                    st.code(str(e))
 
 
 @st.cache_data(ttl=1800)  # Cache for 30 minutes
