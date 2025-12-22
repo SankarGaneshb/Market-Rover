@@ -354,140 +354,128 @@ def show_heatmap_tab():
                     st.plotly_chart(fig_seasonality, use_container_width=True)
                 
                 # === VISUALIZATION 3: 2026 Forecast ===
+                # === VISUALIZATION 3: 2026 Forecast ===
                 st.markdown("### 🔮 2026 Forecast")
-                st.markdown("**AI-powered prediction based on 2025 YTD performance**")
+                st.markdown("**AI-powered prediction based on 'Strategy SD' (Volatility Analysis)**")
                 
-                # Get current price
-                current_price = history['Close'].iloc[-1]
+                # Calculate Forecast using SD Strategy
+                forecast_result = analyzer.calculate_sd_strategy_forecast(history)
                 
-                # Calculate 2025 YTD growth rate
-                today = pd.Timestamp.now()
-                start_of_2025 = pd.Timestamp('2025-01-01')
-                
-                # Make start_of_2025 timezone-aware if history index is timezone-aware
-                if history.index.tz is not None:
-                    start_of_2025 = start_of_2025.tz_localize(history.index.tz)
-                    if today.tz is None:
-                        today = today.tz_localize(history.index.tz)
-                
-                # Filter for 2025 data
-                history_2025 = history[history.index >= start_of_2025]
-                
-                if len(history_2025) > 0:
-                    price_start_2025 = history_2025['Close'].iloc[0]
-                    price_current = history_2025['Close'].iloc[-1]
+                if forecast_result:
+                    current_price = history['Close'].iloc[-1]
+                    baseline_growth = forecast_result['annualized_growth']
+                    forecast_baseline = forecast_result['forecast_price']
+                    monthly_growth = forecast_result['monthly_growth']
                     
-                    # Calculate YTD return
-                    ytd_return = ((price_current / price_start_2025) - 1) * 100
+                    # Define Conservative/Aggressive relative to Baseline
+                    # Conservative: 80% of baseline rate (or baseline - 5% if very low)
+                    # Aggressive: 120% of baseline rate (or baseline + 5% if very low)
                     
-                    # Annualize the YTD return
-                    # Use timezone-aware today for calculation
-                    days_elapsed_2025 = (today - start_of_2025).days
-                    if days_elapsed_2025 > 0:
-                        annual_growth = (((price_current / price_start_2025) ** (365 / days_elapsed_2025)) - 1) * 100
+                    if baseline_growth > 0:
+                        conservative_growth = baseline_growth * 0.8
+                        aggressive_growth = baseline_growth * 1.2
                     else:
-                        annual_growth = 0
+                        conservative_growth = baseline_growth * 1.2 # More negative
+                        aggressive_growth = baseline_growth * 0.8 # Less negative
+                        
+                    today = pd.Timestamp.now()
+                    end_of_2026 = pd.Timestamp('2026-12-31')
+                    days_to_2026 = (end_of_2026 - today).days
+                    years_fraction = days_to_2026 / 365.25
+                    
+                    forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
+                    forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
+
+                    # Display forecast metrics
+                    col_a, col_b, col_c, col_d = st.columns(4)
+                    with col_a:
+                        st.metric(
+                            "📍 Current Price",
+                            f"₹{current_price:.2f}",
+                            f"Strategy: {forecast_result['strategy_description'].split('->')[0].strip()}"
+                        )
+                    with col_b:
+                        st.metric(
+                            "🛡️ Conservative",
+                            f"₹{forecast_conservative:.2f}",
+                            f"{conservative_growth:.1f}% p.a."
+                        )
+                    with col_c:
+                        st.metric(
+                            "🎯 Baseline (Strategy)",
+                            f"₹{forecast_baseline:.2f}",
+                            f"{baseline_growth:.1f}% p.a."
+                        )
+                    with col_d:
+                        st.metric(
+                            "🐂 Aggressive",
+                            f"₹{forecast_aggressive:.2f}",
+                            f"{aggressive_growth:.1f}% p.a."
+                        )
+                    
+                    # Explanation of Strategy
+                    st.info(f"💡 **Strategy Logic:** {forecast_result['strategy_description']}")
+                    
+                    # Projection chart
+                    projection_dates = pd.date_range(today, end_of_2026, freq='ME')
+                    
+                    # Calculate projection curves
+                    def project_curve(start_price, growth_rate, dates):
+                        values = []
+                        for d in dates:
+                            t_years = (d - today).days / 365.25
+                            val = start_price * (1 + growth_rate/100) ** t_years
+                            values.append(val)
+                        return values
+                        
+                    conservative_proj = project_curve(current_price, conservative_growth, projection_dates)
+                    baseline_proj = project_curve(current_price, baseline_growth, projection_dates)
+                    aggressive_proj = project_curve(current_price, aggressive_growth, projection_dates)
+                    
+                    fig_forecast = go.Figure()
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=conservative_proj,
+                        mode='lines', name='Conservative',
+                        line=dict(color='red', dash='dash', width=2)
+                    ))
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=baseline_proj,
+                        mode='lines', name='Baseline (Strategy SD)',
+                        line=dict(color='blue', width=4)
+                    ))
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=aggressive_proj,
+                        mode='lines', name='Aggressive',
+                        line=dict(color='green', dash='dash', width=2)
+                    ))
+                    
+                    # Add current price
+                    fig_forecast.add_trace(go.Scatter(
+                        x=[today],
+                        y=[current_price],
+                        mode='markers',
+                        name='Current Price',
+                        marker=dict(color='orange', size=12, symbol='star')
+                    ))
+                    
+                    fig_forecast.update_layout(
+                        title=f"{ticker} - 2026 Price Projection (Monthly Growth: {monthly_growth:.2f}%)",
+                        xaxis_title="Date",
+                        yaxis_title="Price (₹)",
+                        height=500,
+                        hovermode='x unified',
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=1.02,
+                            xanchor="right",
+                            x=1
+                        )
+                    )
+                    st.plotly_chart(fig_forecast, width="stretch")
+                    
                 else:
-                    # Fallback to 1-year if no 2025 data
-                    if len(history) >= 252:
-                        year_ago_price = history['Close'].iloc[-252]
-                        annual_growth = ((current_price / year_ago_price) - 1) * 100
-                        ytd_return = annual_growth
-                    else:
-                        annual_growth = 0
-                        ytd_return = 0
-                
-                # Project to 2026 - ensure end_of_2026 is also timezone-aware
-                end_of_2026 = pd.Timestamp('2026-12-31')
-                if history.index.tz is not None:
-                    end_of_2026 = end_of_2026.tz_localize(history.index.tz)
-                
-                days_to_2026 = (end_of_2026 - today).days
-                years_fraction = days_to_2026 / 365
-                
-                # Conservative, baseline, and aggressive scenarios based on 2025 performance
-                conservative_growth = annual_growth * 0.5  # Half the 2025 rate
-                baseline_growth = annual_growth  # Same as 2025
-                aggressive_growth = annual_growth * 1.5  # 1.5x the 2025 rate
-                
-                forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
-                forecast_baseline = current_price * (1 + baseline_growth/100) ** years_fraction
-                forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
-                
-                # Display forecast - now in full width
-                col_a, col_b, col_c, col_d = st.columns(4)
-                with col_a:
-                    st.metric(
-                        "� Current Price",
-                        f"₹{current_price:.2f}",
-                        f"{annual_growth:.1f}% p.a."
-                    )
-                with col_b:
-                    st.metric(
-                        "� Conservative",
-                        f"₹{forecast_conservative:.2f}",
-                        f"+{((forecast_conservative/current_price - 1) * 100):.1f}%"
-                    )
-                with col_c:
-                    st.metric(
-                        "� Baseline",
-                        f"₹{forecast_baseline:.2f}",
-                        f"+{((forecast_baseline/current_price - 1) * 100):.1f}%"
-                    )
-                with col_d:
-                    st.metric(
-                        "🐂 Aggressive",
-                        f"₹{forecast_aggressive:.2f}",
-                        f"+{((forecast_aggressive/current_price - 1) * 100):.1f}%"
-                    )
-                
-                # Projection chart - full width
-                projection_dates = pd.date_range(today, end_of_2026, freq='ME')
-                conservative_proj = [current_price * (1 + conservative_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                baseline_proj = [current_price * (1 + baseline_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                aggressive_proj = [current_price * (1 + aggressive_growth/100) ** ((d - today).days/365) for d in projection_dates]
-                
-                fig_forecast = go.Figure()
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=conservative_proj,
-                    mode='lines', name='Conservative',
-                    line=dict(color='red', dash='dash', width=2)
-                ))
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=baseline_proj,
-                    mode='lines', name='Baseline',
-                    line=dict(color='blue', width=4)
-                ))
-                fig_forecast.add_trace(go.Scatter(
-                    x=projection_dates, y=aggressive_proj,
-                    mode='lines', name='Aggressive',
-                    line=dict(color='green', dash='dash', width=2)
-                ))
-                
-                # Add current price as starting point
-                fig_forecast.add_trace(go.Scatter(
-                    x=[today],
-                    y=[current_price],
-                    mode='markers',
-                    name='Current Price',
-                    marker=dict(color='orange', size=12, symbol='star')
-                ))
-                
-                fig_forecast.update_layout(
-                    title=f"{ticker} - 2026 Price Projection (Based on 2025 YTD: {annual_growth:.1f}% annualized)",
-                    xaxis_title="Date",
-                    yaxis_title="Price (₹)",
-                    height=500,  # Increased from 400
-                    hovermode='x unified',
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1
-                    )
-                )
-                st.plotly_chart(fig_forecast, use_container_width=True)
+                    st.warning("⚠️ Insufficient data to calculate Strategy Forecast (Need >6 months history).")
                 
                 # Summary insights - compact
                 st.markdown("### 📝 Key Insights")

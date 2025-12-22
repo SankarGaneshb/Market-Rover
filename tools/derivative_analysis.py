@@ -239,6 +239,111 @@ class DerivativeAnalyzer:
             "used_iv": (iv > 0)
         }
 
+    def _remove_outliers(self, series):
+        """Standard IQR method for outlier removal"""
+        if len(series) < 4: return series
+        Q1 = series.quantile(0.25)
+        Q3 = series.quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        return series[(series >= lower_bound) & (series <= upper_bound)]
+
+    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31"):
+        """
+        Forecasts price based on 'Strategy SD' (Volatility of Last 1 Year vs Jan).
+        Logic:
+        1. Calculate Monthly Returns & Remove Outliers.
+        2. Stats for 'Last 1 Year' and 'Historical Jan'.
+        3. If SD(Last1Y) > SD(Jan):
+             If Avg(Last1Y) > Avg(Jan): Bearish -> Use Median(Jan)
+             Else: Bullish -> Use Avg(Last1Y)
+           Else:
+             Bullish -> Use Avg(Jan)
+        4. Compound this monthly rate to 2026.
+        """
+        if history_df.empty:
+            return None
+
+        # 1. Prepare Monthly Returns
+        history_df = history_df.copy()
+        if history_df.index.tz is not None:
+             history_df.index = history_df.index.tz_localize(None)
+             
+        monthly_returns = history_df['Close'].resample('ME').last().pct_change().dropna()
+        
+        if monthly_returns.empty: 
+            return None
+
+        # 2. Define Groups
+        # Last 1 Year
+        last_1_year = monthly_returns.iloc[-12:]
+        # All Januaries
+        jan_returns = monthly_returns[monthly_returns.index.month == 1]
+        
+        # Need enough data
+        if len(last_1_year) < 6 or len(jan_returns) < 2:
+            return None
+            
+        # 3. Remove Outliers
+        last_1_year_clean = self._remove_outliers(last_1_year)
+        jan_clean = self._remove_outliers(jan_returns)
+        
+        # 4. Calculate Stats
+        sd_last_1y = last_1_year_clean.std()
+        avg_last_1y = last_1_year_clean.mean()
+        
+        sd_jan = jan_clean.std()
+        avg_jan = jan_clean.mean()
+        median_jan = jan_clean.median()
+        
+        # 5. Apply Strategy Logic
+        strategy_msg = ""
+        growth_rate_monthly = 0.0
+        
+        # Logic: If SD(L1Y) > SD(Jan)
+        if sd_last_1y > sd_jan:
+            if avg_last_1y > avg_jan:
+                # Bearish
+                growth_rate_monthly = median_jan
+                strategy_msg = "Bearish (SD High & Avg High) -> Target: Median of Jan"
+            else:
+                # Bullish
+                growth_rate_monthly = avg_last_1y
+                strategy_msg = "Bullish (SD High & Avg Low) -> Target: Avg of Last 1 Year"
+        else:
+            # Bullish
+            growth_rate_monthly = avg_jan
+            strategy_msg = "Bullish (SD Low) -> Target: Avg of Jan"
+            
+        # 6. Project to Target Date
+        current_price = history_df['Close'].iloc[-1]
+        today = pd.Timestamp.now()
+        target_dt = pd.Timestamp(target_date)
+        
+        days_to_target = (target_dt - today).days
+        months_to_target = days_to_target / 30.44
+        
+        # Compounding: Price * (1 + monthly_rate) ^ months
+        forecast_price = current_price * ((1 + growth_rate_monthly) ** months_to_target)
+        
+        # Annualized Growth Rate
+        annualized_growth = ((1 + growth_rate_monthly) ** 12 - 1) * 100
+        
+        return {
+            "forecast_price": forecast_price,
+            "annualized_growth": annualized_growth,
+            "monthly_growth": growth_rate_monthly * 100,
+            "strategy_description": strategy_msg,
+            "stats": {
+                "sd_last_1y": sd_last_1y,
+                "sd_jan": sd_jan,
+                "avg_last_1y": avg_last_1y,
+                "avg_jan": avg_jan,
+                "median_jan": median_jan
+            }
+        }
+
     def calculate_2026_forecast(self, history_df):
         """
         Generates a long-term price forecast for year-end 2026 using 3 models:
