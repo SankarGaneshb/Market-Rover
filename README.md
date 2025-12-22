@@ -1,366 +1,467 @@
-# 🔍 Market Rover - Stock Intelligence System
+# 🔍 Market-Rover - AI Stock Intelligence Platform
 
-A multi-agent AI system powered by CrewAI that monitors your stock portfolio, scrapes financial news, performs sentiment analysis, and generates weekly intelligence reports.
+**Your complete toolkit for smart investing decisions powered by cutting-edge AI**
 
-## ✨ Features
+![Security](https://img.shields.io/badge/Security-80%2F100-green)
+![Cost](https://img.shields.io/badge/Cost-$0%2Fmonth-success)
+![Status](https://img.shields.io/badge/Status-Production-brightgreen)
 
-- **📊 Portfolio Monitoring**: Tracks your NSE stocks from a simple CSV file
-- **📰 News Scraping**: Uses Newspaper3k to scrape recent news from Moneycontrol
-- **🧠 Sentiment Analysis**: AI-powered classification of news as Positive/Negative/Neutral
-- **📈 Market Context**: Analyzes Nifty 50 and sector trends for broader market understanding
-- **📝 Weekly Reports**: Generates comprehensive intelligence briefings with risk highlights
-- **💰 Cost-Effective**: Free tier available with Google Gemini API
-- **🌐 Web Interface**: User-friendly Streamlit web UI (v2.0)
-- **📊 Interactive Charts**: Real-time visualizations with Plotly (v2.0)
-- **⚡ Parallel Processing**: 5x faster multi-stock analysis (v2.0)
-- **📈 Observability**: Built-in monitoring with API quota tracking, performance metrics, and error logging (v2.0)
+🌐 **Live App:** https://market-rover.streamlit.app/
+
+---
+
+## ✨ Features at a Glance
+
+Market-Rover is an AI-powered platform with **3 powerful tools** in one app:
+
+| Feature | Description | Tech Highlights |
+|---------|-------------|-----------------|
+| **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
+| **📈 Market Visualizer** | Live charts, OI analysis, scenario targets | Options data, Plotly, PNG export |
+| **🔥 Monthly Heatmap** | Historical patterns + 2026 AI forecast | Seasonality, YTD-based predictions |
+
+---
+
+## 🚀 All Features
+
+### **📤 Portfolio Analysis (Tab 1)**
+
+Upload your portfolio and get comprehensive AI-powered insights:
+
+- ✅ **Multi-Stock Analysis** - Process multiple stocks simultaneously (5x faster with parallel processing)
+- ✅ **News Scraping** - Auto-scrape latest news from Moneycontrol using Newspaper3k
+- ✅ **Sentiment Analysis** - AI-powered classification (Positive/Negative/Neutral)
+- ✅ **Market Context** - Analyze Nifty 50 and sector trends
+- ✅ **Weekly Intelligence Reports** - Comprehensive briefings with risk highlights
+- ✅ **View Report History** - Browse, search, and download past analyses
+- ✅ **Export Options** - TXT, HTML, CSV formats
+
+### **📈 Market Visualizer (Tab 2)**
+
+Generate professional market snapshots in seconds:
+
+- ✅ **Price Charts** - Real-time stock price movements with volatility bands
+- ✅ **Options OI Analysis** - Support and Resistance levels from Open Interest
+- ✅ **OI Walls** - Visual representation of option chain barriers
+- ✅ **Scenario Targets** - Bull/Bear/Neutral price predictions
+- ✅ **Monthly Heatmap** - Historical performance since IPO
+- ✅ **AI-Powered Insights** - Gemini-generated market analysis
+- ✅ **PNG Export** - Download professional composite dashboard
+
+**Security:** Input sanitization, rate limiting (30 req/min)
+
+### **🔥 Monthly Heatmap & 2026 Forecast (Tab 3)**
+
+Deep-dive into historical patterns and future predictions:
+
+- ✅ **Interactive Heatmap** - Monthly returns (Year × Month) since IPO
+- ✅ **Seasonality Analysis** - Identify best/worst months historically
+- ✅ **2025 YTD-Based Forecasting** - AI predicts 2026 prices using current year performance
+- ✅ **3 Scenarios** - Conservative, Baseline, Aggressive projections
+- ✅ **Full-Width Interactive Charts** - Powered by Plotly
+- ✅ **Current Price Tracking** - Real-time data integration
+
+**Security:** Input sanitization, rate limiting (20 req/min)
+
+---
 
 ## 🏗️ Architecture
 
-Market Rover uses **5 specialized AI agents** orchestrated by CrewAI:
+### Multi-Agent AI System
 
-1. **Portfolio Manager Agent**: Reads and validates your stock portfolio
-2. **News Scraper Agent**: Scrapes Moneycontrol using News Paper3k
-3. **Sentiment Analyzer Agent**: Classifies news sentiment
-4. **Market Context Agent**: Analyzes Nifty 50 and sector trends
-5. **Report Generator Agent**: Creates final intelligence report
+Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 
-### Use Case Diagram
-
-```mermaid
-graph TB
-    User["👤 Stock Investor"]
-    
-    subgraph "Market Rover System"
-        UC1["Manage Portfolio"]
-        UC2["Configure System"]
-        UC3["Run Weekly Analysis"]
-        UC4["View Intelligence Report"]
-        UC5["Monitor Costs"]
-        
-        subgraph "AI Agents"
-            A1["Portfolio Manager"]
-            A2["News Researcher"]
-            A3["Sentiment Analyzer"]
-            A4["Market Analyst"]
-            A5["Report Generator"]
-        end
-        
-        subgraph "External Services"
-            Gemini["Google Gemini API"]
-            MC["Moneycontrol"]
-            YF["yfinance/NSE"]
-        end
-    end
-    
-    User --> UC1
-    User --> UC2
-    User --> UC3
-    User --> UC4
-    User --> UC5
-    
-    UC1 -.->|uses| A1
-    UC3 -.->|triggers| A1
-    UC3 -.->|triggers| A2
-    UC3 -.->|triggers| A3
-    UC3 -.->|triggers| A4
-    UC3 -.->|triggers| A5
-    
-    A1 -.->|reads| YF
-    A2 -.->|scrapes| MC
-    A3 -.->|analyzes| Gemini
-    A4 -.->|fetches| YF
-    A5 -.->|generates| Gemini
-    
-    UC4 -.->|produces| A5
+```
+📤 Portfolio Analysis Flow:
+┌──────────────┐
+│ Upload CSV   │
+└──────┬───────┘
+       │
+       v
+┌──────────────────────┐
+│ Portfolio Manager    │ → Validates stocks
+└──────┬───────────────┘
+       │
+       v
+┌──────────────────────┐
+│ News Scraper         │ → Scrapes Moneycontrol (Newspaper3k)
+└──────┬───────────────┘
+       │
+       v
+┌──────────────────────┐
+│ Sentiment Analyzer   │ → Classifies sentiment (Gemini AI)
+└──────┬───────────────┘
+       │
+       v
+┌──────────────────────┐
+│ Market Analyst       │ → Analyzes Nifty 50 context
+└──────┬───────────────┘
+       │
+       v
+┌──────────────────────┐
+│ Report Generator     │ → Creates intelligence report
+└──────────────────────┘
 ```
 
-**Key Use Cases:**
-- **Manage Portfolio**: Add/remove stocks in CSV file
-- **Configure System**: Set API keys, preferences, automation
-- **Run Analysis**: Execute multi-agent intelligence gathering
-- **View Reports**: Review generated insights and recommendations
-- **Monitor Costs**: Track OpenAI API usage and expenses
+**Key Technologies:**
+- **CrewAI**: Multi-agent orchestration
+- **Google Gemini 1.5 Flash**: LLM for reasoning & analysis
+- **yfinance**: Free NSE/BSE stock data
+- **Newspaper3k**: Web scraping engine
+- **Streamlit + Plotly**: Interactive web UI
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- Google Gemini API key (free tier available from [Google AI Studio](https://makersuite.google.com/app/apikey))
+- Python 3.8+
+- Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
 
 ### Installation
 
-1. **Clone or navigate to the project directory**:
 ```bash
+# 1. Clone repository
 cd Market-Rover
-```
 
-2. **Install dependencies**:
-```bash
+# 2. Install dependencies
 pip install -r requirements.txt
-```
 
-3. **Set up environment variables**:
-```bash
-# Copy the example file
+# 3. Set up environment
 copy .env.example .env
+# Edit .env and add: GOOGLE_API_KEY=your_key_here
 
-# Edit .env and add your Google Gemini API key
-# GOOGLE_API_KEY=your-google-api-key-here
-```
-
-4. **Prepare your portfolio**:
-   - Edit `Portfolio.csv` (or use `portfolio_example.csv` as a template)
-   - Format: Symbol, Company Name, Quantity, Average Price
-   - Symbols will automatically get .NS suffix for NSE
-
-### Usage
-
-#### Option 1: Web UI (Recommended for v2.0)
-```bash
+# 4. Run the app
 streamlit run app.py
-# Opens browser at http://localhost:8501
+# Opens at http://localhost:8501
 ```
 
-**Features:**
-- Upload portfolio via drag-and-drop
-- Real-time progress tracking
-- Interactive visualizations
-- Test mode (mock data, no API costs)
-- View saved reports with charts
-- Download in multiple formats (TXT, HTML, CSV)
+---
 
-#### Option 2: Command Line
-```bash
-python main.py
-```
+## 📊 Usage Guide
 
-The system will:
-1. Read your portfolio
-2. Scrape news from Moneycontrol for each stock
-3. Analyze sentiment and market context
-4. Generate a comprehensive report in the `reports/` directory
+### **Tab 1: Portfolio Analysis**
 
-## 📋 Portfolio File Format
+1. **Upload Portfolio CSV**
+   ```csv
+   Symbol,Company Name,Quantity,Average Price
+   RELIANCE,Reliance Industries Ltd,10,2450.50
+   TCS,Tata Consultancy Services,5,3550.00
+   INFY,Infosys Ltd,15,1450.75
+   ```
 
-Create a `Portfolio.csv` file with this structure:
+2. **Click "Analyze Portfolio"**
+   - AI agents scrape news, analyze sentiment
+   - Generate comprehensive intelligence report
+   - View charts and download results
 
-```csv
-Symbol,Company Name,Quantity,Average Price
-RELIANCE,Reliance Industries Ltd,10,2450.50
-TCS,Tata Consultancy Services,5,3550.00
-INFY,Infosys Ltd,15,1450.75
-```
+3. **Browse Previous Reports**
+   - Scroll down to see report history
+   - Filter and search
+   - Download in multiple formats
 
-- **Symbol**: Stock symbol (without .NS suffix - it will be added automatically)
-- **Company Name**: Full company name
-- **Quantity**: Number of shares you own (optional)
-- **Average Price**: Your average purchase price (optional)
+### **Tab 2: Market Visualizer**
 
-## ⚙️ Configuration
+1. Enter stock ticker (e.g., `SBIN`, `TCS`, `RELIANCE`)
+2. Click "Generate Snapshot"
+3. Wait ~30 seconds for AI-powered composite image
+4. Download PNG for sharing
 
-Edit `config.py` or set environment variables in `.env`:
+**Output:** Professional dashboard with price chart, OI levels, scenario targets, and analysis
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `MAX_ITERATIONS` | 15 | Maximum iterations for each agent |
-| `LOOKBACK_DAYS` | 7 | How many days back to search for news |
-| `PORTFOLIO_FILE` | Portfolio.csv | Path to your portfolio file |
-| `CONVERT_TO_CRORES` | true | Convert amounts to Crores |
+### **Tab 3: Monthly Heatmap**
 
-## 📊 Sample Report Structure
+1. Enter stock ticker
+2. Click "Generate Analysis"
+3. Explore interactive charts:
+   - Historical monthly returns heatmap
+   - Seasonality trends
+   - 2026 price forecast (3 scenarios)
 
-```
-═══════════════════════════════════════════
-    MARKET ROVER INTELLIGENCE REPORT
-═══════════════════════════════════════════
+---
 
-EXECUTIVE SUMMARY
-- Overall portfolio health
-- Market sentiment this week
-- Top 3 most important news stories
+## 🔐 Security Features
 
-STOCK-BY-STOCK ANALYSIS
-For each stock:
-- Current price and change
-- Key news with sentiment
-- Risks/opportunities
-- Recommendation: WATCH/HOLD/CONCERN
+Market-Rover includes enterprise-grade security:
 
-RISK HIGHLIGHTS
-- Stocks needing attention
-- Market-wide risks
-- Flagged items for human review
-```
+| Feature | Implementation | Status |
+|---------|---------------|--------|
+| **Input Sanitization** | Regex validation, injection prevention | ✅ Active |
+| **Rate Limiting** | 20-30 requests/minute per tab | ✅ Active |
+| **Investment Disclaimer** | Bottom status bar, always visible | ✅ Active |
+| **Secure API Keys** | Environment variables, Streamlit secrets | ✅ Active |
+| **Timezone Handling** | Project-wide timezone-aware operations | ✅ Active |
+
+**Security Score:** 80/100 🟢
+
+---
 
 ## 💰 Cost Breakdown
 
-### Current Setup (Google Gemini API - December 2025)
+### **Free Tier (Recommended)**
 
-**Free Tier (Updated Dec 2025):**
-- **Gemini 2.5 Flash**: 2 requests per minute (RPM), 20 requests per day (RPD)
-- **Note**: Free tier was reduced from 250 RPD to 20 RPD in early December 2025
-- **Best for**: Learning, proof-of-concept, light usage (under 20 requests/day)
-- **Alternative**: Gemini 2.5 Flash-Lite offers 30 RPM and 1,500 RPD for free
+| Service | Usage | Monthly Cost |
+|---------|-------|--------------|
+| Streamlit Cloud | Hosting | **$0** |
+| Gemini 1.5 Flash | <400K tokens/day | **$0** |
+| yfinance | Stock data | **$0** |
+| NSE Option Chain | Options data | **$0** |
+| Newspaper3k | News scraping | **$0** |
+| **Total** | | **$0/month** ✅ |
 
-**Pay-As-You-Go Pricing:**
-- **Model**: Gemini 2.5-flash
-- **Input tokens**: $0.175 per 1 million tokens
-- **Output tokens**: $0.75 per 1 million tokens
-- **Data sources**: yfinance + Newspaper3k (both free)
-- **Infrastructure**: Run locally (no hosting costs)
+### **Cost Estimates (If Scaling)**
 
-### Cost Estimates
+**Expected Usage (Free Tier):**
+- ~10-20 analyses/day
+- ~5,000-10,000 tokens/day
+- **Well within limits** ✅
 
-**Free Tier Usage:**
-- ✅ **1-2 stocks, daily**: Within free limit (under 20 requests/day)
-- ✅ **3-5 stocks, weekly**: Comfortably within free tier
-- ⚠️ **10+ stocks, daily**: Will exceed free tier (20 RPD limit)
+**If Exceeding Free Tier:**
+- Gemini Paid: ~$1-5/month (500K+ tokens/day)
+- Streamlit Team: $20/month (more resources)
 
-**Paid Tier Estimates (if exceeding free tier):**
-- **Cost per analysis run**: ~$0.01-0.05 per stock
-- **3 stocks, weekly**: ~$0.60/month (likely free tier sufficient)
-- **10 stocks, weekly**: ~$1-2/month
-- **20 stocks, daily**: ~$10-15/month
-
-**Comparison:**
-- 🎉 **Significantly cheaper than OpenAI** (was ~$0.10-0.20 per run)
-- 💰 **10-20x cost reduction** compared to GPT-3.5-turbo
-
-**Recommendation**: Start with free tier for testing, upgrade to pay-as-you-go only if needed.
-
-See official pricing: https://ai.google.dev/pricing
+---
 
 ## 🛠️ Technology Stack
 
-### Core AI & Backend
-- **CrewAI**: Multi-agent orchestration framework
-- **Google Gemini 2.5-flash**: Large Language Model for reasoning
-- **langchain-google-genai**: LLM integration layer
-- **yfinance**: Free NSE/BSE stock data
-- **Newspaper3k**: Web scraping for news articles
-- **Pandas**: Data manipulation
+### Core Backend
+- **CrewAI** - Multi-agent orchestration
+- **Google Gemini 1.5 Flash** - LLM reasoning engine
+- **langchain-google-genai** - LLM integration
+- **yfinance** - Stock & options data
+- **Newspaper3k** - News scraping
+- **Pandas** - Data manipulation
 
-### Web UI & Visualizations (v2.0)
-- **Streamlit**: Interactive web interface
-- **Plotly**: Interactive charts and visualizations
-- **HTML Export**: Reports with embedded charts
+### Web UI & Visualization
+- **Streamlit** - Interactive web framework
+- **Plotly** - Interactive charts
+- **Matplotlib/Pillow** - Image generation
+
+### Security & Utilities
+- **Input validation** - Custom regex sanitization
+- **Rate limiting** - Time-window based throttling
+- **Structured logging** - File-based with rotation
+
+---
 
 ## 📁 Project Structure
 
 ```
 Market-Rover/
-├── main.py                 # CLI entry point
-├── app.py                  # Web UI entry point (v2.0)
-├── agents.py               # Agent definitions (Gemini LLM)
-├── tasks.py                # Task definitions
-├── crew.py                 # Crew orchestration
-├── config.py               # Configuration
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment template
-├── Portfolio.csv           # Your stock portfolio
-├── portfolio_example.csv   # Example portfolio
-├── tools/
-│   ├── portfolio_tool.py      # Portfolio reader
-│   ├── news_scraper_tool.py   # Moneycontrol scraper
-│   ├── stock_data_tool.py     # Stock data fetcher
-│   └── market_context_tool.py # Market analyzer
-├── utils/                  # v2.0 utilities
-│   ├── job_manager.py         # Job tracking
-│   ├── mock_data.py           # Mock data generator
-│   ├── parallel_processor.py  # Parallel execution
-│   ├── report_visualizer.py   # Chart generation
-│   ├── logger.py              # Structured logging (v2.0)
-│   └── metrics.py             # Metrics tracking (v2.0)
-├── test_mock_data.py       # Mock data tests
-├── test_gemini_api.py      # API connection test
-└── reports/                # Generated reports (TXT, HTML)
+├── app.py                      # Main Streamlit app
+├── main.py                     # CLI entry point
+├── agents.py                   # AI agent definitions
+├── tasks.py                    # Agent task definitions
+├── crew.py                     # Crew orchestration
+├── config.py                   # Configuration
+├── requirements.txt            # Python dependencies
+├── .env.example                # Environment template
+│
+├── tools/                      # Analysis tools
+│   ├── market_data.py             # Stock data fetcher
+│   ├── news_scraper.py            # Moneycontrol scraper
+│   ├── sentiment_analyzer.py     # Sentiment classification
+│   ├── risk_analyzer.py           # Risk assessment
+│   ├── derivative_analysis.py     # Options OI analysis
+│   └── visualizer_tool.py         # Chart generation
+│
+├── utils/                      # Utilities
+│   ├── security.py                # Input sanitization, rate limiting
+│   ├── report_visualizer.py       # Report charts
+│   ├── visualizer_interface.py    # Market snapshot generator
+│   ├── llm_interface.py           # Gemini integration
+│   ├── job_manager.py             # Async job tracking
+│   ├── mock_data.py               # Test data generator
+│   ├── logger.py                  # Logging system
+│   └── metrics.py                 # Performance tracking
+│
+├── output/                     # Generated snapshots
+├── reports/                    # Intelligence reports
+├── logs/                       # Application logs
+└── metrics/                    # Performance metrics
 ```
 
-## 📈 Observability & Monitoring (v2.0)
+---
 
-Market-Rover 2.0 includes built-in observability features with **zero additional cost**:
+## ⚙️ Configuration
 
-### Features
+### Environment Variables (`.env`)
 
-**📊 Real-Time Dashboard** (in sidebar)
-- **API Quota Tracking**: Monitor Gemini API usage (daily limit: 20 requests)
-- **Performance Metrics**: Track analysis duration and efficiency
-- **Cache Statistics**: Monitor cache hit rates for optimization
-- **Error Tracking**: Categorized error counting and logging
+```bash
+# Required
+GOOGLE_API_KEY=your_gemini_api_key_here
 
-**📝 Structured Logging**
-- Automatic log rotation (daily, keep 7 days)
-- Multiple log levels (DEBUG, INFO, WARNING, ERROR)
-- Logs stored in `logs/market_rover.log`
-- View logs in Streamlit Cloud dashboard
+# Optional
+MAX_PARALLEL_STOCKS=5          # Concurrent analysis
+LOOKBACK_DAYS=7                # News lookback period
+CONVERT_TO_CRORES=true         # Currency formatting
+```
 
-**💾 Metrics Storage**
-- Daily metrics persisted to JSON files
-- Thread-safe in-memory tracking
-- Historical data in `metrics/` directory
+### Streamlit Secrets (Production)
 
-### How to Use
+For Streamlit Cloud deployment, add to `https://share.streamlit.io` → App Settings → Secrets:
 
-1. **View Metrics**: In the sidebar, expand "📊 Observability"
-2. **Monitor API Quota**: Track your daily Gemini API usage (20/day limit)
-3. **Check Performance**: See average analysis duration
-4. **Review Errors**: If any errors occur, they're tracked and categorized
-5. **Refresh**: Click "🔄 Refresh Metrics" for latest stats
+```toml
+GOOGLE_API_KEY = "your-key-here"
+```
 
-### Cost Impact
+---
 
-**$0** - All observability features are free:
-- Uses local file logging (included)
-- In-memory metrics (minimal RAM: ~5-10 MB)
-- No external monitoring services
-- Auto-rotation prevents disk space issues
+## 🎯 Use Cases
+
+1. **Weekly Portfolio Review**
+   - Upload portfolio every Monday
+   - Review AI-generated intelligence
+   - Track sentiment trends
+
+2. **Pre-Earnings Analysis**
+   - Generate market snapshot before earnings
+   - Check OI levels & targets
+   - Assess bull/bear scenarios
+
+3. **Historical Pattern Analysis**
+   - Use monthly heatmap for seasonality
+   - Identify best months for specific stocks
+   - Plan entry/exit based on trends
+
+4. **2026 Planning**
+   - View AI-powered price forecasts
+   - Compare conservative vs aggressive scenarios
+   - Make informed long-term decisions
+
+---
 
 ## 🔧 Troubleshooting
 
-### "No module named 'crewai'"
+### Common Issues
+
+**"No module named 'crewai'"**
 ```bash
 pip install -r requirements.txt
 ```
 
-### "GOOGLE_API_KEY not found"
-1. Create a `.env` file in the project root
+**"GOOGLE_API_KEY not found"**
+1. Create `.env` file in project root
 2. Add: `GOOGLE_API_KEY=your_key_here`
-3. Get a free key from: https://makersuite.google.com/app/apikey
+3. Get free key: https://makersuite.google.com/app/apikey
 
-### "No news found for stock"
-- Check if the stock symbol is correct
-- Try running again (Moneycontrol may have rate limits)
-- Some stocks may have less news coverage
+**"Invalid ticker format"**
+- Use NSE symbols: `SBIN`, `TCS`, `RELIANCE` (without .NS)
+- System auto-adds .NS suffix
 
-### News scraping fails
-- Newspaper3k may need additional dependencies on Windows:
+**"Rate limit exceeded"**
+- Tab 2: Wait 60 seconds (30 req/min limit)
+- Tab 3: Wait 60 seconds (20 req/min limit)
+
+**News scraping fails (Windows)**
 ```bash
 pip install lxml lxml_html_clean
 ```
 
-## 🎯 User Rules Compliance
+---
 
-- ✅ All NSE stocks automatically get `.NS` suffix
-- ✅ All financial figures converted to Crores
-- ✅ Uses Newspaper3k for Moneycontrol scraping (Agent B)
-- ✅ Implements ReAct (Reasoning + Acting) strategy
-- ✅ Max 15 iterations with safeguards
-- ✅ "Flag for Review" feature for uncertain sentiments
+## 📚 Documentation
 
-## 📝 License
-
-This project is for personal use. Ensure compliance with data source terms of service.
-
-## 🤝 Contributing
-
-This is a personal portfolio intelligence tool. Feel free to modify for your own needs.
-
-## ⚠️ Disclaimer
-
-This tool provides information only and is not financial advice. Always do your own research before making investment decisions.
+- `DEPLOYMENT.md` - Streamlit Cloud deployment guide
+- `SECURITY_FIXES_SUMMARY.md` - Security implementation details
+- `SESSION_SUMMARY_DEC22.md` - Latest development session
+- `FINAL_AUDIT_CHECKLIST.md` - Comprehensive audit report
 
 ---
 
-**Market Rover** - Your intelligent stock portfolio companion 🚀
+## 🎓 Best Practices
+
+### For Portfolio Analysis:
+- Use Test Mode first (no API costs)
+- Limit to 5-10 stocks for faster analysis
+- Run weekly for best insights
+
+### For Market Visualizer:
+- Generate before market open for planning
+- Compare OI levels with price action
+- Save PNG snapshots for records
+
+### For Monthly Heatmap:
+- Review seasonality before major investments
+- Use 2026 forecast as one data point (not sole decision)
+- Compare multiple stocks for relative performance
+
+---
+
+## 🚢 Deployment
+
+### Local Development
+```bash
+streamlit run app.py
+```
+
+### Production (Streamlit Cloud)
+
+1. Push code to GitHub
+2. Go to https://share.streamlit.io
+3. Create new app → Select repository
+4. Add secrets (Gemini API key)
+5. **Auto-deploy enabled!** (push → deploy in 2-5 min)
+
+**Current Production:** https://market-rover.streamlit.app/
+
+---
+
+## 📈 Roadmap
+
+### Completed ✅
+- v1.0: CLI portfolio analysis
+- v2.0: Streamlit web UI
+- v3.0: Market Visualizer (OI analysis)
+- v4.0: Monthly Heatmap & 2026 Forecast
+- Security hardening (80/100 score)
+
+### Planned 🔄
+- Cost tracking dashboard
+- Download buttons for Tab 3 charts
+- Email report notifications
+- Multi-language support
+- Backtesting engine
+
+---
+
+## 🤝 Contributing
+
+This is a personal project, but feel free to:
+- Fork for your own use
+- Report issues on GitHub
+-提交 pull requests
+
+---
+
+## ⚠️ Disclaimer
+
+**Market-Rover is for informational purposes only.** Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.
+
+---
+
+## 📝 License
+
+Personal use. Ensure compliance with data source terms of service:
+- yfinance: Check Yahoo Finance TOS
+- Newspaper3k: Respect robots.txt
+- NSE data: For informational purposes
+
+---
+
+## 🎖️ Credits
+
+**Built with:**
+- [CrewAI](https://www.crewai.com/) - Multi-agent framework
+- [Google Gemini](https://ai.google.dev/) - Large language model
+- [Streamlit](https://streamlit.io/) - Web framework
+- [Plotly](https://plotly.com/) - Visualization library
+- [yfinance](https://github.com/ranaroussi/yfinance) - Financial data
+- [Newspaper3k](https://newspaper.readthedocs.io/) - News scraping
+
+---
+
+**Market-Rover** - Your intelligent stock companion 🚀
+
+*Last Updated: December 22, 2025*
