@@ -1,6 +1,6 @@
 """
 Market-Rover 2.0 - Streamlit Web Application
-Interactive portfolio analysis with real-time progress tracking and data visualizations
+Interactive portfolio analysis with real-time progress tracking, visualizers, and forecasts.
 """
 import streamlit as st
 import pandas as pd
