@@ -155,17 +155,6 @@ def main():
         with st.expander("📚 Recent Reports", expanded=False):
             show_recent_reports()
     
-    # Investment Disclaimer - At bottom for easy access without scrolling
-    with st.sidebar:
-        st.markdown("---")
-        with st.expander("⚠️ Disclaimer", expanded=False):
-            st.caption("""
-            **Market-Rover is for informational purposes only.**  
-            Not financial advice. Past performance ≠ future results.  
-            Consult a qualified advisor. No liability for losses.  
-            By using this app, you accept these terms.
-            """)
-    
     # Main content area
     tab1, tab2, tab3 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
     
@@ -177,6 +166,10 @@ def main():
 
     with tab3:
         show_heatmap_tab()
+    
+    # Disclaimer at bottom - always visible like a status bar
+    st.markdown("---")
+    st.caption("⚠️ **Disclaimer:** Market-Rover is for informational purposes only. Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.")
 
 def show_visualizer_tab():
     """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
