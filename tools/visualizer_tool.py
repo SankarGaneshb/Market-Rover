@@ -1,7 +1,7 @@
 from crewai.tools import BaseTool
 from tools.market_data import MarketDataFetcher
 from tools.derivative_analysis import DerivativeAnalyzer
-from tools.visualizer import Visualizer
+from tools.dashboard_renderer import DashboardRenderer
 import os
 from typing import Type
 from pydantic import BaseModel, Field
@@ -25,7 +25,7 @@ class MarketSnapshotTool(BaseTool):
         # Initialize components
         fetcher = MarketDataFetcher()
         analyzer = DerivativeAnalyzer()
-        visualizer = Visualizer()
+        visualizer = DashboardRenderer()
 
         # 1. Fetch Data
         print(f"Fetching data for {ticker}...")
@@ -80,10 +80,13 @@ class MarketSnapshotTool(BaseTool):
             expiry_date = oi_data.get('expiry')
             iv = oi_data.get('atm_iv', 0)
             scenarios = analyzer.model_scenarios(ltp, volatility, oi_data['max_pain'], expiry_date=expiry_date, iv=iv)
+            
+        # 2026 Forecast (New Feature)
+        forecast_2026 = analyzer.calculate_2026_forecast(history)
 
         # 3. Visualize
         print(f"Generating dashboard for {ticker}...")
-        image_buffer = visualizer.generate_dashboard(ticker, history, oi_data, scenarios, returns_matrix)
+        image_buffer = visualizer.generate_dashboard(ticker, history, oi_data, scenarios, returns_matrix, forecast_2026)
         
         # Save image
         output_dir = "output"
@@ -117,6 +120,15 @@ class MarketSnapshotTool(BaseTool):
         
         [Dashboard Image]({filename})
         """
+        
+        if forecast_2026:
+            summary += f"""
+            **2026 Long-Term Forecast (End of Year)**
+            - **Consensus Target:** {forecast_2026['consensus_target']:.0f}
+            - **Range:** {forecast_2026['range_low']:.0f} - {forecast_2026['range_high']:.0f}
+            - **Models Used:** Trend (LinReg), CAGR ({forecast_2026['cagr_percent']:.1f}%), Monte Carlo
+            """
+        
         return summary
 
 # Instantiate for import
