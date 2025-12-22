@@ -231,3 +231,102 @@ class DerivativeAnalyzer:
             "days_remaining": days_remaining,
             "used_iv": (iv > 0)
         }
+
+    def calculate_2026_forecast(self, history_df):
+        """
+        Generates a long-term price forecast for year-end 2026 using 3 models:
+        1. Linear Regression (Trend)
+        2. CAGR (Compound Annual Growth Rate)
+        3. Monte Carlo Simulation (Volatility-based)
+        """
+        if history_df.empty:
+            return None
+
+        # Prepare data
+        df = history_df.copy()
+        
+        # Handle timezone mismatch
+        now = pd.Timestamp.now()
+        if df.index.tz is not None:
+            # If index is tz-aware, make 'now' tz-aware too (or convert index to naive)
+            # Safest is to convert index to tz-naive
+            df.index = df.index.tz_localize(None)
+            
+        df = df[df.index >= now - pd.DateOffset(years=5)] # Use last 5 years for trend
+        if df.empty:
+            df = history_df.copy() # Fallback to whatever is available
+
+        current_price = df['Close'].iloc[-1]
+        
+        # Target Date: End of 2026
+        target_date = pd.Timestamp("2026-12-31")
+        days_to_project = (target_date - pd.Timestamp.now()).days
+        years_to_project = days_to_project / 365.25
+
+        if days_to_project <= 0:
+            return None # Already past 2026
+
+        # --- Model 1: Linear Regression (Trend) ---
+        from scipy import stats
+        y = df['Close'].values
+        x = np.arange(len(y))
+        
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        
+        # Project forward
+        # We need to add 'trading days' for the projection period
+        # Approx 252 trading days per year
+        future_trading_days = int(years_to_project * 252)
+        total_days = len(x) + future_trading_days
+        
+        trend_target = slope * total_days + intercept
+        
+        # --- Model 2: CAGR (Historical Growth) ---
+        # Calculate CAGR over available history (up to 5 years)
+        start_price = df['Close'].iloc[0]
+        end_price = df['Close'].iloc[-1]
+        years_past = (df.index[-1] - df.index[0]).days / 365.25
+        
+        if years_past > 0 and start_price > 0:
+            cagr = (end_price / start_price) ** (1 / years_past) - 1
+        else:
+            cagr = 0.10 # Default 10% assumption if history is bad
+            
+        # Cap CAGR for realism (e.g., -20% to +30%) to avoid explosions
+        cagr = max(-0.20, min(0.30, cagr))
+        
+        cagr_target = current_price * ((1 + cagr) ** years_to_project)
+        
+        # --- Model 3: Monte Carlo (Volatility) ---
+        # Simple projection: drift + volatility based
+        # We'll take a slightly conservative view: drift = risk-free rate (6%) - 0.5*variance
+        volatility = self.calculate_volatility(df)
+        drift = 0.06 - (0.5 * volatility**2) # Assuming 6% risk-free rate (India approx)
+        
+        std_dev_projection = volatility * np.sqrt(years_to_project)
+        
+        # Expected value (50th percentile)
+        monte_carlo_target = current_price * np.exp(drift * years_to_project)
+        
+        # Range boundaries (1 Sigma ~ 68% confidence)
+        mc_high = current_price * np.exp((drift * years_to_project) + std_dev_projection)
+        mc_low = current_price * np.exp((drift * years_to_project) - std_dev_projection)
+
+        # --- Consensus ---
+        # Weighted average: 40% Trend, 30% CAGR, 30% Monte Carlo
+        consensus_target = (trend_target * 0.4) + (cagr_target * 0.3) + (monte_carlo_target * 0.3)
+
+        return {
+            "target_date": target_date,
+            "current_price": current_price,
+            "models": {
+                "Trend (Linear Reg)": trend_target,
+                "CAGR (Growth)": cagr_target,
+                "Monte Carlo (Base)": monte_carlo_target
+            },
+            "consensus_target": consensus_target,
+            "range_high": max(mc_high, trend_target, cagr_target), # Upper bound of all models
+            "range_low": min(mc_low, trend_target, cagr_target),   # Lower bound
+            "cagr_percent": cagr * 100,
+            "volatility": volatility
+        }

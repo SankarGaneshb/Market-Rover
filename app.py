@@ -157,7 +157,7 @@ def main():
         show_recent_reports()
     
     # Main content area
-    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📤 Upload & Analyze", "📊 View Reports", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
     
     with tab1:
         show_upload_tab(max_parallel)
@@ -168,26 +168,42 @@ def main():
     with tab3:
         show_visualizer_tab()
 
+    with tab4:
+        show_heatmap_tab()
+
 def show_visualizer_tab():
-    """Show the Market Visualizer tab"""
+    """Show the Market Visualizer placeholder tab"""
     st.header("📈 Market Visualizer")
-    st.markdown("Generate high-fidelity market snapshots with AI-powered analysis.")
+    st.info("🚧 **Under Construction / V3 Recovery**")
+    st.markdown("""
+    This module is currently being recovered from Market Rover V3.
+    
+    **Planned Features:**
+    - Interactive Candlestick Charts
+    - Technical Indicators Overlay
+    - Real-time Data Streaming
+    """)
+
+def show_heatmap_tab():
+    """Show the Monthly Heatmap & Market Snapshot tab"""
+    st.header("🔥 Monthly Heatmap (V4)")
+    st.markdown("Generate high-fidelity market snapshots with **Monthly Returns Heatmap** and **OI Analysis**.")
     
     col1, col2 = st.columns([1, 2])
     with col1:
         ticker = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN").upper()
         
-        if st.button("Generate Snapshot", type="primary", use_container_width=True):
+        if st.button("Generate Heatmap & Snapshot", type="primary", use_container_width=True):
             if not ticker:
                 st.error("Please enter a ticker symbol.")
                 return
                 
-            with st.spinner(f"🎨 Generating snapshot for {ticker}... This may take a minute."):
+            with st.spinner(f"🎨 Generating Heatmap & Snapshot for {ticker}... This may take a minute."):
                 try:
                     result = generate_market_snapshot(ticker)
                     
                     if result['success']:
-                        st.success("✅ Snapshot generated successfully!")
+                        st.success("✅ Generated successfully!")
                         
                         # Display Image
                         if result['image_path']:
@@ -205,13 +221,13 @@ def show_visualizer_tab():
                     st.error(f"An unexpected error occurred: {str(e)}")
     
     with col2:
-        st.info("💡 **Tip:** Use liquid stocks with F&O data for the best results (Heatmap + OI Analysis).")
+        st.info("💡 **Feature Status:** V4 Complete")
         st.markdown("""
-        **What you get:**
-        - 📊 **Price Chart**: With volatility bands and time-adjusted targets.
-        - 🌡️ **Monthly Heatmap**: Historical performance from IPO to date.
-        - 🧱 **OI Walls**: Support & Resistance levels based on Open Interest.
-        - 🎯 **Scenario Targets**: Bull/Bear/Neutral levels for the current expiry.
+        **V4 Dashboard Includes:**
+        - 🌡️ **Monthly Heatmap**: Historical performance matrix (IPO to Date).
+        - 📊 **Price Action**: With volatility bands and V3 scenario targets.
+        - 🧱 **OI Analysis**: Support/Resistance visualization.
+        - 🔮 **2026 Forecast**: Long-term trend projection.
         """)
 
 

@@ -17,7 +17,7 @@ class DashboardRenderer:
     def __init__(self):
         pass
 
-    def generate_dashboard(self, ticker, history_df, oi_data, scenarios, returns_matrix):
+    def generate_dashboard(self, ticker, history_df, oi_data, scenarios, returns_matrix, forecast_2026=None):
         """
         Generates a composite dashboard image containing:
         1. Price Chart with Volatility Bands & Scenario Targets
@@ -32,7 +32,7 @@ class DashboardRenderer:
 
         # --- 1. Price Chart (Top Row, spans both cols) ---
         ax1 = fig.add_subplot(gs[0, :])
-        self._plot_price_chart(ax1, ticker, history_df, scenarios)
+        self._plot_price_chart(ax1, ticker, history_df, scenarios, forecast_2026)
 
         # --- 2. Monthly Returns Heatmap (Middle Row, spans both cols) ---
         ax2 = fig.add_subplot(gs[1, :])
@@ -69,7 +69,7 @@ class DashboardRenderer:
         ax.set_ylabel("Year", color='white', fontsize=12)
         ax.set_xlabel("Month", color='white', fontsize=12)
 
-    def _plot_price_chart(self, ax, ticker, history_df, scenarios):
+    def _plot_price_chart(self, ax, ticker, history_df, scenarios, forecast_2026=None):
         # Filter last 6 months for clarity
         df = history_df.tail(126).copy()
         
@@ -97,6 +97,40 @@ class DashboardRenderer:
         ax.set_title(f"{ticker} - Price Action & Scenarios", fontsize=16, color='white', fontweight='bold')
         ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white')
         ax.grid(True, linestyle='--', alpha=0.3)
+
+        # --- 2026 Prediction Overlay ---
+        if forecast_2026:
+            target_date = forecast_2026['target_date']
+            
+            # Ensure timezone compatibility for plotting
+            if last_date.tz is not None and target_date.tz is None:
+                target_date = target_date.tz_localize(last_date.tz)
+            elif last_date.tz is None and target_date.tz is not None:
+                target_date = target_date.tz_localize(None)
+
+            # Plot connection lines (dotted) from last price to targets
+            
+            # Trend (Blue)
+            ax.plot([last_date, target_date], [df['Close'].iloc[-1], forecast_2026['models']['Trend (Linear Reg)']], 
+                    color='#3b82f6', linestyle=':', label='Trend Prediction')
+            
+            # CAGR (Purple)
+            ax.plot([last_date, target_date], [df['Close'].iloc[-1], forecast_2026['models']['CAGR (Growth)']], 
+                    color='#8b5cf6', linestyle=':', label=f"CAGR ({forecast_2026['cagr_percent']:.1f}%)")
+            
+            # Consensus Target (Star)
+            consensus = forecast_2026['consensus_target']
+            ax.scatter([target_date], [consensus], color='#f59e0b', s=100, marker='*', zorder=10, label=f"2026 Target: {consensus:.0f}")
+            
+            # Target Zone (Shaded vertical area at end)
+            # We can't easily shade vertical efficiently on a time axis without correct limits,
+            # but we can fill between the Low and High bounds at the target date
+            ax.errorbar([target_date], [consensus], 
+                        yerr=[[consensus - forecast_2026['range_low']], [forecast_2026['range_high'] - consensus]], 
+                        color='#f59e0b', capsize=5, elinewidth=2)
+            
+            # Update legend to include new items
+            ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white', fontsize=8)
 
     def _plot_oi_chart(self, ax, oi_data):
         if not oi_data:
