@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 
 # Page configuration
 st.set_page_config(
-    page_title="Market-Rover - AI Stock Intelligence",
+    page_title="Market-Rover",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded"
