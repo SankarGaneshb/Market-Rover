@@ -474,7 +474,8 @@ def show_heatmap_tab():
                             st.caption(f"✅ Backtest completed for years: {', '.join(map(str, backtest_res['years_tested']))}")
                         else:
                             start_avail = history.index[0].strftime('%Y-%m-%d')
-                            st.caption(f"⚠️ Backtest skipped due to limited history (Data starts: {start_avail}). Forecast uses all available data.")
+                            # Red warning text
+                            st.markdown(f":red[⚠️ **Backtest skipped due to limited history** (Data starts: {start_avail}). Forecast reliability may be lower.]")
                     
                     # Projection chart
                     fig_forecast = go.Figure()
