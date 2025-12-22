@@ -61,35 +61,22 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.header("� About Market-Rover")
+        st.header("🚀 About")
         st.markdown("""
-        **AI-Powered Stock Intelligence Platform**
+        **AI Stock Intelligence**
         
-        Your complete toolkit for smart investing decisions powered by cutting-edge AI.
+        **📤 Portfolio Analysis**  
+        Upload → Analyze → View reports
         
-        **📤 Portfolio Intelligence**
-        - AI-powered multi-stock analysis
-        - Real-time news & sentiment tracking
-        - Automated weekly intelligence reports
-        - Track & view analysis history
+        **📈 Market Visualizer**  
+        Charts, OI analysis, price targets
         
-        **📈 Market Snapshots**
-        - Professional market visualizations
-        - Options OI (Open Interest) analysis
-        - Support & Resistance levels
-        - Bull/Bear/Neutral scenario targets
+        **🔥 Monthly Heatmap**  
+        History, trends, 2026 forecast
         
-        **🔥 Predictive Analytics**
-        - Historical monthly heatmaps
-        - Seasonality trend analysis
-        - AI-powered 2026 price forecasting
-        - Interactive data exploration
+        ---
         
-        **✨ Key Features:**
-        - ⚡ 5x faster parallel processing
-        - 🔒 Secure with rate limiting
-        - 📊 Interactive Plotly charts
-        - 🎯 2025 YTD-based forecasts
+        **Features:** ⚡ Fast | 🔒 Secure | 📊 Interactive
         """)
         
         st.markdown("---")
@@ -151,18 +138,6 @@ def main():
                     )
                 st.markdown("---")
             
-            # Cache Stats
-            cache_stats = get_cache_stats()
-            total_cache = cache_stats['hits'] + cache_stats['misses']
-            if total_cache > 0:
-                st.markdown("**Cache Performance**")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Hit Rate", f"{cache_stats['hit_rate']:.0f}%")
-                with col2:
-                    st.metric("Total Ops", total_cache)
-                st.markdown("---")
-            
             # Error Stats
             error_stats = get_error_stats()
             if error_stats['total'] > 0:
@@ -192,7 +167,7 @@ def main():
             """)
     
     # Main content area
-    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", " Market Visualizer", "🔥 Monthly Heatmap"])
+    tab1, tab2, tab3 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
     
     with tab1:
         show_upload_tab(max_parallel)
