@@ -55,7 +55,7 @@ def main():
     """Main application entry point"""
     
     # Header
-    st.title("🔍 Market-Rover 2.0")
+    st.title("🔍 Market-Rover")
     st.markdown("**AI-Powered Stock Intelligence System**")
     st.markdown("---")
     
