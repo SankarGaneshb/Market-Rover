@@ -61,18 +61,35 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.header("📊 About")
+        st.header("� About Market-Rover")
         st.markdown("""
-        Market-Rover analyzes your stock portfolio using AI agents to:
-        - 📰 Scrape latest news
-        - 💭 Analyze sentiment
-        - 📈 Evaluate market context
-        - 📝 Generate intelligence reports
+        **AI-Powered Stock Intelligence Platform**
         
-        **Features:**
-        - ⚡ Parallel processing (5x faster)
-        - 📊 Interactive visualizations
-        - 📄 Multiple export formats (HTML, PDF, CSV)
+        Your complete toolkit for smart investing decisions powered by cutting-edge AI.
+        
+        **📤 Portfolio Intelligence**
+        - AI-powered multi-stock analysis
+        - Real-time news & sentiment tracking
+        - Automated weekly intelligence reports
+        - Track & view analysis history
+        
+        **📈 Market Snapshots**
+        - Professional market visualizations
+        - Options OI (Open Interest) analysis
+        - Support & Resistance levels
+        - Bull/Bear/Neutral scenario targets
+        
+        **🔥 Predictive Analytics**
+        - Historical monthly heatmaps
+        - Seasonality trend analysis
+        - AI-powered 2026 price forecasting
+        - Interactive data exploration
+        
+        **✨ Key Features:**
+        - ⚡ 5x faster parallel processing
+        - 🔒 Secure with rate limiting
+        - 📊 Interactive Plotly charts
+        - 🎯 2025 YTD-based forecasts
         """)
         
         st.markdown("---")
