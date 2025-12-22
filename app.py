@@ -63,7 +63,7 @@ def main():
     with st.sidebar:
         st.header("📊 About")
         st.markdown("""
-        Market-Rover 2.0 analyzes your stock portfolio using AI agents to:
+        Market-Rover analyzes your stock portfolio using AI agents to:
         - 📰 Scrape latest news
         - 💭 Analyze sentiment
         - 📈 Evaluate market context
