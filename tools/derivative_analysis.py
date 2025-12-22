@@ -424,6 +424,74 @@ class DerivativeAnalyzer:
             "strategy_description": strategy_msg
         }
 
+    def backtest_strategies(self, history_df, lookback_years=3):
+        """
+        Backtests Median vs SD strategies on recent years to pick the winner.
+        Returns detailed metrics and the winning strategy ('median' or 'sd').
+        """
+        import numpy as np
+        
+        history_df = history_df.copy()
+        if history_df.index.tz is not None:
+             history_df.index = history_df.index.tz_localize(None)
+             
+        current_year = history_df.index[-1].year
+        errors = {'median': [], 'sd': []}
+        tested_years = []
+        
+        # Test previous completed years
+        # e.g. if now is 2025, test 2024, 2023, 2022
+        for i in range(1, lookback_years + 1):
+            test_year = current_year - i
+            
+            # Predict FOR test_year, using data UP TO test_year-1
+            cutoff_date = pd.Timestamp(f"{test_year-1}-12-31")
+            train_df = history_df[history_df.index <= cutoff_date]
+            test_df = history_df[history_df.index.year == test_year]
+            
+            if len(train_df) < 252 or test_df.empty: # Need enough history
+                continue
+                
+            # Generate Forecasts
+            res_med = self.calculate_median_strategy_forecast(train_df)
+            res_sd = self.calculate_sd_strategy_forecast(train_df)
+            
+            if not res_med or not res_sd:
+                continue
+            
+            # Logic: Strategy predicts an Annualized Growth Rate
+            # We compare this with the Actual Annual Return of test_year
+            
+            start_price = test_df.iloc[0]['Open']
+            end_price = test_df.iloc[-1]['Close']
+            
+            if start_price == 0: continue
+            
+            actual_return = ((end_price / start_price) - 1) * 100
+            
+            # Error = |Actual - Predicted|
+            err_med = abs(actual_return - res_med['annualized_growth'])
+            err_sd = abs(actual_return - res_sd['annualized_growth'])
+            
+            errors['median'].append(err_med)
+            errors['sd'].append(err_sd)
+            tested_years.append(test_year)
+            
+        # Determine Winner
+        avg_err_med = np.mean(errors['median']) if errors['median'] else 100
+        avg_err_sd = np.mean(errors['sd']) if errors['sd'] else 100
+        
+        winner = "median" # Default
+        if avg_err_sd < avg_err_med:
+            winner = "sd"
+            
+        return {
+            "winner": winner,
+            "median_avg_error": avg_err_med,
+            "sd_avg_error": avg_err_sd,
+            "years_tested": tested_years
+        }
+
     def calculate_2026_forecast(self, history_df):
         """
         Generates a long-term price forecast for year-end 2026 using 3 models:

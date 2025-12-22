@@ -358,23 +358,46 @@ def show_heatmap_tab():
                 st.markdown("### 🔮 2026 Forecast")
                 st.markdown("**AI-powered prediction based on Seasonal Strategies**")
                 
-                # Calculate Forecasts
+                # 1. Run Dynamic Backtest to select winner
+                with st.spinner("🔄 Backtesting strategies on historical data..."):
+                    backtest_res = analyzer.backtest_strategies(history)
+                
+                # 2. Generate Forecasts for both
                 forecast_median = analyzer.calculate_median_strategy_forecast(history)
                 forecast_sd = analyzer.calculate_sd_strategy_forecast(history)
                 
                 if forecast_median and forecast_sd:
                     current_price = history['Close'].iloc[-1]
                     
-                    # We will use Median Strategy as the main "Baseline" for visual consistency
-                    # But show SD Strategy as a comparison point
+                    # Determine Winner
+                    winner = backtest_res['winner']
                     
-                    baseline_growth = forecast_median['annualized_growth']
-                    forecast_baseline = forecast_median['forecast_price']
+                    if winner == 'sd':
+                        active_res = forecast_sd
+                        alt_res = forecast_median
+                        active_name = "SD Strategy"
+                        alt_name = "Median Strategy"
+                        active_color = "purple"
+                        alt_color = "blue"
+                        accuracy_msg = f"🏆 **SD Strategy Selected** (Avg Error: {backtest_res['sd_avg_error']:.1f}% vs {backtest_res['median_avg_error']:.1f}%)"
+                    else:
+                        active_res = forecast_median
+                        alt_res = forecast_sd
+                        active_name = "Median Strategy"
+                        alt_name = "SD Strategy"
+                        active_color = "blue"
+                        alt_color = "purple"
+                        accuracy_msg = f"🏆 **Median Strategy Selected** (Avg Error: {backtest_res['median_avg_error']:.1f}% vs {backtest_res['sd_avg_error']:.1f}%)"
                     
-                    baseline_sd_growth = forecast_sd['annualized_growth']
-                    forecast_sd_price = forecast_sd['forecast_price']
+                    # Set Baseline (Winner)
+                    baseline_growth = active_res['annualized_growth']
+                    forecast_baseline = active_res['forecast_price']
                     
-                    # Define Conservative/Aggressive relative to Median Baseline
+                    # Set Alternative
+                    alt_growth = alt_res['annualized_growth']
+                    forecast_alt = alt_res['forecast_price']
+                    
+                    # Define Conservative/Aggressive relative to Active Baseline
                     if baseline_growth > 0:
                         conservative_growth = baseline_growth * 0.8
                         aggressive_growth = baseline_growth * 1.2
@@ -390,13 +413,13 @@ def show_heatmap_tab():
                     forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
                     forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
 
-                    # Display forecast metrics
+                    # Display forecast metrics for Active Strategy
                     col_a, col_b, col_c, col_d = st.columns(4)
                     with col_a:
                         st.metric(
-                            "📍 Current Price",
-                            f"₹{current_price:.2f}",
-                            f"SD Strat: {baseline_sd_growth:.1f}%"
+                            "Selected Strategy",
+                            active_name,
+                            f"Acc: ±{min(backtest_res['median_avg_error'], backtest_res['sd_avg_error']):.1f}%"
                         )
                     with col_b:
                         st.metric(
@@ -406,7 +429,7 @@ def show_heatmap_tab():
                         )
                     with col_c:
                         st.metric(
-                            "🎯 Baseline (Median Strat)",
+                            "🎯 Baseline (Active)",
                             f"₹{forecast_baseline:.2f}",
                             f"{baseline_growth:.1f}% p.a."
                         )
@@ -417,15 +440,19 @@ def show_heatmap_tab():
                             f"{aggressive_growth:.1f}% p.a."
                         )
                     
-                    # Explanation of Strategy
-                    with st.expander("💡 Strategy Explanation", expanded=True):
-                        st.write(f"**active (Median):** {forecast_median['strategy_description']}")
-                        st.write(f"**Alternative (SD):** {forecast_sd['strategy_description']}")
+                    # Explanation
+                    with st.expander(f"ℹ️ Strategy Logic & Backtest Results", expanded=True):
+                        st.markdown(accuracy_msg)
+                        st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
+                        st.markdown(f"**Alternative ({alt_name}):** {alt_res['strategy_description']}")
+                        if backtest_res['years_tested']:
+                            st.caption(f"Tested on years: {backtest_res['years_tested']}")
+                        else:
+                            st.caption("Insufficient historical data for extensive backtesting.")
                     
                     # Projection chart
                     projection_dates = pd.date_range(today, end_of_2026, freq='ME')
                     
-                    # Calculate projection curves
                     def project_curve(start_price, growth_rate, dates):
                         values = []
                         for d in dates:
@@ -437,24 +464,33 @@ def show_heatmap_tab():
                     conservative_proj = project_curve(current_price, conservative_growth, projection_dates)
                     baseline_proj = project_curve(current_price, baseline_growth, projection_dates)
                     aggressive_proj = project_curve(current_price, aggressive_growth, projection_dates)
-                    sd_proj = project_curve(current_price, baseline_sd_growth, projection_dates)
+                    alt_proj = project_curve(current_price, alt_growth, projection_dates)
                     
                     fig_forecast = go.Figure()
+                    
+                    # Add Alternative (Dotted)
+                    fig_forecast.add_trace(go.Scatter(
+                        x=projection_dates, y=alt_proj,
+                        mode='lines', name=f'Alt: {alt_name}',
+                        line=dict(color=alt_color, dash='dot', width=2),
+                        opacity=0.6
+                    ))
+                    
+                    # Add Conservative Bounds
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=conservative_proj,
                         mode='lines', name='Conservative',
                         line=dict(color='red', dash='dash', width=2)
                     ))
+                    
+                    # Add Active Baseline (Solid)
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=baseline_proj,
-                        mode='lines', name='Median Strategy',
-                        line=dict(color='blue', width=4)
+                        mode='lines', name=f'Active: {active_name}',
+                        line=dict(color=active_color, width=4)
                     ))
-                    fig_forecast.add_trace(go.Scatter(
-                        x=projection_dates, y=sd_proj,
-                        mode='lines', name='SD Strategy',
-                        line=dict(color='purple', dash='dot', width=2)
-                    ))
+                    
+                    # Add Aggressive Bounds
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=aggressive_proj,
                         mode='lines', name='Aggressive',
@@ -471,7 +507,7 @@ def show_heatmap_tab():
                     ))
                     
                     fig_forecast.update_layout(
-                        title=f"{ticker} - Forecast Strategies Comparison",
+                        title=f"{ticker} - Forecast (Strategy: {active_name})",
                         xaxis_title="Date",
                         yaxis_title="Price (₹)",
                         height=500,
