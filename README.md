@@ -415,6 +415,7 @@ streamlit run app.py
 - v2.0: Streamlit web UI
 - v3.0: Market Visualizer (OI analysis)
 - v4.0: Monthly Heatmap & 2026 Forecast
+- v4.1: Backtesting Engine & Iterative Forecasting (Month-by-Month)
 - Security hardening (80/100 score)
 
 ### Planned 🔄
@@ -422,7 +423,6 @@ streamlit run app.py
 - Download buttons for Tab 3 charts
 - Email report notifications
 - Multi-language support
-- Backtesting engine
 
 ---
 
@@ -431,7 +431,7 @@ streamlit run app.py
 This is a personal project, but feel free to:
 - Fork for your own use
 - Report issues on GitHub
--提交 pull requests
+- Sort pull requests
 
 ---
 
@@ -464,4 +464,4 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: December 22, 2025*
+*Last Updated: December 23, 2025*
