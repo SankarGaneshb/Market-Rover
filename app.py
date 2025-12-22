@@ -237,8 +237,33 @@ def show_heatmap_tab():
     
     # Compact input row at top
     col_input, col_button, col_info = st.columns([2, 2, 3])
+    from tools.ticker_resources import get_common_tickers
+    
     with col_input:
-        ticker_raw = st.text_input("Stock Ticker", value="SBIN", key="heatmap_ticker", placeholder="e.g., SBIN, TCS")
+        # Smart Ticker Selection
+        common_tickers = get_common_tickers()
+        # Find index of SBIN for default
+        default_ix = 0
+        for i, t in enumerate(common_tickers):
+            if "SBIN.NS" in t:
+                default_ix = i + 1 # +1 because of "Select" option
+                break
+                
+        ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ ROI/Custom Input"]
+        
+        selected_opt = st.selectbox(
+            "Stock Selection", 
+            options=ticker_options, 
+            index=default_ix if default_ix < len(ticker_options) else 0,
+            key="heatmap_ticker_select",
+            help="Type to search regular stocks (e.g. 'Tata', 'HDFC'). Select 'Custom' for others."
+        )
+        
+        if selected_opt == "✏️ ROI/Custom Input" or selected_opt == "✨ Select or Type to Search...":
+             ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value="SBIN", key="heatmap_ticker_custom")
+        else:
+             # Extract "SBIN.NS" from "SBIN.NS - State Bank..."
+             ticker_raw = selected_opt.split(' - ')[0]
     
     with col_button:
         st.write("")  # Spacer for alignment
