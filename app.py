@@ -96,6 +96,75 @@ def main():
             help="Use mock data without API calls"
         )
         st.session_state.test_mode = test_mode
+
+        
+        if test_mode:
+            st.info("🧪 Test mode enabled - using mock data")
+        
+        # Observability metrics
+        st.markdown("---")
+        with st.expander("📊 Observability", expanded=False):
+            st.markdown("### Real-Time Metrics")
+            
+            # API Usage
+            api_usage = get_api_usage()
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
+            with col2:
+                st.metric("Remaining", api_usage['remaining'])
+            
+            # Progress bar for API quota
+            quota_pct = api_usage['today'] / api_usage['limit']
+            st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
+            
+            st.markdown("---")
+            
+            # Performance Stats
+            perf_stats = get_performance_stats()
+            if perf_stats['total_analyses'] > 0:
+                st.markdown("**Performance**")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(
+                        "Total Analyses",
+                        perf_stats['total_analyses']
+                    )
+                with col2:
+                    st.metric(
+                        "Avg Duration",
+                        f"{perf_stats['avg_duration']:.1f}s"
+                    )
+                st.markdown("---")
+            
+            # Cache Stats
+            cache_stats = get_cache_stats()
+            total_cache = cache_stats['hits'] + cache_stats['misses']
+            if total_cache > 0:
+                st.markdown("**Cache Performance**")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Hit Rate", f"{cache_stats['hit_rate']:.0f}%")
+                with col2:
+                    st.metric("Total Ops", total_cache)
+                st.markdown("---")
+            
+            # Error Stats
+            error_stats = get_error_stats()
+            if error_stats['total'] > 0:
+                st.markdown("**Errors**")
+                st.metric("Total Errors", error_stats['total'])
+                if error_stats['by_type']:
+                    st.json(error_stats['by_type'], expanded=False)
+            
+            # Refresh button (note: refreshes entire app)
+            if st.button("🔄 Refresh App", width="stretch", help="Refreshes the entire app to update all metrics"):
+                st.rerun()
+        
+        st.markdown("---")
+        st.markdown("### 📚 Recent Reports")
+        show_recent_reports()
+
     
     # Main content area
     tab1, tab2, tab3 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
@@ -122,19 +191,11 @@ def show_visualizer_tab():
     with col1:
         ticker_raw = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN", key="viz_ticker")
         
-        if st.button("Generate Snapshot", type="primary", use_container_width=True, key="btn_viz"):
+        if st.button("Generate Snapshot", type="primary", width="stretch", key="btn_viz"):
             # Sanitize input
             ticker = sanitize_ticker(ticker_raw)
             if not ticker:
-                st.error("❌ Invalid ticker format. Please enter a valid stock symbol (e.g., SBIN, TCS, RELIANCE)")
-                return
-            
-            # Check rate limit
-            allowed, message = st.session_state.visualizer_limiter.is_allowed()
-            if not allowed:
-                st.warning(f"⏱️ {message}")
-                remaining = st.session_state.visualizer_limiter.get_remaining()
-                st.info(f"Remaining requests: {remaining}/30 per minute")
+                st.error("Please enter a ticker symbol.")
                 return
                 
             with st.spinner(f"🎨 Generating snapshot for {ticker}... This may take a minute."):
@@ -146,7 +207,7 @@ def show_visualizer_tab():
                         
                         # Display Image
                         if result['image_path']:
-                            st.image(result['image_path'], caption=f"Market Snapshot: {ticker}", use_container_width=True)
+                            st.image(result['image_path'], caption=f"Market Snapshot: {ticker}", width="stretch")
                         
                         # Display Summary
                         st.markdown("### 📝 Analysis Summary")
@@ -160,15 +221,13 @@ def show_visualizer_tab():
                     st.error(f"An unexpected error occurred: {str(e)}")
     
     with col2:
-        st.info("💡 **Tip:** Use liquid stocks with F&O data for best results (Heatmap + OI Analysis).")
+        st.info("💡 **Tip:** This module also includes the V4 Heatmap features.")
         st.markdown("""
-        **What you get (Single composite image):**
-        - 📊 **Price Chart**: 6-month price action with volatility bands and scenario targets
-        - 🌡️ **Monthly Heatmap**: Historical monthly returns matrix (color-coded)
-        - 🧱 **OI Walls**: Support & Resistance levels from Options Open Interest
-        - 🎯 **Scenario Targets**: Bull/Bear/Neutral price targets for current expiry
-        
-        **Output:** Premium dashboard image (PNG) with all 4 panels combined
+        **Dashboard Features:**
+        - 📊 **Price Chart**: With volatility bands and time-adjusted targets.
+        - 🌡️ **Monthly Heatmap**: Historical performance from IPO to date.
+        - 🧱 **OI Walls**: Support & Resistance levels based on Open Interest.
+        - 🔮 **2026 Forecast**: Long-term trend projection.
         """)
 
 def show_heatmap_tab():
@@ -491,14 +550,14 @@ def show_upload_tab(max_parallel: int):
             
             # Portfolio preview
             st.subheader("📋 Portfolio Preview")
-            st.dataframe(df, use_container_width=True)
+            st.dataframe(df, width="stretch")
             
             # Analysis button
             st.markdown("---")
             col1, col2, col3 = st.columns([1, 2, 1])
             
             with col2:
-                if st.button("🚀 Analyze Portfolio", type="primary", use_container_width=True):
+                if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
                     run_analysis(df, uploaded_file.name, max_parallel)
         
         except Exception as e:
@@ -514,7 +573,7 @@ def show_upload_tab(max_parallel: int):
                 'Quantity': [10, 5, 15],
                 'Average Price': [2450.50, 3550.00, 1450.75]
             })
-            st.dataframe(example_df, use_container_width=True)
+            st.dataframe(example_df, width="stretch")
     
     # Add reports viewing section
     st.markdown("---")
@@ -685,13 +744,13 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             # Sentiment pie chart
             if sum(sentiment_data.values()) > 0:
                 fig_sentiment = visualizer.create_sentiment_pie_chart(sentiment_data)
-                st.plotly_chart(fig_sentiment, use_container_width=True)
+                st.plotly_chart(fig_sentiment, width="stretch")
         
         with col2:
             # Portfolio risk heatmap
             if stock_risk_data:
                 fig_heatmap = visualizer.create_portfolio_heatmap(stock_risk_data)
-                st.plotly_chart(fig_heatmap, use_container_width=True)
+                st.plotly_chart(fig_heatmap, width="stretch")
         
         # Individual stock risk gauges
         if stock_risk_data and len(stock_risk_data) <= 6:  # Show gauges for small portfolios
@@ -704,13 +763,13 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                         stock_data['risk_score'], 
                         stock_data['symbol']
                     )
-                    st.plotly_chart(fig_gauge, use_container_width=True)
+                    st.plotly_chart(fig_gauge, width="stretch")
         
         # News timeline (if available)
         if news_timeline_data:
             st.markdown("### 📅 News Timeline")
             fig_timeline = visualizer.create_news_timeline(news_timeline_data)
-            st.plotly_chart(fig_timeline, use_container_width=True)
+            st.plotly_chart(fig_timeline, width="stretch")
         
         # Show report text in expander
         with st.expander("📄 Full Text Report", expanded=False):
@@ -726,7 +785,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 data=str(result),
                 file_name=report_filename.replace('.txt', '_text.txt'),
                 mime="text/plain",
-                use_container_width=True
+                width="stretch"
             )
         
         with download_col2:
@@ -748,7 +807,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 data=html_content,
                 file_name=report_filename.replace('.txt', '.html'),
                 mime="text/html",
-                use_container_width=True
+                width="stretch"
             )
         
         with download_col3:
@@ -759,7 +818,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 data=csv_data,
                 file_name=report_filename.replace('.txt', '_data.csv'),
                 mime="text/csv",
-                use_container_width=True
+                width="stretch"
             )
     
     except Exception as e:
@@ -963,7 +1022,7 @@ def show_reports_tab():
                                 file_name=files['txt'].name,
                                 mime="text/plain",
                                 key=f"download_txt_{timestamp}",
-                                use_container_width=True
+                                width="stretch"
                             )
                         col_idx += 1
                     
@@ -977,7 +1036,7 @@ def show_reports_tab():
                                 file_name=files['html'].name,
                                 mime="text/html",
                                 key=f"download_html_{timestamp}",
-                                use_container_width=True
+                                width="stretch"
                             )
         else:
             st.info("ℹ️ No reports found. Analyze a portfolio to generate reports.")
