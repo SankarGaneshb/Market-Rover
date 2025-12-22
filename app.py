@@ -485,7 +485,7 @@ def show_heatmap_tab():
                     # Trace 1: Aggressive Bound (Fills down to Conservative)
                     fig_forecast.add_trace(go.Scatter(
                         x=projection_dates, y=aggressive_proj,
-                        mode='lines', name='Uncertainty Range',
+                        mode='lines', name='Potential Range',
                         fill='tonexty', # Fills to previous trace (Conservative)
                         fillcolor='rgba(200, 200, 200, 0.2)', # Light gray transparent
                         line=dict(width=0),
