@@ -34,7 +34,7 @@ Upload your portfolio and get comprehensive AI-powered insights:
 - ✅ **Market Context** - Analyze Nifty 50 and sector trends
 - ✅ **Weekly Intelligence Reports** - Comprehensive briefings with risk highlights
 - ✅ **View Report History** - Browse, search, and download past analyses
-- ✅ **Export Options** - TXT, HTML, CSV formats
+- ✅ **Export Options** - HTML format
 
 ### **📈 Market Visualizer (Tab 2)**
 
@@ -116,7 +116,7 @@ Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.10+ (Required for CrewAI 1.0+)
 - Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
 
 ### Installation
@@ -465,3 +465,19 @@ Personal use. Ensure compliance with data source terms of service:
 **Market-Rover** - Your intelligent stock companion 🚀
 
 *Last Updated: December 23, 2025*
+
+---
+
+## ⚠️ Investment Disclaimer
+
+**Market-Rover is for informational and educational purposes only.**
+
+- This application does NOT provide investment, financial, legal, or tax advice.
+- All analyses, forecasts, and recommendations are automated and may be inaccurate.
+- Past performance does not guarantee future results.
+- You should consult with a qualified financial advisor before making investment decisions.
+- The creators of Market-Rover assume no liability for financial losses.
+- By using this application, you acknowledge these risks and agree to use at your own discretion.
+
+**NSE Data Disclaimer:**
+This application uses publicly available data from NSE and Yahoo Finance. We do not guarantee the accuracy, completeness, or timeliness of this data.

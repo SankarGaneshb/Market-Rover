@@ -344,13 +344,7 @@ class DerivativeAnalyzer:
             }
         }
 
-        return {
-            "forecast_price": forecast_price,
-            "annualized_growth": annualized_growth,
-            "monthly_growth": None, # Variable
-            "strategy_description": strategy_msg,
-             "projection_path": projection_path # List of {date, price}
-        }
+
 
     def _get_strategy_monthly_rate(self, monthly_returns, target_month_idx, strategy_type='median'):
         """

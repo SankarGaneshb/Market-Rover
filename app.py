@@ -1,5 +1,5 @@
 """
-Market-Rover 2.0 - Streamlit Web Application
+Market-Rover 4.0 - Streamlit Web Application
 Interactive portfolio analysis with real-time progress tracking, visualizers, and forecasts.
 """
 import streamlit as st
@@ -21,7 +21,7 @@ from utils.logger import get_logger, log_analysis_start, log_analysis_complete, 
 from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
                            get_error_stats, track_performance, track_api_call)
 from utils.visualizer_interface import generate_market_snapshot
-from utils.security import sanitize_ticker, RateLimiter, validate_csv_content
+from utils.security import sanitize_ticker, RateLimiter, validate_csv_content, sanitize_llm_input
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -49,6 +49,8 @@ if 'visualizer_limiter' not in st.session_state:
     st.session_state.visualizer_limiter = RateLimiter(max_requests=30, time_window_seconds=60)
 if 'heatmap_limiter' not in st.session_state:
     st.session_state.heatmap_limiter = RateLimiter(max_requests=20, time_window_seconds=60)
+if 'portfolio_limiter' not in st.session_state:
+    st.session_state.portfolio_limiter = RateLimiter(max_requests=5, time_window_seconds=300) # 5 per 5 mins
 
 
 def main():
@@ -77,6 +79,10 @@ def main():
         ---
         
         **Features:** ⚡ Fast | 🔒 Secure | 📊 Interactive
+        
+        ---
+        ### ⚠️ Legal Disclaimer
+        *Market-Rover is for informational purposes only. No financial advice provided. Past performance does not guarantee future results. Consult a financial advisor before investing.*
         """)
         
         st.markdown("---")
@@ -189,6 +195,7 @@ def show_visualizer_tab():
     
     col1, col2 = st.columns([1, 2])
     with col1:
+        st.info("⚠️ **Disclaimer:** Automated analysis. Not financial advice.")
         ticker_raw = st.text_input("Enter Stock Ticker (e.g., SBIN, TCS)", value="SBIN", key="viz_ticker")
         
         if st.button("Generate Snapshot", type="primary", width="stretch", key="btn_viz"):
@@ -197,7 +204,13 @@ def show_visualizer_tab():
             if not ticker:
                 st.error("Please enter a ticker symbol.")
                 return
-                
+
+            # Check rate limit
+            allowed, message = st.session_state.visualizer_limiter.is_allowed()
+            if not allowed:
+                 st.warning(f"⏱️ {message}")
+                 return
+
             with st.spinner(f"🎨 Generating snapshot for {ticker}... This may take a minute."):
                 try:
                     result = generate_market_snapshot(ticker)
@@ -236,6 +249,7 @@ def show_heatmap_tab():
     st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions** with interactive charts.")
     
     # Compact input row at top
+    st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns. Do not treat as guaranteed price targets.")
     col_input, col_button, col_info = st.columns([2, 2, 3])
     from tools.ticker_resources import get_common_tickers
     
@@ -602,6 +616,28 @@ def load_portfolio_file(file_bytes, filename):
     required_columns = ['Symbol', 'Company Name']
     if not all(col in df.columns for col in required_columns):
         raise ValueError(f"CSV must contain columns: {', '.join(required_columns)}")
+
+    # Security: Sanitize inputs to prevent injection checks
+    # Use local import if not globally available, but we added it to global imports
+    from utils.security import sanitize_ticker, sanitize_llm_input
+    
+    try:
+        # 1. Sanitize Tickers (Strict Regex)
+        df['Symbol'] = df['Symbol'].astype(str).apply(sanitize_ticker)
+        
+        # 2. Sanitize Company Names (LLM Prompt Injection Prevention)
+        df['Company Name'] = df['Company Name'].astype(str).apply(lambda x: sanitize_llm_input(x, max_length=100))
+        
+        # 3. Drop invalid rows
+        initial_len = len(df)
+        df = df.dropna(subset=['Symbol'])
+        dropped = initial_len - len(df)
+        
+        if dropped > 0:
+            print(f"⚠️ Security: Dropped {dropped} rows with invalid/malicious tickers")
+            
+    except Exception as e:
+        raise ValueError(f"Sanitization failed: {str(e)}")
     
     return df
 
@@ -636,7 +672,13 @@ def show_upload_tab(max_parallel: int):
             
             with col2:
                 if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
-                    run_analysis(df, uploaded_file.name, max_parallel)
+                    # Check rate limit
+                    allowed, message = st.session_state.portfolio_limiter.is_allowed()
+                    if not allowed:
+                        st.error(f"⏱️ {message}")
+                        st.info("Portfolio analysis is resource-intensive. Please wait before retrying.")
+                    else:
+                        run_analysis(df, uploaded_file.name, max_parallel)
         
         except Exception as e:
             st.error(f"❌ Error reading CSV: {str(e)}")
