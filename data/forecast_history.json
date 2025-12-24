@@ -1,0 +1,111 @@
+[
+  {
+    "timestamp": "2025-12-24T17:51:23.248905",
+    "ticker": "^BSESN",
+    "current_price": 85408.703125,
+    "target_price": 98572.46735847679,
+    "target_date": "2026-12-31",
+    "strategy": "Median Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023,
+      2022
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:01:52.432823",
+    "ticker": "^NSEI",
+    "current_price": 26142.099609375,
+    "target_price": 29303.81364997383,
+    "target_date": "2026-12-31",
+    "strategy": "Median Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023,
+      2022
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:14:33.822963",
+    "ticker": "ADANIPORTS.NS",
+    "current_price": 1494.300048828125,
+    "target_price": 1748.7123122443174,
+    "target_date": "2026-12-31",
+    "strategy": "SD Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023,
+      2022
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:22:29.293588",
+    "ticker": "BANKBARODA.NS",
+    "current_price": 290.54998779296875,
+    "target_price": 360.97967028427774,
+    "target_date": "2026-12-31",
+    "strategy": "SD Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023,
+      2022
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:24:14.413879",
+    "ticker": "TATAMOTORS.NS",
+    "current_price": 363.25,
+    "target_price": 454.66162123154925,
+    "target_date": "2026-12-31",
+    "strategy": "SD Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023,
+      2022
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:25:14.005532",
+    "ticker": "NYKAA.NS",
+    "current_price": 257.95001220703125,
+    "target_price": 226.89645094036098,
+    "target_date": "2026-12-31",
+    "strategy": "Median Strategy",
+    "confidence": "High",
+    "years_tested": [
+      2025,
+      2024,
+      2023
+    ],
+    "status": "active"
+  },
+  {
+    "timestamp": "2025-12-24T19:36:24.758712",
+    "ticker": "TMB",
+    "current_price": 512.2999877929688,
+    "target_price": 548.4433252578724,
+    "target_date": "2026-12-31",
+    "strategy": "Median Strategy",
+    "confidence": "Average",
+    "years_tested": [
+      2025,
+      2024
+    ],
+    "status": "active"
+  }
+]

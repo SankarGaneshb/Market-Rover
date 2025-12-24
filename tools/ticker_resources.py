@@ -1,8 +1,8 @@
 
 # Common NSE/BSE Tickers for Autocomplete
-# This list includes Nifty 50, Nifty Bank, and other popular traded stocks.
+# Categorized for filtering
 
-COMMON_TICKERS = [
+NIFTY_50 = [
     "RELIANCE.NS - Reliance Industries Ltd",
     "TCS.NS - Tata Consultancy Services Ltd",
     "HDFCBANK.NS - HDFC Bank Ltd",
@@ -52,6 +52,58 @@ COMMON_TICKERS = [
     "UPL.NS - UPL Ltd",
     "INDUSINDBK.NS - IndusInd Bank Ltd",
     "BAJAJ-AUTO.NS - Bajaj Auto Ltd",
+    "LTIM.NS - LTIMindtree Ltd"
+]
+
+SENSEX = [
+    "RELIANCE.NS - Reliance Industries Ltd",
+    "TCS.NS - Tata Consultancy Services Ltd",
+    "HDFCBANK.NS - HDFC Bank Ltd",
+    "ICICIBANK.NS - ICICI Bank Ltd",
+    "INFY.NS - Infosys Ltd",
+    "SBIN.NS - State Bank of India",
+    "BHARTIARTL.NS - Bharti Airtel Ltd",
+    "ITC.NS - ITC Ltd",
+    "KOTAKBANK.NS - Kotak Mahindra Bank Ltd",
+    "LT.NS - Larsen & Toubro Ltd",
+    "HINDUNILVR.NS - Hindustan Unilever Ltd",
+    "AXISBANK.NS - Axis Bank Ltd",
+    "BAJFINANCE.NS - Bajaj Finance Ltd",
+    "MARUTI.NS - Maruti Suzuki India Ltd",
+    "ASIANPAINT.NS - Asian Paints Ltd",
+    "HCLTECH.NS - HCL Technologies Ltd",
+    "TITAN.NS - Titan Company Ltd",
+    "SUNPHARMA.NS - Sun Pharmaceutical Industries Ltd",
+    "ULTRACEMCO.NS - UltraTech Cement Ltd",
+    "TATASTEEL.NS - Tata Steel Ltd",
+    "NTPC.NS - NTPC Ltd",
+    "POWERGRID.NS - Power Grid Corporation of India Ltd",
+    "BAJAJFINSV.NS - Bajaj Finserv Ltd",
+    "TATAMOTORS.NS - Tata Motors Ltd",
+    "M&M.NS - Mahindra & Mahindra Ltd",
+    "INDUSINDBK.NS - IndusInd Bank Ltd",
+    "BAJAJ-AUTO.NS - Bajaj Auto Ltd",
+    "WIPRO.NS - Wipro Ltd",
+    "JSWSTEEL.NS - JSW Steel Ltd",
+    "TECHM.NS - Tech Mahindra Ltd"
+]
+
+BANK_NIFTY = [
+    "HDFCBANK.NS - HDFC Bank Ltd",
+    "ICICIBANK.NS - ICICI Bank Ltd",
+    "SBIN.NS - State Bank of India",
+    "AXISBANK.NS - Axis Bank Ltd",
+    "KOTAKBANK.NS - Kotak Mahindra Bank Ltd",
+    "INDUSINDBK.NS - IndusInd Bank Ltd",
+    "AUBANK.NS - AU Small Finance Bank Ltd",
+    "FEDERALBNK.NS - The Federal Bank Ltd",
+    "IDFCFIRSTB.NS - IDFC First Bank Ltd",
+    "BANDHANBNK.NS - Bandhan Bank Ltd",
+    "PNB.NS - Punjab National Bank",
+    "BANKBARODA.NS - Bank of Baroda"
+]
+
+POPULAR_OTHERS = [
     "ZOMATO.NS - Zomato Ltd",
     "PAYTM.NS - One97 Communications Ltd",
     "NYKAA.NS - FSN E-Commerce Ventures Ltd",
@@ -73,14 +125,20 @@ COMMON_TICKERS = [
     "ABB.NS - ABB India Ltd",
     "AMBUJACEM.NS - Ambuja Cements Ltd",
     "GAIL.NS - GAIL (India) Ltd",
-    "BOSCHLTD.NS - Bosch Ltd",
-    "LTIM.NS - LTIMindtree Ltd",
-    "PNB.NS - Punjab National Bank",
-    "BANKBARODA.NS - Bank of Baroda",
-    "CANBK.NS - Canara Bank",
-    "UNIONBANK.NS - Union Bank of India",
-    "IDFCFIRSTB.NS - IDFC First Bank Ltd"
+    "BOSCHLTD.NS - Bosch Ltd"
 ]
 
-def get_common_tickers():
-    return sorted(COMMON_TICKERS)
+def get_common_tickers(category="All"):
+    """
+    Returns tickers based on category.
+    """
+    if category == "Nifty 50":
+        return sorted(NIFTY_50)
+    elif category == "Sensex":
+        return sorted(SENSEX)
+    elif category == "Bank Nifty":
+        return sorted(BANK_NIFTY)
+    else:
+        # Combine all unique tickers
+        all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS))
+        return sorted(all_tickers)

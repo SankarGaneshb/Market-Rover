@@ -12,6 +12,9 @@ import time
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent))
 
+import os
+os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
+
 from crew import create_crew
 from config import UPLOAD_DIR, REPORT_DIR
 from utils.job_manager import JobManager
@@ -22,6 +25,8 @@ from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats
                            get_error_stats, track_performance, track_api_call)
 from utils.visualizer_interface import generate_market_snapshot
 from utils.security import sanitize_ticker, RateLimiter, validate_csv_content, sanitize_llm_input
+from utils.forecast_tracker import get_forecast_history
+import yfinance as yf
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -173,7 +178,7 @@ def main():
 
     
     # Main content area
-    tab1, tab2, tab3 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap", "📊 Benchmark Index", "🎯 Forecast Tracker"])
     
     with tab1:
         show_upload_tab(max_parallel)
@@ -183,6 +188,12 @@ def main():
 
     with tab3:
         show_heatmap_tab()
+        
+    with tab4:
+        show_benchmark_tab()
+
+    with tab5:
+        show_forecast_tracker_tab()
     
     # Disclaimer at bottom - always visible like a status bar
     st.markdown("---")
@@ -244,23 +255,30 @@ def show_visualizer_tab():
         """)
 
 def show_heatmap_tab():
-    """Show the Monthly Heatmap & 2026 Forecast tab (V4.0) - Interactive historical analysis and predictions"""
+    """Show the Monthly Heatmap & 2026 Forecast tab (V4.0)"""
     st.header("🔥 Monthly Heatmap & 2026 Forecast")
-    st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions** with interactive charts.")
+    st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions**.")
     
-    # Compact input row at top
     st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns. Do not treat as guaranteed price targets.")
-    col_input, col_button, col_info = st.columns([2, 2, 3])
+    
+    # Standard Input UI (Restored)
+    col_filter, col_input, col_button, col_info = st.columns([1.5, 2, 1, 3])
     from tools.ticker_resources import get_common_tickers
     
+    with col_filter:
+        ticker_category = st.pills(
+            "Filter by Index",
+            options=["All", "Nifty 50", "Sensex", "Bank Nifty"],
+            default="All",
+            key="heatmap_category_pills"
+        )
+
     with col_input:
-        # Smart Ticker Selection
-        common_tickers = get_common_tickers()
-        # Find index of SBIN for default
+        common_tickers = get_common_tickers(category=ticker_category)
         default_ix = 0
         for i, t in enumerate(common_tickers):
             if "SBIN.NS" in t:
-                default_ix = i + 1 # +1 because of "Select" option
+                default_ix = i + 1 
                 break
                 
         ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ ROI/Custom Input"]
@@ -270,341 +288,393 @@ def show_heatmap_tab():
             options=ticker_options, 
             index=default_ix if default_ix < len(ticker_options) else 0,
             key="heatmap_ticker_select",
-            help="Type to search regular stocks (e.g. 'Tata', 'HDFC'). Select 'Custom' for others."
+            help=f"Listing {ticker_category} stocks." if ticker_category != "All" else "Type to search regular stocks."
         )
         
         if selected_opt == "✏️ ROI/Custom Input" or selected_opt == "✨ Select or Type to Search...":
              ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value="SBIN", key="heatmap_ticker_custom")
         else:
-             # Extract "SBIN.NS" from "SBIN.NS - State Bank..."
              ticker_raw = selected_opt.split(' - ')[0]
     
     with col_button:
-        st.write("")  # Spacer for alignment
-        analyze_button = st.button("📊 Generate Analysis", type="primary", use_container_width=True, key="btn_heatmap")
-    
+        st.write("") 
+        analyze_button = st.button("📊 Analyze", type="primary", use_container_width=True, key="btn_heatmap")
+
     with col_info:
-        with st.expander("ℹ️ What you get", expanded=False):
-            st.markdown("""
-            **Interactive Analysis:**
-            - 🌡️ Monthly Heatmap (Year × Month returns)
-            - 📅 Seasonality Trends (Best/worst months)
-            - 🔮 2026 Forecast (Conservative/Baseline/Aggressive)
-            - 📈 Projection Chart + Key Insights
-            """)
-    
+        st.info("💡 **Tip:** Use the **Benchmark Index** tab to analyze Nifty, Bank Nifty, etc.")
+        
     st.markdown("---")
     
-    # Full-width area for chart display
-    if analyze_button:
-        # Sanitize input
-        ticker = sanitize_ticker(ticker_raw)
-        if not ticker:
-            st.error("❌ Invalid ticker format. Please enter a valid stock symbol (e.g., SBIN, TCS, RELIANCE)")
-            return
+    # Initialize session state for this tab
+    if 'heatmap_active_ticker' not in st.session_state:
+        st.session_state.heatmap_active_ticker = None
         
-        # Check rate limit
-        allowed, message = st.session_state.heatmap_limiter.is_allowed()
-        if not allowed:
-            st.warning(f"⏱️ {message}")
-            remaining = st.session_state.heatmap_limiter.get_remaining()
-            st.info(f"Remaining requests: {remaining}/20 per minute")
-            return
+    if analyze_button:
+         st.session_state.heatmap_active_ticker = ticker_raw
+    
+    # Run analysis if a ticker is active
+    if st.session_state.heatmap_active_ticker:
+         run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter)
+
+def show_benchmark_tab():
+    """Show the Benchmark Analysis tab"""
+    st.header("📊 Benchmark Index Analysis")
+    st.markdown("Quickly analyze major market indices for broader market sentiment and forecast.")
+    
+    st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates.")
+    
+    # Define Major Indices
+    major_indices = {
+        "Nifty 50": "^NSEI",
+        "Sensex": "^BSESN",
+        "Bank Nifty": "^NSEBANK",
+        "Nifty IT": "^CNXIT",
+        "Nifty Auto": "^CNXAUTO",
+        "Nifty FMCG": "^CNXFMCG",
+        "Nifty Metal": "^CNXMETAL",
+        "Nifty Midcap 100": "^CRSLDX", 
+        "Nifty Smallcap 100": "^CNXSC" 
+    }
+    
+    index_names = list(major_indices.keys())
+    
+    st.markdown("##### ⚡ Quick Select Index")
+    selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
+    
+    if selected_index:
+        ticker = major_indices[selected_index]
+        st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
+        run_analysis_ui(ticker, st.session_state.heatmap_limiter) 
+
+def show_forecast_tracker_tab():
+    """Show the Forecast Tracker Dashboard (Tab 5)"""
+    st.header("🎯 Forecast Tracker")
+    st.markdown("Track the performance of your saved forecasts against live market prices.")
+    
+    # 1. Load History
+    history = get_forecast_history()
+    
+    if not history:
+        st.info("ℹ️ No saved forecasts yet. Use the **'Save Forecast'** button in the Analysis tabs to track predictions.")
+        return
+        
+    st.caption(f"Found {len(history)} saved forecasts.")
+    
+    # 2. Get Unique Tickers for Bulk Fetch
+    tickers = list(set([h['ticker'] for h in history]))
+    
+    # 3. Fetch Live Prices (with progress bar)
+    live_prices = {}
+    progress_bar = st.progress(0)
+    
+    for i, ticker in enumerate(tickers):
+        try:
+            # Use basic yfinance for speed
+            t = yf.Ticker(ticker)
+            # Use 'regularMarketPrice' or fast history
+            todays_data = t.history(period="1d")
+            if not todays_data.empty:
+                live_prices[ticker] = todays_data['Close'].iloc[-1]
+            else:
+                live_prices[ticker] = None
+        except Exception as e:
+            time.sleep(0.1)
+            live_prices[ticker] = None
+        
+        progress_bar.progress((i + 1) / len(tickers))
+        
+    progress_bar.empty()
+    
+    # 4. Build Table Data
+    table_data = []
+    for h in history:
+        ticker = h['ticker']
+        saved_price = h['current_price']
+        curr_price = live_prices.get(ticker, 0)
+        
+        # Calculate performance
+        if curr_price:
+            change_pct = ((curr_price - saved_price) / saved_price) * 100
+        else:
+            change_pct = 0.0
+            curr_price = 0.0 # N/A
             
-        with st.spinner(f"🔥 Analyzing {ticker}... Fetching historical data & building forecast..."):
-            try:
-                # Import necessary modules
-                from tools.market_data import MarketDataFetcher
-                from tools.derivative_analysis import DerivativeAnalyzer
-                import plotly.graph_objects as go
-                import plotly.express as px
-                from plotly.subplots import make_subplots
-                import pandas as pd
-                import numpy as np
+        saved_date = datetime.fromisoformat(h['timestamp']).strftime("%Y-%m-%d")
+        
+        table_data.append({
+            "Delete": False,  # Selection col
+            "Date Saved": saved_date,
+            "Ticker": ticker,
+            "Entry Price": saved_price,
+            "Current Price": curr_price,
+            "Change %": change_pct,
+            "Target (2026)": h['target_price'],
+            "Strategy": h['strategy'],
+            "Confidence": h['confidence'],
+            "ID": h['timestamp'] # Hidden ID
+        })
+        
+    # 5. Display Interactive Data Editor
+    df = pd.DataFrame(table_data)
+    
+    # Configure columns
+    # We want 'Delete' to be editable, others read-only ideally
+    edited_df = st.data_editor(
+        df,
+        column_config={
+            "Delete": st.column_config.CheckboxColumn(
+                "Delete?",
+                help="Select to delete",
+                default=False,
+            ),
+            "Entry Price": st.column_config.NumberColumn(format="₹%.2f"),
+            "Current Price": st.column_config.NumberColumn(format="₹%.2f"),
+            "Change %": st.column_config.NumberColumn(format="%.2f%%"),
+            "Target (2026)": st.column_config.NumberColumn(format="₹%.2f"),
+            "ID": None # Hide ID column
+        },
+        disabled=["Date Saved", "Ticker", "Entry Price", "Current Price", "Change %", "Target (2026)", "Strategy", "Confidence"],
+        hide_index=True,
+        use_container_width=True,
+        key="forecast_editor"
+    )
+    
+    # 6. Deletion Logic
+    if not edited_df.empty:
+        to_delete = edited_df[edited_df["Delete"] == True]
+        
+        if not to_delete.empty:
+            st.warning(f"⚠️ You have selected {len(to_delete)} forecasts for deletion.")
+            if st.button("🗑️ Delete Selected Forecasts", type="primary"):
+                # Get IDs (timestamps)
+                ids_to_del = to_delete["ID"].tolist()
                 
-                # Fetch data
-                fetcher = MarketDataFetcher()
-                analyzer = DerivativeAnalyzer()
-                
-                st.info(f"📥 Fetching historical data for {ticker}...")
-                history = fetcher.fetch_full_history(ticker)
-                
-                if history.empty:
-                    st.error(f"❌ Could not fetch data for {ticker}")
-                    return
-                
-                # Calculate monthly returns matrix
-                st.info("🧮 Calculating monthly returns...")
-                returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
-                
-                # Calculate seasonality
-                seasonality_stats = analyzer.calculate_seasonality(history)
-                
-                # Display success
-                st.success(f"✅ Analysis complete! Analyzed {len(history)} trading days")
-                
-                # === VISUALIZATION 1: Monthly Returns Heatmap ===
-                st.markdown("### 🌡️ Monthly Returns Heatmap")
-                st.markdown(f"**Historical performance matrix showing monthly % returns for {ticker}**")
-                
-                if not returns_matrix.empty:
-                    fig_heatmap = px.imshow(
-                        returns_matrix,
-                        labels=dict(x="Month", y="Year", color="Return %"),
-                        x=returns_matrix.columns,
-                        y=returns_matrix.index,
-                        color_continuous_scale="RdYlGn",
-                        color_continuous_midpoint=0,
-                        aspect="auto",
-                        text_auto=".1f"
-                    )
-                    fig_heatmap.update_layout(
-                        title=f"{ticker} - Monthly Returns Heatmap (% Change)",
-                        height=600,  # Increased from 500
-                        xaxis_title="Month",
-                        yaxis_title="Year"
-                    )
-                    st.plotly_chart(fig_heatmap, use_container_width=True)
+                from utils.forecast_tracker import delete_forecasts
+                if delete_forecasts(ids_to_del):
+                    st.success("✅ Forecasts deleted!")
+                    st.rerun()
                 else:
-                    st.warning("No monthly data available for heatmap")
+                    st.error("❌ Error deleting forecasts.")
+
+    # 7. Summary Metrics
+    st.markdown("---")
+
+    avg_perf = df["Change %"].mean()
+    col1, col2 = st.columns(2)
+    col1.metric("Avg Portfolio Performance", f"{avg_perf:+.2f}%")
+    col2.metric("Active Forecasts", len(df))
+
+def run_analysis_ui(ticker_raw, limiter):
+    """Shared function to run analysis and render UI"""
+    # Sanitize input
+    ticker = sanitize_ticker(ticker_raw)
+    if not ticker:
+        st.error(f"❌ Invalid ticker format: {ticker_raw}")
+        return
+    
+    # Check rate limit
+    allowed, message = limiter.is_allowed()
+    if not allowed:
+        st.warning(f"⏱️ {message}")
+        return
+        
+    with st.spinner(f"🔥 Analyzing {ticker}..."):
+         try:
+            # Import necessary modules
+            from tools.market_data import MarketDataFetcher
+            from tools.derivative_analysis import DerivativeAnalyzer
+            import plotly.graph_objects as go
+            import plotly.express as px
+            import pandas as pd
+            
+            # Fetch data
+            fetcher = MarketDataFetcher()
+            analyzer = DerivativeAnalyzer()
+            
+            history = fetcher.fetch_full_history(ticker)
+            
+            if history.empty:
+                st.error(f"❌ Could not fetch data for {ticker}")
+                return
+            
+            # Calculate monthly returns matrix
+            returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
+            seasonality_stats = analyzer.calculate_seasonality(history)
+            
+            st.success(f"✅ Analysis complete! ({len(history)} days)")
+            
+            # === VISUALIZATION 1: Monthly Returns Heatmap ===
+            st.markdown("### 🌡️ Monthly Returns Heatmap")
+            
+            if not returns_matrix.empty:
+                fig_heatmap = px.imshow(
+                    returns_matrix,
+                    labels=dict(x="Month", y="Year", color="Return %"),
+                    x=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    y=returns_matrix.index,
+                    color_continuous_scale="RdYlGn",
+                    color_continuous_midpoint=0,
+                    text_auto=".1f",
+                    aspect="auto"
+                )
+                fig_heatmap.update_layout(height=500)
+                st.plotly_chart(fig_heatmap, use_container_width=True)
+            else:
+                st.warning("Not enough data for heatmap")
+
+            # === VISUALIZATION 2: Seasonality Profile ===
+            col_h, col_check = st.columns([3, 1])
+            col_h.markdown("### 📊 Seasonality Profile")
+            exclude_outliers = col_check.checkbox("🚫 Exclude Outliers", value=False, help="Remove extreme months (>1.5x IQR) from stats")
+            
+            # Re-calculate with user preference
+            seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
+            
+            if exclude_outliers:
+                st.caption("ℹ️ *Displaying data with statistical outliers removed for clearer trend analysis.*")
+            col1, col2 = st.columns(2)
+            
+            if not seasonality_stats.empty:
+                # 1. Win Rate Chart
+                fig_win = px.bar(
+                    seasonality_stats, 
+                    x='Month_Name', 
+                    y='Win_Rate',
+                    title='Win Rate % (Positive Months)',
+                    color='Win_Rate',
+                    color_continuous_scale='Greens',
+                    range_y=[0, 100]
+                )
+                st.plotly_chart(fig_win, use_container_width=True)
                 
-                # === VISUALIZATION 2: Seasonality Analysis ===
-                st.markdown("### 📅 Seasonality Trends")
-                st.markdown("**Which months historically perform best?**")
-                
-                if seasonality_stats:
-                    months = list(seasonality_stats.keys())
-                    avg_returns = [seasonality_stats[m]['mean'] * 100 for m in months]
-                    
-                    fig_seasonality = go.Figure()
-                    fig_seasonality.add_trace(go.Bar(
-                        x=months,
-                        y=avg_returns,
-                        marker_color=['green' if x > 0 else 'red' for x in avg_returns],
-                        text=[f"{x:.2f}%" for x in avg_returns],
-                        textposition='auto'
-                    ))
-                    fig_seasonality.update_layout(
-                        title=f"{ticker} - Average Monthly Performance",
-                        xaxis_title="Month",
-                        yaxis_title="Average Return (%)",
-                        height=450  # Increased from 400
+                # 2. Avg Return Chart
+                colors = ['green' if x > 0 else 'red' for x in seasonality_stats['Avg_Return']]
+                fig_seasonality = go.Figure(data=[
+                    go.Bar(
+                        x=seasonality_stats['Month_Name'],
+                        y=seasonality_stats['Avg_Return'],
+                        marker_color=colors
                     )
-                    st.plotly_chart(fig_seasonality, use_container_width=True)
+                ])
+                fig_seasonality.update_layout(
+                    title="Average Monthly Return %",
+                    yaxis_title="Return %",
+                    xaxis_title="Month",
+                    height=450
+                )
+                st.plotly_chart(fig_seasonality, use_container_width=True)
+            
+            # === VISUALIZATION 3: 2026 Forecast ===
+            st.markdown("### 🔮 2026 Forecast")
+            
+            # Run Backtest
+            with st.spinner("🔄 Backtesting strategies..."):
+                backtest_res = analyzer.backtest_strategies(history)
+            
+            # Generate Forecasts
+            forecast_median = analyzer.calculate_median_strategy_forecast(history)
+            forecast_sd = analyzer.calculate_sd_strategy_forecast(history)
+            
+            if forecast_median and forecast_sd:
+                 current_price = history['Close'].iloc[-1]
+                 winner = backtest_res['winner']
+                 
+                 if winner == 'sd':
+                    active_res = forecast_sd
+                    alt_res = forecast_median
+                    active_name = "SD Strategy"
+                    alt_name = "Median Strategy"
+                    active_color = "purple"
+                    alt_color = "blue"
+                 else:
+                    active_res = forecast_median
+                    alt_res = forecast_sd
+                    active_name = "Median Strategy"
+                    alt_name = "SD Strategy"
+                    active_color = "blue"
+                    alt_color = "purple"
                 
-                # === VISUALIZATION 3: 2026 Forecast ===
-                # === VISUALIZATION 3: 2026 Forecast ===
-                st.markdown("### 🔮 2026 Forecast")
-                st.markdown("**AI-powered prediction based on Seasonal Strategies**")
-                
-                # 1. Run Dynamic Backtest to select winner
-                with st.spinner("🔄 Backtesting strategies on historical data..."):
-                    backtest_res = analyzer.backtest_strategies(history)
-                
-                # 2. Generate Forecasts for both
-                forecast_median = analyzer.calculate_median_strategy_forecast(history)
-                forecast_sd = analyzer.calculate_sd_strategy_forecast(history)
-                
-                if forecast_median and forecast_sd:
-                    current_price = history['Close'].iloc[-1]
+                 baseline_growth = active_res['annualized_growth']
+                 forecast_baseline = active_res['forecast_price']
+                 
+                 # Conservative/Aggressive logic
+                 if baseline_growth > 0:
+                    conservative_growth = baseline_growth * 0.8
+                    aggressive_growth = baseline_growth * 1.2
+                 else:
+                    conservative_growth = baseline_growth * 1.2 
+                    aggressive_growth = baseline_growth * 0.8
+                 
+                 today = pd.Timestamp.now()
+                 end_of_2026 = pd.Timestamp('2026-12-31')
+                 years_fraction = (end_of_2026 - today).days / 365.25
+                 
+                 forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
+                 forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
+                  
+                 # Metrics
+                 col_a, col_b, col_c, col_d = st.columns(4)
+                 col_a.metric("Strategy", active_name, f"Acc: ±{min(backtest_res['median_avg_error'], backtest_res['sd_avg_error']):.1f}%")
+                 col_b.metric("🛡️ Conservative", f"₹{forecast_conservative:.2f}", f"{conservative_growth:.1f}%")
+                 col_c.metric("🎯 Baseline", f"₹{forecast_baseline:.2f}", f"{baseline_growth:.1f}%")
+                 col_d.metric("🐂 Aggressive", f"₹{forecast_aggressive:.2f}", f"{aggressive_growth:.1f}%")
+                 
+                 # Details with Low Data Warning
+                 with st.expander(f"ℹ️ Strategy Details", expanded=True):
+                    st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
                     
-                    # Determine Winner
-                    winner = backtest_res['winner']
-                    
-                    if winner == 'sd':
-                        active_res = forecast_sd
-                        alt_res = forecast_median
-                        active_name = "SD Strategy"
-                        alt_name = "Median Strategy"
-                        active_color = "purple"
-                        alt_color = "blue"
-                        accuracy_msg = f"🏆 **SD Strategy Selected** (Avg Error: {backtest_res['sd_avg_error']:.1f}% vs {backtest_res['median_avg_error']:.1f}%)"
+                    confidence = backtest_res.get('confidence', 'High')
+                    years_tested = backtest_res.get('years_tested', [])
+                    if years_tested:
+                        st.caption(f"✅ Validation: {', '.join(map(str, years_tested))}")
+                        if confidence in ["Low", "Insufficient"]:
+                            st.markdown(f":red[⚠️ **Warning: Low Data Confidence ({len(years_tested)} years)**]")
                     else:
-                        active_res = forecast_median
-                        alt_res = forecast_sd
-                        active_name = "Median Strategy"
-                        alt_name = "SD Strategy"
-                        active_color = "blue"
-                        alt_color = "purple"
-                        accuracy_msg = f"🏆 **Median Strategy Selected** (Avg Error: {backtest_res['median_avg_error']:.1f}% vs {backtest_res['sd_avg_error']:.1f}%)"
-                    
-                    # Set Baseline (Winner)
-                    baseline_growth = active_res['annualized_growth']
-                    forecast_baseline = active_res['forecast_price']
-                    
-                    # Set Alternative
-                    alt_growth = alt_res['annualized_growth']
-                    forecast_alt = alt_res['forecast_price']
-                    
-                    # Define Conservative/Aggressive relative to Active Baseline
-                    if baseline_growth > 0:
-                        conservative_growth = baseline_growth * 0.8
-                        aggressive_growth = baseline_growth * 1.2
-                    else:
-                        conservative_growth = baseline_growth * 1.2 
-                        aggressive_growth = baseline_growth * 0.8
-                        
-                    today = pd.Timestamp.now()
-                    end_of_2026 = pd.Timestamp('2026-12-31')
-                    days_to_2026 = (end_of_2026 - today).days
-                    years_fraction = days_to_2026 / 365.25
-                    
-                    forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
-                    forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
+                        st.markdown(f":red[⚠️ **Backtest skipped due to limited history**]")
 
-                    # Display forecast metrics for Active Strategy
-                    col_a, col_b, col_c, col_d = st.columns(4)
-                    with col_a:
-                        st.metric(
-                            "Selected Strategy",
-                            active_name,
-                            f"Acc: ±{min(backtest_res['median_avg_error'], backtest_res['sd_avg_error']):.1f}%"
-                        )
-                    with col_b:
-                        st.metric(
-                            "🛡️ Conservative",
-                            f"₹{forecast_conservative:.2f}",
-                            f"{conservative_growth:.1f}% p.a."
-                        )
-                    with col_c:
-                        st.metric(
-                            "🎯 Baseline (Active)",
-                            f"₹{forecast_baseline:.2f}",
-                            f"{baseline_growth:.1f}% p.a."
-                        )
-                    with col_d:
-                        st.metric(
-                            "🐂 Aggressive",
-                            f"₹{forecast_aggressive:.2f}",
-                            f"{aggressive_growth:.1f}% p.a."
-                        )
-                    
-                    # Explanation
-                    with st.expander(f"ℹ️ Strategy Logic & Backtest Results", expanded=True):
-                        st.markdown(accuracy_msg)
-                        st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
-                        st.markdown(f"**Alternative ({alt_name}):** {alt_res['strategy_description']}")
-                        if backtest_res['years_tested']:
-                            st.caption(f"✅ Backtest completed for years: {', '.join(map(str, backtest_res['years_tested']))}")
-                        else:
-                            start_avail = history.index[0].strftime('%Y-%m-%d')
-                            # Red warning text
-                            st.markdown(f":red[⚠️ **Backtest skipped due to limited history** (Data starts: {start_avail}). Forecast reliability may be lower.]")
-                    
-                    # Projection chart
-                    fig_forecast = go.Figure()
 
-                    # Helper to extract x/y from projection path
-                    def get_path_xy(path_data):
-                        return [p['date'] for p in path_data], [p['price'] for p in path_data]
-                    
-                    # 1. Calculate Smooth Bounds (Cone of Uncertainty)
-                    # We use the Conservative and Aggressive rates to defined the outer limits
-                    projection_dates = pd.date_range(today, end_of_2026, freq='ME')
-                    
-                    def project_smooth(start_price, growth_rate, dates):
-                        values = []
-                        for d in dates:
-                            t_years = (d - today).days / 365.25
-                            val = start_price * (1 + growth_rate/100) ** t_years
-                            values.append(val)
-                        return values
+                 # Chart
+                 fig_forecast = go.Figure()
+                 dates = pd.date_range(today, end_of_2026, freq='ME')
+                 
+                 # Smooth curves
+                 curr_p = current_price
+                 cons_vals = [curr_p * (1 + conservative_growth/100)**((d-today).days/365.25) for d in dates]
+                 aggr_vals = [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates]
+                 
+                 fig_forecast.add_trace(go.Scatter(x=dates, y=cons_vals, mode='lines', line=dict(width=0), showlegend=False))
+                 fig_forecast.add_trace(go.Scatter(x=dates, y=aggr_vals, mode='lines', fill='tonexty', fillcolor='rgba(200,200,200,0.2)', line=dict(width=0), name='Range'))
+                 
+                 # Paths
+                 def plot_path(res, color, name, dash=None):
+                    if 'projection_path' in res:
+                        p = res['projection_path']
+                        fig_forecast.add_trace(go.Scatter(x=[x['date'] for x in p], y=[x['price'] for x in p], 
+                                                        mode='lines', name=name, line=dict(color=color, dash=dash, width=3 if not dash else 2)))
+                 
+                 plot_path(active_res, active_color, f"Active: {active_name}")
+                 plot_path(alt_res, alt_color, f"Alt: {alt_name}", 'dot')
+                 
+                 # Add Realized Actuals if available
+                 # Add Realized Actuals if available
+                 chart_title = f"{ticker} Forecast"
 
-                    conservative_proj = project_smooth(current_price, conservative_growth, projection_dates)
-                    aggressive_proj = project_smooth(current_price, aggressive_growth, projection_dates)
+                 fig_forecast.update_layout(title=chart_title, height=500, hovermode='x unified')
+                 st.plotly_chart(fig_forecast, use_container_width=True)
+                 
+                 # Save Button
+                 from utils.forecast_tracker import save_forecast
+                 if st.button("💾 Save Forecast", key=f"save_{ticker}"):
+                    if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', [])):
+                        st.success("✅ Saved!")
 
-                    # Trace 0: Conservative Bound (Invisible, just for fill target)
-                    fig_forecast.add_trace(go.Scatter(
-                        x=projection_dates, y=conservative_proj,
-                        mode='lines', name='Conservative',
-                        line=dict(width=0),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ))
-                    
-                    # Trace 1: Aggressive Bound (Fills down to Conservative)
-                    fig_forecast.add_trace(go.Scatter(
-                        x=projection_dates, y=aggressive_proj,
-                        mode='lines', name='Potential Range',
-                        fill='tonexty', # Fills to previous trace (Conservative)
-                        fillcolor='rgba(200, 200, 200, 0.2)', # Light gray transparent
-                        line=dict(width=0),
-                        hoverinfo='skip'
-                    ))
+            else:
+                 st.warning("Insufficient data for forecast")
 
-                    # 2. Alternative Strategy Path (Dotted)
-                    if 'projection_path' in alt_res:
-                        x_alt, y_alt = get_path_xy(alt_res['projection_path'])
-                        fig_forecast.add_trace(go.Scatter(
-                            x=x_alt, y=y_alt,
-                            mode='lines', name=f'Alt: {alt_name}',
-                            line=dict(color=alt_color, dash='dot', width=2),
-                            opacity=0.7
-                        ))
-                    
-                    # 3. Active Strategy Path (Winner - Solid & Prominent)
-                    if 'projection_path' in active_res:
-                         x_active, y_active = get_path_xy(active_res['projection_path'])
-                         fig_forecast.add_trace(go.Scatter(
-                            x=x_active, y=y_active,
-                            mode='lines', name=f'Active: {active_name}',
-                            line=dict(color=active_color, width=3)
-                        ))
-
-                    # Add current price marker
-                    fig_forecast.add_trace(go.Scatter(
-                        x=[today],
-                        y=[current_price],
-                        mode='markers',
-                        name='Current Price',
-                        marker=dict(color='orange', size=10, symbol='circle')
-                    ))
-                    
-                    # Layout updates
-                    fig_forecast.update_layout(
-                        title=f"{ticker} - Iterative Forecast (Comparison with Range)",
-                        xaxis_title="Date",
-                        yaxis_title="Price (₹)",
-                        height=500,
-                        hovermode='x unified',
-                        legend=dict(
-                            orientation="h",
-                            yanchor="bottom",
-                            y=1.02,
-                            xanchor="right",
-                            x=1
-                        ),
-                        margin=dict(l=20, r=20, t=60, b=20)
-                    )
-                    st.plotly_chart(fig_forecast, width="stretch")
-                    
-                else:
-                    st.warning("⚠️ Insufficient data to calculate Strategy Forecast (Need >6 months history).")
-                
-                # Summary insights - compact
-                st.markdown("### 📝 Key Insights")
-                best_month = max(seasonality_stats.items(), key=lambda x: x[1]['mean'])[0] if seasonality_stats else "N/A"
-                worst_month = min(seasonality_stats.items(), key=lambda x: x[1]['mean'])[0] if seasonality_stats else "N/A"
-                
-                col_insight1, col_insight2 = st.columns(2)
-                with col_insight1:
-                    st.markdown(f"""
-                    - **Best Historical Month:** {best_month}
-                    - **Worst Historical Month:** {worst_month}
-                    - **2026 Baseline Target:** ₹{forecast_baseline:.2f}
-                    """)
-                with col_insight2:
-                    st.markdown(f"""
-                    - **Projected Annual Return:** {baseline_growth:.2f}%
-                    - **Potential Upside:** +{((forecast_aggressive/current_price - 1) * 100):.1f}%
-                    - **Data Range:** {history.index[0].strftime('%Y-%m-%d')} to {history.index[-1].strftime('%Y-%m-%d')}
-                    """)
-                
-            except Exception as e:
-                st.error(f"❌ Analysis Failed: {str(e)}")
-                with st.expander("🔍 Error Details"):
-                    st.code(str(e))
-
+         except Exception as e:
+            st.error(f"Analysis error: {str(e)}")
+            st.info("Check logs for details")
+            
 
 @st.cache_data(ttl=1800)  # Cache for 30 minutes
 def load_portfolio_file(file_bytes, filename):

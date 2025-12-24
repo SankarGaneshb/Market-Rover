@@ -13,8 +13,8 @@ class MarketDataFetcher:
         """
         try:
             # Try yfinance first (works for both NSE/BSE if suffix is correct)
-            # Assuming NSE for now, appending .NS if not present
-            if not ticker.endswith(".NS") and not ticker.endswith(".BO"):
+            # Assuming NSE for now, appending .NS if not present, UNLESS it's an index (starts with ^)
+            if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
                 ticker += ".NS"
             
             stock = yf.Ticker(ticker)
@@ -31,7 +31,7 @@ class MarketDataFetcher:
         Default is max history with monthly interval.
         """
         try:
-            if not ticker.endswith(".NS") and not ticker.endswith(".BO"):
+            if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
                 ticker += ".NS"
             
             stock = yf.Ticker(ticker)
@@ -44,9 +44,9 @@ class MarketDataFetcher:
     def fetch_full_history(self, ticker):
         """
         Fetches full historical data from IPO to date for the Monthly Returns Heatmap.
-        Enforces 'max' period and '1mo' interval.
+        Uses '1d' interval to ensure sufficient granularity (days) for backtesting thresholds.
         """
-        return self.fetch_historical_data(ticker, period="max", interval="1mo")
+        return self.fetch_historical_data(ticker, period="max", interval="1d")
 
     def fetch_option_chain(self, ticker):
         """

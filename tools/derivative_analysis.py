@@ -5,27 +5,53 @@ class DerivativeAnalyzer:
     def __init__(self):
         pass
 
-    def calculate_seasonality(self, history_df):
+    def calculate_seasonality(self, history_df, exclude_outliers=False):
         """
         Analyzes historical monthly returns to find seasonality patterns.
+        Returns a DataFrame with Month_Name, Avg_Return, Win_Rate.
         """
         if history_df.empty:
-            return {}
+            return pd.DataFrame()
         
         # Ensure index is datetime
-        history_df.index = pd.to_datetime(history_df.index)
-        
+        history_df = history_df.copy() # Avoid SettingWithCopy
+        if history_df.index.tz is not None:
+             history_df.index = history_df.index.tz_localize(None)
+
         # Calculate monthly returns
-        monthly_returns = history_df['Close'].pct_change().dropna()
+        monthly_returns = history_df['Close'].resample('ME').last().pct_change().dropna()
         
+        if monthly_returns.empty:
+             return pd.DataFrame()
+             
         # Group by month
-        monthly_stats = monthly_returns.groupby(monthly_returns.index.month).agg(['mean', 'std', 'count'])
+        groups = monthly_returns.groupby(monthly_returns.index.month)
         
-        # Map month numbers to names
+        # Prepare storage
+        results = []
+        
+        for month, data in groups:
+            # Apply outlier removal if requested
+            if exclude_outliers:
+                data = self._remove_outliers(data)
+                
+            if data.empty:
+                results.append({'Month': month, 'Avg_Return': 0, 'Win_Rate': 0, 'Count': 0})
+            else:
+                results.append({
+                    'Month': month,
+                    'Avg_Return': data.mean() * 100,
+                    'Win_Rate': (data > 0).sum() / len(data) * 100,
+                    'Count': len(data)
+                })
+        
+        stats = pd.DataFrame(results).set_index('Month')
+        
+        # Add Month_Name
         import calendar
-        monthly_stats.index = [calendar.month_abbr[i] for i in monthly_stats.index]
+        stats['Month_Name'] = [calendar.month_abbr[i] for i in stats.index]
         
-        return monthly_stats.to_dict('index')
+        return stats
 
     def calculate_monthly_returns_matrix(self, history_df):
         """
@@ -404,13 +430,13 @@ class DerivativeAnalyzer:
                  
         return rate
 
-    def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31"):
-        return self._calculate_iterative_forecast(history_df, target_date, 'median')
+    def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None):
+        return self._calculate_iterative_forecast(history_df, target_date, 'median', reference_date)
 
-    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31"):
-         return self._calculate_iterative_forecast(history_df, target_date, 'sd')
+    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None):
+         return self._calculate_iterative_forecast(history_df, target_date, 'sd', reference_date)
 
-    def _calculate_iterative_forecast(self, history_df, target_date, strategy_type):
+    def _calculate_iterative_forecast(self, history_df, target_date, strategy_type, reference_date=None):
         """
         Project price month-by-month using the specified strategy logic for EACH month.
         """
@@ -420,12 +446,18 @@ class DerivativeAnalyzer:
         history_df = history_df.copy()
         if history_df.index.tz is not None:
              history_df.index = history_df.index.tz_localize(None)
-             
+
+        # Time Travel: Filter out "future" data if reference_date is set
+        if reference_date:
+            ref_dt = pd.Timestamp(reference_date)
+            history_df = history_df[history_df.index <= ref_dt]
+            if history_df.empty: return None
+
         monthly_returns = history_df['Close'].resample('ME').last().pct_change().dropna()
         if monthly_returns.empty: return None
 
         current_price = history_df['Close'].iloc[-1]
-        today = pd.Timestamp.now()
+        today = history_df.index[-1]
         target_dt = pd.Timestamp(target_date)
         
         # Generate range of month-ends from now to target
@@ -468,7 +500,7 @@ class DerivativeAnalyzer:
             "projection_path": projection_path
         }
 
-    def backtest_strategies(self, history_df, lookback_years=3):
+    def backtest_strategies(self, history_df, lookback_years=3, reference_date=None):
         """
         Backtests Median vs SD strategies on recent years to pick the winner.
         Returns detailed metrics and the winning strategy ('median' or 'sd').
@@ -479,13 +511,30 @@ class DerivativeAnalyzer:
         if history_df.index.tz is not None:
              history_df.index = history_df.index.tz_localize(None)
              
-        current_year = history_df.index[-1].year
+        # Time Travel Logic
+        if reference_date:
+            ref_dt = pd.Timestamp(reference_date)
+            history_df = history_df[history_df.index <= ref_dt]
+            if history_df.empty:
+                return {
+                     "winner": "median",
+                     "median_avg_error": 0, "sd_avg_error": 0,
+                     "confidence": "Insufficient", "years_tested": []
+                }
+
+        # Determine current state
+        last_date = history_df.index[-1]
+        current_year = last_date.year
+        current_month = last_date.month
+        
         errors = {'median': [], 'sd': []}
         tested_years = []
+        detailed_metrics = [] # New: Store per-year details
         
-        # Test previous completed years
-        # e.g. if now is 2025, test 2024, 2023, 2022
-        for i in range(1, lookback_years + 1):
+        # Decide loop range (include current year if late in year)
+        start_i = 0 if current_month >= 10 else 1
+        
+        for i in range(start_i, lookback_years + 1):
             test_year = current_year - i
             
             # Predict FOR test_year, using data UP TO test_year-1
@@ -508,20 +557,47 @@ class DerivativeAnalyzer:
             # Logic: Strategy predicts an Annualized Growth Rate
             # We compare this with the Actual Annual Return of test_year
             
-            start_price = test_df.iloc[0]['Open']
-            end_price = test_df.iloc[-1]['Close']
+            # NEW LOGIC: Calculate Average Monthly Error
+            def calculate_monthly_error(path, actual_df):
+                if not path or actual_df.empty: return 100.0
+                
+                monthly_errors = []
+                for point in path:
+                    pred_date = point['date']
+                    pred_price = point['price']
+                    
+                    # Find actual price nearest to this date
+                    # Filter actual_df for dates up to 5 days around pred_date to match trading days
+                    # Simply finding nearest index
+                    nearest_idx = actual_df.index.get_indexer([pred_date], method='nearest')[0]
+                    actual_date = actual_df.index[nearest_idx]
+                    
+                    # Ensure the actual date is within reasonable range (e.g., same month)
+                    if abs((actual_date - pred_date).days) > 20:
+                        continue
+                        
+                    actual_price = actual_df.iloc[nearest_idx]['Close']
+                    monthly_errors.append(abs((pred_price - actual_price) / actual_price) * 100)
+                
+                return np.mean(monthly_errors) if monthly_errors else 100.0
+
+            # Compute Avg Monthly Errors
+            path_med = res_med.get('projection_path')
+            path_sd = res_sd.get('projection_path')
             
-            if start_price == 0: continue
-            
-            actual_return = ((end_price / start_price) - 1) * 100
-            
-            # Error = |Actual - Predicted|
-            err_med = abs(actual_return - res_med['annualized_growth'])
-            err_sd = abs(actual_return - res_sd['annualized_growth'])
+            err_med = calculate_monthly_error(path_med, test_df)
+            err_sd = calculate_monthly_error(path_sd, test_df)
             
             errors['median'].append(err_med)
             errors['sd'].append(err_sd)
             tested_years.append(test_year)
+            
+            # Record detailed metrics
+            detailed_metrics.append({
+                'year': test_year,
+                'median_error': err_med,
+                'sd_error': err_sd,
+            })
             
         # Determine Winner
         avg_err_med = np.mean(errors['median']) if errors['median'] else 100
@@ -535,7 +611,9 @@ class DerivativeAnalyzer:
             "winner": winner,
             "median_avg_error": avg_err_med,
             "sd_avg_error": avg_err_sd,
-            "years_tested": tested_years
+            "years_tested": tested_years,
+            "detailed_metrics": detailed_metrics, # Return the details
+            "confidence": "High" if len(tested_years) >= 3 else ("Average" if len(tested_years) == 2 else "Low")
         }
 
     def calculate_2026_forecast(self, history_df):

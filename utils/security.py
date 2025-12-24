@@ -35,7 +35,8 @@ def sanitize_ticker(ticker: str) -> Optional[str]:
     
     # Valid ticker pattern: alphanumeric + optional .NS/.BO suffix
     # Max length: 20 characters
-    ticker_pattern = r'^[A-Z0-9]{1,15}(?:\.[A-Z]{1,3})?$'
+    # Updated to allow ^ prefix for indices (e.g. ^NSEI)
+    ticker_pattern = r'^\^?[A-Z0-9]{1,15}(?:\.[A-Z]{1,3})?$'
     
     if re.match(ticker_pattern, ticker):
         return ticker
