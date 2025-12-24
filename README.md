@@ -12,13 +12,15 @@
 
 ## ✨ Features at a Glance
 
-Market-Rover is an AI-powered platform with **3 powerful tools** in one app:
+Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 
 | Feature | Description | Tech Highlights |
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
 | **📈 Market Visualizer** | Live charts, OI analysis, scenario targets | Options data, Plotly, PNG export |
-| **🔥 Monthly Heatmap** | Historical patterns + 2026 AI forecast | Seasonality, YTD-based predictions |
+| **🔥 Monthly Heatmap** | Historical patterns + 2026 AI forecast | Seasonality, Outlier filtering |
+| **📊 Benchmark Analysis** | Major market index deep-dives (Nifty, Bank Nifty) | Consolidated analysis pipeline |
+| **🎯 Forecast Tracker** | Real-time performance tracking for saved forecasts | yfinance, Interactive data editor |
 
 ---
 
@@ -50,18 +52,36 @@ Generate professional market snapshots in seconds:
 
 **Security:** Input sanitization, rate limiting (30 req/min)
 
-### **🔥 Monthly Heatmap & 2026 Forecast (Tab 3)**
+### **🔥 Monthly Heatmap (Tab 3)**
 
-Deep-dive into historical patterns and future predictions:
+Deep-dive into historical patterns and future predictions for individual stocks:
 
+- ✅ **Stock Selection Filters** - Instantly filter lists by **Nifty 50**, **Sensex**, or **Bank Nifty**
+- ✅ **Centered Heatmap** - Balanced Green-Red color scale for instant pattern recognition
+- ✅ **🚫 Outlier Filter** - Exclude extreme market anomalies (>1.5x IQR) for trend accuracy
 - ✅ **Interactive Heatmap** - Monthly returns (Year × Month) since IPO
-- ✅ **Seasonality Analysis** - Identify best/worst months historically
-- ✅ **2025 YTD-Based Forecasting** - AI predicts 2026 prices using current year performance
-- ✅ **3 Scenarios** - Conservative, Baseline, Aggressive projections
-- ✅ **Full-Width Interactive Charts** - Powered by Plotly
-- ✅ **Current Price Tracking** - Real-time data integration
+- ✅ **Seasonality Analysis** - Identify best/worst months with **Win Rate %**
+- ✅ **3 Forecast Scenarios** - Conservative, Baseline, Aggressive 2026 projections
+- ✅ **Iterative Monthly Forecasting** - AI applies strategy month-by-month for granularity
 
-**Security:** Input sanitization, rate limiting (20 req/min)
+### **📊 Benchmark Analysis (Tab 4)**
+
+Specialized focus on major market indices:
+
+- ✅ **Index Deep-Dive** - Analyze Nifty 50, Sensex, Bank Nifty, and Sector Indices
+- ✅ **Consolidated Logic** - Uses the same high-fidelity analysis as individual stocks
+- ✅ **Market Sentiment** - Assess broader market trends before stock picking
+
+### **🎯 Forecast Tracker (Tab 5)**
+
+Monitor your predictions against real market movement:
+
+- ✅ **Live Tracking** - Real-time price updates via `yfinance`
+- ✅ **Entry vs. Current** - Automatic calculation of % gains/losses
+- ✅ **Portfolio Metrics** - Instant average performance across all saved forecasts
+- ✅ **🗑️ Deletion Capability** - Clean up old or inaccurate forecasts through an interactive editor
+
+**Security:** Input sanitization, rate limiting (20 req/min), persistent session state.
 
 ---
 
@@ -414,15 +434,15 @@ streamlit run app.py
 - v1.0: CLI portfolio analysis
 - v2.0: Streamlit web UI
 - v3.0: Market Visualizer (OI analysis)
-- v4.0: Monthly Heatmap & 2026 Forecast
-- v4.1: Backtesting Engine & Iterative Forecasting (Month-by-Month)
+- v4.0: Monthly Heatmap, 2026 Forecast, and Benchmark Indexing
+- v4.1: Forecast Tracker, Outlier Filtering, and Backtest Transparency
 - Security hardening (80/100 score)
 
 ### Planned 🔄
-- Cost tracking dashboard
-- Download buttons for Tab 3 charts
 - Email report notifications
 - Multi-language support
+- Automated performance audits
+- Sector-wise comparative dashboards
 
 ---
 
@@ -464,7 +484,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: December 23, 2025*
+*Last Updated: December 24, 2025*
 
 ---
 
