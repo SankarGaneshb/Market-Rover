@@ -17,10 +17,10 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 | Feature | Description | Tech Highlights |
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
-| **📈 Market Visualizer** | Live charts, OI analysis, scenario targets | Options data, Plotly, PNG export |
-| **🔥 Monthly Heatmap** | Historical patterns + 2026 AI forecast | Seasonality, Outlier filtering |
-| **📊 Benchmark Analysis** | Major market index deep-dives (Nifty, Bank Nifty) | Consolidated analysis pipeline |
-| **🎯 Forecast Tracker** | Real-time performance tracking for saved forecasts | yfinance, Interactive data editor |
+| **📈 Market Snapshot** | High-fidelity technical dashboards & OI walls | Options data, Plotly, PNG export |
+| **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
+| **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
+| **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 
 ---
 
@@ -245,23 +245,23 @@ Market-Rover includes enterprise-grade security:
 
 ## 🛠️ Technology Stack
 
-### Core Backend
+### core backend
 - **CrewAI** - Multi-agent orchestration
-- **Google Gemini 1.5 Flash** - LLM reasoning engine
+- **Google Gemini 2.0-flash** - Latest LLM reasoning engine
 - **langchain-google-genai** - LLM integration
 - **yfinance** - Stock & options data
-- **Newspaper3k** - News scraping
-- **Pandas** - Data manipulation
+- **Pandas / Numpy** - Data manipulation (IQR statistical filtering)
 
 ### Web UI & Visualization
-- **Streamlit** - Interactive web framework
-- **Plotly** - Interactive charts
-- **Matplotlib/Pillow** - Image generation
+- **Streamlit** - Interactive web framework (`st.data_editor`, `st.pills`, `st.session_state`)
+- **Plotly** - High-fidelity interactive charts
+- **Matplotlib/Pillow** - Image generation for snapshots
 
 ### Security & Utilities
 - **Input validation** - Custom regex sanitization
 - **Rate limiting** - Time-window based throttling
-- **Structured logging** - File-based with rotation
+- **Persistent Tracker** - JSON-based forecast history management
+
 
 ---
 
@@ -278,17 +278,14 @@ Market-Rover/
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Environment template
 │
-├── tools/                      # Analysis tools
-│   ├── market_data.py             # Stock data fetcher
-│   ├── news_scraper.py            # Moneycontrol scraper
-│   ├── sentiment_analyzer.py     # Sentiment classification
-│   ├── risk_analyzer.py           # Risk assessment
-│   ├── derivative_analysis.py     # Options OI analysis
-│   └── visualizer_tool.py         # Chart generation
+│   ├── derivative_analysis.py     # Seasonal patterns & iterative forecasting
+│   ├── ticker_resources.py        # Categorized stock indices (Nifty/Sensex)
+│   └── visualizer_tool.py         # Tab 2 Chart generation
 │
 ├── utils/                      # Utilities
+│   ├── forecast_tracker.py        # Persistence logic for Tab 5
 │   ├── security.py                # Input sanitization, rate limiting
-│   ├── report_visualizer.py       # Report charts
+│   ├── report_visualizer.py       # Portfolio charts
 │   ├── visualizer_interface.py    # Market snapshot generator
 │   ├── llm_interface.py           # Gemini integration
 │   ├── job_manager.py             # Async job tracking
@@ -392,20 +389,17 @@ pip install lxml lxml_html_clean
 
 ## 🎓 Best Practices
 
-### For Portfolio Analysis:
-- Use Test Mode first (no API costs)
-- Limit to 5-10 stocks for faster analysis
-- Run weekly for best insights
+### For Monthly Analysis (Tabs 3 & 4):
+- **🚫 Filter Anomalies**: Use the "Exclude Outliers" toggle for stocks with a history of extreme spikes (e.g. IPO years or black-swan events) to see the true seasonal trend.
+- **🔍 Use Index Filters**: Start with "Nifty 50" or "Bank Nifty" pills to find liquid stocks before moving to custom tickers.
+- **📊 Benchmark First**: Always analyze the Benchmark Index (Tab 4) before individual stocks to understand overall market direction.
+- **💎 Check Confidence**: Look for "High Confidence" (3+ years data) before trusting a 2026 forecast.
 
-### For Market Visualizer:
-- Generate before market open for planning
-- Compare OI levels with price action
-- Save PNG snapshots for records
+### For Forecast Tracking (Tab 5):
+- **⛳ Save Iteratively**: Save forecasts for multiple stocks to look for sector-wide performance trends.
+- **🗑️ Audit Weekly**: Use the Deletion Capability to remove "noise" and focus on your highest-conviction predictions.
+- **📈 Veracity Check**: Compare Entry vs. Current price regularly to see which AI strategy (Median vs Std Dev) is winning.
 
-### For Monthly Heatmap:
-- Review seasonality before major investments
-- Use 2026 forecast as one data point (not sole decision)
-- Compare multiple stocks for relative performance
 
 ---
 
