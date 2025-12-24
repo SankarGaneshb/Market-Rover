@@ -18,33 +18,50 @@ from utils.logger import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
-# Set up Gemini LLM for all agents
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY not found in environment variables. Please check your .env file.")
+# Global LLM instance (lazy initialized)
+_gemini_llm_instance = None
 
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
-# Initialize Gemini LLM with current supported model (2025)
-try:
-    from langchain_core.callbacks import BaseCallbackHandler
+def get_gemini_llm():
+    """
+    Get or create the Gemini LLM instance.
+    Lazy loading to avoid import-time errors if API key is missing.
+    """
+    global _gemini_llm_instance
     
-    class MetricsCallbackHandler(BaseCallbackHandler):
-        """Track API calls for observability"""
-        def on_llm_start(self, *args, **kwargs):
-            track_api_call("gemini", "generate")
-            logger.debug("Gemini API call started")
+    if _gemini_llm_instance:
+        return _gemini_llm_instance
+
+    # Check API key only when LLM is actually requested
+    if not GOOGLE_API_KEY:
+        error_msg = "GOOGLE_API_KEY not found in environment variables. Please check your .env file or GitHub Secrets."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     
-    gemini_llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        temperature=0.3,
-        convert_system_message_to_human=True,
-        callbacks=[MetricsCallbackHandler()]
-    )
-    logger.info("Gemini LLM initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize Gemini LLM: {e}")
-    track_error("llm_initialization")
-    raise
+    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+    
+    try:
+        from langchain_core.callbacks import BaseCallbackHandler
+        
+        class MetricsCallbackHandler(BaseCallbackHandler):
+            """Track API calls for observability"""
+            def on_llm_start(self, *args, **kwargs):
+                track_api_call("gemini", "generate")
+                logger.debug("Gemini API call started")
+        
+        _gemini_llm_instance = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            temperature=0.3,
+            convert_system_message_to_human=True,
+            callbacks=[MetricsCallbackHandler()]
+        )
+        logger.info("Gemini LLM initialized successfully")
+        return _gemini_llm_instance
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize Gemini LLM: {e}")
+        track_error("llm_initialization")
+        raise
 
 
 def create_portfolio_manager_agent():
@@ -64,7 +81,7 @@ def create_portfolio_manager_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
@@ -86,7 +103,7 @@ def create_news_scraper_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
@@ -109,7 +126,7 @@ def create_sentiment_analyzer_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
@@ -131,7 +148,7 @@ def create_market_context_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
@@ -156,7 +173,7 @@ def create_report_generator_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
@@ -195,7 +212,7 @@ def create_visualizer_agent():
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
-        llm=gemini_llm
+        llm=get_gemini_llm()
     )
 
 
