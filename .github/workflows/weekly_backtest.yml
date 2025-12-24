@@ -32,7 +32,7 @@ jobs:
       run: python tools/batch_backtester.py
 
     - name: Commit Results
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweifel/git-auto-commit-action@v7
       with:
         commit_message: "Data: Update weekly backtest registry [skip ci]"
         file_pattern: data/backtest_registry.json
