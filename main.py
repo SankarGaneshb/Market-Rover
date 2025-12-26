@@ -12,6 +12,9 @@ from datetime import datetime
 from pathlib import Path
 from crew import create_crew
 from config import GOOGLE_API_KEY, REPORT_DIR
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 import sys
 from agents import create_visualizer_agent
 from tasks import create_market_snapshot_task
@@ -21,10 +24,10 @@ from crewai import Crew, Process
 def check_environment():
     """Check if environment is properly configured."""
     if not GOOGLE_API_KEY:
-        print("⚠️  WARNING: GOOGLE_API_KEY not found in environment variables!")
-        print("Please create a .env file with your Google API key.")
-        print("Get a free key from: https://makersuite.google.com/app/apikey")
-        print()
+        logger.warning("⚠️  WARNING: GOOGLE_API_KEY not found in environment variables!")
+        logger.info("Please create a .env file with your Google API key.")
+        logger.info("Get a free key from: https://makersuite.google.com/app/apikey")
+        logger.info("")
         response = input("Continue anyway? (y/n): ")
         if response.lower() != 'y':
             sys.exit(1)
@@ -123,13 +126,13 @@ def save_report(report_content: str, export_format: str = 'html') -> Path:
 
 
 def print_header():
-    """Print application header."""
-    print("=" * 80)
-    print(" " * 25 + "🔍 MARKET-ROVER 2.0 🔍")
-    print(" " * 18 + "AI-Powered Stock Intelligence System")
-    print(" " * 25 + "⚡ Parallel Mode Enabled")
-    print("=" * 80)
-    print()
+    """Log application header."""
+    logger.info("%s", "=" * 80)
+    logger.info("%s", " " * 25 + "🔍 MARKET-ROVER 2.0 🔍")
+    logger.info("%s", " " * 18 + "AI-Powered Stock Intelligence System")
+    logger.info("%s", " " * 25 + "⚡ Parallel Mode Enabled")
+    logger.info("%s", "=" * 80)
+    logger.info("")
 
 
 def main():
@@ -164,78 +167,78 @@ def run_visualizer(ticker):
     from utils.visualizer_interface import generate_market_snapshot
     
     print_header()
-    print(f"🎨 Starting Market Rover Visualizer for {ticker}...")
-    
+    logger.info("🎨 Starting Market Rover Visualizer for %s...", ticker)
+
     result = generate_market_snapshot(ticker)
-    
-    print("\n" + "=" * 60)
+
+    logger.info("%s", "\n" + "=" * 60)
     if result['success']:
-        print("✅ Visualization Complete!")
-        print(result['message'])
+        logger.info("✅ Visualization Complete!")
+        logger.info(result['message'])
         if result['image_path']:
-            print(f"\nDashboard saved to: {result['image_path']}")
+            logger.info("\nDashboard saved to: %s", result['image_path'])
     else:
-        print("❌ Visualization Failed!")
-        print(result['message'])
-    print("=" * 60)
+        logger.error("❌ Visualization Failed!")
+        logger.error(result['message'])
+    logger.info("%s", "=" * 60)
 
 def main_impl(export_format='html'):
     """Main application entry point."""
     try:
         # Print header
         print_header()
-        
+
         # Check environment
         check_environment()
-        
-        print("📊 Initializing Market Rover Crew...")
-        print()
+
+        logger.info("📊 Initializing Market Rover Crew...")
+        logger.info("")
         
         # Create and configure crew
         crew = create_crew()
         
         # Display crew information
         crew_info = crew.get_crew_info()
-        print(f"Agents: {crew_info['num_agents']}")
-        print(f"Tasks: {crew_info['num_tasks']}")
-        print(f"Process: {crew_info['process']}")
-        print(f"Max Iterations: {crew_info['max_iterations']}")
-        print()
-        print("Agent Roles:")
+        logger.info("Agents: %s", crew_info['num_agents'])
+        logger.info("Tasks: %s", crew_info['num_tasks'])
+        logger.info("Process: %s", crew_info['process'])
+        logger.info("Max Iterations: %s", crew_info['max_iterations'])
+        logger.info("")
+        logger.info("Agent Roles:")
         for i, agent_type in enumerate(crew_info['agents'], 1):
-            print(f"  {i}. {agent_type.replace('_', ' ').title()}")
-        print()
-        
+            logger.info("  %s. %s", i, agent_type.replace('_', ' ').title())
+        logger.info("")
+
         # Run the analysis
-        print("🚀 Starting weekly portfolio analysis...")
-        print("This may take a few minutes depending on portfolio size.")
-        print()
+        logger.info("🚀 Starting weekly portfolio analysis...")
+        logger.info("This may take a few minutes depending on portfolio size.")
+        logger.info("")
         
         result = crew.run()
         
         # Save report
-        print(f"\n📝 Saving report ({export_format.upper()} format)...")
+        logger.info("\n📝 Saving report (%s format)...", export_format.upper())
         report_path = save_report(result, export_format)
-        
-        print(f"\n✅ Report saved to: {report_path}")
-        print()
+
+        logger.info("\n✅ Report saved to: %s", report_path)
+        logger.info("")
         
         # Print summary
-        print("=" * 80)
-        print("REPORT PREVIEW")
-        print("=" * 80)
-        print(str(result)[:500] + "..." if len(str(result)) > 500 else str(result))
-        print("=" * 80)
-        print()
-        print(f"📄 Full report available at: {report_path}")
-        print()
-        print("Thank you for using Market Rover! 🚀")
+        logger.info("%s", "=" * 80)
+        logger.info("REPORT PREVIEW")
+        logger.info("%s", "=" * 80)
+        logger.info(str(result)[:500] + "..." if len(str(result)) > 500 else str(result))
+        logger.info("%s", "=" * 80)
+        logger.info("")
+        logger.info("📄 Full report available at: %s", report_path)
+        logger.info("")
+        logger.info("Thank you for using Market Rover! 🚀")
         
     except KeyboardInterrupt:
-        print("\n\n⚠️  Analysis interrupted by user.")
+        logger.warning("\n\n⚠️  Analysis interrupted by user.")
         sys.exit(0)
     except Exception as e:
-        print(f"\n❌ Error: {str(e)}")
+        logger.exception("\n❌ Error: %s", str(e))
         import traceback
         traceback.print_exc()
         sys.exit(1)
@@ -256,7 +259,7 @@ if __name__ == "__main__":
     elif args.txt:
         export_format = 'txt'
     elif args.pdf:
-        print("⚠️  PDF export not yet implemented. Generating HTML instead.")
+        logger.warning("⚠️  PDF export not yet implemented. Generating HTML instead.")
         export_format = 'html'
     # Handle Visualizer Mode
     if args.visualize:

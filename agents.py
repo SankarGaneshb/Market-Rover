@@ -18,60 +18,48 @@ from utils.logger import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
+<<<<<<< HEAD
 # Global LLM instance (lazy initialized)
-_gemini_llm_instance = None
+_gemini_llm = None
 
 
 def get_gemini_llm():
-    """
-    Get or create the Gemini LLM instance.
-    Lazy loading to avoid import-time errors if API key is missing.
-    """
-    global _gemini_llm_instance
-    
-    if _gemini_llm_instance:
-        return _gemini_llm_instance
+    """Create and cache the Gemini LLM instance on first use.
 
-    # Check API key only when LLM is actually requested
+    Raises a clear error if `GOOGLE_API_KEY` is not configured.
+    """
+    global _gemini_llm
+    if _gemini_llm is not None:
+        return _gemini_llm
+
     if not GOOGLE_API_KEY:
-        error_msg = "GOOGLE_API_KEY not found in environment variables. Please check your .env file or GitHub Secrets."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-    
+        logger.error("GOOGLE_API_KEY not found in environment variables. Please check your .env file.")
+        raise ValueError("GOOGLE_API_KEY not found in environment variables.")
+
+    # Do not mutate global process env unless necessary; set for libraries that expect it
+    os.environ.setdefault("GOOGLE_API_KEY", GOOGLE_API_KEY)
+
     try:
         from langchain_core.callbacks import BaseCallbackHandler
-        
+
         class MetricsCallbackHandler(BaseCallbackHandler):
             """Track API calls for observability"""
             def on_llm_start(self, *args, **kwargs):
                 track_api_call("gemini", "generate")
                 logger.debug("Gemini API call started")
-        
-        _gemini_llm_instance = ChatGoogleGenerativeAI(
+
+        _gemini_llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             temperature=0.3,
             convert_system_message_to_human=True,
             callbacks=[MetricsCallbackHandler()]
         )
         logger.info("Gemini LLM initialized successfully")
-        return _gemini_llm_instance
-        
+        return _gemini_llm
     except Exception as e:
         logger.error(f"Failed to initialize Gemini LLM: {e}")
         track_error("llm_initialization")
         raise
-
-
-def create_portfolio_manager_agent():
-    """
-    Agent A: Portfolio Manager
-    Responsible for retrieving and validating the user's stock portfolio.
-    """
-    return Agent(
-        role="Portfolio Manager",
-        goal="Retrieve and validate the user's stock portfolio from CSV file",
         backstory=(
             "You are an expert portfolio manager who meticulously tracks "
             "stock holdings. You ensure all stock symbols are properly formatted "

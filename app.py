@@ -22,7 +22,7 @@ from utils.mock_data import mock_generator, simulate_analysis_delay
 from utils.report_visualizer import ReportVisualizer
 from utils.logger import get_logger, log_analysis_start, log_analysis_complete, log_error
 from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
-                           get_error_stats, track_performance, track_api_call)
+                           get_error_stats, track_performance, track_api_call, track_error_detail)
 from utils.visualizer_interface import generate_market_snapshot
 from utils.security import sanitize_ticker, RateLimiter, validate_csv_content, sanitize_llm_input
 from utils.forecast_tracker import get_forecast_history
@@ -243,6 +243,10 @@ def show_visualizer_tab():
                         
                 except Exception as e:
                     st.error(f"An unexpected error occurred: {str(e)}")
+                    try:
+                        track_error_detail(type(e).__name__, str(e), context={"location": "show_visualizer_tab", "ticker": ticker})
+                    except Exception:
+                        pass
     
         st.markdown("""
         **Dashboard Features:**
@@ -1154,6 +1158,10 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
     except Exception as e:
         # Mark job as failed
         st.session_state.job_manager.fail_job(job_id, str(e))
+        try:
+            track_error_detail(type(e).__name__, str(e), context={"location": "run_analysis", "job_id": job_id})
+        except Exception:
+            pass
         status_text.text("")
         detail_text.text("")
         
@@ -1270,7 +1278,12 @@ def show_reports_tab():
                 try:
                     dt = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
                     display_name = dt.strftime("%B %d, %Y - %I:%M:%S %p")
-                except:
+                except Exception as e:
+                    logger.debug(f"Failed to parse timestamp {timestamp_str}: {e}")
+                    try:
+                        track_error_detail(type(e).__name__, str(e), context={"location": "show_reports_tab", "timestamp_str": timestamp_str})
+                    except Exception:
+                        pass
                     display_name = timestamp_str
                 
                 # Determine available formats
@@ -1311,18 +1324,23 @@ def show_reports_tab():
                             # Use Streamlit's HTML component to render the full report
                             st.components.v1.html(html_content, height=800, scrolling=True)
                             
-                        except Exception as e:
-                            st.error(f"❌ Error loading HTML report: {str(e)}")
-                            # Fallback to TXT if available
-                            if has_txt:
-                                st.warning("Showing text version instead...")
-                                with open(files['txt'], 'r', encoding='utf-8') as f:
-                                    st.text_area(
-                                        "Report Content",
-                                        f.read(),
-                                        height=300,
-                                        key=f"fallback_{timestamp}"
-                                    )
+                                except Exception as e:
+                                    st.error(f"❌ Error loading HTML report: {str(e)}")
+                                    # Persist detailed error for daily aggregation
+                                    try:
+                                        track_error_detail(type(e).__name__, str(e), context={"location": "show_reports_tab", "file": str(html_path)})
+                                    except Exception:
+                                        pass
+                                    # Fallback to TXT if available
+                                    if has_txt:
+                                        st.warning("Showing text version instead...")
+                                        with open(files['txt'], 'r', encoding='utf-8') as f:
+                                            st.text_area(
+                                                "Report Content",
+                                                f.read(),
+                                                height=300,
+                                                key=f"fallback_{timestamp}"
+                                            )
                     
                     else:
                         # Display plain text report
@@ -1386,7 +1404,12 @@ def show_recent_reports():
                 try:
                     timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
                     display_name = timestamp.strftime("%b %d, %Y %I:%M %p")
-                except:
+                except Exception as e:
+                    logger.debug(f"Failed to parse timestamp {timestamp_str}: {e}")
+                    try:
+                        track_error_detail(type(e).__name__, str(e), context={"location": "show_recent_reports", "timestamp_str": timestamp_str})
+                    except Exception:
+                        pass
                     display_name = timestamp_str
                 
                 st.markdown(f"📄 {display_name}")

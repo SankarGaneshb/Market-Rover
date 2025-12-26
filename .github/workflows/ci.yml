@@ -52,6 +52,13 @@ jobs:
     - name: Validate configuration
       run: |
         python -c "import config; print('✅ Config loaded successfully')"
+
+    - name: Validate issue assignees/labels
+      env:
+        GITHUB_ISSUE_ASSIGNEES: ${{ secrets.GITHUB_ISSUE_ASSIGNEES }}
+        GITHUB_ISSUE_LABELS: ${{ secrets.GITHUB_ISSUE_LABELS }}
+      run: |
+        python3 scripts/validate_issue_assignees.py
     
     - name: Check code structure
       run: |

@@ -8,6 +8,10 @@ from tasks import TaskFactory
 from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY
 from typing import Optional, Callable
 
+# Structured logging and metrics
+from utils.logger import logger
+from utils.metrics import track_error_detail
+
 
 class MarketRoverCrew:
     """Market-Rover 2.0 intelligence crew with parallel execution."""
@@ -48,21 +52,34 @@ class MarketRoverCrew:
         Returns:
             Final report from the crew
         """
-        print("🚀 Starting Market-Rover 2.0 Intelligence Analysis...")
-        print(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
-        print("=" * 60)
+        logger.info("🚀 Starting Market-Rover 2.0 Intelligence Analysis...")
+        logger.info(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
+        logger.info("%s", "=" * 60)
         
         try:
             # Kick off the crew (parallel processing handled within tasks)
             result = self.crew.kickoff()
-            
-            print("\n" + "=" * 60)
-            print("✅ Analysis Complete!")
-            
+
+            logger.info("%s", "\n" + "=" * 60)
+            logger.info("✅ Analysis Complete!")
+
             return result
-            
+
         except Exception as e:
-            print(f"\n❌ Error during crew execution: {str(e)}")
+            # Log & persist detailed error information for daily triage
+            logger.exception("Error during crew execution: %s", str(e))
+            try:
+                track_error_detail(
+                    error_type="CrewExecutionError",
+                    message=str(e),
+                    context={
+                        'max_parallel_stocks': self.max_parallel_stocks,
+                        'num_agents': len(self.agents),
+                    },
+                    user_id=None,
+                )
+            except Exception:
+                logger.debug("Failed to persist crew error detail")
             raise
     
     def get_crew_info(self):

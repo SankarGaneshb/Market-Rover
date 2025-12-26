@@ -5,6 +5,9 @@ import yfinance as yf
 from typing import Dict
 from crewai.tools import tool
 from datetime import datetime, timedelta
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @tool("Market Context Analyzer")
@@ -45,7 +48,8 @@ def analyze_market_context(portfolio_stocks: str = None) -> str:
                 'month_change': month_change,
                 'sentiment': 'Positive' if week_change > 0 else 'Negative'
             }
-        except:
+        except Exception as e:
+            logger.debug(f"Index fetch failed for {symbol}: {e}")
             return None
     
     try:
@@ -87,7 +91,8 @@ def analyze_market_context(portfolio_stocks: str = None) -> str:
                     
                     if sector in sector_mapping:
                         sectors_to_analyze.add(sector_mapping[sector])
-                except:
+                except Exception as e:
+                    logger.debug(f"Failed to detect sector for {stock}: {e}")
                     continue
         
         # Always include Bank Nifty (important index)

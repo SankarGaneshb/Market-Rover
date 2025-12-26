@@ -25,7 +25,7 @@ REPORT_DIR = PROJECT_ROOT / os.getenv("REPORT_DIR", "reports")
 CONVERT_TO_CRORES = os.getenv("CONVERT_TO_CRORES", "true").lower() == "true"
 
 # Create reports directory if it doesn't exist
-REPORT_DIR.mkdir(exist_ok=True)
+REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
 # NSE Stock Symbol Settings
 NSE_SUFFIX = ".NS"
@@ -45,10 +45,15 @@ WEB_PORT = int(os.getenv("WEB_PORT", "8501"))
 WEB_HOST = os.getenv("WEB_HOST", "0.0.0.0")
 
 # Create upload directory if it doesn't exist
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # News Sources
 MONEYCONTROL_BASE_URL = "https://www.moneycontrol.com"
+
+ONE_LAKH = 100_000
+ONE_CRORE = 10_000_000
+THOUSAND_CRORE = 10_000_000_000
+
 
 def convert_to_crores(amount: float) -> str:
     """
@@ -60,12 +65,12 @@ def convert_to_crores(amount: float) -> str:
     Returns:
         Formatted string in Crores
     """
-    if amount >= 1_00_00_00_000:  # 1000 crores or more
-        return f"₹{amount / 1_00_00_00_000:.2f} Thousand Crore"
-    elif amount >= 1_00_00_000:  # 1 crore or more
-        return f"₹{amount / 1_00_00_000:.2f} Crore"
-    elif amount >= 1_00_000:  # 1 lakh or more
-        return f"₹{amount / 1_00_000:.2f} Lakh"
+    if amount >= THOUSAND_CRORE:
+        return f"₹{amount / THOUSAND_CRORE:.2f} Thousand Crore"
+    elif amount >= ONE_CRORE:
+        return f"₹{amount / ONE_CRORE:.2f} Crore"
+    elif amount >= ONE_LAKH:
+        return f"₹{amount / ONE_LAKH:.2f} Lakh"
     else:
         return f"₹{amount:,.2f}"
 
@@ -83,3 +88,26 @@ def ensure_nse_suffix(symbol: str) -> str:
     if not symbol.endswith(NSE_SUFFIX) and not symbol.endswith(BSE_SUFFIX):
         symbol += NSE_SUFFIX
     return symbol
+
+
+# Issue triage defaults
+# Mapping of keyword -> list of GitHub usernames to assign
+ISSUE_OWNERS = {
+    'Visualizer': ['data-team'],
+    'OptionChain': ['derivatives-team'],
+    'Gemini': ['ml-team'],
+    'Network': ['infra-team'],
+    'MarketData': ['data-team'],
+}
+
+# Label rules: substring -> label
+LABEL_RULES = [
+    ('Visualizer', 'area:visualizer'),
+    ('OptionChain', 'area:options'),
+    ('nse_option', 'area:options'),
+    ('Gemini', 'area:llm'),
+    ('timeout', 'type:timeout'),
+    ('ConnectionError', 'type:network'),
+    ('ValueError', 'type:data'),
+    ('KeyError', 'type:data'),
+]

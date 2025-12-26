@@ -331,7 +331,19 @@ CONVERT_TO_CRORES=true         # Currency formatting
 
 ### Streamlit Secrets (Production)
 
+<<<<<<< HEAD
 For Streamlit Cloud deployment, add to `https://share.streamlit.io` → App Settings → Secrets:
+=======
+### Daily Issue Reports
+
+- Market-Rover persists detailed error records to `metrics/errors_YYYY-MM-DD.jsonl`.
+- Run the daily aggregator `scripts/generate_daily_issue_report.py` to create `reports/daily_issues_YYYY-MM-DD.json`.
+- To enable automated GitHub issues and Slack alerts, set repository secrets:
+   - `GITHUB_TOKEN`, `GITHUB_REPO` (owner/repo), `GITHUB_ISSUE_ASSIGNEES` (comma-separated), `GITHUB_ISSUE_LABELS` (comma-separated), `SLACK_WEBHOOK`.
+   - Adjust `ISSUE_IMPACT_THRESHOLD` env var to control when issues are created (default 10).
+
+### How to Use
+>>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper)
 
 ```toml
 GOOGLE_API_KEY = "your-key-here"

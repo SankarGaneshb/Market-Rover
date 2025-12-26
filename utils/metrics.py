@@ -7,6 +7,8 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, Any
 import threading
+import traceback
+import json
 
 # Create metrics directory
 METRICS_DIR = Path("metrics")
@@ -117,6 +119,35 @@ class MetricsTracker:
             errors["total"] += 1
             errors["by_type"][error_type] = errors["by_type"].get(error_type, 0) + 1
             self._save_metrics()
+
+    def track_error_detail(self, error_type: str, message: str, context: Dict[str, Any] = None, user_id: str = None):
+        """Append a detailed error record to a daily JSONL file and update counts.
+
+        The record includes timestamp, error_type, message, optional context, user_id and traceback.
+        """
+        rec = {
+            "ts": datetime.utcnow().isoformat(),
+            "type": error_type,
+            "message": message,
+            "context": context or {},
+            "user_id": user_id,
+            "trace": traceback.format_exc()
+        }
+
+        today = datetime.utcnow().date().isoformat()
+        errors_file = METRICS_DIR / f"errors_{today}.jsonl"
+        try:
+            with open(errors_file, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(rec) + "\n")
+        except Exception:
+            # If persisting detailed error fails, still update counters
+            pass
+
+        # Also update the lightweight counters
+        with _metrics_lock:
+            self.metrics["errors"]["total"] += 1
+            self.metrics["errors"]["by_type"][error_type] = self.metrics["errors"]["by_type"].get(error_type, 0) + 1
+            self._save_metrics()
     
     def get_metrics(self) -> Dict[str, Any]:
         """Get current metrics snapshot"""
@@ -180,6 +211,11 @@ def track_cache_miss():
 def track_error(error_type: str):
     """Track an error"""
     metrics_tracker.track_error(error_type)
+
+
+def track_error_detail(error_type: str, message: str, context: Dict[str, Any] = None, user_id: str = None):
+    """Convenience wrapper to persist detailed error records."""
+    metrics_tracker.track_error_detail(error_type, message, context=context, user_id=user_id)
 
 
 def get_metrics() -> Dict[str, Any]:

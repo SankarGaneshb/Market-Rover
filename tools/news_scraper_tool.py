@@ -8,6 +8,10 @@ from typing import List, Dict
 from crewai.tools import tool
 from config import LOOKBACK_DAYS, MONEYCONTROL_BASE_URL
 import time
+from utils.logger import get_logger
+from utils.metrics import track_error_detail
+
+logger = get_logger(__name__)
 
 
 @tool("Moneycontrol News Scraper")
@@ -63,6 +67,11 @@ def scrape_moneycontrol_news(symbol: str, company_name: str = "") -> str:
                         break
                         
             except Exception as e:
+                logger.debug(f"Search URL fetch failed for {url}: {e}")
+                try:
+                    track_error_detail(type(e).__name__, str(e), context={"function": "scrape_search", "url": url, "symbol": symbol})
+                except Exception:
+                    pass
                 continue
         
         if not article_urls:
@@ -104,6 +113,11 @@ def scrape_moneycontrol_news(symbol: str, company_name: str = "") -> str:
                     break
                     
             except Exception as e:
+                logger.debug(f"Failed to scrape article {url}: {e}")
+                try:
+                    track_error_detail(type(e).__name__, str(e), context={"function": "scrape_article", "url": url, "symbol": symbol})
+                except Exception:
+                    pass
                 continue
         
         if not articles:
@@ -122,4 +136,9 @@ def scrape_moneycontrol_news(symbol: str, company_name: str = "") -> str:
         return output
         
     except Exception as e:
+        logger.error(f"Error scraping news for {symbol}: {e}")
+        try:
+            track_error_detail(type(e).__name__, str(e), context={"function": "scrape_moneycontrol_news", "symbol": symbol})
+        except Exception:
+            pass
         return f"Error scraping news for {symbol}: {str(e)}"

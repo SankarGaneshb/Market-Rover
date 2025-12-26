@@ -6,6 +6,10 @@ from typing import Dict
 from crewai.tools import tool
 from config import convert_to_crores, CONVERT_TO_CRORES
 from datetime import datetime, timedelta
+from utils.logger import get_logger
+from utils.metrics import track_error_detail
+
+logger = get_logger(__name__)
 
 
 @tool("Stock Data Fetcher")
@@ -71,4 +75,9 @@ def get_stock_data(symbol: str) -> str:
         return output
         
     except Exception as e:
+        logger.error(f"Error fetching stock data for {symbol}: {e}")
+        try:
+            track_error_detail(type(e).__name__, str(e), context={"function": "get_stock_data", "symbol": symbol})
+        except Exception:
+            pass
         return f"Error fetching data for {symbol}: {str(e)}"

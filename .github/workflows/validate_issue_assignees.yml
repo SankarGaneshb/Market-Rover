@@ -1,0 +1,23 @@
+name: Validate Issue Assignees
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-assignees:
+    name: Validate GITHUB_ISSUE_ASSIGNEES and LABELS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Run assignee/label validator
+        env:
+          GITHUB_ISSUE_ASSIGNEES: ${{ secrets.GITHUB_ISSUE_ASSIGNEES }}
+          GITHUB_ISSUE_LABELS: ${{ secrets.GITHUB_ISSUE_LABELS }}
+        run: |
+          python3 scripts/validate_issue_assignees.py

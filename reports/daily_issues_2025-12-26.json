@@ -1,0 +1,41 @@
+{
+  "date": "2025-12-26",
+  "summary": [
+    {
+      "signature": "VisualizerError | Traceback (most recent call last):",
+      "occurrences": 1,
+      "unique_users": 1,
+      "sample": {
+        "ts": "2025-12-26T02:15:00Z",
+        "type": "VisualizerError",
+        "message": "IndexError: list index out of range",
+        "context": {
+          "function": "generate_dashboard",
+          "ticker": "INFY"
+        },
+        "user_id": "test_user_1",
+        "trace": "Traceback (most recent call last):\n  File \"/app/tools/visualizer.py\", line 200, in generate_dashboard\n    x = data[0]\nIndexError: list index out of range"
+      },
+      "last_seen": "2025-12-26T02:15:00Z",
+      "impact_score": 1
+    },
+    {
+      "signature": "MarketDataFetchError | Traceback (most recent call last):",
+      "occurrences": 1,
+      "unique_users": 1,
+      "sample": {
+        "ts": "2025-12-26T03:10:12Z",
+        "type": "MarketDataFetchError",
+        "message": "ConnectionError: Failed to fetch option chain",
+        "context": {
+          "function": "fetch_option_chain",
+          "ticker": "TCS"
+        },
+        "user_id": "test_user_2",
+        "trace": "Traceback (most recent call last):\n  File \"/app/tools/market_data.py\", line 120, in fetch_option_chain\n    payload = nse_optionchain_scrapper(symbol)\nrequests.exceptions.ConnectionError: HTTPSConnectionPool(host='...')"
+      },
+      "last_seen": "2025-12-26T03:10:12Z",
+      "impact_score": 1
+    }
+  ]
+}
