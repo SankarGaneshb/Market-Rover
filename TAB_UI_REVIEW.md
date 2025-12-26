@@ -7,7 +7,7 @@
 - **Output:** AI Briefing (HTML).
 
 ### **Tab 2: 📈 Market Snapshot** (formerly Visualizer)
-- **Purpose:** Quick technical/OI synthesis for current market state.
+- **Purpose:** Quick technical synthesis for current market state.
 - **Output:** Static PNG Dashboard for sharing.
 
 ### **Tab 3: 🔥 Monthly Heatmap & 2026 Forecast**
@@ -32,7 +32,7 @@
 | **Horizon** | Current Expiry | IPO to 2026 | Live Performance |
 | **Output** | Static Image | Interactive Plotly | Real-time Table |
 | **Outliers** | Visualized | **Filtered (Toggle)** | N/A |
-| **Focus** | Technical/OI | Seasonality/Stats | Execution/Tracking |
+| **Focus** | Technical | Seasonality/Stats | Execution/Tracking |
 
 ---
 
