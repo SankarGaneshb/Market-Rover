@@ -254,6 +254,7 @@ def show_visualizer_tab():
         - 🔮 **2026 Forecast**: Long-term trend projection.
         """)
 
+# --- TAB 3: MONTHLY HEATMAP ---
 def show_heatmap_tab():
     """Show the Monthly Heatmap & 2026 Forecast tab (V4.0)"""
     st.header("🔥 Monthly Heatmap & 2026 Forecast")
@@ -314,7 +315,7 @@ def show_heatmap_tab():
     
     # Run analysis if a ticker is active
     if st.session_state.heatmap_active_ticker:
-         run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter)
+         run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap")
 
 def show_benchmark_tab():
     """Show the Benchmark Analysis tab"""
@@ -344,7 +345,7 @@ def show_benchmark_tab():
     if selected_index:
         ticker = major_indices[selected_index]
         st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
-        run_analysis_ui(ticker, st.session_state.heatmap_limiter) 
+        run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark") 
 
 def show_forecast_tracker_tab():
     """Show the Forecast Tracker Dashboard (Tab 5)"""
@@ -464,7 +465,7 @@ def show_forecast_tracker_tab():
     col1.metric("Avg Portfolio Performance", f"{avg_perf:+.2f}%")
     col2.metric("Active Forecasts", len(df))
 
-def run_analysis_ui(ticker_raw, limiter):
+def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
     """Shared function to run analysis and render UI"""
     # Sanitize input
     ticker = sanitize_ticker(ticker_raw)
@@ -525,7 +526,7 @@ def run_analysis_ui(ticker_raw, limiter):
             # === VISUALIZATION 2: Seasonality Profile ===
             col_h, col_check = st.columns([3, 1])
             col_h.markdown("### 📊 Seasonality Profile")
-            exclude_outliers = col_check.checkbox("🚫 Exclude Outliers", value=False, help="Remove extreme months (>1.5x IQR) from stats")
+            exclude_outliers = col_check.checkbox("🚫 Exclude Outliers", value=False, help="Remove extreme months (>1.5x IQR) from stats", key=f"{key_prefix}_outlier_{ticker}")
             
             # Re-calculate with user preference
             seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
@@ -605,7 +606,9 @@ def run_analysis_ui(ticker_raw, limiter):
                     conservative_growth = baseline_growth * 1.2 
                     aggressive_growth = baseline_growth * 0.8
                  
-                 today = pd.Timestamp.now()
+                 today = history.index[-1] # Ensure it matches data start
+                 if today.tz is not None: today = today.tz_localize(None)
+                 
                  end_of_2026 = pd.Timestamp('2026-12-31')
                  years_fraction = (end_of_2026 - today).days / 365.25
                  
@@ -635,12 +638,15 @@ def run_analysis_ui(ticker_raw, limiter):
 
                  # Chart
                  fig_forecast = go.Figure()
-                 dates = pd.date_range(today, end_of_2026, freq='ME')
                  
-                 # Smooth curves
+                 # Create range including today for continuous chart
+                 dates_range = pd.date_range(today, end_of_2026, freq='ME')
+                 dates = [today] + list(dates_range)
+                 
+                 # Smooth curves starting from current price
                  curr_p = current_price
-                 cons_vals = [curr_p * (1 + conservative_growth/100)**((d-today).days/365.25) for d in dates]
-                 aggr_vals = [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates]
+                 cons_vals = [curr_p] + [curr_p * (1 + conservative_growth/100)**((d-today).days/365.25) for d in dates_range]
+                 aggr_vals = [curr_p] + [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates_range]
                  
                  fig_forecast.add_trace(go.Scatter(x=dates, y=cons_vals, mode='lines', line=dict(width=0), showlegend=False))
                  fig_forecast.add_trace(go.Scatter(x=dates, y=aggr_vals, mode='lines', fill='tonexty', fillcolor='rgba(200,200,200,0.2)', line=dict(width=0), name='Range'))
@@ -656,10 +662,14 @@ def run_analysis_ui(ticker_raw, limiter):
                  plot_path(alt_res, alt_color, f"Alt: {alt_name}", 'dot')
                  
                  # Add Realized Actuals if available
-                 # Add Realized Actuals if available
                  chart_title = f"{ticker} Forecast"
 
-                 fig_forecast.update_layout(title=chart_title, height=500, hovermode='x unified')
+                 fig_forecast.update_layout(
+                     title=chart_title, 
+                     height=500, 
+                     hovermode='x unified',
+                     xaxis=dict(range=[today - pd.Timedelta(days=10), end_of_2026 + pd.Timedelta(days=15)]) # Buffer to show Dec 2026
+                 )
                  st.plotly_chart(fig_forecast, use_container_width=True)
                  
                  # Save Button

@@ -128,6 +128,7 @@ POPULAR_OTHERS = [
     "BOSCHLTD.NS - Bosch Ltd"
 ]
 
+# Helper to get categorized tickers
 def get_common_tickers(category="All"):
     """
     Returns tickers based on category.

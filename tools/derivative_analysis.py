@@ -465,7 +465,7 @@ class DerivativeAnalyzer:
         # Ensure we start from next month if today is close to month end, or just project forward
         # Simplification: specific month ends
         
-        projection_path = []
+        projection_path = [{'date': today, 'price': current_price}]
         running_price = current_price
         
         strategy_logic_log = []

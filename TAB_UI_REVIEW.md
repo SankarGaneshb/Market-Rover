@@ -42,6 +42,7 @@
 2. **Standardized Analysis**: Tab 3 and Tab 4 now share a unified backend (`run_analysis_ui`), ensuring consistency between individual stocks and indices.
 3. **Interactive Tools**: Transitioned from static dataframes to `st.data_editor` for the Tracker, allowing natural deletion flows.
 4. **Enhanced Visuals**: Heatmap color scales are now centered at 0% for intuitive "gain vs loss" recognition.
+5. **Widget ID Isolation**: Implemented unique key prefixes (e.g., `heatmap_` vs `benchmark_`) for shared components like the "Exclude Outliers" checkbox to prevent ID collisions.
 
 ---
 

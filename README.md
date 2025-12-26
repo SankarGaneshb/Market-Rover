@@ -38,17 +38,17 @@ Upload your portfolio and get comprehensive AI-powered insights:
 - ✅ **View Report History** - Browse, search, and download past analyses
 - ✅ **Export Options** - HTML format
 
-### **📈 Market Visualizer (Tab 2)**
+### **📈 Market Snapshot (Tab 2)**
 
-Generate professional market snapshots in seconds:
+Generate professional market snapshots for sharing:
 
 - ✅ **Price Charts** - Real-time stock price movements with volatility bands
 - ✅ **Options OI Analysis** - Support and Resistance levels from Open Interest
 - ✅ **OI Walls** - Visual representation of option chain barriers
 - ✅ **Scenario Targets** - Bull/Bear/Neutral price predictions
-- ✅ **Monthly Heatmap** - Historical performance since IPO
+- ✅ **Monthly Heatmap** - Historical performance view
 - ✅ **AI-Powered Insights** - Gemini-generated market analysis
-- ✅ **PNG Export** - Download professional composite dashboard
+- ✅ **PNG Export** - Download professional high-res composite dashboard
 
 **Security:** Input sanitization, rate limiting (30 req/min)
 
@@ -62,7 +62,8 @@ Deep-dive into historical patterns and future predictions for individual stocks:
 - ✅ **Interactive Heatmap** - Monthly returns (Year × Month) since IPO
 - ✅ **Seasonality Analysis** - Identify best/worst months with **Win Rate %**
 - ✅ **3 Forecast Scenarios** - Conservative, Baseline, Aggressive 2026 projections
-- ✅ **Iterative Monthly Forecasting** - AI applies strategy month-by-month for granularity
+- ✅ **Iterative Monthly Forecasting** - AI applies strategy month-by-month for granularity.
+- ✅ **Continuous Forecast Paths** - Seamless projection from history to current date to 2026 target.
 
 ### **📊 Benchmark Analysis (Tab 4)**
 
@@ -181,23 +182,35 @@ streamlit run app.py
    - Filter and search
    - Download in multiple formats
 
-### **Tab 2: Market Visualizer**
+### **Tab 2: Market Snapshot**
 
 1. Enter stock ticker (e.g., `SBIN`, `TCS`, `RELIANCE`)
-2. Click "Generate Snapshot"
-3. Wait ~30 seconds for AI-powered composite image
-4. Download PNG for sharing
+2. Click **"Generate Snapshot"**
+3. Wait ~30 seconds for the high-fidelity composite image
+4. **Download PNG** to share with colleagues or save for records
 
-**Output:** Professional dashboard with price chart, OI levels, scenario targets, and analysis
+### **Tab 3: Monthly Heatmap & 2026 Forecast**
 
-### **Tab 3: Monthly Heatmap**
+1. Select/Search for a stock or enter a custom ticker
+2. **Filter by Index**: Use "Nifty 50" or "Bank Nifty" to narrow down major stocks
+3. Click **"📊 Analyze"**
+4. Explore interactive Plotly charts:
+   - **Outlier Filtering**: Toggle "Exclude Outliers" to strip anomalies
+   - **Centered Heatmap**: Unified color scale for gains vs losses
+   - **2026 Forecast**: AI predicts 3 scenarios (Conservative/Baseline/Aggressive)
+5. **Save Forecast**: Click "Save" to track performance in Tab 5
 
-1. Enter stock ticker
-2. Click "Generate Analysis"
-3. Explore interactive charts:
-   - Historical monthly returns heatmap
-   - Seasonality trends
-   - 2026 price forecast (3 scenarios)
+### **Tab 4: Benchmark Analysis**
+
+1. Select a major index (Nifty 50, Sensex, Bank Nifty, etc.)
+2. Click **"🚀 Analyze Index"**
+3. View high-level market sentiment and seasonal trends
+
+### **Tab 5: Forecast Tracker**
+
+1. Monitor your saved predictions against live market prices
+2. **🗑️ Manage List**: Use checkboxes and the "Delete Selected" button to clean up your dashboard
+
 
 ---
 
@@ -245,7 +258,7 @@ Market-Rover includes enterprise-grade security:
 
 ## 🛠️ Technology Stack
 
-### core backend
+### Core Backend
 - **CrewAI** - Multi-agent orchestration
 - **Google Gemini 2.0-flash** - Latest LLM reasoning engine
 - **langchain-google-genai** - LLM integration
@@ -278,6 +291,10 @@ Market-Rover/
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Environment template
 │
+├── tools/                      # Analysis tools
+│   ├── market_data.py             # Stock & Option data fetcher
+│   ├── news_scraper.py            # Moneycontrol web scraper
+│   ├── sentiment_analyzer.py      # Gemini-powered classification
 │   ├── derivative_analysis.py     # Seasonal patterns & iterative forecasting
 │   ├── ticker_resources.py        # Categorized stock indices (Nifty/Sensex)
 │   └── visualizer_tool.py         # Tab 2 Chart generation
@@ -478,7 +495,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: December 24, 2025*
+*Last Updated: December 26, 2025*
 
 ---
 
