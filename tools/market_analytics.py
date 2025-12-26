@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-class DerivativeAnalyzer:
+class MarketAnalyzer:
     def __init__(self):
         pass
 
@@ -104,153 +104,21 @@ class DerivativeAnalyzer:
         volatility = daily_returns.rolling(window=actual_window).std().iloc[-1] * np.sqrt(252)
         return volatility
 
-    def analyze_oi(self, option_chain_json, ltp):
-        """
-        Analyzes Option Chain data for PCR, Max Pain, Support/Resistance, and IV.
-        """
-        if not option_chain_json or 'records' not in option_chain_json:
-            return None
-
-        data = option_chain_json['records']['data']
-        expiry_dates = option_chain_json['records']['expiryDates']
-        current_expiry = expiry_dates[0] # Focus on near expiry
-
-        # Filter for current expiry
-        chain = [x for x in data if x['expiryDate'] == current_expiry]
-        
-        total_ce_oi = 0
-        total_pe_oi = 0
-        max_pain_strike = 0
-        min_pain_value = float('inf')
-        
-        strikes = []
-        ce_ois = []
-        pe_ois = []
-        
-        # Find ATM IV
-        min_diff = float('inf')
-        atm_iv = 0
-        valid_ivs = []
-
-        # Calculate PCR and collect data for Max Pain
-        for row in chain:
-            strike = row['strikePrice']
-            ce_oi = row.get('CE', {}).get('openInterest', 0)
-            pe_oi = row.get('PE', {}).get('openInterest', 0)
-            
-            # IV Extraction
-            ce_iv = row.get('CE', {}).get('impliedVolatility', 0)
-            pe_iv = row.get('PE', {}).get('impliedVolatility', 0)
-            
-            if ce_iv > 0: valid_ivs.append(ce_iv)
-            if pe_iv > 0: valid_ivs.append(pe_iv)
-            
-            # Check for ATM
-            diff = abs(strike - ltp)
-            if diff < min_diff:
-                min_diff = diff
-                # Average IV of ATM Call and Put
-                if ce_iv > 0 and pe_iv > 0:
-                    atm_iv = (ce_iv + pe_iv) / 2
-                elif ce_iv > 0:
-                    atm_iv = ce_iv
-                elif pe_iv > 0:
-                    atm_iv = pe_iv
-            
-            total_ce_oi += ce_oi
-            total_pe_oi += pe_oi
-            
-            strikes.append(strike)
-            ce_ois.append(ce_oi)
-            pe_ois.append(pe_oi)
-
-        pcr = total_pe_oi / total_ce_oi if total_ce_oi > 0 else 0
-
-        # Calculate Max Pain (Simplified)
-        for potential_settlement in strikes:
-            total_loss = 0
-            for row in chain:
-                strike = row['strikePrice']
-                ce_oi = row.get('CE', {}).get('openInterest', 0)
-                pe_oi = row.get('PE', {}).get('openInterest', 0)
-                
-                call_loss = max(0, potential_settlement - strike) * ce_oi
-                put_loss = max(0, strike - potential_settlement) * pe_oi
-                
-                total_loss += (call_loss + put_loss)
-            
-            if total_loss < min_pain_value:
-                min_pain_value = total_loss
-                max_pain_strike = potential_settlement
-
-        # Identify Support (Max Put OI) and Resistance (Max Call OI)
-        max_ce_oi = max(ce_ois) if ce_ois else 0
-        max_pe_oi = max(pe_ois) if pe_ois else 0
-        
-        resistance_strike = strikes[ce_ois.index(max_ce_oi)] if ce_ois else 0
-        support_strike = strikes[pe_ois.index(max_pe_oi)] if pe_ois else 0
-        
-        # If ATM IV is 0 (missing), try average of all valid IVs
-        if atm_iv == 0 and valid_ivs:
-            atm_iv = sum(valid_ivs) / len(valid_ivs)
-
-        return {
-            "pcr": round(pcr, 2),
-            "max_pain": max_pain_strike,
-            "resistance_strike": resistance_strike,
-            "support_strike": support_strike,
-            "expiry": current_expiry,
-            "strikes": strikes,
-            "ce_ois": ce_ois,
-            "pe_ois": pe_ois,
-            "atm_iv": atm_iv
-        }
-
-    def model_scenarios(self, ltp, volatility, max_pain, expiry_date=None, iv=0):
+    def model_scenarios(self, ltp, volatility, days_remaining=30):
         """
         Generates Neutral, Bull, and Bear targets.
-        Prioritizes Implied Volatility (IV) if available, otherwise uses Historical Volatility.
+        Uses Historical Volatility.
         """
         import datetime
         
-        # Determine days to expiry
-        if expiry_date:
-            try:
-                expiry_dt = pd.to_datetime(expiry_date, format="%d-%b-%Y")
-                today = pd.Timestamp.now().normalize()
-                
-                # Handle timezone if expiry_dt is timezone-aware
-                if expiry_dt.tz is not None and today.tz is None:
-                    today = today.tz_localize(expiry_dt.tz)
-                elif expiry_dt.tz is None and today.tz is not None:
-                    expiry_dt = expiry_dt.tz_localize(today.tz)
-                
-                days_remaining = (expiry_dt - today).days
-                days_remaining = max(1, days_remaining)
-            except:
-                days_remaining = 30
-        else:
-            days_remaining = 30
-
-        # Use IV if available and valid (> 1%), else fallback to Historical Volatility
-        # IV is usually in %, e.g., 15.5 -> 0.155
-        # nsepython usually returns IV as a number like 15.5
+        sigma = volatility
         
-        sigma = volatility # Default to HV
-        
-        if iv > 0:
-            # Check if IV is percentage (e.g. 20) or decimal (0.20)
-            # Indian markets IV is usually 10-50. If > 1, assume percentage.
-            if iv > 1:
-                sigma = iv / 100.0
-            else:
-                sigma = iv
-                
         # Calculate expected move
         sigma_period = sigma * np.sqrt(days_remaining / 365)
         expected_move = ltp * sigma_period
         
-        anchor = max_pain if max_pain > 0 else ltp
+        # Use LTP as anchor since Max Pain is gone
+        anchor = ltp
         
         neutral_range = (anchor - (expected_move * 0.5), anchor + (expected_move * 0.5))
         bull_target = anchor + expected_move
@@ -262,7 +130,7 @@ class DerivativeAnalyzer:
             "bear_target": bear_target,
             "expected_move": expected_move,
             "days_remaining": days_remaining,
-            "used_iv": (iv > 0)
+            "used_iv": False
         }
 
     def _remove_outliers(self, series):

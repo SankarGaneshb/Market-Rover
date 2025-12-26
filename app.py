@@ -76,7 +76,7 @@ def main():
         Upload → Analyze → View reports
         
         **📈 Market Visualizer**  
-        Charts, OI analysis, price targets
+        Charts, price targets
         
         **🔥 Monthly Heatmap**  
         History, trends, 2026 forecast
@@ -202,7 +202,7 @@ def main():
 def show_visualizer_tab():
     """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
     st.header("📈 Market Visualizer")
-    st.markdown("Generate **comprehensive market snapshot** with Price Chart, OI Analysis, and Scenario Targets.")
+    st.markdown("Generate **comprehensive market snapshot** with Price Chart and Scenario Targets.")
     
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -244,13 +244,10 @@ def show_visualizer_tab():
                 except Exception as e:
                     st.error(f"An unexpected error occurred: {str(e)}")
     
-    with col2:
-        st.info("💡 **Tip:** This module also includes the V4 Heatmap features.")
         st.markdown("""
         **Dashboard Features:**
         - 📊 **Price Chart**: With volatility bands and time-adjusted targets.
         - 🌡️ **Monthly Heatmap**: Historical performance from IPO to date.
-        - 🧱 **OI Walls**: Support & Resistance levels based on Open Interest.
         - 🔮 **2026 Forecast**: Long-term trend projection.
         """)
 
@@ -483,14 +480,14 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
          try:
             # Import necessary modules
             from tools.market_data import MarketDataFetcher
-            from tools.derivative_analysis import DerivativeAnalyzer
+            from tools.market_analytics import MarketAnalyzer
             import plotly.graph_objects as go
             import plotly.express as px
             import pandas as pd
             
             # Fetch data
             fetcher = MarketDataFetcher()
-            analyzer = DerivativeAnalyzer()
+            analyzer = MarketAnalyzer()
             
             history = fetcher.fetch_full_history(ticker)
             

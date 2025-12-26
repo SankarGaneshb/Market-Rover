@@ -1,8 +1,8 @@
 
 try:
-    from tools.derivative_analysis import DerivativeAnalyzer
+    from tools.market_analytics import MarketAnalyzer
     print("Import Successful")
-    analyzer = DerivativeAnalyzer()
+    analyzer = MarketAnalyzer()
     print("Instance Created")
 except Exception as e:
     print(f"Error: {e}")

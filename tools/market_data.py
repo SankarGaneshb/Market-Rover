@@ -1,5 +1,4 @@
 import yfinance as yf
-from nsepython import nse_optionchain_scrapper
 import pandas as pd
 import datetime
 
@@ -48,18 +47,6 @@ class MarketDataFetcher:
         """
         return self.fetch_historical_data(ticker, period="max", interval="1d")
 
-    def fetch_option_chain(self, ticker):
-        """
-        Fetches the Option Chain JSON using nsepython.
-        """
-        try:
-            # nsepython expects symbol without .NS
-            symbol = ticker.replace(".NS", "").replace(".BO", "")
-            payload = nse_optionchain_scrapper(symbol)
-            return payload
-        except Exception as e:
-            print(f"Error fetching Option Chain for {ticker}: {e}")
-            return None
 
 if __name__ == "__main__":
     # Test

@@ -22,29 +22,25 @@ class DashboardRenderer:
         Generates a composite dashboard image containing:
         1. Price Chart with Volatility Bands & Scenario Targets
         2. Monthly Returns Heatmap (Historical Performance)
-        3. Open Interest Distribution (Support/Resistance)
+        3. Key Analysis Metrics
         """
         # Ensure non-interactive backend for production safety
         plt.switch_backend('Agg')
         
-        fig = plt.figure(figsize=(16, 14), constrained_layout=True)
-        gs = fig.add_gridspec(3, 2, height_ratios=[1.5, 1.5, 1])
+        fig = plt.figure(figsize=(16, 12), constrained_layout=True)
+        gs = fig.add_gridspec(3, 1, height_ratios=[1.5, 1.5, 0.5])
 
-        # --- 1. Price Chart (Top Row, spans both cols) ---
-        ax1 = fig.add_subplot(gs[0, :])
+        # --- 1. Price Chart (Top Row) ---
+        ax1 = fig.add_subplot(gs[0])
         self._plot_price_chart(ax1, ticker, history_df, scenarios, forecast_2026)
 
-        # --- 2. Monthly Returns Heatmap (Middle Row, spans both cols) ---
-        ax2 = fig.add_subplot(gs[1, :])
+        # --- 2. Monthly Returns Heatmap (Middle Row) ---
+        ax2 = fig.add_subplot(gs[1])
         self._plot_monthly_heatmap(ax2, returns_matrix, ticker)
 
-        # --- 3. OI Chart (Bottom Left) ---
-        ax3 = fig.add_subplot(gs[2, 0])
-        self._plot_oi_chart(ax3, oi_data)
-
-        # --- 4. Key Metrics (Bottom Right) ---
-        ax4 = fig.add_subplot(gs[2, 1])
-        self._plot_metrics(ax4, oi_data, scenarios)
+        # --- 3. Key Metrics (Bottom Row) ---
+        ax3 = fig.add_subplot(gs[2])
+        self._plot_metrics(ax3, scenarios)
 
         # Save to buffer
         buf = io.BytesIO()
@@ -132,55 +128,25 @@ class DashboardRenderer:
             # Update legend to include new items
             ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white', fontsize=8)
 
-    def _plot_oi_chart(self, ax, oi_data):
-        if not oi_data:
-            ax.text(0.5, 0.5, "No OI Data Available", ha='center', va='center', color='white')
-            return
-
-        strikes = oi_data['strikes']
-        ce_ois = oi_data['ce_ois']
-        pe_ois = oi_data['pe_ois']
-
-        # Filter to show only relevant strikes (near ATM)
-        # Find index of max pain or ATM
-        # Simple logic: take middle 20 strikes
-        mid_idx = len(strikes) // 2
-        start = max(0, mid_idx - 10)
-        end = min(len(strikes), mid_idx + 10)
-        
-        subset_strikes = strikes[start:end]
-        subset_ce = ce_ois[start:end]
-        subset_pe = pe_ois[start:end]
-
-        x = range(len(subset_strikes))
-        
-        ax.bar(x, subset_ce, width=0.4, label='Call OI (Res)', color='#FF5252', align='center')
-        ax.bar(x, subset_pe, width=0.4, label='Put OI (Sup)', color='#69F0AE', align='edge')
-        
-        ax.set_xticks(x)
-        ax.set_xticklabels(subset_strikes, rotation=45)
-        ax.set_title(f"Open Interest Distribution (Expiry: {oi_data['expiry']})", fontsize=14, color='white')
-        ax.legend(facecolor='#1E1E1E')
-
-    def _plot_metrics(self, ax, oi_data, scenarios):
+    def _plot_metrics(self, ax, scenarios):
         ax.axis('off')
         
-        # Create a table-like display
+        # Create a display
         metrics = [
-            ("PCR (Put-Call Ratio)", f"{oi_data['pcr']}", "#FFFFFF"),
-            ("Max Pain Strike", f"{oi_data['max_pain']}", "#FFFF00"),
-            ("Support (Max Put OI)", f"{oi_data['support_strike']}", "#69F0AE"),
-            ("Resistance (Max Call OI)", f"{oi_data['resistance_strike']}", "#FF5252"),
-            ("Expected Move (Monthly)", f"±{scenarios['expected_move']:.2f}", "#00E5FF")
+            ("Days Remaining", f"{scenarios.get('days_remaining', 30)}", "#FFFFFF"),
+            ("Expected Move", f"±{scenarios['expected_move']:.2f}", "#00E5FF"),
+            ("Bull Target", f"{scenarios['bull_target']:.2f}", "#69F0AE"),
+            ("Bear Target", f"{scenarios['bear_target']:.2f}", "#FF5252"),
         ]
         
-        y_start = 0.9
+        # Draw horizontally roughly
+        x_start = 0.1
         for label, value, color in metrics:
-            ax.text(0.1, y_start, label, color='gray', fontsize=12, ha='left')
-            ax.text(0.9, y_start, value, color=color, fontsize=14, fontweight='bold', ha='right')
-            y_start -= 0.15
+            ax.text(x_start, 0.6, label, color='gray', fontsize=12, ha='left')
+            ax.text(x_start, 0.3, value, color=color, fontsize=16, fontweight='bold', ha='left')
+            x_start += 0.25
         
-        ax.text(0.5, 0.1, "Market Rover 3.0", color='#333333', fontsize=20, ha='center', fontweight='bold', alpha=0.5)
+        ax.text(0.5, 0.1, "Market Rover 4.1", color='#333333', fontsize=14, ha='center', fontweight='bold', alpha=0.5)
 
 if __name__ == "__main__":
     pass

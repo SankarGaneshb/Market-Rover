@@ -17,7 +17,7 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 | Feature | Description | Tech Highlights |
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
-| **📈 Market Snapshot** | High-fidelity technical dashboards & OI walls | Options data, Plotly, PNG export |
+| **📈 Market Snapshot** | High-fidelity technical dashboards | Options data, Plotly, PNG export |
 | **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
 | **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
@@ -43,8 +43,6 @@ Upload your portfolio and get comprehensive AI-powered insights:
 Generate professional market snapshots for sharing:
 
 - ✅ **Price Charts** - Real-time stock price movements with volatility bands
-- ✅ **Options OI Analysis** - Support and Resistance levels from Open Interest
-- ✅ **OI Walls** - Visual representation of option chain barriers
 - ✅ **Scenario Targets** - Bull/Bear/Neutral price predictions
 - ✅ **Monthly Heatmap** - Historical performance view
 - ✅ **AI-Powered Insights** - Gemini-generated market analysis
@@ -239,7 +237,6 @@ Market-Rover includes enterprise-grade security:
 | Streamlit Cloud | Hosting | **$0** |
 | Gemini 1.5 Flash | <400K tokens/day | **$0** |
 | yfinance | Stock data | **$0** |
-| NSE Option Chain | Options data | **$0** |
 | Newspaper3k | News scraping | **$0** |
 | **Total** | | **$0/month** ✅ |
 
@@ -295,7 +292,7 @@ Market-Rover/
 │   ├── market_data.py             # Stock & Option data fetcher
 │   ├── news_scraper.py            # Moneycontrol web scraper
 │   ├── sentiment_analyzer.py      # Gemini-powered classification
-│   ├── derivative_analysis.py     # Seasonal patterns & iterative forecasting
+│   ├── market_analytics.py        # Seasonal patterns & iterative forecasting
 │   ├── ticker_resources.py        # Categorized stock indices (Nifty/Sensex)
 │   └── visualizer_tool.py         # Tab 2 Chart generation
 │
@@ -351,7 +348,6 @@ GOOGLE_API_KEY = "your-key-here"
 
 2. **Pre-Earnings Analysis**
    - Generate market snapshot before earnings
-   - Check OI levels & targets
    - Assess bull/bear scenarios
 
 3. **Historical Pattern Analysis**

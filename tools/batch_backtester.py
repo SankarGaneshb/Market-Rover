@@ -5,7 +5,7 @@ import time
 import os
 from datetime import datetime
 from market_data import MarketDataFetcher
-from derivative_analysis import DerivativeAnalyzer
+from market_analytics import MarketAnalyzer
 from ticker_resources import get_common_tickers
 
 # Configuration
@@ -19,7 +19,7 @@ def run_batch_backtest():
     print("🚀 Starting Weekly Batch Backtest...")
     
     fetcher = MarketDataFetcher()
-    analyzer = DerivativeAnalyzer()
+    analyzer = MarketAnalyzer()
     tickers = get_common_tickers()
     
     # Load existing registry if exists to preserve old data

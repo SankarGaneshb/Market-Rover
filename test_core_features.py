@@ -7,12 +7,12 @@ import pytest
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from tools.derivative_analysis import DerivativeAnalyzer
+from tools.market_analytics import MarketAnalyzer
 from utils.mock_data import mock_generator
 
-class TestDerivativeAnalyzer:
+class TestMarketAnalyzer:
     def setup_method(self):
-        self.analyzer = DerivativeAnalyzer()
+        self.analyzer = MarketAnalyzer()
         # Generate mock history dataframe directly
         dates = pd.date_range(end=pd.Timestamp.now(), periods=365*4, freq='D')
         prices = np.random.lognormal(mean=0, sigma=0.01, size=len(dates)).cumprod() * 100
@@ -64,7 +64,7 @@ class TestDerivativeAnalyzer:
 
 if __name__ == "__main__":
     # Manual run if needed
-    t = TestDerivativeAnalyzer()
+    t = TestMarketAnalyzer()
     t.setup_method()
     t.test_seasonality_calculation()
     t.test_outlier_filtering()
