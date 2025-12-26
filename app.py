@@ -720,49 +720,182 @@ def load_portfolio_file(file_bytes, filename):
 
 def show_upload_tab(max_parallel: int):
     """Show the upload and analysis tab"""
+    from tools.ticker_resources import get_common_tickers
+    from utils.portfolio_manager import PortfolioManager
     
     st.header("Upload Portfolio")
-    
-    # File upload
-    uploaded_file = st.file_uploader(
-        "Choose your Portfolio CSV file",
-        type=['csv'],
-        help="Upload a CSV file with columns: Symbol, Company Name, Quantity, Average Price"
+
+    # Mode Selection
+    input_mode = st.radio(
+        "Choose Input Method",
+        ["📂 Upload CSV File", "✏️ Create Manually"],
+        horizontal=True,
+        help="Upload an existing CSV or create a portfolio from scratch."
     )
     
-    if uploaded_file is not None:
-        # Display portfolio preview
-        try:
-            # Use cached loading for better performance
-            file_bytes = uploaded_file.read()
-            df = load_portfolio_file(file_bytes, uploaded_file.name)
-            
-            st.success(f"✅ Portfolio loaded: {len(df)} stocks")
-            
-            # Portfolio preview
-            st.subheader("📋 Portfolio Preview")
-            st.dataframe(df, width="stretch")
-            
-            # Analysis button
-            st.markdown("---")
-            col1, col2, col3 = st.columns([1, 2, 1])
-            
-            with col2:
-                if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
-                    # Check rate limit
-                    allowed, message = st.session_state.portfolio_limiter.is_allowed()
-                    if not allowed:
-                        st.error(f"⏱️ {message}")
-                        st.info("Portfolio analysis is resource-intensive. Please wait before retrying.")
-                    else:
-                        run_analysis(df, uploaded_file.name, max_parallel)
-        
-        except Exception as e:
-            st.error(f"❌ Error reading CSV: {str(e)}")
+    df = None
+    filename = None
+    pm = PortfolioManager()
     
+    if input_mode == "📂 Upload CSV File":
+        # Case 1: File upload
+        col_up, col_dl = st.columns([3, 1])
+        with col_up:
+            uploaded_file = st.file_uploader(
+                "Choose your Portfolio CSV file",
+                type=['csv'],
+                help="Upload a CSV file with columns: Symbol, Company Name, Quantity, Average Price"
+            )
+        with col_dl:
+            st.write("") # Spacer
+            st.write("") 
+            # Prepare template CSV
+            template_csv = "Symbol,Company Name,Quantity,Average Price\nRELIANCE,Reliance Industries Ltd,10,2450.50\nTCS,Tata Consultancy Services,5,3550.00\nINFY,Infosys Ltd,15,1450.75"
+            st.download_button(
+                label="📥 Download Template",
+                data=template_csv,
+                file_name="portfolio_template.csv",
+                mime="text/csv",
+                help="Download a sample CSV file to fill out."
+            )
+        
+        if uploaded_file is not None:
+            try:
+                # Use cached loading
+                file_bytes = uploaded_file.read()
+                df = load_portfolio_file(file_bytes, uploaded_file.name)
+                filename = uploaded_file.name
+                st.success(f"✅ Portfolio loaded: {len(df)} stocks")
+            except Exception as e:
+                st.error(f"❌ Error reading CSV: {str(e)}")
+                
     else:
-        # Show example format
-        st.info("ℹ️ Upload a CSV file to get started")
+        # Case 2: Manual Creation
+        
+        # Load Saved Portfolios
+        saved_names = pm.get_portfolio_names()
+        
+        col_load, col_custom = st.columns([2, 1])
+        with col_load:
+            if saved_names:
+                selected_load = st.selectbox("📂 Load Saved Portfolio", ["-- Select --"] + saved_names, key="load_portfolio_select")
+                if selected_load != "-- Select --":
+                    loaded_df = pm.get_portfolio(selected_load)
+                    if loaded_df is not None:
+                        st.session_state.manual_portfolio_df = loaded_df
+                        st.toast(f"Loaded '{selected_load}'")
+            else:
+                 st.info("No saved portfolios yet.")
+                 
+        with col_custom:
+             allow_custom = st.toggle("Allow Custom Symbols", help="Enable free text entry for symbols not in the list.")
+
+        # Initialize Data
+        if 'manual_portfolio_df' not in st.session_state:
+            st.session_state.manual_portfolio_df = pd.DataFrame(columns=['Symbol', 'Company Name', 'Quantity', 'Average Price'])
+            if st.session_state.manual_portfolio_df.empty:
+                 st.session_state.manual_portfolio_df = pd.DataFrame(
+                    [{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}] * 5
+                )
+
+        # Configure Column Types
+        if allow_custom:
+            symbol_col = st.column_config.TextColumn("Symbol (Custom)", help="Enter full ticker (e.g. INFBEES.NS)", required=True)
+        else:
+            symbol_col = st.column_config.SelectboxColumn(
+                "Stock (Select)",
+                help="Choose from common stocks",
+                width="medium",
+                options=get_common_tickers(),
+                required=True
+            )
+
+        edited_df = st.data_editor(
+            st.session_state.manual_portfolio_df,
+            num_rows="dynamic",
+            use_container_width=True,
+            column_config={
+                "Symbol": symbol_col,
+                "Company Name": st.column_config.TextColumn("Company Name", help="Auto-filled if using dropdown"),
+                "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1),
+                "Average Price": st.column_config.NumberColumn("Avg Price", min_value=0.0, format="₹ %.2f")
+            },
+            key="portfolio_editor"
+        )
+        
+        # Process Edited Data
+        if edited_df is not None:
+             valid_df = edited_df[edited_df["Symbol"].astype(str).str.strip() != ""].copy()
+             
+             # Post-process symbols if using dropdown (split ' - ')
+             if not allow_custom and not valid_df.empty:
+                 def parse_row(row):
+                     val = str(row['Symbol'])
+                     if " - " in val:
+                         parts = val.split(" - ")
+                         ticker = parts[0]
+                         comp = parts[1] if len(parts) > 1 else ""
+                         # Fill company name if empty
+                         if not row['Company Name'] or row['Company Name'] == "":
+                             row['Company Name'] = comp
+                         row['Symbol'] = ticker
+                     return row
+                 
+                 valid_df = valid_df.apply(parse_row, axis=1)
+             
+             if not valid_df.empty:
+                 df = valid_df
+                 filename = f"manual_portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                 
+                 # SAVE SECTION
+                 st.markdown("### 💾 Save Portfolio")
+                 col_sched_1, col_sched_2 = st.columns([2, 1])
+                 with col_sched_1:
+                     save_name = st.text_input("Portfolio Name", placeholder="e.g., My Tech Stocks")
+                 with col_sched_2:
+                     st.write("") # align
+                     st.write("")
+                     if st.button("Save", key="btn_save_pf"):
+                          success, msg = pm.save_portfolio(save_name, df)
+                          if success:
+                              st.success(msg)
+                              st.rerun() # Refresh to show in load list
+                          else:
+                              st.error(msg)
+                              
+                 # Delete option
+                 if saved_names:
+                      with st.expander("🗑️ Delete Saved Portfolios"):
+                          to_delete = st.selectbox("Select to delete", saved_names, key="del_pf_select")
+                          if st.button("Delete Selected"):
+                              pm.delete_portfolio(to_delete)
+                              st.rerun()
+
+
+    # Common Preview & Analysis Logic
+    if df is not None and not df.empty:
+        if input_mode == "📂 Upload CSV File":
+             # Preview only for upload mode
+             st.subheader("📋 Portfolio Preview")
+             st.dataframe(df, width="stretch")
+             
+        # Analysis button
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
+                # Check rate limit
+                allowed, message = st.session_state.portfolio_limiter.is_allowed()
+                if not allowed:
+                    st.error(f"⏱️ {message}")
+                    st.info("Portfolio analysis is resource-intensive. Please wait before retrying.")
+                else:
+                    run_analysis(df, filename, max_parallel)
+    
+    elif input_mode == "📂 Upload CSV File":
+        # Show example format if no file uploaded
+        st.info("ℹ️ Upload a CSV file or switch to 'Create Manually' mode.")
         with st.expander("📄 See example CSV format"):
             example_df = pd.DataFrame({
                 'Symbol': ['RELIANCE', 'TCS', 'INFY'],

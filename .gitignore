@@ -65,3 +65,6 @@ htmlcov/
 # Artifacts (except examples)
 !test_portfolio.csv
 !Portfolio.csv.example
+
+# Data Storage
+data/
