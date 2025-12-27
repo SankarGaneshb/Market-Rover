@@ -178,10 +178,10 @@ def main():
 
     
     # Main content area
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔍 Market Analysis", "🎯 Forecast Tracker", "🧪 Analytics Lab"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔍 Market Analysis", "🎯 Forecast Tracker"])
     
     with tab1:
-        show_upload_tab(max_parallel)
+        show_portfolio_analysis_tab(max_parallel)
     
     with tab2:
         show_visualizer_tab()
@@ -192,14 +192,14 @@ def main():
     with tab4:
         show_forecast_tracker_tab()
 
-    with tab5:
-        show_analytics_tab()
+
+    # Tab 5 Removed (Merged into Tab 1)
     
     # Disclaimer at bottom - always visible like a status bar
     st.markdown("---")
     st.caption("⚠️ **Disclaimer:** Market-Rover is for informational purposes only. Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.")
 
-def show_analytics_tab():
+def render_analytics_section():
     st.header("🧪 Analytics Lab")
     st.info("Advanced tools to analyze portfolio risk and diversification.")
     
@@ -213,11 +213,48 @@ def show_analytics_tab():
         st.markdown("Analyze how your stocks move in relation to each other. **High correlation** means they move together (less diversification).")
         
         # Input Method
-        corr_input_mode = st.radio("Input Source:", ["Manual Entry ✏️", "Select Saved Portfolio 📂"], horizontal=True, key="corr_input_mode")
+        corr_input_mode = st.radio("Input Source:", ["Select Stocks 🏗️", "Select Saved Portfolio 📂", "Paste/Manual Entry ✏️"], horizontal=True, key="corr_input_mode")
         
         tickers_input = ""
         
-        if corr_input_mode == "Select Saved Portfolio 📂":
+        if corr_input_mode == "Select Stocks 🏗️":
+            from tools.ticker_resources import get_common_tickers
+            
+            # Filter Pills
+            cat = st.pills("Filter:", ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], default="Nifty 50", key="corr_pills")
+            
+            # Multiselect
+            options = get_common_tickers(category=cat)
+            selected_common = st.multiselect("Choose Stocks:", options, key="corr_multiselect")
+            
+            # Custom Add
+            custom_add = st.text_area("Add Custom Tickers (comma or new line separated):", height=68, 
+                                      placeholder="e.g.\nBSE: 500325\nNSE: VEDL", key="corr_custom_add")
+            
+            # Combine
+            final_list = []
+            if selected_common:
+                final_list.extend([s.split(' - ')[0] for s in selected_common])
+            
+            if custom_add:
+                # Robust cleanup (handle newlines and commas)
+                import re
+                # Replace newlines with commas, then split by comma
+                normalized = custom_add.replace('\n', ',')
+                clean_custom = [c.strip() for c in normalized.split(',') if c.strip()]
+                final_list.extend(clean_custom)
+            
+            # Remove duplicates while preserving order
+            final_list = list(dict.fromkeys(final_list))
+            
+            tickers_input = ", ".join(final_list)
+            
+            if final_list:
+                st.caption(f"✅ Selected {len(final_list)} stocks: {', '.join(final_list)}")
+            else:
+                st.info("Select stocks or add custom ones to begin.")
+                
+        elif corr_input_mode == "Select Saved Portfolio 📂":
             from utils.portfolio_manager import PortfolioManager
             pm = PortfolioManager()
             saved_names = pm.get_portfolio_names()
@@ -240,17 +277,35 @@ def show_analytics_tab():
         
         if tickers_input and st.button("Generate Matrix"):
             with st.spinner("Fetching data and calculating correlation..."):
-                tickers = [t.strip() for t in tickers_input.split(',') if t.strip()]
+                raw_tickers = [t.strip() for t in tickers_input.split(',') if t.strip()]
+                tickers = []
+                for t in raw_tickers:
+                    # Auto-append .NS if no suffix is present (common user error)
+                    if '.' not in t:
+                        tickers.append(f"{t}.NS")
+                    else:
+                        tickers.append(t)
+                        
+                # Re-instantiate to ensure fresh state
+                # from tools.analytics import MarketAnalyzer # Already imported at top-level usually, but safe here
+                analyzer = MarketAnalyzer()
+                
                 matrix = analyzer.calculate_correlation_matrix(tickers)
                 
                 if not matrix.empty:
-                    # Mask diagonal
-                    import numpy as np
-                    np.fill_diagonal(matrix.values, np.nan)
-                    
-                    st.write(matrix.style.background_gradient(cmap='coolwarm', axis=None).format(precision=2, na_rep=""))
+                    st.write("### Correlation Heatmap")
+                    import plotly.express as px
+                        
+                    fig = px.imshow(
+                        matrix,
+                        text_auto=".2f",
+                        aspect="auto",
+                        color_continuous_scale="RdBu_r", # Red=High, Blue=Low
+                        zmin=-1, zmax=1
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.error("Could not calculate correlation. Please check symbols and try again.")
+                    st.error("Correlation Calculation Failed. Matrix is empty.")
                     
     elif mode == "Portfolio Rebalancer":
         st.subheader("⚖️ Portfolio Rebalancer (Risk Parity)")
@@ -296,30 +351,87 @@ def show_analytics_tab():
             
         edited_df = st.data_editor(st.session_state.rebal_portfolio, num_rows="dynamic", key="rebal_editor")
         
-        if st.button("Analyze & Rebalance"):
-            with st.spinner("Analyzing volatility..."):
-                portfolio_data = edited_df.to_dict('records')
-                result = analyzer.suggest_rebalance(portfolio_data)
-                
-                if not result.empty:
-                    st.markdown("### 📋 Rebalancing Plan")
+        if edited_df is not None:
+             # Strategy Selector
+             strategy = st.radio(
+                 "Rebalancing Strategy",
+                 ["🛡️ Risk Parity (Lower Risk, Steady)", "⚖️ Growth Optimization (Risk-Adjusted Return)"],
+                 horizontal=True
+             )
+             
+             mode = "safety" if "Risk Parity" in strategy else "growth"
+             
+             if st.button("Analyze & Rebalance"):
+                with st.spinner(f"Running {mode} optimization..."):
+                    portfolio_data = edited_df.to_dict('records')
+                    # Auto-append .NS if missing
+                    for item in portfolio_data:
+                        if 'symbol' in item and '.' not in item['symbol']:
+                            item['symbol'] = f"{item['symbol']}.NS"
+                            
+                    # Pass the selected mode to the new engine
+                    result, warnings = analyzer.suggest_rebalance(portfolio_data, mode=mode)
                     
-                    # Formatting
-                    def color_action(val):
-                        color = 'green' if val == 'Buy' else ('red' if val == 'Sell' else 'grey')
-                        return f'color: {color}; font_weight: bold'
+                    if warnings:
+                        st.warning("### ⚠️ Data Anomalies Detected")
+                        for w in warnings:
+                            st.write(w)
+                    
+                    if not result.empty:
+                        # Calculate Portfolio Logic (Weighted Vol for display)
+                        avg_vol = (result['volatility'] * result['current_weight']).sum()
+                        risk_label = "Moderate"
+                        if avg_vol < 0.15: risk_label = "Conservative 🛡️"
+                        elif avg_vol > 0.25: risk_label = "Aggressive 🚀"
+                        else: risk_label = "Moderate ⚖️"
                         
-                    st.dataframe(result.style.applymap(color_action, subset=['action'])
-                                 .format({'current_weight': '{:.1%}', 'target_weight': '{:.1%}', 'volatility': '{:.1%}'}))
-                                 
-                    st.markdown("""
-                    **Logic:**
-                    - **Buy**: Underweight relative to risk.
-                    - **Sell**: Overweight relative to risk.
-                    - **Hold**: Within 2% tolerance.
-                    """)
-                else:
-                    st.error("Analysis failed.")
+                        st.markdown(f"### 📋 {mode.title()} Rebalancing Plan")
+                        st.info(f"**Current Portfolio Profile**: {risk_label} (Weighted Volatility: {avg_vol:.1%})")
+                        
+                        # Formatting
+                        def color_action(val):
+                            color = '#28a745' if val == 'Buy' else ('#dc3545' if val == 'Sell' else '#6c757d')
+                            return f'color: {color}; font-weight: bold'
+                            
+                        st.dataframe(result.style.applymap(color_action, subset=['action'])
+                                     .format({
+                                         'current_weight': '{:.1%}', 
+                                         'target_weight': '{:.1%}', 
+                                         'volatility': '{:.1%}',
+                                         'return': '{:.1%}'
+                                     }), use_container_width=True)
+                                     
+                        if mode == "safety":
+                            st.info("ℹ️ **Strategy**: Stocks with **lower volatility** get higher allocation.")
+                        else:
+                            st.info("ℹ️ **Strategy**: Stocks with **better Risk/Reward (Sharpe Ratio)** get higher allocation.")
+                        
+                        with st.expander("🎓 How is this calculated?"):
+                            if mode == "safety":
+                                st.markdown("""
+                                **Inverse Volatility (Risk Parity)**:
+                                *   **Goal**: Minimize Portfolio Risk.
+                                *   **Logic**: Safer stocks (low fluctuation) get MORE money. Risky stocks get LESS.
+                                *   **Formula**: `Target Weight ~ 1 / Volatility`
+                                """)
+                            else:
+                                st.markdown("""
+                                **Sharpe Ratio Optimization (Growth)**:
+                                *   **Goal**: Maximize Return for every unit of Risk taken.
+                                *   **Logic**: We prefer stocks that have **High Returns AND Low Risk**.
+                                *   **Formula**: `Target Weight ~ Annual Return / Volatility`
+                                *   (Negative return stocks are deprioritized).
+                                """)
+                            
+                            st.markdown("""
+                            ---
+                            **Data Reliability**:
+                            *   If historical data is missing or incomplete, the system will **Fallback to Equal Weight** for safety.
+                            *   **Overweight Calculation**:
+                            $$ \\text{Overweight} = \\text{Current Weight} - \\text{Target Weight} $$
+                            """)
+                    else:
+                        st.error("Analysis failed. Please check tickers.")
 
 def show_visualizer_tab():
     """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
@@ -403,7 +515,7 @@ def show_market_analysis_tab():
             
             ticker_category = st.pills(
                 "Filter by Index",
-                options=["All", "Nifty 50", "Sensex", "Bank Nifty"],
+                options=["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"],
                 default=default_cat,
                 key="heatmap_category_pills"
             )
@@ -878,7 +990,24 @@ def load_portfolio_file(file_bytes, filename):
     
     return df
 
-def show_upload_tab(max_parallel: int):
+def show_portfolio_analysis_tab(max_parallel: int):
+    """
+    Unified Portfolio Analysis Tab (Merged Tab 1 & Analytics)
+    Contains:
+    1. Upload & Report Generation
+    2. Advanced Analytics Tools (Correlation, Rebalancing)
+    """
+    # st.header("📤 Portfolio Analysis") # Already in tab name? No, title helps.
+    
+    sub_tab1, sub_tab2 = st.tabs(["📊 Report Generator", "🧪 Analytics Lab"])
+    
+    with sub_tab1:
+        render_upload_section(max_parallel)
+        
+    with sub_tab2:
+        render_analytics_section()
+
+def render_upload_section(max_parallel: int):
     """Show the upload and analysis tab"""
     from tools.ticker_resources import get_common_tickers
     from utils.portfolio_manager import PortfolioManager

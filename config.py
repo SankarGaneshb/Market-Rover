@@ -111,3 +111,7 @@ LABEL_RULES = [
     ('ValueError', 'type:data'),
     ('KeyError', 'type:data'),
 ]
+
+# Application Limits
+MAX_STOCKS_PER_PORTFOLIO = int(os.getenv("MAX_STOCKS_PER_PORTFOLIO", "20"))
+MAX_PORTFOLIOS_PER_USER = int(os.getenv("MAX_PORTFOLIOS_PER_USER", "3"))

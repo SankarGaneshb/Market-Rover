@@ -2,6 +2,7 @@ import json
 import os
 import pandas as pd
 from datetime import datetime
+import config
 
 DATA_FILE = "data/saved_portfolios.json"
 
@@ -54,15 +55,15 @@ class PortfolioManager:
         if df.empty:
             return False, "Cannot save an empty portfolio."
             
-        if len(df) > 5:
-             return False, "Max 5 stocks allowed per portfolio."
+        if len(df) > config.MAX_STOCKS_PER_PORTFOLIO:
+             return False, f"Max {config.MAX_STOCKS_PER_PORTFOLIO} stocks allowed per portfolio."
              
         db = self._load_db()
         
         # Check constraints
         current_names = db["portfolios"].keys()
-        if name not in current_names and len(current_names) >= 3:
-            return False, "Storage limit reached (Max 3 portfolios). Delete one to save new."
+        if name not in current_names and len(current_names) >= config.MAX_PORTFOLIOS_PER_USER:
+            return False, f"Storage limit reached (Max {config.MAX_PORTFOLIOS_PER_USER} portfolios). Delete one to save new."
             
         # Convert to records for storage
         db["portfolios"][name] = df.to_dict('records')
