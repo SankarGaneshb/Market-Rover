@@ -43,7 +43,6 @@ class MarketSnapshotTool(BaseTool):
         option_chain = fetcher.fetch_option_chain(ticker)
 
         # 2. Analyze
-<<<<<<< HEAD
         print(f"Analyzing {ticker}...")
         # Use long-term volatility (1 year) for stability
         volatility = analyzer.calculate_volatility(history, window=252)
@@ -58,61 +57,6 @@ class MarketSnapshotTool(BaseTool):
         # 3. Visualize
         print(f"Generating dashboard for {ticker}...")
         image_buffer = visualizer.generate_dashboard(ticker, history, None, scenarios, returns_matrix, forecast_2026)
-=======
-        logger.info("Analyzing %s...", ticker)
-        # Use long-term volatility (1 year) for stability if IV is missing
-        volatility = analyzer.calculate_volatility(history, window=252)
-        returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
-
-        # Pass LTP to analyze_oi for ATM IV extraction
-        oi_data = analyzer.analyze_oi(option_chain, ltp)
-        
-        if not oi_data:
-            logger.warning("No OI data found for %s. Proceeding with Price Action only.", ticker)
-            # Fallback scenarios without Max Pain
-            # Use simple volatility based range around LTP
-            # volatility is annual, convert to monthly (approx)
-            sigma_monthly = volatility * (1 / 12**0.5)
-            expected_move = ltp * sigma_monthly
-
-            scenarios = {
-                "neutral_range": (ltp - expected_move*0.5, ltp + expected_move*0.5),
-                "bull_target": ltp + expected_move,
-                "bear_target": ltp - expected_move,
-                "expected_move": expected_move,
-                "used_iv": False,
-            }
-
-            # Create dummy OI data for visualizer to handle gracefully (use numeric-friendly fallbacks)
-            oi_data = {
-                "pcr": None,
-                "max_pain": 0,
-                "support_strike": None,
-                "resistance_strike": None,
-                "expiry": None,
-                "strikes": [],
-                "ce_ois": [],
-                "pe_ois": [],
-                "atm_iv": 0
-            }
-        else:
-            # Pass expiry date and IV for time-adjusted targets
-            expiry_date = oi_data.get('expiry')
-            iv = oi_data.get('atm_iv', 0)
-            scenarios = analyzer.model_scenarios(ltp, volatility, oi_data['max_pain'], expiry_date=expiry_date, iv=iv)
-
-        # 3. Visualize
-        logger.debug(f"Generating dashboard for {ticker}...")
-        try:
-            image_buffer = visualizer.generate_dashboard(ticker, history, oi_data, scenarios, returns_matrix, None)
-        except Exception as e:
-            logger.error(f"Visualizer failed for {ticker}: {e}")
-            try:
-                track_error_detail(type(e).__name__, str(e), context={"function": "generate_dashboard", "ticker": ticker})
-            except Exception:
-                pass
-            raise
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper)
         
         # Save image
         output_dir = "output"
@@ -123,26 +67,12 @@ class MarketSnapshotTool(BaseTool):
             f.write(image_buffer.getbuffer())
 
         # 4. Return Summary
-<<<<<<< HEAD
         neutral_start = scenarios['neutral_range'][0]
         neutral_end = scenarios['neutral_range'][1]
         bull_tgt = scenarios['bull_target']
         bear_tgt = scenarios['bear_target']
         
         iv_info = f"- **HV Used (Annual):** {volatility*100:.2f}%"
-=======
-        # Handle potential None values and ensure numeric formatting is safe
-        neutral_start = scenarios.get('neutral_range', (ltp, ltp))[0]
-        neutral_end = scenarios.get('neutral_range', (ltp, ltp))[1]
-        bull_tgt = scenarios.get('bull_target', ltp)
-        bear_tgt = scenarios.get('bear_target', ltp)
-
-        # Add IV info to summary if used
-        if scenarios.get('used_iv') and oi_data.get('atm_iv') is not None:
-            iv_info = f"- **IV Used:** {float(oi_data.get('atm_iv', 0)):.2f}%"
-        else:
-            iv_info = f"- **HV Used (Annual):** {volatility*100:.2f}%"
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper)
         
         summary = f"""
         **Market Snapshot for {ticker}**

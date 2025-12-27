@@ -18,7 +18,6 @@ from utils.logger import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
-<<<<<<< HEAD
 # Global LLM instance (lazy initialized)
 _gemini_llm = None
 
@@ -60,6 +59,15 @@ def get_gemini_llm():
         logger.error(f"Failed to initialize Gemini LLM: {e}")
         track_error("llm_initialization")
         raise
+
+
+def create_portfolio_manager_agent():
+    """
+    Agent A: Portfolio Manager
+    """
+    return Agent(
+        role="Portfolio Manager",
+        goal="Read and process user's stock portfolio from CSV",
         backstory=(
             "You are an expert portfolio manager who meticulously tracks "
             "stock holdings. You ensure all stock symbols are properly formatted "

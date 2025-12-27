@@ -1324,7 +1324,7 @@ def show_reports_tab():
                             # Use Streamlit's HTML component to render the full report
                             st.components.v1.html(html_content, height=800, scrolling=True)
                             
-                                except Exception as e:
+                        except Exception as e:
                                     st.error(f"❌ Error loading HTML report: {str(e)}")
                                     # Persist detailed error for daily aggregation
                                     try:

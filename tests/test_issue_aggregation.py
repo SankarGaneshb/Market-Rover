@@ -33,4 +33,3 @@ def test_aggregate_groups(tmp_path, monkeypatch):
 
     # Clean up
     errors_file.unlink()
-*** End Patch

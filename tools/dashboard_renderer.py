@@ -30,27 +30,17 @@ class DashboardRenderer:
         fig = plt.figure(figsize=(16, 12), constrained_layout=True)
         gs = fig.add_gridspec(3, 2, height_ratios=[1.5, 1.5, 0.8])
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
         # --- 1. Price Chart (Top Row, spans both cols) ---
         ax1 = fig.add_subplot(gs[0, :])
         try:
             self._plot_price_chart(ax1, ticker, history_df, scenarios, forecast_2026)
         except Exception:
             ax1.text(0.5, 0.5, "Price chart unavailable", ha='center', va='center', color='white')
-=======
-        # --- 1. Price Chart (Top Row, spans both cols) ---
-        ax1 = fig.add_subplot(gs[0, :])
-        try:
-            self._plot_price_chart(ax1, ticker, history_df, scenarios)
-        except Exception:
-            ax1.text(0.5, 0.5, "Price chart unavailable", ha='center', va='center', color='white')
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
 
         # --- 2. Monthly Returns Heatmap (Middle Row, spans both cols) ---
         ax2 = fig.add_subplot(gs[1, :])
         self._plot_monthly_heatmap(ax2, returns_matrix, ticker)
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
         # --- 3. OI Chart (Bottom Left) ---
         ax3 = fig.add_subplot(gs[2, 0])
         try:
