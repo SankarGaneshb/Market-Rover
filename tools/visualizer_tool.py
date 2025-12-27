@@ -1,6 +1,6 @@
 from crewai.tools import BaseTool
 from tools.market_data import MarketDataFetcher
-from tools.derivative_analysis import DerivativeAnalyzer
+from tools.market_analytics import MarketAnalyzer
 from tools.dashboard_renderer import DashboardRenderer
 import os
 from typing import Type
