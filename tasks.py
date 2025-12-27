@@ -141,6 +141,18 @@ def create_report_generation_task(agent, context):
             
             This is a passive briefing - no action required from the user,
             but risks should be clearly highlighted.
+            
+            IMPORTANT:
+            At the VERY END of the report, produce a strict JSON block wrapped in 
+            ```json``` triple backticks containing the sentiment counts and top risks.
+            Format:
+            ```json
+            {
+                "sentiment_counts": {"positive": 5, "negative": 2, "neutral": 1},
+                "top_risks": ["Risk 1", "Risk 2"]
+            }
+            ```
+            This block will be used by the visualization system.
         """),
         agent=agent,
         context=context,

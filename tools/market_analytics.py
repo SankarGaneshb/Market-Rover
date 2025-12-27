@@ -582,3 +582,124 @@ class MarketAnalyzer:
             "cagr_percent": cagr * 100,
             "volatility": volatility
         }
+
+    def calculate_correlation_matrix(self, tickers, period="1y"):
+        """
+        Calculates the correlation matrix for a list of tickers.
+        Fetches data using yfinance.
+        """
+        import yfinance as yf
+        
+        if not tickers or len(tickers) < 2:
+            return pd.DataFrame()
+            
+        # Download data
+        try:
+            # yfinance returns a MultiIndex if len(tickers) > 1
+            data = yf.download(tickers, period=period, progress=False)['Close']
+            
+            if data.empty:
+                return pd.DataFrame()
+                
+            # Calculate daily returns
+            returns = data.pct_change().dropna()
+            
+            # Calculate correlation
+            corr_matrix = returns.corr()
+            
+            return corr_matrix
+        except Exception as e:
+            print(f"Error calculating correlation: {e}")
+            return pd.DataFrame()
+
+    def suggest_rebalance(self, portfolio_data):
+        """
+        Suggests rebalancing based on Inverse Volatility (Risk Parity).
+        Input: List of dicts [{'symbol': 'TCS.NS', 'value': 10000}, ...]
+        """
+        import yfinance as yf
+        
+        if not portfolio_data:
+            return pd.DataFrame()
+            
+        df = pd.DataFrame(portfolio_data)
+        if 'symbol' not in df.columns or 'value' not in df.columns:
+            return pd.DataFrame()
+            
+        total_value = df['value'].sum()
+        df['current_weight'] = df['value'] / total_value
+        
+        # Calculate Volatility for each
+        vols = {}
+        tickers = df['symbol'].tolist()
+        
+        # Fetch data
+        try:
+            hist_data = yf.download(tickers, period="1y", progress=False)['Close']
+            
+            for ticker in tickers:
+                if ticker in hist_data.columns:
+                    # Create mini DF for volatility calc
+                    series = hist_data[ticker]
+                    # MarketAnalyzer expects a DataFrame with 'Close'
+                    mini_df = pd.DataFrame({'Close': series})
+                    vols[ticker] = self.calculate_volatility(mini_df)
+                else:
+                    vols[ticker] = 0.0
+        except Exception:
+            # Fallback if bulk download fails
+            for ticker in tickers:
+                vols[ticker] = 0.0
+                
+        df['volatility'] = df['symbol'].map(vols)
+        
+        # Handle zero volatility
+        avg_vol = df[df['volatility'] > 0]['volatility'].mean()
+        if pd.isna(avg_vol): avg_vol = 0.20
+        df['volatility'] = df['volatility'].replace(0, avg_vol)
+        
+        # Inverse Volatility Scores
+        df['inv_vol'] = 1 / df['volatility']
+        total_inv_vol = df['inv_vol'].sum()
+        
+        # Target Weights
+        df['target_weight'] = df['inv_vol'] / total_inv_vol
+        
+        # Calculate Difference
+        df['diff'] = df['target_weight'] - df['current_weight']
+        
+        # Determine Action
+        def get_action(diff):
+            if diff > 0.02: return 'Buy' # 2% buffer
+            if diff < -0.02: return 'Sell'
+            return 'Hold'
+            
+        df['action'] = df['diff'].apply(get_action)
+        
+        return df[['symbol', 'current_weight', 'target_weight', 'volatility', 'action']]
+
+    def calculate_risk_score(self, ticker, period="1y"):
+        """
+        Calculates a 0-100 Risk Score based on Annualized Volatility.
+        Low Risk (<15% vol) -> Score < 30
+        High Risk (>50% vol) -> Score > 90
+        """
+        import yfinance as yf
+        try:
+            # Fetch data
+            hist = yf.Ticker(ticker).history(period=period)
+            if hist.empty:
+                return 50 # Default neutral if no data
+            
+            # Calculate Volatility
+            vol = self.calculate_volatility(hist)
+            
+            # Map Volatility to Risk Score (0-100)
+            # Volatility 0.0 -> Score 0
+            # Volatility 0.5 (50%) -> Score 100
+            score = min(100, max(0, vol * 200))
+            
+            return int(score)
+        except Exception as e:
+            print(f"Error calculating risk for {ticker}: {e}")
+            return 50

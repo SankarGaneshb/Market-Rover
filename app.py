@@ -178,7 +178,7 @@ def main():
 
     
     # Main content area
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔥 Monthly Heatmap", "📊 Benchmark Index", "🎯 Forecast Tracker"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔍 Market Analysis", "🎯 Forecast Tracker", "🧪 Analytics Lab"])
     
     with tab1:
         show_upload_tab(max_parallel)
@@ -187,17 +187,139 @@ def main():
         show_visualizer_tab()
 
     with tab3:
-        show_heatmap_tab()
-        
+        show_market_analysis_tab()
+
     with tab4:
-        show_benchmark_tab()
+        show_forecast_tracker_tab()
 
     with tab5:
-        show_forecast_tracker_tab()
+        show_analytics_tab()
     
     # Disclaimer at bottom - always visible like a status bar
     st.markdown("---")
     st.caption("⚠️ **Disclaimer:** Market-Rover is for informational purposes only. Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.")
+
+def show_analytics_tab():
+    st.header("🧪 Analytics Lab")
+    st.info("Advanced tools to analyze portfolio risk and diversification.")
+    
+    from tools.market_analytics import MarketAnalyzer
+    analyzer = MarketAnalyzer()
+    
+    mode = st.radio("Select Tool", ["Correlation Matrix", "Portfolio Rebalancer"], horizontal=True)
+    
+    if mode == "Correlation Matrix":
+        st.subheader("🔗 Correlation Matrix")
+        st.markdown("Analyze how your stocks move in relation to each other. **High correlation** means they move together (less diversification).")
+        
+        # Input Method
+        corr_input_mode = st.radio("Input Source:", ["Manual Entry ✏️", "Select Saved Portfolio 📂"], horizontal=True, key="corr_input_mode")
+        
+        tickers_input = ""
+        
+        if corr_input_mode == "Select Saved Portfolio 📂":
+            from utils.portfolio_manager import PortfolioManager
+            pm = PortfolioManager()
+            saved_names = pm.get_portfolio_names()
+            
+            if saved_names:
+                selected_pf = st.selectbox("Choose Portfolio:", saved_names, key="corr_pf_select")
+                pf_df = pm.get_portfolio(selected_pf)
+                if pf_df is not None and not pf_df.empty:
+                    tickers_list = pf_df['Symbol'].tolist()
+                    st.success(f"Loaded {len(tickers_list)} stocks from '{selected_pf}'")
+                    # Pre-fill for visibility (read-only or editable)
+                    tickers_input = ", ".join(tickers_list)
+            else:
+                st.info("No saved portfolios found.")
+                
+        else:
+            # Default stocks
+            default_tickers = "RELIANCE.NS, TCS.NS, HDFCBANK.NS, INFY.NS, ITC.NS"
+            tickers_input = st.text_area("Enter Stock Symbols (comma separated)", value=default_tickers)
+        
+        if tickers_input and st.button("Generate Matrix"):
+            with st.spinner("Fetching data and calculating correlation..."):
+                tickers = [t.strip() for t in tickers_input.split(',') if t.strip()]
+                matrix = analyzer.calculate_correlation_matrix(tickers)
+                
+                if not matrix.empty:
+                    # Mask diagonal
+                    import numpy as np
+                    np.fill_diagonal(matrix.values, np.nan)
+                    
+                    st.write(matrix.style.background_gradient(cmap='coolwarm', axis=None).format(precision=2, na_rep=""))
+                else:
+                    st.error("Could not calculate correlation. Please check symbols and try again.")
+                    
+    elif mode == "Portfolio Rebalancer":
+        st.subheader("⚖️ Portfolio Rebalancer (Risk Parity)")
+        st.markdown("Suggests rebalancing actions to equalize risk contribution (Inverse Volatility).")
+        
+        # Input Method
+        rebal_input_mode = st.radio("Input Source:", ["Manual Entry ✏️", "Select Saved Portfolio 📂"], horizontal=True, key="rebel_input_mode")
+        
+        # Load logic
+        if rebal_input_mode == "Select Saved Portfolio 📂":
+            from utils.portfolio_manager import PortfolioManager
+            pm = PortfolioManager()
+            saved_names_rebal = pm.get_portfolio_names()
+            
+            if saved_names_rebal:
+                selected_pf_rebal = st.selectbox("Choose Portfolio:", saved_names_rebal, key="rebal_pf_select")
+                pf_df_rebal = pm.get_portfolio(selected_pf_rebal)
+                
+                if pf_df_rebal is not None and not pf_df_rebal.empty:
+                    # Convert to rebalancer format: symbol, value
+                    # Assuming we use Average Price * Quantity = Value
+                    # Ensure columns exist
+                    if 'Symbol' in pf_df_rebal.columns and 'Quantity' in pf_df_rebal.columns and 'Average Price' in pf_df_rebal.columns:
+                        rebal_data = []
+                        for _, row in pf_df_rebal.iterrows():
+                            val = row['Quantity'] * row['Average Price']
+                            rebal_data.append({'symbol': row['Symbol'], 'value': val})
+                        
+                        st.session_state.rebal_portfolio = pd.DataFrame(rebal_data)
+                        st.success(f"Loaded {len(rebal_data)} holdings from '{selected_pf_rebal}'")
+            else:
+                st.info("No saved portfolios found.")
+
+        st.caption("Enter/Edit your current portfolio holdings below:")
+        
+        # Editable dataframe for portfolio input
+        if 'rebal_portfolio' not in st.session_state:
+            st.session_state.rebal_portfolio = pd.DataFrame([
+                {'symbol': 'RELIANCE.NS', 'value': 50000},
+                {'symbol': 'TCS.NS', 'value': 30000},
+                {'symbol': 'HDFCBANK.NS', 'value': 40000},
+            ])
+            
+        edited_df = st.data_editor(st.session_state.rebal_portfolio, num_rows="dynamic", key="rebal_editor")
+        
+        if st.button("Analyze & Rebalance"):
+            with st.spinner("Analyzing volatility..."):
+                portfolio_data = edited_df.to_dict('records')
+                result = analyzer.suggest_rebalance(portfolio_data)
+                
+                if not result.empty:
+                    st.markdown("### 📋 Rebalancing Plan")
+                    
+                    # Formatting
+                    def color_action(val):
+                        color = 'green' if val == 'Buy' else ('red' if val == 'Sell' else 'grey')
+                        return f'color: {color}; font_weight: bold'
+                        
+                    st.dataframe(result.style.applymap(color_action, subset=['action'])
+                                 .format({'current_weight': '{:.1%}', 'target_weight': '{:.1%}', 'volatility': '{:.1%}'}))
+                                 
+                    st.markdown("""
+                    **Logic:**
+                    - **Buy**: Underweight relative to risk.
+                    - **Sell**: Overweight relative to risk.
+                    - **Hold**: Within 2% tolerance.
+                    """)
+                else:
+                    st.error("Analysis failed.")
 
 def show_visualizer_tab():
     """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
@@ -255,98 +377,121 @@ def show_visualizer_tab():
         - 🔮 **2026 Forecast**: Long-term trend projection.
         """)
 
-# --- TAB 3: MONTHLY HEATMAP ---
-def show_heatmap_tab():
-    """Show the Monthly Heatmap & 2026 Forecast tab (V4.0)"""
-    st.header("🔥 Monthly Heatmap & 2026 Forecast")
-    st.markdown("Deep-dive into **historical monthly patterns** and get **AI-powered 2026 price predictions**.")
+# --- TAB 3: UNIFIED MARKET ANALYSIS ---
+def show_market_analysis_tab():
+    """Show the Unified Market Analysis Tab (V4.1)"""
+    st.header("🔍 Market Analysis")
+    st.markdown("Deep-dive into **historical patterns** and get **AI-powered predictions** for individual Stocks or Market Indices.")
     
-    st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns. Do not treat as guaranteed price targets.")
-    
-    # Standard Input UI (Restored)
-    col_filter, col_input, col_button, col_info = st.columns([1.5, 2, 1, 3])
-    from tools.ticker_resources import get_common_tickers
-    
-    with col_filter:
-        ticker_category = st.pills(
-            "Filter by Index",
-            options=["All", "Nifty 50", "Sensex", "Bank Nifty"],
-            default="All",
-            key="heatmap_category_pills"
-        )
+    mode_col, _ = st.columns([1, 2])
+    with mode_col:
+        analysis_mode = st.radio("Analysis Mode:", ["Stock Analysis 🏢", "Benchmark/Index 📊"], horizontal=True, label_visibility="collapsed")
 
-    with col_input:
-        common_tickers = get_common_tickers(category=ticker_category)
-        default_ix = 0
-        for i, t in enumerate(common_tickers):
-            if "SBIN.NS" in t:
-                default_ix = i + 1 
-                break
-                
-        ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ ROI/Custom Input"]
-        
-        selected_opt = st.selectbox(
-            "Stock Selection", 
-            options=ticker_options, 
-            index=default_ix if default_ix < len(ticker_options) else 0,
-            key="heatmap_ticker_select",
-            help=f"Listing {ticker_category} stocks." if ticker_category != "All" else "Type to search regular stocks."
-        )
-        
-        if selected_opt == "✏️ ROI/Custom Input" or selected_opt == "✨ Select or Type to Search...":
-             ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value="SBIN", key="heatmap_ticker_custom")
-        else:
-             ticker_raw = selected_opt.split(' - ')[0]
-    
-    with col_button:
-        st.write("") 
-        analyze_button = st.button("📊 Analyze", type="primary", use_container_width=True, key="btn_heatmap")
-
-    with col_info:
-        st.info("💡 **Tip:** Use the **Benchmark Index** tab to analyze Nifty, Bank Nifty, etc.")
-        
     st.markdown("---")
-    
-    # Initialize session state for this tab
-    if 'heatmap_active_ticker' not in st.session_state:
-        st.session_state.heatmap_active_ticker = None
-        
-    if analyze_button:
-         st.session_state.heatmap_active_ticker = ticker_raw
-    
-    # Run analysis if a ticker is active
-    if st.session_state.heatmap_active_ticker:
-         run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap")
 
-def show_benchmark_tab():
-    """Show the Benchmark Analysis tab"""
-    st.header("📊 Benchmark Index Analysis")
-    st.markdown("Quickly analyze major market indices for broader market sentiment and forecast.")
-    
-    st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates.")
-    
-    # Define Major Indices
-    major_indices = {
-        "Nifty 50": "^NSEI",
-        "Sensex": "^BSESN",
-        "Bank Nifty": "^NSEBANK",
-        "Nifty IT": "^CNXIT",
-        "Nifty Auto": "^CNXAUTO",
-        "Nifty FMCG": "^CNXFMCG",
-        "Nifty Metal": "^CNXMETAL",
-        "Nifty Midcap 100": "^CRSLDX", 
-        "Nifty Smallcap 100": "^CNXSC" 
-    }
-    
-    index_names = list(major_indices.keys())
-    
-    st.markdown("##### ⚡ Quick Select Index")
-    selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
-    
-    if selected_index:
-        ticker = major_indices[selected_index]
-        st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
-        run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark") 
+    if analysis_mode == "Stock Analysis 🏢":
+        # === STOCK LOGIC ===
+        st.subheader("🏢 Stock Heatmap & Forecast")
+        st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns.")
+        
+        col_filter, col_input, col_button, col_info = st.columns([1.5, 2, 1, 3])
+        from tools.ticker_resources import get_common_tickers
+        
+        with col_filter:
+            # Check for deep link
+            default_cat = "All"
+            
+            ticker_category = st.pills(
+                "Filter by Index",
+                options=["All", "Nifty 50", "Sensex", "Bank Nifty"],
+                default=default_cat,
+                key="heatmap_category_pills"
+            )
+
+        with col_input:
+            common_tickers = get_common_tickers(category=ticker_category)
+            
+            # Check for query param ticker
+            qp_ticker = st.query_params.get("ticker", None)
+            default_ix = 0
+            
+            # If query param exists, try to find it
+            if qp_ticker:
+                qp_ticker = f"{qp_ticker}.NS" if not qp_ticker.endswith(".NS") else qp_ticker
+                # Try to find in list
+                matches = [i for i, t in enumerate(common_tickers) if qp_ticker in t]
+                if matches:
+                    default_ix = matches[0]
+                else:
+                    # If not in list, might need custom (logic below simplifies to just default sbins if not found in pills)
+                    pass
+            else:
+                for i, t in enumerate(common_tickers):
+                    if "SBIN.NS" in t:
+                        default_ix = i + 1 
+                        break
+                    
+            ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ ROI/Custom Input"]
+            
+            selected_opt = st.selectbox(
+                "Stock Selection", 
+                options=ticker_options, 
+                index=default_ix if default_ix < len(ticker_options) else 0,
+                key="heatmap_ticker_select",
+                help=f"Listing {ticker_category} stocks."
+            )
+            
+            if selected_opt == "✏️ ROI/Custom Input" or selected_opt == "✨ Select or Type to Search...":
+                 # Use query param if custom
+                 def_val = qp_ticker if qp_ticker else "SBIN.NS"
+                 ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value=def_val, key="heatmap_ticker_custom")
+            else:
+                 ticker_raw = selected_opt.split(' - ')[0]
+        
+        with col_button:
+            st.write("") 
+            analyze_button = st.button("📊 Analyze", type="primary", use_container_width=True, key="btn_heatmap")
+
+        with col_info:
+             pass
+            
+        # Initialize session state for this tab
+        if 'heatmap_active_ticker' not in st.session_state:
+            st.session_state.heatmap_active_ticker = qp_ticker if qp_ticker else None
+            
+        if analyze_button:
+             st.session_state.heatmap_active_ticker = ticker_raw
+        
+        # Run analysis if a ticker is active
+        if st.session_state.heatmap_active_ticker:
+             run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap")
+
+    else:
+        # === BENCHMARK LOGIC ===
+        st.subheader("📊 Benchmark Index Analysis")
+        
+        # Define Major Indices
+        major_indices = {
+            "Nifty 50": "^NSEI",
+            "Sensex": "^BSESN",
+            "Bank Nifty": "^NSEBANK",
+            "Nifty IT": "^CNXIT",
+            "Nifty Auto": "^CNXAUTO",
+            "Nifty FMCG": "^CNXFMCG",
+            "Nifty Metal": "^CNXMETAL",
+            "Nifty Midcap 100": "^CRSLDX", 
+            "Nifty Smallcap 100": "^CNXSC" 
+        }
+        
+        index_names = list(major_indices.keys())
+        
+        st.markdown("##### ⚡ Quick Select Index")
+        selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
+        
+        if selected_index:
+            ticker = major_indices[selected_index]
+            st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
+            run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark")
 
 def show_forecast_tracker_tab():
     """Show the Forecast Tracker Dashboard (Tab 5)"""
@@ -462,9 +607,20 @@ def show_forecast_tracker_tab():
     st.markdown("---")
 
     avg_perf = df["Change %"].mean()
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns([1, 1, 1])
     col1.metric("Avg Portfolio Performance", f"{avg_perf:+.2f}%")
     col2.metric("Active Forecasts", len(df))
+    
+    with col3:
+        # CSV Export
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            "📥 Download CSV",
+            csv,
+            "forecast_history.csv",
+            "text/csv",
+            key='download-forecasts'
+        )
 
 def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
     """Shared function to run analysis and render UI"""
@@ -740,28 +896,15 @@ def show_upload_tab(max_parallel: int):
     df = None
     filename = None
     pm = PortfolioManager()
+    saved_names = pm.get_portfolio_names()
     
     if input_mode == "📂 Upload CSV File":
         # Case 1: File upload
-        col_up, col_dl = st.columns([3, 1])
-        with col_up:
-            uploaded_file = st.file_uploader(
-                "Choose your Portfolio CSV file",
-                type=['csv'],
-                help="Upload a CSV file with columns: Symbol, Company Name, Quantity, Average Price"
-            )
-        with col_dl:
-            st.write("") # Spacer
-            st.write("") 
-            # Prepare template CSV
-            template_csv = "Symbol,Company Name,Quantity,Average Price\nRELIANCE,Reliance Industries Ltd,10,2450.50\nTCS,Tata Consultancy Services,5,3550.00\nINFY,Infosys Ltd,15,1450.75"
-            st.download_button(
-                label="📥 Download Template",
-                data=template_csv,
-                file_name="portfolio_template.csv",
-                mime="text/csv",
-                help="Download a sample CSV file to fill out."
-            )
+        uploaded_file = st.file_uploader(
+            "Choose your Portfolio CSV file",
+            type=['csv'],
+            help="Upload a CSV file with columns: Symbol, Company Name, Quantity, Average Price"
+        )
         
         if uploaded_file is not None:
             try:
@@ -847,37 +990,42 @@ def show_upload_tab(max_parallel: int):
                  
                  valid_df = valid_df.apply(parse_row, axis=1)
              
-             if not valid_df.empty:
-                 df = valid_df
-                 filename = f"manual_portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-                 
-                 # SAVE SECTION
-                 st.markdown("### 💾 Save Portfolio")
-                 col_sched_1, col_sched_2 = st.columns([2, 1])
-                 with col_sched_1:
-                     save_name = st.text_input("Portfolio Name", placeholder="e.g., My Tech Stocks")
-                 with col_sched_2:
-                     st.write("") # align
-                     st.write("")
-                     if st.button("Save", key="btn_save_pf"):
-                          success, msg = pm.save_portfolio(save_name, df)
-                          if success:
-                              st.success(msg)
-                              st.rerun() # Refresh to show in load list
-                          else:
-                              st.error(msg)
-                              
-                 # Delete option
-                 if saved_names:
-                      with st.expander("🗑️ Delete Saved Portfolios"):
-                          to_delete = st.selectbox("Select to delete", saved_names, key="del_pf_select")
-                          if st.button("Delete Selected"):
-                              pm.delete_portfolio(to_delete)
-                              st.rerun()
+                 if not valid_df.empty:
+                     df = valid_df
+                     filename = f"manual_portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
 
     # Common Preview & Analysis Logic
     if df is not None and not df.empty:
+        # SAVE SECTION (Available for both Upload and Manual)
+        with st.expander("💾 Save / Manage Portfolios"):
+             col_sched_1, col_sched_2 = st.columns([3, 1])
+             with col_sched_1:
+                 save_name = st.text_input("Save as New Portfolio", placeholder="e.g., My October Holdings")
+             with col_sched_2:
+                 st.write("") # align
+                 st.write("")
+                 if st.button("Save", key="btn_save_pf_common"):
+                      success, msg = pm.save_portfolio(save_name, df)
+                      if success:
+                          st.success(msg)
+                          st.rerun()
+                      else:
+                          st.error(msg)
+             
+             # Delete option
+             if saved_names:
+                  st.markdown("---")
+                  col_del_1, col_del_2 = st.columns([3, 1])
+                  with col_del_1:
+                      to_delete = st.selectbox("Delete Saved Portfolio", saved_names, key="del_pf_select_common")
+                  with col_del_2:
+                      st.write("")
+                      st.write("")
+                      if st.button("Delete", key="btn_del_pf_common"):
+                          pm.delete_portfolio(to_delete)
+                          st.rerun()
+
         if input_mode == "📂 Upload CSV File":
              # Preview only for upload mode
              st.subheader("📋 Portfolio Preview")
@@ -908,11 +1056,19 @@ def show_upload_tab(max_parallel: int):
                 'Average Price': [2450.50, 3550.00, 1450.75]
             })
             st.dataframe(example_df, width="stretch")
+            
+            # Template Download
+            template_csv = "Symbol,Company Name,Quantity,Average Price\nRELIANCE,Reliance Industries Ltd,10,2450.50\nTCS,Tata Consultancy Services,5,3550.00\nINFY,Infosys Ltd,15,1450.75"
+            st.download_button(
+                label="📥 Download Template CSV",
+                data=template_csv,
+                file_name="portfolio_template.csv",
+                mime="text/csv",
+                help="Download this sample as a CSV file to fill out."
+            )
     
     # Add reports viewing section
     st.markdown("---")
-    st.subheader("📊 View Previous Reports")
-    
     # Call the reports viewing functionality
     show_reports_tab()
 
@@ -968,6 +1124,18 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             
         else:
             # **REAL MODE** - Actual API analysis
+            
+            # Save the current DataFrame to the default PORTFOLIO_FILE 
+            # This ensures the agents (which read from disk) access the correct data
+            try:
+                from config import PORTFOLIO_FILE
+                df.to_csv(PORTFOLIO_FILE, index=False)
+                logger.info(f"Saved current analysis portfolio to {PORTFOLIO_FILE}")
+            except Exception as e:
+                logger.error(f"Failed to save temporary portfolio file: {e}")
+                # We continue anyway, hoping the file exists or agents can handle it, 
+                # but this log helps debugging.
+
             # Create crew
             crew = create_crew(max_parallel_stocks=max_parallel)
             
@@ -1061,14 +1229,50 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             stock_risk_data = mock_generator.generate_stock_risk_data(stocks)
             news_timeline_data = mock_generator.generate_news_timeline(stocks)
         else:
-            # Extract data from actual report (simplified for now)
-            # In a real implementation, would parse the report text
-            sentiment_data = {'positive': 5, 'negative': 3, 'neutral': 4}
-            stock_risk_data = [
-                {'symbol': s['Symbol'], 'company': s['Company Name'], 
-                 'risk_score': 50, 'sentiment': 'neutral'} 
-                for s in stocks
-            ]
+            # Extract data from actual report using regex
+            import re
+            import json
+            
+            sentiment_data = {'positive': 0, 'negative': 0, 'neutral': 0}
+            
+            try:
+                # Find JSON block in report
+                report_text = str(result)
+                json_match = re.search(r'```json\s*({.*?})\s*```', report_text, re.DOTALL)
+                
+                if json_match:
+                    metadata = json.loads(json_match.group(1))
+                    if 'sentiment_counts' in metadata:
+                        counts = metadata['sentiment_counts']
+                        sentiment_data = {
+                            'positive': counts.get('positive', 0),
+                            'negative': counts.get('negative', 0),
+                            'neutral': counts.get('neutral', 0)
+                        }
+            except Exception as e:
+                logger.error(f"Failed to parse sentiment JSON: {e}")
+                # Fallback to simple regex on text if JSON fails
+                sentiment_data['positive'] = len(re.findall(r'POSITIVE', str(result), re.IGNORECASE))
+                sentiment_data['negative'] = len(re.findall(r'NEGATIVE', str(result), re.IGNORECASE))
+                
+            # Real Risk Calculation
+            from tools.market_analytics import MarketAnalyzer
+            ma_risk = MarketAnalyzer()
+            
+            stock_risk_data = []
+            for s in stocks:
+                ticker_sym = s['Symbol']
+                try:
+                    r_score = ma_risk.calculate_risk_score(ticker_sym)
+                except:
+                    r_score = 50
+                    
+                stock_risk_data.append({
+                    'symbol': ticker_sym, 
+                    'company': s['Company Name'], 
+                    'risk_score': r_score, 
+                    'sentiment': 'neutral'
+                })
             news_timeline_data = []
         
         # Display charts in columns
@@ -1244,7 +1448,7 @@ def load_report_content(report_path_str):
 def show_reports_tab():
     """Show the reports viewing tab"""
     
-    st.header("📊 Analysis Reports")
+    st.header("📊 View Previous Reports")
     
     # List all reports
     if REPORT_DIR.exists():
