@@ -1,9 +1,9 @@
-name: Daily Issue Report
+name: Monthly Issue Report
 
 on:
   schedule:
-    # Run every day at 08:00 UTC
-    - cron: '0 8 * * *'
+    # Run at 08:00 UTC on the 1st of every month
+    - cron: '0 8 1 * *'
   workflow_dispatch:
 
 permissions:
@@ -30,4 +30,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONPATH: ${{ github.workspace }}
-        run: python tools/daily_issue_report.py
+        run: python tools/monthly_issue_report.py
