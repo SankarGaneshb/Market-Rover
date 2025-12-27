@@ -1,6 +1,6 @@
 
 try:
-    from tools.market_analytics import MarketAnalyzer
+    from rover_tools.market_analytics import MarketAnalyzer
     print("Import Successful")
     analyzer = MarketAnalyzer()
     print("Instance Created")

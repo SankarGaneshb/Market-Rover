@@ -5,7 +5,7 @@ import pandas as pd
 # Add project root to path
 sys.path.append(os.getcwd())
 
-from tools.market_analytics import MarketAnalyzer
+from rover_tools.market_analytics import MarketAnalyzer
 
 def test_analytics():
     print("Testing MarketAnalyzer Analytics Features...")
@@ -32,7 +32,7 @@ def test_analytics():
         {'symbol': 'TCS.NS', 'value': 50000}
     ]
     try:
-        res = analyzer.suggest_rebalance(portfolio)
+        res, warnings = analyzer.analyze_rebalance(portfolio)
         print("Result Head:")
         print(res.head())
         if not res.empty and 'action' in res.columns:

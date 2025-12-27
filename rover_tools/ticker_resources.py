@@ -128,6 +128,57 @@ POPULAR_OTHERS = [
     "BOSCHLTD.NS - Bosch Ltd"
 ]
 
+NIFTY_MIDCAP = [
+    "SRF.NS - SRF Ltd",
+    "VOLTAS.NS - Voltas Ltd",
+    "TATACOMM.NS - Tata Communications Ltd",
+    "LICHSGFIN.NS - LIC Housing Finance Ltd",
+    "ZEEL.NS - Zee Entertainment Enterprises Ltd",
+    "SBICARD.NS - SBI Cards and Payment Services Ltd",
+    "PIIND.NS - PI Industries Ltd",
+    "PAGEIND.NS - Page Industries Ltd",
+    "MRF.NS - MRF Ltd",
+    "L&TFH.NS - L&T Finance Holdings Ltd",
+    "ICICIPRULI.NS - ICICI Prudential Life Insurance Company Ltd",
+    "CONCOR.NS - Container Corporation of India Ltd",
+    "BHARATFORG.NS - Bharat Forge Ltd",
+    "ASHOKLEY.NS - Ashok Leyland Ltd",
+    "ASTRAL.NS - Astral Ltd",
+    "BALKRISIND.NS - Balkrishna Industries Ltd",
+    "CUMMINSIND.NS - Cummins India Ltd",
+    "DEEPAKNTR.NS - Deepak Nitrite Ltd",
+    "INDHOTEL.NS - The Indian Hotels Company Ltd",
+    "OBEROIRLTY.NS - Oberoi Realty Ltd",
+    "PERSISTENT.NS - Persistent Systems Ltd",
+    "POLYCAB.NS - Polycab India Ltd",
+    "TRENT.NS - Trent Ltd",
+    "TVSMOTOR.NS - TVS Motor Company Ltd",
+    "YESBANK.NS - Yes Bank Ltd"
+]
+
+NIFTY_SMALLCAP = [
+    "CDSL.NS - Central Depository Services (India) Ltd",
+    "IEX.NS - Indian Energy Exchange Ltd",
+    "BSE.NS - BSE Ltd",
+    "ANGELONE.NS - Angel One Ltd",
+    "HAPPSTMNDS.NS - Happiest Minds Technologies Ltd",
+    "KPITTECH.NS - KPIT Technologies Ltd",
+    "KEI.NS - KEI Industries Ltd",
+    "CREDITACC.NS - CreditAccess Grameen Ltd",
+    "DEVYANI.NS - Devyani International Ltd",
+    "IDFC.NS - IDFC Ltd",
+    "INDIAMART.NS - IndiaMART InterMESH Ltd",
+    "PVRINOX.NS - PVR INOX Ltd",
+    "RADICO.NS - Radico Khaitan Ltd",
+    "SUZLON.NS - Suzlon Energy Ltd",
+    "TANLA.NS - Tanla Platforms Ltd",
+    "BSOFT.NS - Birlasoft Ltd",
+    "MCX.NS - Multi Commodity Exchange of India Ltd",
+    "NBCC.NS - NBCC (India) Ltd",
+    "RENUKA.NS - Shree Renuka Sugars Ltd",
+    "TRIDENT.NS - Trident Ltd"
+]
+
 # Helper to get categorized tickers
 def get_common_tickers(category="All"):
     """
@@ -139,7 +190,11 @@ def get_common_tickers(category="All"):
         return sorted(SENSEX)
     elif category == "Bank Nifty":
         return sorted(BANK_NIFTY)
+    elif category == "Midcap":
+        return sorted(NIFTY_MIDCAP)
+    elif category == "Smallcap":
+        return sorted(NIFTY_SMALLCAP)
     else:
         # Combine all unique tickers
-        all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS))
+        all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS + NIFTY_MIDCAP + NIFTY_SMALLCAP))
         return sorted(all_tickers)

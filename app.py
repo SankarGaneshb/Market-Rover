@@ -204,7 +204,7 @@ def render_analytics_section():
     st.header("🧪 Analytics Lab")
     st.info("Advanced tools to analyze portfolio risk and diversification.")
     
-    from tools.market_analytics import MarketAnalyzer
+    from rover_tools.market_analytics import MarketAnalyzer
     analyzer = MarketAnalyzer()
     
     mode = st.radio("Select Tool", ["Correlation Matrix", "Portfolio Rebalancer"], horizontal=True)
@@ -219,7 +219,7 @@ def render_analytics_section():
         tickers_input = ""
         
         if corr_input_mode == "Select Stocks 🏗️":
-            from tools.ticker_resources import get_common_tickers
+            from rover_tools.ticker_resources import get_common_tickers
             
             # Filter Pills
             cat = st.pills("Filter:", ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], default="Nifty 50", key="corr_pills")
@@ -288,7 +288,7 @@ def render_analytics_section():
                         tickers.append(t)
                         
                 # Re-instantiate to ensure fresh state
-                # from tools.analytics import MarketAnalyzer # Already imported at top-level usually, but safe here
+                # from rover_tools.analytics import MarketAnalyzer # Already imported at top-level usually, but safe here
                 analyzer = MarketAnalyzer()
                 
                 matrix = analyzer.calculate_correlation_matrix(tickers)
@@ -508,7 +508,7 @@ def show_market_analysis_tab():
         st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns.")
         
         col_filter, col_input, col_button, col_info = st.columns([1.5, 2, 1, 3])
-        from tools.ticker_resources import get_common_tickers
+        from rover_tools.ticker_resources import get_common_tickers
         
         with col_filter:
             # Check for deep link
@@ -752,8 +752,8 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
     with st.spinner(f"🔥 Analyzing {ticker}..."):
          try:
             # Import necessary modules
-            from tools.market_data import MarketDataFetcher
-            from tools.market_analytics import MarketAnalyzer
+            from rover_tools.market_data import MarketDataFetcher
+            from rover_tools.market_analytics import MarketAnalyzer
             import plotly.graph_objects as go
             import plotly.express as px
             import pandas as pd
@@ -1010,7 +1010,7 @@ def show_portfolio_analysis_tab(max_parallel: int):
 
 def render_upload_section(max_parallel: int):
     """Show the upload and analysis tab"""
-    from tools.ticker_resources import get_common_tickers
+    from rover_tools.ticker_resources import get_common_tickers
     from utils.portfolio_manager import PortfolioManager
     
     st.header("Upload Portfolio")
@@ -1392,7 +1392,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 sentiment_data['negative'] = len(re.findall(r'NEGATIVE', str(result), re.IGNORECASE))
                 
             # Real Risk Calculation
-            from tools.market_analytics import MarketAnalyzer
+            from rover_tools.market_analytics import MarketAnalyzer
             ma_risk = MarketAnalyzer()
             
             stock_risk_data = []

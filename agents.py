@@ -3,11 +3,11 @@ Agent definitions for Market Rover system.
 """
 from crewai import Agent
 from langchain_google_genai import ChatGoogleGenerativeAI
-from tools.portfolio_tool import read_portfolio
-from tools.news_scraper_tool import scrape_moneycontrol_news
-from tools.stock_data_tool import get_stock_data
-from tools.market_context_tool import analyze_market_context
-from tools.visualizer_tool import generate_market_snapshot
+from rover_tools.portfolio_tool import read_portfolio
+from rover_tools.news_scraper_tool import scrape_moneycontrol_news
+from rover_tools.stock_data_tool import get_stock_data
+from rover_tools.market_context_tool import analyze_market_context
+from rover_tools.visualizer_tool import generate_market_snapshot
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
 import os
 

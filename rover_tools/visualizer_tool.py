@@ -1,7 +1,7 @@
 from crewai.tools import BaseTool
-from tools.market_data import MarketDataFetcher
-from tools.market_analytics import MarketAnalyzer
-from tools.dashboard_renderer import DashboardRenderer
+from rover_tools.market_data import MarketDataFetcher
+from rover_tools.market_analytics import MarketAnalyzer
+from rover_tools.dashboard_renderer import DashboardRenderer
 import os
 from typing import Type
 from pydantic import BaseModel, Field
