@@ -26,7 +26,7 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 
 ## 🚀 All Features
 
-### **📤 Portfolio Analysis (Tab 1)**
+### **📤 Portfolio Analysis **
 
 Upload your portfolio and get comprehensive AI-powered insights:
 
@@ -38,7 +38,7 @@ Upload your portfolio and get comprehensive AI-powered insights:
 - ✅ **View Report History** - Browse, search, and download past analyses
 - ✅ **Export Options** - HTML format
 
-### **📈 Market Snapshot (Tab 2)**
+### **📈 Market Snapshot **
 
 Generate professional market snapshots for sharing:
 
@@ -50,7 +50,7 @@ Generate professional market snapshots for sharing:
 
 **Security:** Input sanitization, rate limiting (30 req/min)
 
-### **🔥 Monthly Heatmap (Tab 3)**
+### **🔥 Monthly Heatmap **
 
 Deep-dive into historical patterns and future predictions for individual stocks:
 
@@ -63,7 +63,7 @@ Deep-dive into historical patterns and future predictions for individual stocks:
 - ✅ **Iterative Monthly Forecasting** - AI applies strategy month-by-month for granularity.
 - ✅ **Continuous Forecast Paths** - Seamless projection from history to current date to 2026 target.
 
-### **📊 Benchmark Analysis (Tab 4)**
+### **📊 Benchmark Analysis **
 
 Specialized focus on major market indices:
 
@@ -71,7 +71,7 @@ Specialized focus on major market indices:
 - ✅ **Consolidated Logic** - Uses the same high-fidelity analysis as individual stocks
 - ✅ **Market Sentiment** - Assess broader market trends before stock picking
 
-### **🎯 Forecast Tracker (Tab 5)**
+### **🎯 Forecast Tracker **
 
 Monitor your predictions against real market movement:
 
@@ -414,13 +414,13 @@ pip install lxml lxml_html_clean
 
 ## 🎓 Best Practices
 
-### For Monthly Analysis (Tabs 3 & 4):
+### For Monthly Analysis :
 - **🚫 Filter Anomalies**: Use the "Exclude Outliers" toggle for stocks with a history of extreme spikes (e.g. IPO years or black-swan events) to see the true seasonal trend.
 - **🔍 Use Index Filters**: Start with "Nifty 50" or "Bank Nifty" pills to find liquid stocks before moving to custom tickers.
-- **📊 Benchmark First**: Always analyze the Benchmark Index (Tab 4) before individual stocks to understand overall market direction.
+- **📊 Benchmark First**: Always analyze the Benchmark Index before individual stocks to understand overall market direction.
 - **💎 Check Confidence**: Look for "High Confidence" (3+ years data) before trusting a 2026 forecast.
 
-### For Forecast Tracking (Tab 5):
+### For Forecast Tracking :
 - **⛳ Save Iteratively**: Save forecasts for multiple stocks to look for sector-wide performance trends.
 - **🗑️ Audit Weekly**: Use the Deletion Capability to remove "noise" and focus on your highest-conviction predictions.
 - **📈 Veracity Check**: Compare Entry vs. Current price regularly to see which AI strategy (Median vs Std Dev) is winning.
@@ -444,24 +444,6 @@ streamlit run app.py
 5. **Auto-deploy enabled!** (push → deploy in 2-5 min)
 
 **Current Production:** https://market-rover.streamlit.app/
-
----
-
-## 📈 Roadmap
-
-### Completed ✅
-- v1.0: CLI portfolio analysis
-- v2.0: Streamlit web UI
-- v3.0: Market Visualizer (OI analysis)
-- v4.0: Monthly Heatmap, 2026 Forecast, and Benchmark Indexing
-- v4.1: Forecast Tracker, Outlier Filtering, and Backtest Transparency
-- Security hardening (80/100 score)
-
-### Planned 🔄
-- Email report notifications
-- Multi-language support
-- Automated performance audits
-- Sector-wise comparative dashboards
 
 ---
 
