@@ -50,19 +50,10 @@ class DashboardRenderer:
 
         # --- 4. Key Metrics (Bottom Right) ---
         ax4 = fig.add_subplot(gs[2, 1])
-        self._plot_metrics(ax4, oi_data, scenarios)
-=======
-        # --- 3. OI Chart (Bottom Left) ---
-        ax3 = fig.add_subplot(gs[2, 0])
         try:
-            self._plot_oi_chart(ax3, oi_data)
+            self._plot_metrics(ax4, oi_data, scenarios)
         except Exception:
-            ax3.text(0.5, 0.5, "OI chart unavailable", ha='center', va='center', color='white')
-
-        # --- 4. Key Metrics (Bottom Right) ---
-        ax4 = fig.add_subplot(gs[2, 1])
-        self._plot_metrics(ax4, oi_data, scenarios)
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
+             ax4.axis('off')
 
         # Save to buffer
         buf = io.BytesIO()
@@ -87,16 +78,7 @@ class DashboardRenderer:
         ax.set_ylabel("Year", color='white', fontsize=12)
         ax.set_xlabel("Month", color='white', fontsize=12)
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
     def _plot_price_chart(self, ax, ticker, history_df, scenarios, forecast_2026=None):
-=======
-    def _plot_price_chart(self, ax, ticker, history_df, scenarios):
-        # Guard against empty or invalid history
-        if history_df is None or history_df.empty or 'Close' not in history_df.columns:
-            ax.text(0.5, 0.5, "No price history to plot", ha='center', va='center', color='white')
-            return
-
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
         # Filter last 6 months for clarity
         df = history_df.tail(126).copy()
         if df.empty:
@@ -133,7 +115,6 @@ class DashboardRenderer:
         ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white')
         ax.grid(True, linestyle='--', alpha=0.3)
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
         # --- 2026 Prediction Overlay ---
         if forecast_2026:
             target_date = forecast_2026['target_date']
@@ -168,8 +149,6 @@ class DashboardRenderer:
             # Update legend to include new items
             ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white', fontsize=8)
 
-    def _plot_metrics(self, ax, scenarios):
-=======
     def _plot_oi_chart(self, ax, oi_data):
         if not oi_data or not isinstance(oi_data, dict):
             ax.text(0.5, 0.5, "No OI Data Available", ha='center', va='center', color='white')
@@ -208,23 +187,15 @@ class DashboardRenderer:
         ax.legend(facecolor='#1E1E1E')
 
     def _plot_metrics(self, ax, oi_data, scenarios):
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
         ax.axis('off')
         
         # Create a display
         metrics = [
-<<<<<<< HEAD:tools/dashboard_renderer.py
-            ("Days Remaining", f"{scenarios.get('days_remaining', 30)}", "#FFFFFF"),
-            ("Expected Move", f"±{scenarios['expected_move']:.2f}", "#00E5FF"),
-            ("Bull Target", f"{scenarios['bull_target']:.2f}", "#69F0AE"),
-            ("Bear Target", f"{scenarios['bear_target']:.2f}", "#FF5252"),
-=======
             ("PCR (Put-Call Ratio)", f"{oi_data.get('pcr', 'N/A')}", "#FFFFFF"),
             ("Max Pain Strike", f"{oi_data.get('max_pain', 'N/A')}", "#FFFF00"),
             ("Support (Max Put OI)", f"{oi_data.get('support_strike', 'N/A')}", "#69F0AE"),
             ("Resistance (Max Call OI)", f"{oi_data.get('resistance_strike', 'N/A')}", "#FF5252"),
             ("Expected Move (Monthly)", f"±{scenarios.get('expected_move', 0):.2f}", "#00E5FF")
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
         ]
         
         # Draw horizontally roughly
