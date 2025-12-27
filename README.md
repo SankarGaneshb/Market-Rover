@@ -20,6 +20,7 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 | **📈 Market Snapshot** | High-fidelity technical dashboards | Plotly, PNG export |
 | **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
 | **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
+| **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity, Anomaly Detection |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 
 ---
@@ -70,6 +71,19 @@ Specialized focus on major market indices:
 - ✅ **Index Deep-Dive** - Analyze Nifty 50, Sensex, Bank Nifty, and Sector Indices
 - ✅ **Consolidated Logic** - Uses the same high-fidelity analysis as individual stocks
 - ✅ **Market Sentiment** - Assess broader market trends before stock picking
+
+### **⚖️ Smart Portfolio Rebalancer **
+
+Advanced optimization engine to balance Risk and Reward:
+
+- ✅ **Dual Strategy Modes**:
+    - **Safe Mode 🛡️**: Risk Parity (Inverse Volatility) for steady growth.
+    - **Growth Mode 🚀**: Sharpe Ratio Optimization (Risk-Adjusted Return) for maximum alpha.
+- ✅ **Auto-Correction 🧠**: Automatically detects and fixes price anomalies like **Corporate Actions/Demergers** (e.g., ABFRL).
+- ✅ **Intelligent Grading**:
+    - **Overweight/Underweight**: Exact percentage drift calculation.
+    - **Actionable Advice**: "Buy", "Sell", or "Hold" with transparent "Why?" comments.
+- ✅ **Resilience**: Handles missing data, new IPOs, and negative return assets gracefully.
 
 ### **🎯 Forecast Tracker **
 
@@ -485,7 +499,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: December 26, 2025*
+*Last Updated: December 27, 2025*
 
 ---
 
