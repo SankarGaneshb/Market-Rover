@@ -68,7 +68,7 @@ jobs:
         test -f crew.py && echo "✅ crew.py exists"
         test -f config.py && echo "✅ config.py exists"
         test -d utils && echo "✅ utils/ directory exists"
-        test -d tools && echo "✅ tools/ directory exists"
+        test -d rover_tools && echo "✅ rover_tools/ directory exists"
     
     - name: Generate test coverage report
       run: |
