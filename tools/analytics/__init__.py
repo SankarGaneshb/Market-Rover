@@ -2,7 +2,7 @@ from .core import AnalyticsCore
 from .forecast import AnalyticsForecast
 from .portfolio_engine import AnalyticsPortfolio
 
-class MarketAnalyzer(AnalyticsCore, AnalyticsForecast, AnalyticsPortfolio):
+class AnalyzersUnified(AnalyticsCore, AnalyticsForecast, AnalyticsPortfolio):
     """
     Unified Market Analyzer inheriting capabilities from:
     - Core: Basic stats, volatility, outliers
