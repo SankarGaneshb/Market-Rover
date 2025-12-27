@@ -1,6 +1,6 @@
-from .core import AnalyticsCore
-from .forecast import AnalyticsForecast
-from .portfolio_engine import AnalyticsPortfolio
+from tools.analytics.core import AnalyticsCore
+from tools.analytics.forecast import AnalyticsForecast
+from tools.analytics.portfolio_engine import AnalyticsPortfolio
 
 class AnalyzersUnified(AnalyticsCore, AnalyticsForecast, AnalyticsPortfolio):
     """
