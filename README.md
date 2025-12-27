@@ -196,7 +196,7 @@ streamlit run app.py
    - **Outlier Filtering**: Toggle "Exclude Outliers" to strip anomalies
    - **Centered Heatmap**: Unified color scale for gains vs losses
    - **2026 Forecast**: AI predicts 3 scenarios (Conservative/Baseline/Aggressive)
-5. **Save Forecast**: Click "Save" to track performance in Tab 5
+5. **Save Forecast**: Click "Save" to track performance in Forecast Tracker
 
 ### **Benchmark Index Analysis**
 
@@ -219,7 +219,7 @@ Market-Rover includes enterprise-grade security:
 | Feature | Implementation | Status |
 |---------|---------------|--------|
 | **Input Sanitization** | Regex validation, injection prevention | ✅ Active |
-| **Rate Limiting** | 20-30 requests/minute per tab | ✅ Active |
+| **Rate Limiting** | 20-30 requests/minute per features | ✅ Active |
 | **Investment Disclaimer** | Bottom status bar, always visible | ✅ Active |
 | **Secure API Keys** | Environment variables, Streamlit secrets | ✅ Active |
 | **Timezone Handling** | Project-wide timezone-aware operations | ✅ Active |
@@ -294,10 +294,10 @@ Market-Rover/
 │   ├── sentiment_analyzer.py      # Gemini-powered classification
 │   ├── market_analytics.py        # Seasonal patterns & iterative forecasting
 │   ├── ticker_resources.py        # Categorized stock indices (Nifty/Sensex)
-│   └── visualizer_tool.py         # Tab 2 Chart generation
+│   └── visualizer_tool.py         # Chart generation
 │
 ├── utils/                      # Utilities
-│   ├── forecast_tracker.py        # Persistence logic for Tab 5
+│   ├── forecast_tracker.py        # Persistence logic for Forecast Tracker
 │   ├── security.py                # Input sanitization, rate limiting
 │   ├── report_visualizer.py       # Portfolio charts
 │   ├── visualizer_interface.py    # Market snapshot generator
@@ -393,8 +393,8 @@ pip install -r requirements.txt
 - System auto-adds .NS suffix
 
 **"Rate limit exceeded"**
-- Tab 2: Wait 60 seconds (30 req/min limit)
-- Tab 3: Wait 60 seconds (20 req/min limit)
+- Market Snapshot: Wait 60 seconds (30 req/min limit)
+- Monthly Heatmap: Wait 60 seconds (20 req/min limit)
 
 **News scraping fails (Windows)**
 ```bash
