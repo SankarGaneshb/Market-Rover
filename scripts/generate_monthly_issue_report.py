@@ -11,7 +11,12 @@ from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 import argparse
 import os
+import sys
 import requests
+
+# Add project root to path so we can import config
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from config import ISSUE_OWNERS, LABEL_RULES
 
 METRICS_DIR = Path(__file__).parent.parent / "metrics"
@@ -19,17 +24,30 @@ REPORTS_DIR = Path(__file__).parent.parent / "reports"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_errors(date_str: str):
-    p = METRICS_DIR / f"errors_{date_str}.jsonl"
-    if not p.exists():
-        return []
+def load_errors_for_month(year: int, month: int):
+    """Load and aggregate errors for all days in the given month."""
     out = []
-    with p.open('r', encoding='utf-8') as f:
-        for line in f:
-            try:
-                out.append(json.loads(line))
-            except Exception:
-                continue
+    
+    # Calculate start and end range for the month
+    start_date = datetime(year, month, 1)
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1)
+    else:
+        end_date = datetime(year, month + 1, 1)
+    
+    current = start_date
+    while current < end_date:
+        date_str = current.strftime("%Y-%m-%d")
+        p = METRICS_DIR / f"errors_{date_str}.jsonl"
+        if p.exists():
+            with p.open('r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        out.append(json.loads(line))
+                    except Exception:
+                        continue
+        current += timedelta(days=1)
+        
     return out
 
 
@@ -152,14 +170,28 @@ def create_github_issue(item: dict, repo: str = None, token: str = None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--date', help='Date to aggregate (YYYY-MM-DD). Defaults to today', default=datetime.utcnow().date().isoformat())
+    # Default to previous month
+    today = datetime.utcnow().date()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+    
+    parser.add_argument('--year', type=int, help='Year to aggregate (YYYY)', default=last_month.year)
+    parser.add_argument('--month', type=int, help='Month to aggregate (1-12)', default=last_month.month)
+    
     args = parser.parse_args()
-    date_str = args.date
-
-    errors = load_errors(date_str)
+    
+    print(f"Aggregating errors for {args.year}-{args.month:02d}...")
+    errors = load_errors_for_month(args.year, args.month)
     summary = aggregate(errors)
-    report_path = write_report(date_str, summary)
-    print(f"Wrote report: {report_path}")
+    
+    date_str = f"{args.year}-{args.month:02d}"
+    
+    # Write report
+    out = REPORTS_DIR / f"monthly_issues_{date_str}.json"
+    with out.open('w', encoding='utf-8') as f:
+        json.dump({'month': date_str, 'summary': summary}, f, indent=2)
+    
+    print(f"Wrote report: {out}")
     # Optionally post to Slack if webhook provided via env
     webhook = os.getenv('SLACK_WEBHOOK', '')
     if webhook:
