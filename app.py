@@ -370,7 +370,7 @@ def render_analytics_section():
                             item['symbol'] = f"{item['symbol']}.NS"
                             
                     # Pass the selected mode to the new engine
-                    result, warnings = analyzer.suggest_rebalance(portfolio_data, mode=mode)
+                    result, warnings = analyzer.analyze_rebalance(portfolio_data, mode=mode)
                     
                     if warnings:
                         st.warning("### ⚠️ Data Anomalies Detected")

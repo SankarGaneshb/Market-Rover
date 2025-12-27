@@ -69,7 +69,7 @@ class AnalyticsPortfolio:
             print(f"Error calculating correlation: {e}")
             return pd.DataFrame()
 
-    def suggest_rebalance(self, portfolio_data, mode="safety"):
+    def analyze_rebalance(self, portfolio_data, mode="safety"):
         """
         Suggests rebalancing based on selected strategy:
         - safety: Risk Parity (Inverse Volatility)
