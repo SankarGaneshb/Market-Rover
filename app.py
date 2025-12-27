@@ -10,7 +10,8 @@ from datetime import datetime
 import time
 
 # Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent))
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import os
 os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
