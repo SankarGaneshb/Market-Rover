@@ -17,7 +17,7 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 | Feature | Description | Tech Highlights |
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
-| **📈 Market Snapshot** | High-fidelity technical dashboards | Options data, Plotly, PNG export |
+| **📈 Market Snapshot** | High-fidelity technical dashboards | Plotly, PNG export |
 | **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
 | **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
@@ -259,7 +259,7 @@ Market-Rover includes enterprise-grade security:
 - **CrewAI** - Multi-agent orchestration
 - **Google Gemini 2.0-flash** - Latest LLM reasoning engine
 - **langchain-google-genai** - LLM integration
-- **yfinance** - Stock & options data
+- **yfinance** - Stock 
 - **Pandas / Numpy** - Data manipulation (IQR statistical filtering)
 
 ### Web UI & Visualization
