@@ -76,11 +76,11 @@ class AnalyticsPortfolio:
         - growth: Risk-Adjusted Return (Sharpe Ratio heuristic)
         """
         if not portfolio_data:
-            return pd.DataFrame()
+            return pd.DataFrame(), []
             
         df = pd.DataFrame(portfolio_data)
         if 'symbol' not in df.columns or 'value' not in df.columns:
-            return pd.DataFrame()
+            return pd.DataFrame(), []
             
         total_value = df['value'].sum()
         df['current_weight'] = df['value'] / total_value
