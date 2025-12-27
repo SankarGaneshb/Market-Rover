@@ -160,7 +160,7 @@ streamlit run app.py
 
 ## 📊 Usage Guide
 
-### **Tab 1: Portfolio Analysis**
+### **Portfolio Analysis**
 
 1. **Upload Portfolio CSV**
    ```csv
@@ -180,14 +180,14 @@ streamlit run app.py
    - Filter and search
    - Download in multiple formats
 
-### **Tab 2: Market Snapshot**
+### **Market Snapshot**
 
 1. Enter stock ticker (e.g., `SBIN`, `TCS`, `RELIANCE`)
 2. Click **"Generate Snapshot"**
 3. Wait ~30 seconds for the high-fidelity composite image
 4. **Download PNG** to share with colleagues or save for records
 
-### **Tab 3: Monthly Heatmap & 2026 Forecast**
+### **Monthly Heatmap & 2026 Forecast**
 
 1. Select/Search for a stock or enter a custom ticker
 2. **Filter by Index**: Use "Nifty 50" or "Bank Nifty" to narrow down major stocks
@@ -198,13 +198,13 @@ streamlit run app.py
    - **2026 Forecast**: AI predicts 3 scenarios (Conservative/Baseline/Aggressive)
 5. **Save Forecast**: Click "Save" to track performance in Tab 5
 
-### **Tab 4: Benchmark Analysis**
+### **Benchmark Index Analysis**
 
 1. Select a major index (Nifty 50, Sensex, Bank Nifty, etc.)
 2. Click **"🚀 Analyze Index"**
 3. View high-level market sentiment and seasonal trends
 
-### **Tab 5: Forecast Tracker**
+### **Forecast Tracker**
 
 1. Monitor your saved predictions against live market prices
 2. **🗑️ Manage List**: Use checkboxes and the "Delete Selected" button to clean up your dashboard
