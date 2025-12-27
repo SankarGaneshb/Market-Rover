@@ -2,34 +2,32 @@ name: Daily Issue Report
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # Runs daily at 06:00 UTC
-  workflow_dispatch: {}
+    # Run every day at 08:00 UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
 
 jobs:
-  generate-report:
+  report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.9'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Generate daily issue report
+          pip install requests python-dotenv
+
+      - name: Run Report Generator
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO: ${{ github.repository }}
-          GITHUB_ISSUE_ASSIGNEES: ${{ secrets.GITHUB_ISSUE_ASSIGNEES }}
-          GITHUB_ISSUE_LABELS: ${{ secrets.GITHUB_ISSUE_LABELS }}
-          ISSUE_IMPACT_THRESHOLD: ${{ secrets.ISSUE_IMPACT_THRESHOLD }}
-        run: |
-          python3 scripts/generate_daily_issue_report.py --date $(date -u +%F)
-      - name: Upload report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: daily-issue-report
-          path: reports/daily_issues_$(date -u +%F).json
+          PYTHONPATH: ${{ github.workspace }}
+        run: python tools/daily_issue_report.py
