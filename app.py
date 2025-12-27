@@ -1079,12 +1079,18 @@ def render_upload_section(max_parallel: int):
             symbol_col = st.column_config.TextColumn("Symbol (Custom)", help="Enter full ticker (e.g. INFBEES.NS)", required=True)
         else:
             symbol_col = st.column_config.SelectboxColumn(
-                "Stock (Select)",
-                help="Choose from common stocks",
-                width="medium",
                 options=get_common_tickers(),
                 required=True
             )
+            
+        from config import MAX_STOCKS_PER_PORTFOLIO
+        
+        # Check current length and warn
+        current_rows = len(st.session_state.manual_portfolio_df)
+        if current_rows > MAX_STOCKS_PER_PORTFOLIO:
+             st.error(f"⚠️ You have {current_rows} stocks. Maximum allowed is {MAX_STOCKS_PER_PORTFOLIO}. Please remove some before saving.")
+        else:
+             st.caption(f"ℹ️ Limit: {MAX_STOCKS_PER_PORTFOLIO} stocks per portfolio.")
 
         edited_df = st.data_editor(
             st.session_state.manual_portfolio_df,
