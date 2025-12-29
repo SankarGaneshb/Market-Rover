@@ -9,6 +9,7 @@ from rover_tools.stock_data_tool import get_stock_data
 from rover_tools.market_context_tool import analyze_market_context
 from rover_tools.visualizer_tool import generate_market_snapshot
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
+from rover_tools.shadow_tools import analyze_sector_flow, fetch_block_deals, detect_silent_accumulation, get_trap_indicator
 import os
 
 # Import metrics tracking
@@ -173,6 +174,28 @@ def create_report_generator_agent():
     )
 
 
+
+def create_shadow_analyst_agent():
+    """
+    Agent G: Shadow Analyst
+    Specializes in unconvential institutional tracking (Whale Alerts, Accumulation).
+    """
+    return Agent(
+        role="Institutional Shadow Analyst",
+        goal="Detect hidden 'Smart Money' moves using alternative data (Block Deals, IV Divergence)",
+        backstory=(
+            "You are a forensic market detective who looks where others don't. "
+            "You track 'Smart Money' footprints like Block Deals, Sector Rotation flows, "
+            "and Silent Accumulation patterns. You don't trust the news; you trust the flow."
+        ),
+        tools=[analyze_sector_flow, fetch_block_deals, detect_silent_accumulation, get_trap_indicator],
+        verbose=True,
+        max_iter=MAX_ITERATIONS,
+        allow_delegation=False,
+        llm=get_gemini_llm()
+    )
+
+
 # Agent factory for easy access
 class AgentFactory:
     """Factory class to create all agents."""
@@ -186,7 +209,8 @@ class AgentFactory:
             'sentiment_analyzer': create_sentiment_analyzer_agent(),
             'market_context': create_market_context_agent(),
             'report_generator': create_report_generator_agent(),
-            'visualizer': create_visualizer_agent()
+            'visualizer': create_visualizer_agent(),
+            'shadow_analyst': create_shadow_analyst_agent()
         }
 
 
