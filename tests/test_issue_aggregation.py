@@ -3,6 +3,9 @@ from pathlib import Path
 from datetime import datetime
 import os
 
+import sys
+sys.path.append(str(Path(__file__).parent.parent))
+
 from scripts import issue_aggregator as gen
 
 METRICS_DIR = Path(__file__).parent.parent / "metrics"
