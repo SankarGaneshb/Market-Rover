@@ -21,6 +21,7 @@ Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
 | **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
 | **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
 | **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity, Anomaly Detection |
+| **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data, FII Sentiment |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 
 ---
@@ -84,6 +85,15 @@ Advanced optimization engine to balance Risk and Reward:
     - **Overweight/Underweight**: Exact percentage drift calculation.
     - **Actionable Advice**: "Buy", "Sell", or "Hold" with transparent "Why?" comments.
 - ✅ **Resilience**: Handles missing data, new IPOs, and negative return assets gracefully.
+
+### **🕵️ Shadow Tracker (Institutional Spy)**
+Track the "Smart Money" with **Real Market Data**:
+
+- ✅ **Whale Alerts 🐋** - Live feed of **Block Deals** (> ₹1 Crore) fetched directly from NSE.
+- ✅ **Bull/Bear Trap Detector 🪤** - Analyzes FII Index Futures Long/Short ratios to detect market euphoria or panic.
+- ✅ **Silent Accumulation** - Identifies stocks with low volatility + high delivery volume (Pre-breakout signals).
+- ✅ **Sector Rotation** - Tracks changes in sector momentum over 1W/1M periods.
+- **Tech**: Powered by `nselib` for direct NSE connectivity.
 
 ### **🎯 Forecast Tracker **
 
@@ -149,7 +159,7 @@ Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 
 ### Prerequisites
 
-- Python 3.10+ (Required for CrewAI 1.0+)
+- Python 3.13 (Strict requirement for CrewAI compatibility)
 - Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
 
 ### Installation
@@ -345,19 +355,11 @@ CONVERT_TO_CRORES=true         # Currency formatting
 
 ### Streamlit Secrets (Production)
 
-<<<<<<< HEAD
-For Streamlit Cloud deployment, add to `https://share.streamlit.io` → App Settings → Secrets:
-=======
 ### Daily Issue Reports
 
 - Market-Rover persists detailed error records to `metrics/errors_YYYY-MM-DD.jsonl`.
 - Run the daily aggregator `scripts/generate_daily_issue_report.py` to create `reports/daily_issues_YYYY-MM-DD.json`.
-- To enable automated GitHub issues and Slack alerts, set repository secrets:
-   - `GITHUB_TOKEN`, `GITHUB_REPO` (owner/repo), `GITHUB_ISSUE_ASSIGNEES` (comma-separated), `GITHUB_ISSUE_LABELS` (comma-separated), `SLACK_WEBHOOK`.
-   - Adjust `ISSUE_IMPACT_THRESHOLD` env var to control when issues are created (default 10).
-
-### How to Use
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper)
+- The system automatically creates GitHub Issues for critical failures.
 
 ```toml
 GOOGLE_API_KEY = "your-key-here"
