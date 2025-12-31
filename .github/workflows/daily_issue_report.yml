@@ -32,7 +32,7 @@ jobs:
       run: python -m rover_tools.generate_daily_report
 
     - name: Create Issue
-      uses: peter-evans/create-issue-from-file@v4
+      uses: peter-evans/create-issue-from-file@v6
       with:
         title: "Daily Market Intelligence: ${{ env.DATE }}"
         content-filepath: daily_report.md
