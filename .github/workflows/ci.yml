@@ -1,4 +1,4 @@
-name: CI - Market-Rover 2.0
+name: CI - Market-Rover
 
 on:
   push:

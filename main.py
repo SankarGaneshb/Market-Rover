@@ -138,7 +138,7 @@ def print_header():
 def main():
     """Main application entry point with CLI argument parsing."""
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Market-Rover 2.0 - Stock Intelligence System')
+    parser = argparse.ArgumentParser(description='Market-Rover - Stock Intelligence System')
     parser.add_argument('--pdf', action='store_true', help='Generate PDF report (requires additional setup)')
     parser.add_argument('--csv-only', action='store_true', help='Export data as CSV only')
     parser.add_argument('--txt', action='store_true', help='Generate TXT report (legacy format)')
