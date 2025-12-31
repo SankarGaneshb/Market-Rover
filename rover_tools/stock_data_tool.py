@@ -27,6 +27,9 @@ def get_stock_data(symbol: str) -> str:
     """
     try:
         # Fetch stock data
+        symbol = symbol.replace("$", "").strip().upper()
+        if not symbol.endswith(('.NS', '.BO')) and '^' not in symbol:
+             symbol += ".NS"
         stock = yf.Ticker(symbol)
         info = stock.info
         

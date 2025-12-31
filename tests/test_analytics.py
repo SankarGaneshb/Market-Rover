@@ -7,7 +7,7 @@ import pytest
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from tools.market_analytics import MarketAnalyzer
+from rover_tools.market_analytics import MarketAnalyzer
 from utils.mock_data import mock_generator
 
 class TestMarketAnalyzer:

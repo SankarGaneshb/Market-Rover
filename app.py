@@ -6,6 +6,8 @@ Interactive portfolio analysis with real-time progress tracking, visualizers, an
 
 """
 
+import warnings
+warnings.filterwarnings('ignore')
 import streamlit as st
 
 import pandas as pd
@@ -17,13 +19,24 @@ import sys
 from datetime import datetime
 
 import time
+import os
+
+# Ensure root is in path
+root_dir = os.path.dirname(os.path.abspath(__file__))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+
+try:
+    import plotly
+    import rover_tools
+except ImportError as e:
+    st.error(f"Critical Dependency Error: {e}")
 
 
 
 # Add parent directory to path for imports
 
-import os
-
+# The 'import os' above now covers this.
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -616,7 +629,7 @@ def render_analytics_section():
 
                     )
 
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=False, width="stretch")
 
                 else:
 
@@ -1266,9 +1279,12 @@ def show_forecast_tracker_tab():
 
         try:
 
-            # Use basic yfinance for speed
-
-            t = yf.Ticker(ticker)
+            # Use basic yfinance for speed, sanitizing first
+            sanitized_ticker = ticker.replace("$", "").strip().upper()
+            if not sanitized_ticker.startswith("^") and not sanitized_ticker.endswith(('.NS', '.BO')):
+                 sanitized_ticker += ".NS"
+            
+            t = yf.Ticker(sanitized_ticker)
 
             # Use 'regularMarketPrice' or fast history
 
@@ -1586,7 +1602,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 fig_heatmap.update_layout(height=500)
 
-                st.plotly_chart(fig_heatmap, use_container_width=True)
+                st.plotly_chart(fig_heatmap, key="heatmap_chart", use_container_width=False, width="stretch")
 
             else:
 
@@ -1640,7 +1656,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 )
 
-                st.plotly_chart(fig_win, use_container_width=True)
+                st.plotly_chart(fig_win, use_container_width=False, width="stretch")
 
                 
 
@@ -1674,7 +1690,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 )
 
-                st.plotly_chart(fig_seasonality, use_container_width=True)
+                st.plotly_chart(fig_seasonality, use_container_width=False, width="stretch")
 
             
 
@@ -1888,7 +1904,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                  )
 
-                 st.plotly_chart(fig_forecast, use_container_width=True)
+                 st.plotly_chart(fig_forecast, use_container_width=False, width="stretch")
 
                  
 
@@ -2626,6 +2642,12 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                     result = crew.run()
 
+                except RuntimeError as re:
+
+                    # Handle "cannot schedule new futures" error specifically
+                    logger.error(f"RuntimeError in Crew execution: {re}")
+                    error = Exception("Model Overload/Timeout. The AI model took too long or generated too much text. Please try analyzing fewer stocks or check your connection.")
+
                 except Exception as e:
 
                     error = e
@@ -2836,7 +2858,23 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             stock_risk_data = []
 
-            for s in stocks:
+            
+
+            # UX: Progress for Post-Analysis
+
+            risk_progress = st.progress(0)
+
+            risk_status = st.empty()
+
+            
+
+            for i, s in enumerate(stocks):
+
+                risk_status.text(f"📊 Calculating Risk Metrics for {s.get('Symbol')}...")
+
+                risk_progress.progress((i + 1) / len(stocks))
+
+                
 
                 ticker_sym = s['Symbol']
 
@@ -2880,7 +2918,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 fig_sentiment = visualizer.create_sentiment_pie_chart(sentiment_data)
 
-                st.plotly_chart(fig_sentiment, width="stretch")
+                st.plotly_chart(fig_sentiment, use_container_width=False, width="stretch")
 
         
 

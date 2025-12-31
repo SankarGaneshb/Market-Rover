@@ -205,6 +205,11 @@ class AnalyticsPortfolio:
         Calculates a 0-100 Risk Score based on Annualized Volatility.
         """
         try:
+            # Sanitize
+            ticker = ticker.replace("$", "").strip().upper()
+            if not ticker.endswith(('.NS', '.BO')) and 'NIFTY' not in ticker and 'SENSEX' not in ticker and '^' not in ticker:
+                 ticker += ".NS"
+
             hist = yf.Ticker(ticker).history(period=period)
             if hist.empty:
                 return 50 

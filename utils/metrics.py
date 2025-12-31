@@ -126,7 +126,7 @@ class MetricsTracker:
         The record includes timestamp, error_type, message, optional context, user_id and traceback.
         """
         rec = {
-            "ts": datetime.utcnow().isoformat(),
+            "ts": datetime.now(timezone.utc).isoformat(),
             "type": error_type,
             "message": message,
             "context": context or {},
@@ -134,7 +134,7 @@ class MetricsTracker:
             "trace": traceback.format_exc()
         }
 
-        today = datetime.utcnow().date().isoformat()
+        today = datetime.now(timezone.utc).date().isoformat()
         errors_file = METRICS_DIR / f"errors_{today}.jsonl"
         try:
             with open(errors_file, 'a', encoding='utf-8') as f:

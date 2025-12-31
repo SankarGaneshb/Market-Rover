@@ -72,6 +72,11 @@ def analyze_market_context(portfolio_stocks: str = None) -> str:
             
             for stock in stocks:
                 try:
+                    # Sanitize
+                    stock = stock.replace("$", "").strip().upper()
+                    if not stock.endswith(('.NS', '.BO')) and '^' not in stock:
+                        stock += ".NS"
+                    
                     ticker = yf.Ticker(stock)
                     info = ticker.info
                     sector = info.get('sector', '')

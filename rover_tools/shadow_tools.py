@@ -7,6 +7,7 @@ import numpy as np
 import requests
 from datetime import datetime, timedelta
 from utils.logger import get_logger
+from crewai.tools import tool
 
 logger = get_logger(__name__)
 
@@ -109,6 +110,9 @@ def detect_silent_accumulation(ticker):
     signals = []
     
     try:
+        ticker = ticker.replace("$", "").strip().upper()
+        if not ticker.endswith(('.NS', '.BO')) and '^' not in ticker:
+             ticker += ".NS"
         stock = yf.Ticker(ticker)
         hist = stock.history(period="1mo")
         
@@ -171,3 +175,68 @@ def get_trap_indicator():
         "fii_long_pct": 55, # 55% Long positions
         "message": "FIIs are evenly balanced. No immediate Trap risk."
     }
+
+# ==============================================================================
+# WRAPPER TOOLS FOR AGENTS (Decorated for CrewAI)
+# ==============================================================================
+
+@tool("Analyze Sector Flow")
+def analyze_sector_flow_tool() -> str:
+    """
+    Analyzes relative strength of major sectors (Bank, Auto, IT, etc.) to detect rotation.
+    Returns a text summary of top performing sectors and their momentum.
+    """
+    df = analyze_sector_flow()
+    if df.empty:
+        return "Sector analysis unavailable."
+    
+    # Format as string
+    output = "📊 **Sector Rotation Analysis**:\n"
+    # Take top 3 and bottom 3
+    top = df.head(3)
+    output += "Top Sectors (Inflow):\n"
+    for _, row in top.iterrows():
+        output += f"- {row['Sector']}: Momentum {row['Momentum Score']}, 1W: {row['1W %']}%\n"
+        
+    return output
+
+@tool("Fetch Block Deals")
+def fetch_block_deals_tool() -> str:
+    """
+    Fetches recent large 'Block Deals' or 'Bulk Deals' from the market.
+    Useful for identifying what Smart Money (Institutions) are buying or selling.
+    """
+    deals = fetch_block_deals()
+    if not deals:
+        return "No recent block deals found."
+        
+    output = "🐋 **Whale Alerts (Block Deals)**:\n"
+    for deal in deals:
+        output += f"- {deal['Symbol']}: {deal['Type']} {deal['Qty']} @ {deal['Price']} ({deal['Client']})\n"
+    return output
+
+@tool("Detect Silent Accumulation")
+def detect_silent_accumulation_tool(ticker: str) -> str:
+    """
+    Analyzes a specific stock for signs of 'Silent Accumulation' by institutions.
+    Checks for Price Squeezes, Volume Spikes, and Strong Closes.
+    
+    Args:
+        ticker: The stock symbol (e.g., HDFCBANK.NS)
+    """
+    res = detect_silent_accumulation(ticker)
+    output = f"🕵️ **Shadow Scan for {ticker}**:\n"
+    output += f"Shadow Score: {res['score']}/100\n"
+    output += "Signals detected:\n"
+    for sig in res['signals']:
+        output += f"- {sig}\n"
+    return output
+
+@tool("Get Trap Indicator")
+def get_trap_indicator_tool() -> str:
+    """
+    Checks the overall FII (Foreign Institutional Investor) positioning in Index Futures.
+    Useful for detecting 'Bull Traps' (if FIIs are short) or 'Bear Traps'.
+    """
+    res = get_trap_indicator()
+    return f"🕸️ **Trap Detector**: Status is {res['status']}. {res['message']} (FII Longs: {res['fii_long_pct']}%)"

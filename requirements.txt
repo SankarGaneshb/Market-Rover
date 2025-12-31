@@ -2,6 +2,8 @@
 crewai>=1.0.0
 langchain-google-genai>=2.1.0
 google-generativeai>=0.8.0
+langchain-community>=0.0.10
+duckduckgo-search>=5.0.0
 
 # Data Processing
 pandas>=2.2.0

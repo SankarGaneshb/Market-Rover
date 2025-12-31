@@ -6,210 +6,178 @@ from textwrap import dedent
 
 
 def create_portfolio_retrieval_task(agent):
-    """
-    Task 1: Retrieve portfolio stocks.
-    """
+    """Task 1: Retrieve portfolio stocks."""
     return Task(
         description=dedent("""
-            Read the user's stock portfolio from the Portfolio.csv file.
-            Ensure all stock symbols have the .NS suffix for NSE stocks.
-            Validate that the data is complete and properly formatted.
-            
-            Return a list of all stock symbols and company names.
+            Read the user's stock portfolio to identify which companies to track.
+            Return a validated list of symbols (including .NS suffix).
         """),
         agent=agent,
         expected_output="A list of stock symbols with .NS suffix and their company names"
     )
 
 
-def create_news_scraping_task(agent, context):
+def create_market_strategy_task(agent, context):
     """
-    Task 2: Scrape news for each stock using Newspaper3k.
+    Task 2: Market Impact Strategy (Hybrid Funnel).
     """
     return Task(
         description=dedent("""
-            For each stock in the portfolio, scrape recent news articles from Moneycontrol.
-            Use Newspaper3k to extract article titles, summaries, and publication dates.
-            Filter for news from the last 7 days only.
+            Execute the 'Hybrid Intelligence Funnel' to gather comprehensive market insights:
             
-            Focus on finding the most relevant and impactful news stories.
-            Each stock should have 3-5 recent news articles if available.
+            1. **MACRO SCAN (High Speed)**:
+               - Use `get_global_cues` to check Crude, Gold, Nasdaq, and USD/INR.
+               - Use `scrape_general_market_news` to find top business headlines (Strikes, Budget, Policy).
+               - Use `search_market_news` to investigate specific potential risks (e.g., "Impact of recent fog on airlines").
             
-            Return a structured collection of news articles for each stock.
+            2. **OFFICIAL DATA CHECK**:
+               - For each portfolio stock, use `get_corporate_actions` to check for Board Meetings, Results, or Dividends.
+            
+            3. **MICRO NEWS SCRAPING**:
+               - Use `scrape_stock_news` for each portfolio stock to catch specific media coverage.
+            
+            **Synthesis**:
+            Combine these layers. Example: "Asian Paints (Micro) is falling because Crude is up (Global), despite good results (Official)."
         """),
         agent=agent,
-        context=context,
-        expected_output="News articles for each stock with titles, summaries, and dates"
+        context=context, # Depends on Portfolio
+        expected_output="A strategic report combining Global Cues, Macro Events, Corporate Actions, and Specific News for the portfolio."
     )
 
 
 def create_sentiment_analysis_task(agent, context):
     """
-    Task 3: Analyze sentiment of news articles.
+    Task 3: Analyze sentiment (Fear/Greed).
     """
     return Task(
         description=dedent("""
-            Analyze each news article and classify its sentiment as:
-            - POSITIVE: Bullish news that could drive stock price up
-            - NEGATIVE: Bearish news that could drive stock price down
-            - NEUTRAL: News with no clear directional impact
+            Analyze the Strategic Report from the previous task.
+            Classify the sentiment for each stock and the overall market.
             
-            For each article, provide:
-            1. Sentiment classification
-            2. Brief reasoning for the classification
-            3. Impact level (High/Medium/Low)
-            
-            If you are uncertain about the sentiment, mark it as "FLAG_FOR_REVIEW"
-            and explain why it's uncertain.
-            
-            Return sentiment analysis for all articles organized by stock.
+            **Critically**: Identify where the sentiment is 'Extreme' (Panic or Euphoria).
+            This output will be used by the Shadow Analyst to detect Traps.
         """),
         agent=agent,
-        context=context,
-        expected_output="Sentiment classification for each article with reasoning and impact level"
+        context=context, # Depends on Strategy Task
+        expected_output="Sentiment classification with 'Extreme Sentiment' flags."
     )
 
 
-def create_market_context_task(agent, context):
+def create_technical_analysis_task(agent, context):
     """
-    Task 4: Analyze market context.
+    Task 4: Technical Analysis (Price Action).
     """
     return Task(
         description=dedent("""
-            Analyze the broader market context to understand if individual stock
-            movements are aligned with or contrary to market trends.
+            Analyze the Technical structure of the market and portfolio stocks.
+            Focus strictly on Price Action:
+            - Trend (Uptrend/Downtrend)
+            - Support/Resistance Levels
+            - Relative Strength vs Nifty
             
-            IMPORTANT: Use the portfolio stocks from the previous task to intelligently
-            determine which sector indices to analyze.
-            
-            Provide:
-            1. Nifty 50 performance (last 7 days)
-            2. Bank Nifty performance (always include)
-            3. Relevant sectoral index performance based on portfolio stocks:
-               - If portfolio has IT stocks (TCS, Infosys, Wipro, etc.) → analyze Nifty IT
-               - If portfolio has Banking stocks (HDFC Bank, ICICI, SBI, etc.) → highlight Bank Nifty
-               - If portfolio has Auto stocks → analyze Nifty Auto
-               - If portfolio has Pharma stocks → analyze Nifty Pharma
-               - And so on for other sectors
-            4. Overall market sentiment (Positive/Negative)
-            5. Key market drivers affecting the portfolio stocks
-            
-            This context will help understand whether negative news is amplified
-            or dampened by market conditions, and how sector trends affect portfolio stocks.
+            Do not focus on news (Agent B does that). Focus on the Chart.
         """),
         agent=agent,
-        context=context,
-        expected_output="Market context analysis with Nifty 50, Bank Nifty, portfolio-relevant sector indices, and overall sentiment"
+        context=context, # Depends on Portfolio
+        expected_output="Technical analysis report with Trend, Support, and Resistance levels."
+    )
+
+
+def create_shadow_analysis_task(agent, context):
+    """
+    Task 5: Shadow Analysis (The Trap Detector).
+    **NEW SYNERGY TASK**
+    """
+    return Task(
+        description=dedent("""
+            Perform a 'Forensic Audit' by comparing Sentiment vs Reality.
+            
+            **Inputs**: 
+            - Sentiment Report (Are people panicking?)
+            - Technical Report (Is support holding?)
+            
+            **Your Mission**:
+            1. **Detect Silent Accumulation**: If Sentiment is Fear/Negative but Price is at Support & Block Deals are happening -> CALL IT OUT.
+            2. **Detect Bull Traps**: If Sentiment is Euphoria but Price is hitting Resistance -> CALL IT OUT.
+            3. **Check Trap Indicators**: Use your tools to see if Retail is trapped.
+            
+            Generate a 'Contrarian Signal' for each stock.
+        """),
+        agent=agent,
+        context=context, # Depends on Sentiment AND Technical Tasks
+        expected_output="Forensic analysis report identifying Accumulation, Distribution, and Traps."
     )
 
 
 def create_report_generation_task(agent, context):
     """
-    Task 5: Generate final weekly report.
+    Task 6: Generate final weekly report.
     """
     return Task(
         description=dedent("""
-            Create a comprehensive weekly intelligence report that includes:
+            Create a Master Intelligence Report integrating all layers:
             
-            1. **EXECUTIVE SUMMARY**
-               - Overall portfolio health
-               - Market sentiment this week
-               - Top 3 most important news stories affecting the portfolio
+            1. **Executive Summary**: Global Cues & Macro Headwinds.
+            2. **Portfolio Analysis**:
+               - **Fundamental**: News & Corporate Actions.
+               - **Technical**: Trends & Levels.
+               - **Institutional Radar**: The 'Shadow Signals' (Accumulation/Traps).
+            3. **Risk Highlights**: Specific warnings (e.g., "Crude Spike impacts Paints").
             
-            2. **STOCK-BY-STOCK ANALYSIS**
-               For each stock with significant news:
-               - Stock name and current price
-               - Key news stories with sentiment
-               - Potential risks or opportunities
-               - Recommendation: WATCH/HOLD/CONCERN
-            
-            3. **RISK HIGHLIGHTS**
-               - Stocks with negative sentiment that need attention
-               - Market-wide risks affecting the portfolio
-               - Stocks flagged for review (uncertain sentiment)
-            
-            4. **FLAG FOR REVIEW**
-               - List any stocks/news where sentiment was uncertain
-               - Explain why human review is needed
-            
-            FORMAT REQUIREMENTS:
-            - All financial figures in Crores (₹X.XX Crore)
-            - Use clear section headers
-            - Highlight risks in bold
-            - Keep each stock analysis to 3-4 sentences
-            - Total report should not exceed 2 pages
-            
-            This is a passive briefing - no action required from the user,
-            but risks should be clearly highlighted.
-            
-            IMPORTANT:
-            At the VERY END of the report, produce a strict JSON block wrapped in 
-            ```json``` triple backticks containing the sentiment counts and top risks.
-            Format:
-            ```json
-            {
-                "sentiment_counts": {"positive": 5, "negative": 2, "neutral": 1},
-                "top_risks": ["Risk 1", "Risk 2"]
-            }
-            ```
-            This block will be used by the visualization system.
+            Format: Professional, actionable, 2 pages max. 
+            Include the strict JSON block for visualization at the end.
         """),
         agent=agent,
-        context=context,
-        expected_output="A comprehensive 2-page weekly intelligence report with risk highlights and flagged items"
+        context=context, # Depends on ALL previous analysis
+        expected_output="Comprehensive Intelligence Report with Institutional Radar."
     )
+
 
 
 def create_market_snapshot_task(agent, ticker):
     """
-    Task 6: Generate Market Snapshot.
+    Task to generate a visual market snapshot for a single ticker.
+    Used by the Visualizer Interface in the UI.
     """
     return Task(
         description=dedent(f"""
-            Generate a high-fidelity market snapshot for {{ticker}}.
+            Generate a comprehensive Visual Market Snapshot for {ticker}.
             
-            1. Fetch real-time data (LTP, Option Chain).
-            2. Perform derivative analysis (PCR, Max Pain, Volatility).
-            3. Generate a visual dashboard showing Price Action, Volatility Bands, and OI Support/Resistance.
+            1. Use `generate_market_snapshot` tool.
+            2. The tool will calculate volatility, support/resistance, and option chain logic.
+            3. It will save a chart to 'output/{{ticker}}_snapshot.png'.
             
-            Return the path to the generated image and a summary of key metrics.
-        """).format(ticker=ticker),
+            Return the final path of the image and a brief summary of the volatility data.
+        """),
         agent=agent,
-        expected_output="A summary of market metrics and a path to the generated dashboard image."
+        expected_output="Path to the generated image and a volatility summary."
     )
 
 
-# Task factory for easy access
 class TaskFactory:
     """Factory class to create all tasks with proper dependencies."""
     
     @staticmethod
     def create_all_tasks(agents):
-        """
-        Create all tasks with proper context dependencies.
-        
-        Args:
-            agents: Dictionary of agents from AgentFactory
-            
-        Returns:
-            List of tasks in execution order
-        """
-        # Task 1: Portfolio Retrieval
+        # 1. Get Portfolio
         task1 = create_portfolio_retrieval_task(agents['portfolio_manager'])
         
-        # Task 2: News Scraping (depends on Task 1)
-        task2 = create_news_scraping_task(agents['news_scraper'], context=[task1])
+        # 2. Market Strategy (Hybrid Funnel)
+        task2 = create_market_strategy_task(agents['news_scraper'], context=[task1])
         
-        # Task 3: Sentiment Analysis (depends on Task 2)
+        # 3. Sentiment Analysis (feeds on Strategy)
         task3 = create_sentiment_analysis_task(agents['sentiment_analyzer'], context=[task2])
         
-        # Task 4: Market Context (depends on Task 1)
-        task4 = create_market_context_task(agents['market_context'], context=[task1])
+        # 4. Technical Analysis (independent check on Portfolio)
+        task4 = create_technical_analysis_task(agents['market_context'], context=[task1])
         
-        # Task 5: Report Generation (depends on Tasks 3 and 4)
-        task5 = create_report_generation_task(
+        # 5. Shadow Analysis (The Synergy Step: Sentiment + Technicals)
+        task5 = create_shadow_analysis_task(agents['shadow_analyst'], context=[task3, task4])
+        
+        # 6. Report Generation (Synthesizes everything)
+        task6 = create_report_generation_task(
             agents['report_generator'],
-            context=[task3, task4]
+            context=[task2, task3, task4, task5]
         )
         
-        return [task1, task2, task3, task4, task5]
+        return [task1, task2, task3, task4, task5, task6]

@@ -1,21 +1,5 @@
 [
   {
-    "timestamp": "2025-12-24T17:51:23.248905",
-    "ticker": "^BSESN",
-    "current_price": 85408.703125,
-    "target_price": 98572.46735847679,
-    "target_date": "2026-12-31",
-    "strategy": "Median Strategy",
-    "confidence": "High",
-    "years_tested": [
-      2025,
-      2024,
-      2023,
-      2022
-    ],
-    "status": "active"
-  },
-  {
     "timestamp": "2025-12-24T19:01:52.432823",
     "ticker": "^NSEI",
     "current_price": 26142.099609375,

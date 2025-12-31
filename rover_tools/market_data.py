@@ -16,6 +16,9 @@ class MarketDataFetcher:
         Fetches the Last Traded Price (LTP) for a given ticker.
         """
         try:
+            # Sanitize input
+            ticker = ticker.replace("$", "").strip().upper()
+            
             # Try yfinance first (works for both NSE/BSE if suffix is correct)
             # Assuming NSE for now, appending .NS if not present, UNLESS it's an index (starts with ^)
             if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
@@ -39,6 +42,8 @@ class MarketDataFetcher:
         Default is max history with monthly interval.
         """
         try:
+            ticker = ticker.replace("$", "").strip().upper()
+            
             if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
                 ticker += ".NS"
             
