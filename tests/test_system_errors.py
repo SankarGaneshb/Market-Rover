@@ -6,7 +6,7 @@ import os
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
-from scripts import issue_aggregator as gen
+from scripts import report_system_errors as gen
 
 METRICS_DIR = Path(__file__).parent.parent / "metrics"
 METRICS_DIR.mkdir(exist_ok=True)

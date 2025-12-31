@@ -40,7 +40,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests
 
-    - name: Run Issue Aggregator
+    - name: Run System Error Reporter
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -54,7 +54,7 @@ jobs:
         EMAIL="${{ inputs.email }}"
         
         echo "Running $FREQ report..."
-        python scripts/issue_aggregator.py --frequency "$FREQ" --email "$EMAIL"
+        python scripts/report_system_errors.py --frequency "$FREQ" --email "$EMAIL"
 
     - name: Upload Report Artifact
       uses: actions/upload-artifact@v4
