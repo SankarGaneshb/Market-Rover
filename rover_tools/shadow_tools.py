@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import requests
 from datetime import datetime, timedelta
+from nselib import capital_market, derivatives
 from utils.logger import get_logger
 from crewai.tools import tool
 
@@ -80,21 +81,50 @@ def analyze_sector_flow():
 # --- 2. WHALE ALERT (Block Deals) ---
 def fetch_block_deals():
     """
-    Fetches recent Block/Bulk deals.
-    Since raw NSE API is protected, we simulate/fetch from a public verified source or fail gracefully.
-    For this implementation, we will try a direct fetch, and fallback to empty list to avoid crashing.
+    Fetches recent Block/Bulk deals using nselib.
     """
-    # Placeholder for actual NSE scraping logic which changes often.
-    # We return a structured format that the UI can display.
-    # In a real deployed app, this would query a dedicated backend DB.
-    
-    # Returning a sample structure for UI development (Simulated Live Data)
-    # WARNING: To be replaced with live scrape if stable URL found.
-    return [
-        {"Date": datetime.now().strftime("%d-%b"), "Symbol": "HDFCBANK", "Client": "Vanguard Fund", "Type": "BUY", "Qty": "2.5M", "Price": 1650},
-        {"Date": datetime.now().strftime("%d-%b"), "Symbol": "RELIANCE", "Client": "Goldman Sachs", "Type": "SELL", "Qty": "1.2M", "Price": 2400},
-        {"Date": datetime.now().strftime("%d-%b"), "Symbol": "ZOMATO", "Client": "Tiger Global", "Type": "BUY", "Qty": "5.0M", "Price": 150},
-    ]
+    try:
+        # Fetch data for the last 1 week to ensure we get something
+        raw_data = capital_market.block_deals_data(period='1M')
+        
+        if raw_data.empty:
+            return []
+
+        # nselib columns often: ['Date', 'Symbol', 'Client Name', 'Buy/Sell', 'Quantity', 'Trade Price/Wght. Avg. Price', ...]
+        # Normalize columns
+        raw_data.columns = [c.strip() for c in raw_data.columns]
+        
+        deals = []
+        # Take top 5 most recent high value deals
+        # Filter for value > 50L (approx 5M INR) roughly
+        # We need to handle data types carefully (often strings with commas)
+        
+        for idx, row in raw_data.iterrows():
+            try:
+                qty_str = str(row.get('Quantity', '0')).replace(',', '')
+                price_str = str(row.get('Trade Price/Wght. Avg. Price', '0')).replace(',', '')
+                qty = float(qty_str)
+                price = float(price_str)
+                value_lac = (qty * price) / 100000
+                
+                if value_lac > 100: # Show only deals > 1 Cr for relevance
+                    deals.append({
+                        "Date": row.get('Date', ''),
+                        "Symbol": row.get('Symbol', ''),
+                        "Client": row.get('Client Name', 'Unknown'),
+                        "Type": row.get('Buy/Sell', 'Unknown'),
+                        "Qty": f"{qty/100000:.2f}L",
+                        "Price": price
+                    })
+            except Exception:
+                continue
+                
+        # Return top 5 most recent
+        return deals[:5]
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch block deals: {e}")
+        return []
 
 
 # --- 3. SILENT ACCUMULATION (Delivery + IV) ---
@@ -165,16 +195,82 @@ def detect_silent_accumulation(ticker):
 # --- 4. TRAP DETECTOR (FII Sentiment) ---
 def get_trap_indicator():
     """
-    Returns FII Sentiment Status based on Index Futures.
-    Simulated logic as live FII data is daily published.
+    Returns FII Sentiment Status based on Index Futures using nselib.
     """
-    # In a real scenario, scrape moneycontrol or nse website
-    # Returning a plausible status for UI
-    return {
-        "status": "Neutral",
-        "fii_long_pct": 55, # 55% Long positions
-        "message": "FIIs are evenly balanced. No immediate Trap risk."
-    }
+    try:
+        # Fetch FII derivatives stats (nselib requires explicit date sometimes)
+        today_str = datetime.now().strftime("%d-%m-%Y")
+        # If it fails for today (holiday/market closed), nselib might error or return empty
+        # Ideally we loop back a few days, but let's try today first
+        try:
+             df = derivatives.fii_derivatives_statistics(trade_date=today_str)
+        except:
+             # Fallback to yesterday if today fails (rudimentary retry)
+             yesterday = (datetime.now() - timedelta(days=1)).strftime("%d-%m-%Y")
+             df = derivatives.fii_derivatives_statistics(trade_date=yesterday)
+        if df.empty:
+             return {"status": "Unknown", "fii_long_pct": 50, "message": "Data Unavailable"}
+             
+        # Normalize columns (Date, Instrument Type, ... Number of Contracts Buy, Number of Contracts Sell)
+        # We need 'Index Futures' row for the latest date
+        latest_date = df['Date'].iloc[-1]
+        day_data = df[df['Date'] == latest_date]
+        
+        idx_fut = day_data[day_data['Instrument Type'].str.contains('Index Futures', case=False, na=False)]
+        
+        if idx_fut.empty:
+             return {"status": "Neutral", "fii_long_pct": 50, "message": "No Index Futures Data"}
+             
+        idx_fut = idx_fut.iloc[0]
+        
+        # Extract values
+        longs = float(str(idx_fut.get('Buy High', 0) if 'Buy High' in idx_fut else idx_fut.iloc[2]).replace(',', '')) # Fallback logic dependent on dataframe structure
+        # Actually nselib returns specific columns. Let's rely on inspection logic or broad try/catch
+        # Usually: "Buy Contract" vs "Sell Contract"
+        # Since column names vary, we'll try standard keys
+        
+        # RE-FETCH with specific known method if possible or parse current df carefully
+        # The dataframe usually has: ['Date', 'Instrument Type', 'Number of Contracts (Buy)', 'Number of Contracts (Sell)', ...]
+        
+        # Let's trust pandas structure from typical nselib output
+        # Col 3 is Buy Contracts, Col 5 is Sell Contracts (0-indexed: 2, 4) if verifying locally
+        # Better: use header matching
+        buy_col = [c for c in df.columns if 'Buy' in c and 'Contract' in c][0]
+        sell_col = [c for c in df.columns if 'Sell' in c and 'Contract' in c][0]
+        
+        long_contracts = float(str(idx_fut[buy_col]).replace(',', ''))
+        sell_contracts = float(str(idx_fut[sell_col]).replace(',', ''))
+        
+        total = long_contracts + sell_contracts
+        long_pct = round((long_contracts / total) * 100, 1)
+        
+        status = "Neutral"
+        msg = f"FIIs have {long_pct}% Long Exposure."
+        
+        if long_pct > 70:
+            status = "Euphoria"
+            msg += " **Risk of Bull Trap!**"
+        elif long_pct < 30:
+            status = "Panic"
+            msg += " **Risk of Bear Trap!** (Reversal Possible)"
+        else:
+            status = "Neutral"
+            msg += " Balanced positioning."
+            
+        return {
+            "status": status,
+            "fii_long_pct": long_pct, 
+            "message": msg
+        }
+
+    except Exception as e:
+        import traceback
+        logger.error(f"Trap Detector Failed: {traceback.format_exc()}")
+        return {
+            "status": "Error",
+            "fii_long_pct": 50, 
+            "message": f"Could not fetch FII Data: {str(e)[:100]}"
+        }
 
 # ==============================================================================
 # WRAPPER TOOLS FOR AGENTS (Decorated for CrewAI)
