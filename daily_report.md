@@ -9,10 +9,5 @@
 | Sensex | 85,220.60 | +545.52 | 🟢 +0.64% |
 
 ## 💡 Key Insights
-- **Market Trend**: Data-driven trend analysis indicates volatility is stabilizing.
-- **Sector Focus**: Watch Banking and IT sectors for rotation.
-
-## 🎯 Key Technical Levels (Nifty 50)
-- **Bull Target (2 weeks)**: 26,732
-- **Bear Target (2 weeks)**: 25,527
-- **Expected Move**: ±602 points
+- **Market Trend**: Short-term trend appears **Bullish** based on Nifty 50 performance.
+- **Sector Focus**: Analyze individual sector indices for rotation opportunities.

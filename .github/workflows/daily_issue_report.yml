@@ -29,7 +29,7 @@ jobs:
         pip install pandas yfinance scipy numpy
 
     - name: Generate Daily Report
-      run: python tools/generate_daily_report.py
+      run: python -m rover_tools.generate_daily_report
 
     - name: Create Issue
       uses: peter-evans/create-issue-from-file@v4
