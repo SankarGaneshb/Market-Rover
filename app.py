@@ -1,6 +1,6 @@
 """
 
-Market-Rover 4.0 - Streamlit Web Application
+Market-Rover - Streamlit Web Application
 
 Interactive portfolio analysis with real-time progress tracking, visualizers, and forecasts.
 
@@ -69,6 +69,8 @@ from utils.security import sanitize_ticker, RateLimiter, validate_csv_content, s
 
 from utils.forecast_tracker import get_forecast_history
 
+
+
 import yfinance as yf
 
 
@@ -91,7 +93,7 @@ st.set_page_config(
 
     layout="wide",
 
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"
 
 )
 
@@ -134,292 +136,205 @@ if 'portfolio_limiter' not in st.session_state:
 
 
 def main():
-
     """Main application entry point"""
-
     
+    # CSS for Fixed Footer and Layout Adjustments
+    st.markdown(
+        """
+        <style>
+        /* Fixed Footer styling */
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #262730; /* Streamlit dark theme secondary bg */
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            border-top: 1px solid #4e4e4e;
+            z-index: 999999; /* Ensure it sits on top of everything */
+            box-shadow: 0px -2px 10px rgba(0,0,0,0.2);
+        }
+        .footer p {
+            margin: 0;
+        }
+        
+        /* Adjust main content to not be hidden by footer */
+        .block-container {
+            padding-bottom: 100px; /* Increased padding */
+        }
+        
+        /* Adjust Sidebar to not be hidden by footer */
+        section[data-testid="stSidebar"] > div > div:nth-child(2) {
+            padding-bottom: 100px;
+        }
+        
+        /* Hide default Streamlit footer */
+        footer {visibility: hidden;}
+        </style>
+        <div class="footer">
+            <p>⚠️ <b>Disclaimer:</b> Market-Rover is for informational purposes only. Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Header
-
     st.title("🔍 Market-Rover")
-
     st.markdown("**AI-Powered Stock Intelligence System**")
-
     st.markdown("---")
-
     
-
     # Sidebar
-
     with st.sidebar:
-
         st.header("🚀 About")
-
         st.markdown("""
-
-        **AI Stock Intelligence**
-
+        **AI Stock Intelligence**        
+        **Your personal quant researcher.**
         
-
         **📤 Portfolio Analysis**  
-
-        Upload → Analyze → View reports
-
+        Upload & analyze via sidebar
         
-
         **📈 Market Visualizer**  
-
-        Charts, price targets
-
+        Charts, Snapshots & Heatmaps
         
-
-        **🔥 Monthly Heatmap**  
-
-        History, trends, 2026 forecast
-
+        **🔍 Benchmark Analysis**
+        Deep-dive into Nifty/Sensex
         
-
-        ---
-
+        **🎯 Forecast Tracker**
+        Track AI predictions
         
-
-        **Features:** ⚡ Fast | 🔒 Secure | 📊 Interactive
-
-        
-
-        ---
-
-        ### ⚠️ Legal Disclaimer
-
-        *Market-Rover is for informational purposes only. No financial advice provided. Past performance does not guarantee future results. Consult a financial advisor before investing.*
-
+        **🕵️ Shadow Tracker**
+        Follow institutional money
         """)
-
         
-
         st.markdown("---")
-
-        st.markdown("### ⚙️ Settings")
-
-        max_parallel = st.slider(
-
-            "Concurrent Stocks",
-
-            min_value=1,
-
-            max_value=10,
-
-            value=5,
-
-            help="Number of stocks to analyze simultaneously"
-
-        )
-
         
+        # NAVIGATION
+        st.header("📍 Navigation")
+        
+        nav_options = [
+            "📤 Portfolio Analysis", 
+            "📈 Market Visualizer", 
+            "🔍 Market Analysis", 
+            "🎯 Forecast Tracker", 
+            "🕵️ Shadow Tracker", 
 
-        # Test mode toggle (compact)
-
-        test_mode = st.checkbox(
-
-            "🧪 Test Mode",
-
-            value=st.session_state.test_mode,
-
-            help="Use mock data without API calls"
-
+        ]
+        
+        selection = st.radio("Go to:", nav_options, label_visibility="collapsed")
+        
+        st.markdown("---")
+        
+        st.markdown("### ⚙️ Settings")
+        max_parallel = st.slider(
+            "Concurrent Stocks",
+            min_value=1,
+            max_value=10,
+            value=5,
+            help="Number of stocks to analyze simultaneously"
         )
-
+        
+        # Test mode toggle (compact)
+        test_mode = st.checkbox(
+            "🧪 Test Mode",
+            value=st.session_state.test_mode,
+            help="Use mock data without API calls"
+        )
         st.session_state.test_mode = test_mode
 
-
-
         
-
         if test_mode:
-
             st.info("🧪 Test mode enabled - using mock data")
-
         
-
         # Observability metrics
-
         st.markdown("---")
-
         with st.expander("📊 Observability", expanded=False):
-
             st.markdown("### Real-Time Metrics")
-
             
-
             # API Usage
-
             api_usage = get_api_usage()
-
             col1, col2 = st.columns(2)
-
             with col1:
-
                 st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
-
             with col2:
-
                 st.metric("Remaining", api_usage['remaining'])
-
             
-
             # Progress bar for API quota
-
             quota_pct = api_usage['today'] / api_usage['limit']
-
             st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
-
             
-
             st.markdown("---")
-
             
-
             # Performance Stats
-
             perf_stats = get_performance_stats()
-
             if perf_stats['total_analyses'] > 0:
-
                 st.markdown("**Performance**")
-
                 col1, col2 = st.columns(2)
-
                 with col1:
-
                     st.metric(
-
                         "Total Analyses",
-
                         perf_stats['total_analyses']
-
                     )
-
                 with col2:
-
                     st.metric(
-
                         "Avg Duration",
-
                         f"{perf_stats['avg_duration']:.1f}s"
-
                     )
-
                 st.markdown("---")
-
             
-
             # Cache Stats
-
             cache_stats = get_cache_stats()
-
             total_cache = cache_stats['hits'] + cache_stats['misses']
-
             if total_cache > 0:
-
                 st.markdown("**Cache Performance**")
-
                 col1, col2 = st.columns(2)
-
                 with col1:
-
                     st.metric("Hit Rate", f"{cache_stats['hit_rate']:.0f}%")
-
                 with col2:
-
                     st.metric("Total Ops", total_cache)
-
                 st.markdown("---")
-
             
-
             # Error Stats
-
             error_stats = get_error_stats()
-
             if error_stats['total'] > 0:
-
                 st.markdown("**Errors**")
-
                 st.metric("Total Errors", error_stats['total'])
-
                 if error_stats['by_type']:
-
                     st.json(error_stats['by_type'], expanded=False)
-
             
-
             # Refresh button (note: refreshes entire app)
-
             if st.button("🔄 Refresh App", width="stretch", help="Refreshes the entire app to update all metrics"):
-
                 st.rerun()
-
         
-
         st.markdown("---")
-
         st.markdown("### 📚 Recent Reports")
-
         show_recent_reports()
 
 
-
     
-
-    # Main content area
-
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📤 Portfolio Analysis", "📈 Market Visualizer", "🔍 Market Analysis", "🎯 Forecast Tracker", "🕵️ Shadow Tracker"])
-
+    # Main content area - Render based on selection
     
-
-    with tab1:
-
+    if selection == "📤 Portfolio Analysis":
         show_portfolio_analysis_tab(max_parallel)
-
     
-
-    with tab2:
-
+    elif selection == "📈 Market Visualizer":
         show_visualizer_tab()
 
-
-
-    with tab3:
-
+    elif selection == "🔍 Market Analysis":
         show_market_analysis_tab()
 
-
-
-    with tab4:
-
+    elif selection == "🎯 Forecast Tracker":
         show_forecast_tracker_tab()
-
     
-
-    with tab5:
-
+    elif selection == "🕵️ Shadow Tracker":
         show_shadow_tracker_tab()
 
 
 
-
-
-    # Tab 5 Removed (Merged into Tab 1)
-
     
-
-    # Disclaimer at bottom - always visible like a status bar
-
-    st.markdown("---")
-
-    st.caption("⚠️ **Disclaimer:** Market-Rover is for informational purposes only. Not financial advice. Past performance ≠ future results. Consult a qualified advisor. No liability for losses. By using this app, you accept these terms.")
-
-
+    # Footer removed from here as it is now injected via CSS
 
 def render_analytics_section():
 
@@ -629,7 +544,7 @@ def render_analytics_section():
 
                     )
 
-                    st.plotly_chart(fig, use_container_width=False, width="stretch")
+                    st.plotly_chart(fig, width="stretch")
 
                 else:
 
@@ -821,7 +736,7 @@ def render_analytics_section():
 
                                          'return': '{:.1%}'
 
-                                     }), use_container_width=True)
+                                     }), width='stretch')
 
                                      
 
@@ -1147,7 +1062,7 @@ def show_market_analysis_tab():
 
             st.write("") 
 
-            analyze_button = st.button("📊 Analyze", type="primary", use_container_width=True, key="btn_heatmap")
+            analyze_button = st.button("📊 Analyze", type="primary", width='stretch', key="btn_heatmap")
 
 
 
@@ -1414,7 +1329,7 @@ def show_forecast_tracker_tab():
 
         hide_index=True,
 
-        use_container_width=True,
+        width='stretch',
 
         key="forecast_editor"
 
@@ -1602,7 +1517,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 fig_heatmap.update_layout(height=500)
 
-                st.plotly_chart(fig_heatmap, key="heatmap_chart", use_container_width=False, width="stretch")
+                st.plotly_chart(fig_heatmap, key="heatmap_chart", width=False, width="stretch")
 
             else:
 
@@ -1656,7 +1571,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 )
 
-                st.plotly_chart(fig_win, use_container_width=False, width="stretch")
+                st.plotly_chart(fig_win, width="stretch")
 
                 
 
@@ -1690,7 +1605,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 )
 
-                st.plotly_chart(fig_seasonality, use_container_width=False, width="stretch")
+                st.plotly_chart(fig_seasonality, width="stretch")
 
             
 
@@ -1904,7 +1819,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                  )
 
-                 st.plotly_chart(fig_forecast, use_container_width=False, width="stretch")
+                 st.plotly_chart(fig_forecast, width="stretch")
 
                  
 
@@ -2216,7 +2131,7 @@ def render_upload_section(max_parallel: int):
 
             num_rows="dynamic",
 
-            use_container_width=True,
+            width='stretch',
 
             column_config={
 
@@ -2366,7 +2281,7 @@ def render_upload_section(max_parallel: int):
         col_btn_1, col_btn_2 = st.columns(2, gap="medium")
 
         with col_btn_1:
-             if st.button("🚀 Analyze Portfolio", type="primary", use_container_width=True):
+             if st.button("🚀 Analyze Portfolio", type="primary", width=True):
                  # Check rate limit
                  allowed, message = st.session_state.portfolio_limiter.is_allowed()
                  if not allowed:
@@ -2377,7 +2292,7 @@ def render_upload_section(max_parallel: int):
                      st.error("Please create or upload a portfolio first.")
         
         with col_btn_2:
-             if st.button("🕵️ Check Shadow Scores", use_container_width=True, help="Scan for Institutional Accumulation (Silent Buying)"):
+             if st.button("🕵️ Check Shadow Scores", width='stretch', help="Scan for Institutional Accumulation (Silent Buying)"):
                  if df is not None and not df.empty:
                      with st.spinner("Scanning Portfolio for Silent Accumulation..."):
                          from rover_tools.shadow_tools import detect_silent_accumulation
@@ -2411,7 +2326,7 @@ def render_upload_section(max_parallel: int):
                             st.success("✅ Shadow Analysis Complete!")
                             st.dataframe(
                                 shadow_df.style.background_gradient(subset=['Shadow Score'], cmap='RdYlGn', vmin=0, vmax=100),
-                                use_container_width=True,
+                                width='stretch',
                                 column_config={
                                     "Shadow Score": st.column_config.ProgressColumn("Accumulation Score", min_value=0, max_value=100, format="%d"),
                                 }
@@ -2918,7 +2833,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 fig_sentiment = visualizer.create_sentiment_pie_chart(sentiment_data)
 
-                st.plotly_chart(fig_sentiment, use_container_width=False, width="stretch")
+                st.plotly_chart(fig_sentiment, width="stretch")
 
         
 
@@ -3629,7 +3544,7 @@ def show_shadow_tracker_tab():
                     # Stylized Radar/Table
                     st.dataframe(
                         sector_df.style.background_gradient(subset=['Momentum Score'], cmap='Greens'),
-                        use_container_width=True,
+                        width='stretch',
                         column_config={
                             "Rank": st.column_config.NumberColumn("Rank", format="#%d"),
                             "Momentum Score": st.column_config.ProgressColumn("Relative Strength", min_value=0, max_value=10, format="%.1f")
@@ -3671,7 +3586,7 @@ def show_shadow_tracker_tab():
         col_acc_btn, _ = st.columns([1, 2])
         with col_acc_btn:
              st.write("")
-             acc_btn = st.button("🕵️ Detect Accumulation", type="primary", use_container_width=True)
+             acc_btn = st.button("🕵️ Detect Accumulation", type="primary", width='stretch')
              
         if acc_btn:
             with st.spinner(f"Forensic analysis of {acc_ticker}..."):

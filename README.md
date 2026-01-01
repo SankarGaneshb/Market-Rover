@@ -12,23 +12,23 @@
 
 ## ✨ Features at a Glance
 
-Market-Rover is an AI-powered platform with **5 powerful tools** in one app:
+Market-Rover is an AI-powered platform with a **comprehensive suite of intelligence tools**:
 
 | Feature | Description | Tech Highlights |
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
-| **📈 Market Snapshot** | High-fidelity technical dashboards | Plotly, PNG export |
-| **🔥 Monthly Heatmap** | 2026 AI forecast with Win-Rate % & Seasonality | 1.5x IQR Filter, Centered Color Scale |
-| **📊 Benchmark Analysis** | Deep-dives into Nifty, Sensex, and Bank Nifty | Shared Analysis Pipe, st.pills |
-| **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity, Anomaly Detection |
-| **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data, FII Sentiment |
+| **📈 Market Visualizer** | High-fidelity dashboards & Monthly Heatmaps | Plotly, PNG export, IQR Filtering |
+| **🔍 Market Analysis** | Benchmark Deep-dives (Nifty, Sensex, Bank Nifty) | Shared Analysis Pipe, st.pills |
+| **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity |
+| **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 
 ---
 
 ## 🚀 All Features
 
-### **📤 Portfolio Analysis **
+### **📤 Portfolio Analysis**
+*(Sidebar Menu: Portfolio Analysis)*
 
 Upload your portfolio and get comprehensive AI-powered insights:
 

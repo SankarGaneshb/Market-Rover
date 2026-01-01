@@ -212,7 +212,18 @@ def get_trap_indicator():
              return {"status": "Unknown", "fii_long_pct": 50, "message": "Data Unavailable"}
              
         # Normalize columns (Date, Instrument Type, ... Number of Contracts Buy, Number of Contracts Sell)
+        df = df.reset_index() # Ensure Date is available as column if it became index
         # We need 'Index Futures' row for the latest date
+        if 'Date' not in df.columns:
+             # Try finding a column that looks like date or lowercase
+             for c in df.columns:
+                 if 'date' in c.lower():
+                     df.rename(columns={c: 'Date'}, inplace=True)
+                     break
+        
+        if 'Date' not in df.columns:
+             return {"status": "Unknown", "fii_long_pct": 50, "message": "Date column missing in FII data"}
+
         latest_date = df['Date'].iloc[-1]
         day_data = df[df['Date'] == latest_date]
         
