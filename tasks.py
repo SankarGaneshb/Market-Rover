@@ -28,13 +28,14 @@ def create_market_strategy_task(agent, context):
             1. **MACRO SCAN (High Speed)**:
                - Use `get_global_cues` to check Crude, Gold, Nasdaq, and USD/INR.
                - Use `scrape_general_market_news` to find top business headlines (Strikes, Budget, Policy).
-               - Use `search_market_news` to investigate specific potential risks (e.g., "Impact of recent fog on airlines").
+               - Use `search_market_news` to investigate specific potential risks.
             
             2. **OFFICIAL DATA CHECK**:
-               - For each portfolio stock, use `get_corporate_actions` to check for Board Meetings, Results, or Dividends.
+               - Use `get_corporate_actions` to check for Board Meetings, Results, or Dividends.
             
-            3. **MICRO NEWS SCRAPING**:
-               - Use `scrape_stock_news` for each portfolio stock to catch specific media coverage.
+            3. **MICRO NEWS SCRAPING (BATCH MODE)**:
+               - Use `Batch News Scraper` to get news for ALL portfolio stocks in ONE GO.
+               - Do NOT iterate one by one. Input the comma-separated list of tickers.
             
             **Synthesis**:
             Combine these layers. Example: "Asian Paints (Micro) is falling because Crude is up (Global), despite good results (Official)."
@@ -75,7 +76,10 @@ def create_technical_analysis_task(agent, context):
             - Support/Resistance Levels
             - Relative Strength vs Nifty
             
-            Do not focus on news (Agent B does that). Focus on the Chart.
+            **INSTRUCTION**:
+            - Use `Batch Stock Data Fetcher` to get price data for ALL portfolio stocks at once.
+            - Do NOT call get_stock_data iteratively.
+            - Do not focus on news (Agent B does that). Focus on the Chart.
         """),
         agent=agent,
         context=context, # Depends on Portfolio
@@ -97,9 +101,14 @@ def create_shadow_analysis_task(agent, context):
             - Technical Report (Is support holding?)
             
             **Your Mission**:
+            **Your Mission**:
             1. **Detect Silent Accumulation**: If Sentiment is Fear/Negative but Price is at Support & Block Deals are happening -> CALL IT OUT.
             2. **Detect Bull Traps**: If Sentiment is Euphoria but Price is hitting Resistance -> CALL IT OUT.
             3. **Check Trap Indicators**: Use your tools to see if Retail is trapped.
+            
+            **INSTRUCTION**:
+            - Use `Batch Shadow Scan` to analyze ALL stocks in the portfolio in one step.
+            - Do NOT iterate one by one. Use the comma-separated list.
             
             Generate a 'Contrarian Signal' for each stock.
         """),

@@ -41,7 +41,7 @@ class MarketRoverCrew:
             tasks=self.tasks,
             process=Process.sequential,  # Tasks still execute in order, but stock processing is parallel
             verbose=True,
-            max_rpm=10,  # Rate limiting for API calls
+            max_rpm=20,  # Rate limiting for API calls
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
         )
     
