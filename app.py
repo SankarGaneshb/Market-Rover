@@ -191,42 +191,19 @@ def main():
         st.header("🚀 About")
         st.markdown("""
         **AI Stock Intelligence**        
-        **Your personal quant researcher.**
-        
-        **📤 Portfolio Analysis**  
-        Upload & analyze via sidebar
-        
-        **📈 Market Visualizer**  
-        Charts, Snapshots & Heatmaps
-        
-        **🔍 Benchmark Analysis**
-        Deep-dive into Nifty/Sensex
-        
-        **🎯 Forecast Tracker**
-        Track AI predictions
-        
-        **🕵️ Shadow Tracker**
-        Follow institutional money
-        """)
-        
+        Your personal quant researcher.
+        """)        
         st.markdown("---")
-        
-        # NAVIGATION
-        st.header("📍 Navigation")
-        
+        st.header("📍 Navigation") # NAVIGATION        
         nav_options = [
-            "📤 Portfolio Analysis", 
-            "📈 Market Visualizer", 
-            "🔍 Market Analysis", 
-            "🎯 Forecast Tracker", 
-            "🕵️ Shadow Tracker", 
-
-        ]
-        
-        selection = st.radio("Go to:", nav_options, label_visibility="collapsed")
-        
-        st.markdown("---")
-        
+            "📤 Portfolio Analysis - Upload & analyze via sidebar", 
+            "📈 Market Visualizer - Charts, Snapshots & Heatmaps", 
+            "🔍 Market Analysis - Deep-dive into Nifty/Sensex", 
+            "🎯 Forecast Tracker - Track AI predictions", 
+            "🕵️ Shadow Tracker - Follow institutional money", 
+        ]        
+        selection = st.radio("Go to:", nav_options, label_visibility="collapsed")        
+        st.markdown("---")        
         st.markdown("### ⚙️ Settings")
         max_parallel = st.slider(
             "Concurrent Stocks",
@@ -234,8 +211,7 @@ def main():
             max_value=10,
             value=5,
             help="Number of stocks to analyze simultaneously"
-        )
-        
+        )        
         # Test mode toggle (compact)
         test_mode = st.checkbox(
             "🧪 Test Mode",
@@ -243,16 +219,12 @@ def main():
             help="Use mock data without API calls"
         )
         st.session_state.test_mode = test_mode
-
-        
         if test_mode:
             st.info("🧪 Test mode enabled - using mock data")
-        
         # Observability metrics
         st.markdown("---")
         with st.expander("📊 Observability", expanded=False):
             st.markdown("### Real-Time Metrics")
-            
             # API Usage
             api_usage = get_api_usage()
             col1, col2 = st.columns(2)
@@ -260,13 +232,10 @@ def main():
                 st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
             with col2:
                 st.metric("Remaining", api_usage['remaining'])
-            
             # Progress bar for API quota
             quota_pct = api_usage['today'] / api_usage['limit']
             st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
-            
             st.markdown("---")
-            
             # Performance Stats
             perf_stats = get_performance_stats()
             if perf_stats['total_analyses'] > 0:
@@ -316,19 +285,19 @@ def main():
     
     # Main content area - Render based on selection
     
-    if selection == "📤 Portfolio Analysis":
+    if selection.startswith("📤 Portfolio Analysis"):
         show_portfolio_analysis_tab(max_parallel)
     
-    elif selection == "📈 Market Visualizer":
+    elif selection.startswith("📈 Market Visualizer"):
         show_visualizer_tab()
 
-    elif selection == "🔍 Market Analysis":
+    elif selection.startswith("🔍 Market Analysis"):
         show_market_analysis_tab()
 
-    elif selection == "🎯 Forecast Tracker":
+    elif selection.startswith("🎯 Forecast Tracker"):
         show_forecast_tracker_tab()
     
-    elif selection == "🕵️ Shadow Tracker":
+    elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
 
 
