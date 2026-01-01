@@ -1517,7 +1517,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                 fig_heatmap.update_layout(height=500)
 
-                st.plotly_chart(fig_heatmap, key="heatmap_chart", width=False, width="stretch")
+                st.plotly_chart(fig_heatmap, key="heatmap_chart", width="stretch")
 
             else:
 
@@ -2281,7 +2281,7 @@ def render_upload_section(max_parallel: int):
         col_btn_1, col_btn_2 = st.columns(2, gap="medium")
 
         with col_btn_1:
-             if st.button("🚀 Analyze Portfolio", type="primary", width=True):
+             if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
                  # Check rate limit
                  allowed, message = st.session_state.portfolio_limiter.is_allowed()
                  if not allowed:
