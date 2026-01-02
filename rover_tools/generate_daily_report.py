@@ -3,6 +3,12 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 import os
+import sys
+
+# Ensure root is in path to import rover_tools
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from rover_tools.shadow_tools import analyze_sector_flow
 
 def generate_report():
     """
@@ -58,6 +64,24 @@ def generate_report():
         except Exception as e:
             print(f"Error fetching {name}: {e}")
             markdown_content += f"| {name} | Error | Error | Error |\n"
+
+    # --- Sector Rotation Section ---
+    markdown_content += "\n## 🕸️ The Spider Web (Sector Rotation)\n"
+    markdown_content += "Relative strength of major sectors to detect capital flow.\n\n"
+    
+    try:
+        sector_df = analyze_sector_flow()
+        if not sector_df.empty:
+            markdown_content += "| Rank | Sector | Momentum Score | 1W % | 1M % |\n"
+            markdown_content += "|------|--------|----------------|------|------|\n"
+            
+            # Show top 5
+            for _, row in sector_df.head(5).iterrows():
+                markdown_content += f"| {row['Rank']} | {row['Sector']} | {row['Momentum Score']:.2f} | {row['1W %']}% | {row['1M %']}% |\n"
+        else:
+            markdown_content += "Sector data unavailable.\n"
+    except Exception as e:
+        markdown_content += f"Error performing sector analysis: {e}\n"
 
     markdown_content += "\n## 💡 Key Insights\n"
     markdown_content += f"- **Market Trend**: Short-term trend appears **{trend_signal}** based on Nifty 50 performance.\n"
