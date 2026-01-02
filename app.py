@@ -775,7 +775,7 @@ def render_analytics_section():
 
 def show_visualizer_tab():
 
-    """Show the Market Visualizer tab (V3.0) - Generates comprehensive market snapshot image"""
+    """Show the Market Visualizer tab - Generates comprehensive market snapshot image"""
 
     st.header("📈 Market Visualizer")
 

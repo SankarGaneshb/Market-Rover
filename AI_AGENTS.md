@@ -90,4 +90,73 @@ The agents operate in a sequential pipeline designed to mimic a hedge fund's dec
 *   **Key Responsibilities:**
     *   Creates visual market snapshots (Charts).
     *   Visualizes Volatility and Option Chains.
-*   **Tools:** `generate_market_snapshot`
+
+---
+
+## 📜 Global Agent Rules (The "Constitution")
+
+The following rules apply to **ALL** agents in the workspace. These are non-negotiable best practices derived from past deployment issues and performance audits.
+
+### 1. The Batch Imperative (Performance)
+*   **Rule:** **NEVER** iterate through a list of stocks one by one.
+*   **Reason:** Sequential LLM calls are too slow (30s+ per stock).
+*   **Implementation:** Always use Batch Tools (e.g., `batch_scrape_news`, `batch_get_stock_data`).
+    *   ❌ Incorrect: Loop `get_stock_data(ticker)`
+    *   ✅ Correct: Call `batch_get_stock_data([list_of_tickers])`
+
+### 2. The Low-Latency Directive (Efficiency)
+*   **Rule:** Agents have a strict `max_iter` limit (usually 3-5).
+*   **Reason:** Prevents infinite reasoning loops that burn tokens and delay response.
+*   **Implementation:**
+    *   Strategist/Context Agents: `max_iter=3`
+    *   Shadow Analyst: `max_iter=5`
+    *   **Do not loop** looking for "better" news. Synthesize what you find in step 1.
+
+### 3. The Ironclad Security Rule
+*   **Rule:** **NEVER** output or log API keys or raw user session data.
+*   **Reason:** Security compliance.
+*   **Implementation:**
+    *   Sanitize all LLM inputs.
+    *   Ensure `.env` acts as the only source of secrets.
+
+### 4. The Resilience Protocol (Error Handling)
+*   **Rule:** Agents must **fail gracefully**, not crash.
+*   **Reason:** Real market data is messy (e.g., missing Option Chains).
+*   **Implementation:**
+    *   If `Option Chain` is empty -> Fallback to `Historical Volatility`.
+    *   If `News` is empty -> Fallback to `Price Action` and note "No recent news".
+    *   **NEVER** return a raw exception trace to the user.
+
+### 5. The Production Path Rule (Deployment)
+*   **Rule:** Verify all imports work in the production environment (Python 3.13).
+*   **Reason:** Local paths often differ from Cloud paths (`ModuleNotFoundError`).
+*   **Implementation:**
+    *   Use absolute imports from root (e.g., `from rover_tools.batch_tools` not `from ..tools`).
+    *   Run `python -m py_compile *.py` before pushing.
+
+### 6. The "No Versioning" Rule
+*   **Rule:** Do not hardcode versions like "V2.0" or "V3.0" in the UI or docs.
+*   **Reason:** It creates confusion (e.g., Title says 2.0, Tab says 4.0).
+*   **Implementation:** Refer to features by name (e.g., "Monthly Heatmap", "Market Visualizer").
+
+### 7. The Regular Audit Rule (Maintenance)
+*   **Rule:** Conduct a full system audit **Monthly** using `FINAL_AUDIT_CHECKLIST.md`.
+*   **Reason:** Prevents "bit rot" and ensures security compliance.
+*   **Implementation:** check for outdated deps, deprecated API usage, and security gaps (secrets exposure).
+
+---
+
+## 📋 Task Mappings (Defined in `tasks.py`)
+Understanding which Agent executes which Task is crucial.
+
+| Agent | Task Name | Function Source | Goal |
+| :--- | :--- | :--- | :--- |
+| **Portfolio Manager** | Task 1: Portfolio Retrieval | `create_portfolio_retrieval_task` | Read & validate user portfolio CSV |
+| **Strategist** | Task 2: Market Strategy | `create_market_strategy_task` | Run Hybrid Funnel (Macro -> Official -> Micro) |
+| **Sentiment Analyzer** | Task 3: Sentiment Analysis | `create_sentiment_analysis_task` | Classify market emotion (Fear/Greed) |
+| **Market Context** | Task 4: Technical Analysis | `create_technical_analysis_task` | Analyze Price Action & Trends (No News) |
+| **Shadow Analyst** | Task 5: Shadow Analysis | `create_shadow_analysis_task` | **Synergy Task**: Compare Sentiment vs Price vs Flow |
+| **Report Generator** | Task 6: Report Generation | `create_report_generation_task` | Synthesize Master Intelligence Report |
+| **Visualizer** | Snapshot Task | `create_market_snapshot_task` | Generate single-stock visual dashboard |
+
+
