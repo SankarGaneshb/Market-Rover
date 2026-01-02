@@ -54,6 +54,10 @@ class AuthManager:
                 cookie['key'],
                 cookie['expiry_days']
             )
+        except KeyError as e:
+            st.error(f"⚠️ Configuration Error: Missing key {e} in secrets.")
+            st.info("💡 **Tip:** If you just added `secrets.toml`, please **Stop** and **Restart** the terminal server (`Ctrl+C` then `streamlit run app.py`).")
+            return None
         except Exception as e:
             st.error(f"Authentication setup failed: {e}")
             return None
