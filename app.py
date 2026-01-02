@@ -140,7 +140,7 @@ if 'portfolio_limiter' not in st.session_state:
 
 
 
-# Import Authentication Manager
+# Import Authentication Manager (Reload Triggered)
 from utils.auth import AuthManager
 
 def main():

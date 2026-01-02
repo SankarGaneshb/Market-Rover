@@ -75,7 +75,9 @@ class AuthManager:
         # Check authentication status
         # login() returns tuple but also sets session state
         try:
-            name, authentication_status, username = self.authenticator.login('Login', 'main')
+            # Updated for streamlit-authenticator 0.4.x: login(location='main')
+            # 'fields' argument can be used to customize input labels if needed
+            name, authentication_status, username = self.authenticator.login(location='main')
         except Exception as e:
             st.error(f"Login widget error: {e}")
             return False
@@ -94,5 +96,6 @@ class AuthManager:
     def logout_widget(self):
         """Display logout button in sidebar."""
         if st.session_state.get("authentication_status"):
-            self.authenticator.logout('Logout', 'sidebar')
+            # Updated for streamlit-authenticator 0.4.x: logout(location='sidebar')
+            self.authenticator.logout(location='sidebar')
             st.sidebar.write(f"Welcome *{st.session_state.get('name')}*")
