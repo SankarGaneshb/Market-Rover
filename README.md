@@ -5,6 +5,7 @@
 ![Security](https://img.shields.io/badge/Security-80%2F100-green)
 ![Cost](https://img.shields.io/badge/Cost-$0%2Fmonth-success)
 ![Status](https://img.shields.io/badge/Status-Production-brightgreen)
+![Process Efficiency](https://img.shields.io/badge/Process%20Efficiency-82.6%25-blue)
 
 🌐 **Live App:** https://market-rover.streamlit.app/
 
@@ -103,6 +104,14 @@ Monitor your predictions against real market movement:
 - ✅ **Entry vs. Current** - Automatic calculation of % gains/losses
 - ✅ **Portfolio Metrics** - Instant average performance across all saved forecasts
 - ✅ **🗑️ Deletion Capability** - Clean up old or inaccurate forecasts through an interactive editor
+
+### **⚙️ System Health (New)**
+
+Monitor the efficiency of the development cycle itself:
+
+- ✅ **Cycle Time Tracking** - Measure how long features take to build.
+- ✅ **Exception Audit** - Track every "Emergency Override" or broken rule.
+- ✅ **Stability Score** - Dynamic score based on protocol adherence.
 
 **Security:** Input sanitization, rate limiting (20 req/min), persistent session state.
 

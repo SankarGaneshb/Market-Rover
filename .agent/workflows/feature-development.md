@@ -6,7 +6,11 @@ description: Standard workflow for implementing new features in Market-Rover
 
 Follow this workflow for every new feature request to ensure consistency and quality.
 
-1.  **Strategic Planning & Impact Analysis**
+1.  **⏱️ Start Timer**
+    - [ ] Run: `python -m utils.tracking start feature-development`
+    - [ ] Save the Session ID for the end.
+
+2.  **Strategic Planning & Impact Analysis**
     - [ ] **Necessity Check**:
         - "Does this feature solve a generic problem or a specific user need?"
         - Verify it fits the "Market-Rover" core mission (Stock Intelligence).
@@ -16,11 +20,11 @@ Follow this workflow for every new feature request to ensure consistency and qua
         - "Where should this live?" (New tab? Sidebar? Popover?)
         - Ensure it doesn't clutter the UI or degrade performance.
     - [ ] **Flexibility Protocol (Trade-off Check)**:
-        - *Question*: "Does this feature require breaking any established constraint (e.g., using a non-standard library or loop for precision)?"
-        - *Action*: If YES, you must explicitly **Notify User** with the trade-off (e.g., "This will be slower but 100% accurate").
-        - *Rule*: You cannot proceed with a rule violation without explicit User Confirmation.
+        - *Question*: "Does this feature require breaking any established constraint?"
+        - *Action*: If YES, you must explicitly **Notify User** with the trade-off.
+        - *Metric*: If approved, Run: `python -m utils.tracking event flexibility_protocol "Reason for override"`
 
-2.  **Implementation Phase**
+3.  **Implementation Phase**
     - [ ] **Initialize**: Create/Update `task.md` and `implementation_plan.md`.
     - [ ] **Mode Check**: Ensure you are in `EXECUTION` mode in `task_boundary`.
     - [ ] **Coding**: Implement the changes.
@@ -28,15 +32,14 @@ Follow this workflow for every new feature request to ensure consistency and qua
         - *Data Rule*: Use `pandas` for data manipulation, avoid raw loops.
     - [ ] **Refine**: If `app.py` gets too large, refactor into `utils/` or `rover_tools/`.
 
-3.  **Verification Phase**
+4.  **Verification Phase**
     - [ ] **Mode Check**: Switch to `VERIFICATION` mode.
     - [ ] **Integration Test**: ensure the new feature works *with* existing features, not just in isolation.
     - [ ] **Lint/Compile**: Run `python -m py_compile [modified_files]` to check for syntax errors before pushing.
 
-4.  **Documentation Phase**
-    - [ ] **Update README**: Update the "Features" table or "Tech Stack" in `README.md` if new tools/capabilities were added.
-    - [ ] **Update Agent Docs**: If agents changed, standard `agent-modification` workflow triggers here.
-
 5.  **Completion**
     - [ ] Update `task.md` to [x].
     - [ ] Notify User with a clear summary of what was done and what needs their review.
+
+6.  **🏁 Stop Timer**
+    - [ ] Run: `python -m utils.tracking stop [SESSION_ID] success`

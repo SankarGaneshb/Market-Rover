@@ -6,38 +6,38 @@ description: Workflow for modifying or adding AI Agents and Tasks
 
 **CRITICAL**: `AI_AGENTS.md` is the Single Source of Truth. Code and Docs must match perfectly.
 
-1.  **Strategic Impact Analysis (New & Critical)**
-    - [ ] **Role Clarity Check**:
-        - Open `AI_AGENTS.md` and review the "Agent Roster".
-        - Ask: "Does this change blur the lines between agents?"
-    - [ ] **Synergy Check**:
-        - How does this agent's output feed the *next* agent?
-    - [ ] **Duplication Audit**:
-        - Verify no other agent is already fetching/processing this specific data point.
+1.  **⏱️ Start Timer**
+    - [ ] Run: `python -m utils.tracking start agent-modification`
+    - [ ] Save the Session ID for the end.
 
-2.  **Pre-Code Compliance & Flexibility**
+2.  **Strategic Impact Analysis**
+    - [ ] **Role Clarity Check**: Ask: "Does this change blur the lines between agents?"
+    - [ ] **Synergy Check**: Ensure the data flow is additive.
+    - [ ] **Duplication Audit**: Verify no other agent is already fetching this data.
+
+3.  **Pre-Code Compliance & Flexibility**
     - [ ] **Rule Check**: Read `AI_AGENTS.md` "Global Agent Rules" section.
     - [ ] **Exception Protocol**:
-        - *Scenario*: If a rule (like "No Loops") MUST be broken for a valid reason (e.g., API strict rate limits requiring sequential calls).
-        - *Action*: You must propose a **Trade-off Decision** to the user.
-        - *Format*: "I need to break Rule X because of Y. The cost is Z (e.g. slower). Do you approve?"
-        - *Constraint*: Do not proceed until approved.
+        - *Scenario*: If a rule (like "No Loops") MUST be broken.
+        - *Action*: Propose Trade-off > Get Approval.
+        - *Metric*: If approved, Run: `python -m utils.tracking event flexibility_protocol "Reason for sequential loop"`
 
-3.  **Implementation**
+4.  **Implementation**
     - [ ] Modify `agents.py` (Define Agent).
     - [ ] Modify `tasks.py` (Define Task).
     - [ ] Modify `crew.py` (Register Agent/Task).
-    - [ ] **Constraint**: Ensure `max_iter` is set correctly (3-5) as per "Low-Latency Directive".
+    - [ ] **Constraint**: Ensure `max_iter` is set correctly (3-5).
 
-4.  **Documentation Synchronization (Mandatory)**
+5.  **Documentation Synchronization (Mandatory)**
     - [ ] **Update `AI_AGENTS.md`**:
         - [ ] Add/Update the Agent in "Agent Roster".
         - [ ] Update "Task Mappings" table.
-        - [ ] **Document Exceptions**: If an exception was approved, note it as a "Special Exception" in the docs so it's not flagged as a bug later.
+        - [ ] **Document Exceptions**: Note any approved exceptions.
 
-5.  **Verification**
-    - [ ] **Import Check**: Run `python -m py_compile agents.py tasks.py` to ensure imports are valid.
-    - [ ] **Flow Check**: Ensure data flows logically from Previous Task -> This Task -> Next Task.
+6.  **Verification**
+    - [ ] **Import Check**: Run `python -m py_compile agents.py tasks.py`.
+    - [ ] **Flow Check**: Ensure data flows logically.
+    - [ ] **Final Polish**: Commit message should reference "Agents Update".
 
-6.  **Final Polish**
-    - [ ] Commit message should reference "Agents Update".
+7.  **🏁 Stop Timer**
+    - [ ] Run: `python -m utils.tracking stop [SESSION_ID] success`

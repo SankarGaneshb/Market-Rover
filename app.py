@@ -71,6 +71,10 @@ from utils.forecast_tracker import get_forecast_history
 
 
 
+from utils.forecast_tracker import get_forecast_history
+
+from tabs.system_health import show_system_health_tab
+
 import yfinance as yf
 
 
@@ -201,6 +205,7 @@ def main():
             "🔍 Market Analysis - Deep-dive into Nifty/Sensex", 
             "🎯 Forecast Tracker - Track AI predictions", 
             "🕵️ Shadow Tracker - Follow institutional money", 
+            "⚙️ System Health - Process Metrics & Status",
         ]        
         selection = st.radio("Go to:", nav_options, label_visibility="collapsed")        
         st.markdown("---")        
@@ -299,6 +304,9 @@ def main():
     
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
+
+    elif selection.startswith("⚙️ System Health"):
+        show_system_health_tab()
 
 
 

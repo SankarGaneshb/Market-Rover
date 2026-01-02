@@ -241,3 +241,67 @@ def get_cache_stats() -> Dict[str, any]:
 def get_error_stats() -> Dict[str, any]:
     """Get error stats"""
     return metrics_tracker.get_error_stats()
+
+
+# --- Workflow Tracking Extensions ---
+
+import uuid
+
+def track_workflow_event(event_type: str, description: str, context: Dict[str, Any] = None):
+    """
+    Log a distinct workflow event (e.g., 'consistency_check_failed', 'emergency_override').
+    This is for point-in-time events that don't necessarily have a duration.
+    """
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "type": "event",
+        "event_name": event_type,
+        "description": description,
+        "context": context or {}
+    }
+    _append_to_workflow_log(rec)
+
+def track_workflow_start(workflow_name: str) -> str:
+    """
+    Start a timer for a workflow (e.g., 'feature-development').
+    Returns a session_id.
+    """
+    session_id = str(uuid.uuid4())
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "type": "start",
+        "session_id": session_id,
+        "workflow": workflow_name
+    }
+    _append_to_workflow_log(rec)
+    return session_id
+
+def track_workflow_end(session_id: str, status: str = "success", metadata: Dict[str, Any] = None):
+    """
+    End a workflow timer.
+    """
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "type": "end",
+        "session_id": session_id,
+        "status": status,
+        "metadata": metadata or {}
+    }
+    _append_to_workflow_log(rec)
+
+def _append_to_workflow_log(record: Dict[str, Any]):
+    """Internal helper to append to metrics/workflow_events.jsonl"""
+    today = datetime.now(timezone.utc).date().isoformat()
+    # Ensure directory exists just in case
+    METRICS_DIR.mkdir(exist_ok=True)
+    
+    log_file = METRICS_DIR / "workflow_events.jsonl" # Single file for easier parsing, or use daily if high volume
+    
+    # Let's use daily rotation to be safe like errors
+    log_file = METRICS_DIR / f"workflow_events_{today}.jsonl"
+    
+    try:
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
+        pass
