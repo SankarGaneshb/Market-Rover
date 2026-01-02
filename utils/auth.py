@@ -75,9 +75,23 @@ class AuthManager:
         # Check authentication status
         # login() returns tuple but also sets session state
         try:
-            # Updated for streamlit-authenticator 0.4.x: login(location='main')
-            # 'fields' argument can be used to customize input labels if needed
-            name, authentication_status, username = self.authenticator.login(location='main')
+            # Updated to handle None return value (when widget is first rendered)
+            result = self.authenticator.login(location='main')
+            
+            # DEBUG
+            # print(f"DEBUG AUTH: Result Type: {type(result)}")
+            # print(f"DEBUG AUTH: Session Status: {st.session_state.get('authentication_status')}")
+
+            if result is None:
+                # Fallback: Check if session state is already set (important for reruns)
+                if st.session_state.get('authentication_status'):
+                     # If we are already authenticated in session, return true even if widget returns None
+                     return True
+                return False
+                
+            name, authentication_status, username = result
+
+            
         except Exception as e:
             st.error(f"Login widget error: {e}")
             return False
