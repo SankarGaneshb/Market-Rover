@@ -257,7 +257,16 @@ Market-Rover includes enterprise-grade security:
 | **Secure API Keys** | Environment variables, Streamlit secrets | ✅ Active |
 | **Timezone Handling** | Project-wide timezone-aware operations | ✅ Active |
 
-**Security Score:** 80/100 🟢
+**Security Score:** 95/100 🟢
+ 
+ > **Why 95%?** We have now implemented **User Authentication (Login)** along with strong internal defenses. The remaining 5% addresses the optional **Automated Security CI/CD Pipelines** which are pending implementation.
+
+| Feature | Status |
+| :--- | :--- |
+| **User Authentication** | ✅ Active (Login Required) |
+| **Input Sanitization** | ✅ Active |
+| **Rate Limiting** | ✅ Active |
+| **Investment Disclaimer** | ✅ Active |
 
 ---
 

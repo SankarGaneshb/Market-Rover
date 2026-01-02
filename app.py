@@ -139,8 +139,24 @@ if 'portfolio_limiter' not in st.session_state:
 
 
 
+
+# Import Authentication Manager
+from utils.auth import AuthManager
+
 def main():
     """Main application entry point"""
+    
+    # Initialize Authentication
+    auth_manager = AuthManager()
+    
+    # Check if user is authenticated
+    if not auth_manager.check_authentication():
+        # Stop execution if not authenticated 
+        # (check_authentication handles the login widget display)
+        st.stop()
+        
+    # Show logout button in sidebar
+    auth_manager.logout_widget()
     
     # CSS for Fixed Footer and Layout Adjustments
     st.markdown(

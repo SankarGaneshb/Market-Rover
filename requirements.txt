@@ -35,3 +35,7 @@ pillow>=10.2.0
 
 # Optional: PDF generation (can be commented out if causing issues)
 # reportlab>=4.0.0
+
+# Authentication
+streamlit-authenticator>=0.3.3
+PyYAML>=6.0
