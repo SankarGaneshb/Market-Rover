@@ -425,6 +425,7 @@ pip install lxml lxml_html_clean
 - `SECURITY_FIXES_SUMMARY.md` - Security implementation details
 - `SESSION_SUMMARY_DEC22.md` - Latest development session
 - `FINAL_AUDIT_CHECKLIST.md` - Comprehensive audit report
+- `AI_AGENTS.md` - Detailed Agentic AI Architecture & Roles
 
 ---
 

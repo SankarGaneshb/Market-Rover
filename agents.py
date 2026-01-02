@@ -1,5 +1,8 @@
 """
 Agent definitions for Market Rover system.
+
+.. note::
+    If you modify any agent roles or goals, please update `AI_AGENTS.md`.
 """
 from crewai import Agent, LLM
 from langchain_google_genai import ChatGoogleGenerativeAI
