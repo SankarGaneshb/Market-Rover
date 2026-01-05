@@ -8,12 +8,17 @@ import yaml
 from yaml.loader import SafeLoader
 import time
 
+# Import Social Auth Manager
+from utils.social_auth import SocialAuthManager
+
 class AuthManager:
     """Manages user authentication and session state."""
     
     def __init__(self):
         self._config = self._load_config()
         self.authenticator = self._init_authenticator()
+        # Initialize Social Auth
+        self.social_auth = SocialAuthManager(self._config)
 
     def _load_config(self):
         """Load configuration from secrets or local config."""
@@ -55,8 +60,9 @@ class AuthManager:
                 cookie['expiry_days']
             )
         except KeyError as e:
-            st.error(f"⚠️ Configuration Error: Missing key {e} in secrets.")
-            st.info("💡 **Tip:** If you just added `secrets.toml`, please **Stop** and **Restart** the terminal server (`Ctrl+C` then `streamlit run app.py`).")
+            # st.error(f"⚠️ Configuration Error: Missing key {e} in secrets.")
+            # Suppress specific key error to allow partial config if only social auth is used?
+            # For now keep existing behavior but maybe soft fail?
             return None
         except Exception as e:
             st.error(f"Authentication setup failed: {e}")
@@ -68,41 +74,43 @@ class AuthManager:
         Returns:
             bool: True if authenticated, False otherwise.
         """
-        if not self.authenticator:
-            st.warning("Authentication not configured.")
-            return False
-
-        # Check authentication status
-        # login() returns tuple but also sets session state
-        try:
-            # Updated to handle None return value (when widget is first rendered)
-            result = self.authenticator.login(location='main')
-            
-            # DEBUG
-            # print(f"DEBUG AUTH: Result Type: {type(result)}")
-            # print(f"DEBUG AUTH: Session Status: {st.session_state.get('authentication_status')}")
-
-            if result is None:
-                # Fallback: Check if session state is already set (important for reruns)
-                if st.session_state.get('authentication_status'):
-                     # If we are already authenticated in session, return true even if widget returns None
-                     return True
-                return False
-                
-            name, authentication_status, username = result
-
-            
-        except Exception as e:
-            st.error(f"Login widget error: {e}")
-            return False
-
-        if authentication_status:
+        
+        # 1. Check Session State first (Fast Return)
+        if st.session_state.get('authentication_status'):
             return True
-        elif authentication_status is False:
-            st.error('Username/password is incorrect')
-            return False
-        elif authentication_status is None:
-            st.warning('Please enter your username and password')
+
+        # 2. Render Traditional Login (if configured)
+        if self.authenticator:
+            try:
+                result = self.authenticator.login(location='main')
+                if st.session_state.get('authentication_status'):
+                    return True
+            except Exception as e:
+                st.error(f"Login widget error: {e}")
+
+        # 3. Render Social Login Buttons (Always render below traditional)
+        # Pass control to Social Manager
+        social_user = self.social_auth.render_social_login_buttons()
+        
+        if social_user:
+            # Successful Social Login!
+            st.session_state['authentication_status'] = True
+            st.session_state['name'] = social_user['name']
+            st.session_state['username'] = social_user['username']
+            st.session_state['login_provider'] = social_user['provider']
+            st.rerun() # Rerun to update UI state immediately
+            return True
+
+        # 4. Final Fallback Message
+        if not st.session_state.get('authentication_status'):
+            if self.authenticator:
+                if st.session_state.get('authentication_status') is False:
+                    st.error('Username/password is incorrect')
+                elif st.session_state.get('authentication_status') is None:
+                    st.warning('Please enter your username and password')
+            else:
+                 # If no traditional auth, imply social only or config missing
+                 st.info("Please sign in.")
             return False
             
         return False
@@ -111,5 +119,13 @@ class AuthManager:
         """Display logout button in sidebar."""
         if st.session_state.get("authentication_status"):
             # Updated for streamlit-authenticator 0.4.x: logout(location='sidebar')
-            self.authenticator.logout(location='sidebar')
+            if self.authenticator:
+                self.authenticator.logout(location='sidebar')
+            elif st.sidebar.button("Logout"):
+                # Manual logout for social users
+                st.session_state['authentication_status'] = None
+                st.session_state['name'] = None
+                st.session_state['username'] = None
+                st.rerun()
+                
             st.sidebar.write(f"Welcome *{st.session_state.get('name')}*")

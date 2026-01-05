@@ -1,7 +1,5 @@
-Symbol,Company Name,Quantity,Average Price
-ABFRL,Adithya Birla Fashion Retail Limited,30,81.89
-ATHERENERG,Ather Energy,3,697.9
-DEVYANI,Devyani International Limited,25,152.72
-NTPCGREEN,NTPC Green Limited,20,101.55
-PGINVIT,Power Grid Investment Infrastructure Trust,55,95.16
-TMB,Tamilnad Mercentile Bank Limited,400,501.0
+Symbol,Asset Class,Weight (%),Quantity,Average Price
+RELIANCE.NS,Equity_LargeCap,12.5,12500,1000
+TCS.NS,Equity_LargeCap,12.5,12500,1000
+LIQUIDBEES.NS,Safety_Liquid,50.0,50000,1000
+GOLDBEES.NS,Safety_Gold,25.0,25000,1000

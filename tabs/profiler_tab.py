@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from rover_tools.analytics.investor_profiler import InvestorProfiler, InvestorPersona
+from utils.user_manager import UserProfileManager
 
 def show_profiler_tab():
     st.header("👤 Investor Profiler")
@@ -61,6 +62,12 @@ def show_profiler_tab():
                 
                 persona = profiler.get_profile(s1, s2, s3)
                 st.session_state.persona = persona
+                
+                # Update Profile Timestamp
+                upm = UserProfileManager()
+                current_user = st.session_state.get('username', 'guest')
+                upm.update_profile_timestamp(current_user)
+                
                 st.rerun()
 
     # Result Section
@@ -117,7 +124,7 @@ def show_profiler_tab():
                 pf_name = st.text_input("Portfolio Name", value=f"My {p.value} Model")
                 if st.button("💾 Save Portfolio"):
                      from utils.portfolio_manager import PortfolioManager
-                     pm = PortfolioManager()
+                     pm = PortfolioManager(st.session_state.get('username'))
                      # Prepare dataframe for saving (needs Quantity, Average Price columns usually)
                      # For model, we assume a nominal investment amount, e.g. 10 Lakhs
                      save_df = edited_df.copy()

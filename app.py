@@ -146,7 +146,9 @@ if 'portfolio_limiter' not in st.session_state:
 
 
 # Import Authentication Manager (Reload Triggered)
+# Import Authentication Manager (Reload Triggered)
 from utils.auth import AuthManager
+from utils.user_manager import UserProfileManager
 
 def main():
     """Main application entry point"""
@@ -220,17 +222,142 @@ def main():
         """)        
         st.markdown("---")
         st.header("📍 Navigation") # NAVIGATION        
-        nav_options = [
-            "📤 Portfolio Analysis - Upload & analyze via sidebar", 
-            "📈 Market Visualizer - Charts, Snapshots & Heatmaps", 
-            "🔍 Market Analysis - Deep-dive into Nifty/Sensex", 
-            "🎯 Forecast Tracker - Track AI predictions", 
-            "🕵️ Shadow Tracker - Follow institutional money", 
-            "🛡️ Integrity Shield - Institutional Fraud Detection",
-            "👤 Investor Profile - Asset Allocation Engine",
-            "⚙️ System Health - Process Metrics & Status",
-        ]        
-        selection = st.radio("Go to:", nav_options, label_visibility="collapsed")        
+        
+        # Determine active selection based on profile status
+        # We need to initialize UserProfileManager here to check status before rendering navigation?
+        # Ideally, we check status, if bad, we force "Investor Profile"
+        
+        # But we need the selection widget to exist for streamlit flow.
+        # So we can effectively 'disable' others or just default to Profile if needed.
+        
+        user_profile_mgr = UserProfileManager()
+        # Assuming username is in session state from AuthManager (usually 'username')
+        # We might need to get it from st.session_state['username'] if set by auth
+        current_user = st.session_state.get('username', 'guest')
+        
+        profile_status = user_profile_mgr.get_profile_status(current_user)
+        force_profile = not profile_status['exists'] or profile_status['needs_update']
+        
+        # Define Sections
+        nav_dashboard = [
+            "📤 Portfolio Analysis",
+            "📈 Market Visualizer",
+            "🎯 Forecast Tracker",
+        ]
+        
+        nav_analysis = [
+            "🔍 Market Analysis", 
+            "🕵️ Shadow Tracker",
+            "🛡️ Integrity Shield",
+        ]
+        
+        nav_settings = [
+            "👤 Investor Profile",
+            "⚙️ System Health",
+        ]
+        
+        # If forcing profile, we can inform user
+        if force_profile:
+             st.warning("⚠️ Investor Profile Update Required")
+             st.caption("Please complete your profile to access full features.")
+             
+        # Use a single radio but visually group them? 
+        # Streamlit radio doesn't support groups natively easily without custom components.
+        # Alternative: Use a Selectbox with formatting or just keep list but sorted.
+        # Better: Use st.sidebar.radio with a formatted list, but that loses grouping headers.
+        # For this request "Better structured manner", let's use Expander or just Headers between options?
+        # We can't put headers inside a radio list.
+        # We will use a single radio for the state, but we can't easily split it into visual chunks without multiple radios (which complicates state).
+        # Let's stick to one main radio but reorder and maybe rename prefixes to be cleaner, 
+        # OR use a `selectbox` which looks cleaner for many options.
+        # The user requested "tabs I want some kind of flow... layout/menu in a better structured manner".
+        
+        # Let's try Sidebar Sections with separate radii? No, only one page active at a time.
+        # We will use "headers" approach by just rendering the radio, but maybe we can just re-order them logically.
+        # However, to explicitly "structure" it, let's use the standard "Sidebar with dividers" approach.
+        
+        # Let's use a SelectBox for specific "Apps" or stick to Radio but better ordered.
+        # Let's use Radio but rename keys to be clearer.
+        
+        # Actually, let's use the 'grouping' logic by just having a single list but logically ordered.
+        # And we use "force_profile" to override the `index` of the radio.
+        
+        # Complete Options List
+        all_options = [
+            "📤 Portfolio Analysis",
+            "📈 Market Visualizer",
+            "🎯 Forecast Tracker",
+            "---", # Separator (not clickable really, but visual?) No, bad UX.
+            "🔍 Market Analysis",
+            "🕵️ Shadow Tracker",
+            "🛡️ Integrity Shield",
+             "---",
+            "👤 Investor Profile",
+            "⚙️ System Health"
+        ]
+        
+        # Filter separators for actual selection
+        valid_options = [o for o in all_options if o != "---"]
+        
+        # Determine default index
+        default_index = 0
+        if force_profile:
+            # Find Investor Profile index
+            try:
+                default_index = valid_options.index("👤 Investor Profile")
+            except:
+                default_index = 0
+        
+        # We can't dynamically change 'index' of a widget easily in Streamlit without session state key handling.
+        # So we use a key.
+        
+        if "nav_selection" not in st.session_state:
+            st.session_state.nav_selection = valid_options[0]
+            
+        # Hook for forced redirect
+        if force_profile and st.session_state.nav_selection != "👤 Investor Profile":
+             st.session_state.nav_selection = "👤 Investor Profile"
+             # We might rerun to ensure it sticks visually immediately
+             # st.rerun() # Careful with infinite loops
+        
+        # Render Sidebar Groups using markdown headers? 
+        # Streamlit doesn't natively support headers *in between* radio options easily.
+        # We will iterate and use buttons? No, buttons don't hold state.
+        
+        # PROPOSAL: Use `st.sidebar.radio` but with a custom format func or just clean list.
+        # Let's try a different Approach: Grouped Selectbox.
+        # Or just Headers then Radio? No.
+        
+        # Let's effectively group them by just using a specific order and visually separating them?
+        # We can use:
+        # 1. Dashboard
+        # [Radio 1]
+        # 2. Tools
+        # [Radio 2]
+        # But only 1 can be selected. This is tricky in Streamlit.
+        
+        # Fallback: Just re-order logically and add emoji prefixes.
+        # We will stick to the single radio for stability but use the `force_profile` logic.
+        
+        selection = st.radio(
+            "Navigate", 
+            valid_options, 
+            index=valid_options.index(st.session_state.nav_selection) if st.session_state.nav_selection in valid_options else 0,
+            key="nav_radio",
+            label_visibility="hidden"
+        )
+        
+        # Sync selection back to state
+        st.session_state.nav_selection = selection
+
+        # Enforce Profile Check (Double Check)
+        if force_profile and selection != "👤 Investor Profile":
+             st.warning("🔒 Features Locked")
+             st.info("You must complete your Investor Profile first.")
+             # Force switch back in UI on next run, but for now we can just STOP rendering other content?
+             # Or just render the profile tab content regardless of selection?
+             selection = "👤 Investor Profile" # Override locally for rendering logic
+        
         st.markdown("---")        
         st.markdown("### ⚙️ Settings")
         max_parallel = st.slider(
@@ -456,7 +583,7 @@ def render_analytics_section():
 
             from utils.portfolio_manager import PortfolioManager
 
-            pm = PortfolioManager()
+            pm = PortfolioManager(st.session_state.get('username'))
 
             saved_names = pm.get_portfolio_names()
 
@@ -578,7 +705,7 @@ def render_analytics_section():
 
             from utils.portfolio_manager import PortfolioManager
 
-            pm = PortfolioManager()
+            pm = PortfolioManager(st.session_state.get('username'))
 
             saved_names_rebal = pm.get_portfolio_names()
 
@@ -1945,12 +2072,12 @@ def render_upload_section(max_parallel: int):
     input_mode = st.radio(
 
         "Choose Input Method",
-
-        ["📂 Upload CSV File", "✏️ Create Manually"],
-
+        
+        ["Manage Portfolios (Create/Edit)", "📂 Upload CSV File"],
+        
         horizontal=True,
-
-        help="Upload an existing CSV or create a portfolio from scratch."
+        
+        help="Manage your portfolios (Create/Edit) or Upload an existing CSV."
 
     )
 
@@ -1960,7 +2087,7 @@ def render_upload_section(max_parallel: int):
 
     filename = None
 
-    pm = PortfolioManager()
+    pm = PortfolioManager(st.session_state.get('username'))
 
     saved_names = pm.get_portfolio_names()
 
@@ -2002,9 +2129,9 @@ def render_upload_section(max_parallel: int):
 
                 
 
-    else:
-
-        # Case 2: Manual Creation
+    elif input_mode == "Manage Portfolios (Create/Edit)":
+    
+        # Case 2: Manual Creation / Editing
 
         
 
@@ -2029,6 +2156,8 @@ def render_upload_section(max_parallel: int):
                     if loaded_df is not None:
 
                         st.session_state.manual_portfolio_df = loaded_df
+
+                        st.session_state.loaded_portfolio_name = selected_load
 
                         st.toast(f"Loaded '{selected_load}'")
 
@@ -2183,8 +2312,9 @@ def render_upload_section(max_parallel: int):
              col_sched_1, col_sched_2 = st.columns([3, 1])
 
              with col_sched_1:
-
-                 save_name = st.text_input("Save as New Portfolio", placeholder="e.g., My October Holdings")
+                 # Auto-fill name if loaded
+                 default_save_name = st.session_state.get('loaded_portfolio_name', "")
+                 save_name = st.text_input("Portfolio Name", value=default_save_name, placeholder="e.g., My October Holdings")
 
              with col_sched_2:
 
@@ -2192,7 +2322,7 @@ def render_upload_section(max_parallel: int):
 
                  st.write("")
 
-                 if st.button("Save", key="btn_save_pf_common"):
+                 if st.button("Save / Update", key="btn_save_pf_common"):
 
                       success, msg = pm.save_portfolio(save_name, df)
 
@@ -2624,7 +2754,8 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
         report_filename = f"market_rover_report_{timestamp}.txt"
 
-        report_path = REPORT_DIR / report_filename
+        target_dir = get_user_report_dir()
+        report_path = target_dir / report_filename
 
         
 
@@ -2908,7 +3039,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             
 
-            html_path = REPORT_DIR / report_filename.replace('.txt', '.html')
+            html_path = target_dir / report_filename.replace('.txt', '.html')
 
             visualizer.export_to_html(figures, str(result), html_path)
 
@@ -3138,17 +3269,36 @@ def show_reports_tab():
 
     st.header("📊 View Previous Reports")
 
+    # --- REPORT ISOLATION LOGIC ---
+    def get_user_report_dir():
+        username = st.session_state.get('username', 'guest')
+        user_dir = REPORT_DIR / username
+        user_dir.mkdir(parents=True, exist_ok=True)
+        return user_dir
     
+    # 1. DELETION LOGIC (Per user request: Remove old legacy files)
+    # Delete legacy root reports
+    try:
+        if REPORT_DIR.exists():
+            root_files = list(REPORT_DIR.glob("market_rover_report_*.*"))
+            if root_files:
+                # logger.info(f"Removing {len(root_files)} legacy reports from root...")
+                for f in root_files:
+                    try:
+                        f.unlink() # Delete file
+                    except Exception as e:
+                        pass 
+    except Exception:
+        pass
 
-    # List all reports
-
-    if REPORT_DIR.exists():
+    # 2. Get User Reports
+    target_dir = get_user_report_dir()
+    
+    if target_dir.exists():
 
         # Get all report files (both HTML and TXT)
-
-        txt_reports = sorted(REPORT_DIR.glob("market_rover_report_*.txt"), reverse=True)
-
-        html_reports = sorted(REPORT_DIR.glob("market_rover_report_*.html"), reverse=True)
+        txt_reports = sorted(target_dir.glob("market_rover_report_*.txt"), reverse=True)
+        html_reports = sorted(target_dir.glob("market_rover_report_*.html"), reverse=True)
 
         
 
