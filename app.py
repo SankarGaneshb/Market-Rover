@@ -148,6 +148,14 @@ if 'portfolio_limiter' not in st.session_state:
 # Import Authentication Manager (Reload Triggered)
 # Import Authentication Manager (Reload Triggered)
 from utils.auth import AuthManager
+
+# --- GLOBAL HELPERS ---
+def get_user_report_dir():
+    """Get the report directory for the current user."""
+    username = st.session_state.get('username', 'guest')
+    user_dir = REPORT_DIR / username
+    user_dir.mkdir(parents=True, exist_ok=True)
+    return user_dir
 from utils.user_manager import UserProfileManager
 
 def main():
@@ -3270,11 +3278,9 @@ def show_reports_tab():
     st.header("📊 View Previous Reports")
 
     # --- REPORT ISOLATION LOGIC ---
-    def get_user_report_dir():
-        username = st.session_state.get('username', 'guest')
-        user_dir = REPORT_DIR / username
-        user_dir.mkdir(parents=True, exist_ok=True)
-        return user_dir
+    # --- REPORT ISOLATION LOGIC ---
+    # Helper moved to global scope
+
     
     # 1. DELETION LOGIC (Per user request: Remove old legacy files)
     # Delete legacy root reports
