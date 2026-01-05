@@ -50,7 +50,7 @@ class AnalyticsCore:
         
         return stats
 
-    def calculate_monthly_returns_matrix(self, history_df):
+    def calculate_monthly_returns_matrix(self, history_df, exclude_outliers=False):
         """
         Transforms historical data into a Year x Month matrix of % returns.
         """
@@ -63,6 +63,15 @@ class AnalyticsCore:
         # Resample to monthly returns
         monthly_returns = history_df['Close'].resample('ME').last().pct_change() * 100
         
+        # Exclude outliers if requested (Mask as NaN)
+        if exclude_outliers:
+             # We use the standard removal series to find what to keep
+             # Note: _remove_outliers logic:
+             # Q1/Q3 of the SERIES.
+             clean_series = self._remove_outliers(monthly_returns.dropna())
+             # Reindex to original to get NaNs where outliers were
+             monthly_returns = monthly_returns.where(monthly_returns.index.isin(clean_series.index))
+        
         # Create a DataFrame with Year and Month columns
         returns_df = pd.DataFrame({
             'Year': monthly_returns.index.year,
@@ -71,6 +80,7 @@ class AnalyticsCore:
         })
         
         # Pivot to create the matrix (Year x Month)
+        # pivot will put NaNs where data is missing (or excluded)
         returns_matrix = returns_df.pivot(index='Year', columns='Month', values='Return')
         
         # Rename columns to month names
@@ -81,7 +91,7 @@ class AnalyticsCore:
         
         return returns_matrix
 
-    def calculate_volatility(self, history_df, window=252):
+    def calculate_volatility(self, history_df, window=252, exclude_outliers=False):
         """
         Calculates annualized volatility.
         Defaults to 252 days (1 year) for a stable long-term view if short-term is too noisy.
@@ -90,6 +100,10 @@ class AnalyticsCore:
             return 0.0
         
         daily_returns = history_df['Close'].pct_change().dropna()
+        
+        # Apply outlier removal if requested
+        if exclude_outliers:
+            daily_returns = self._remove_outliers(daily_returns)
         
         # If history is shorter than window, use available data
         actual_window = min(window, len(daily_returns))

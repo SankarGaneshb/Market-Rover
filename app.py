@@ -6,6 +6,9 @@ Interactive portfolio analysis with real-time progress tracking, visualizers, an
 
 """
 
+import os
+os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
+
 import warnings
 warnings.filterwarnings('ignore')
 import streamlit as st
@@ -43,11 +46,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import os
 
-os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 
 
 
-from crew import create_crew
+
+from crew_engine import create_crew
 
 from config import UPLOAD_DIR, REPORT_DIR
 
@@ -74,6 +77,8 @@ from utils.forecast_tracker import get_forecast_history
 from utils.forecast_tracker import get_forecast_history
 
 from tabs.system_health import show_system_health_tab
+from tabs.forensic_tab import show_forensic_tab
+from tabs.profiler_tab import show_profiler_tab
 
 import yfinance as yf
 
@@ -221,6 +226,8 @@ def main():
             "🔍 Market Analysis - Deep-dive into Nifty/Sensex", 
             "🎯 Forecast Tracker - Track AI predictions", 
             "🕵️ Shadow Tracker - Follow institutional money", 
+            "🛡️ Integrity Shield - Institutional Fraud Detection",
+            "👤 Investor Profile - Asset Allocation Engine",
             "⚙️ System Health - Process Metrics & Status",
         ]        
         selection = st.radio("Go to:", nav_options, label_visibility="collapsed")        
@@ -320,6 +327,12 @@ def main():
     
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
+
+    elif selection.startswith("🛡️ Integrity Shield"):
+        show_forensic_tab()
+        
+    elif selection.startswith("👤 Investor Profile"):
+        show_profiler_tab()
 
     elif selection.startswith("⚙️ System Health"):
         show_system_health_tab()
@@ -913,7 +926,7 @@ def show_visualizer_tab():
 
 def show_market_analysis_tab():
 
-    """Show the Unified Market Analysis Tab (V4.1)"""
+    """Show the Unified Market Analysis Tab"""
 
     st.header("🔍 Market Analysis")
 
@@ -1468,82 +1481,47 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
             
 
-            # Calculate monthly returns matrix
-
-            returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
-
-            seasonality_stats = analyzer.calculate_seasonality(history)
-
-            
-
-            st.success(f"✅ Analysis complete! ({len(history)} days)")
-
-            
-
-            # === VISUALIZATION 1: Monthly Returns Heatmap ===
-
-            st.markdown("### 🌡️ Monthly Returns Heatmap")
-
-            
-
-            if not returns_matrix.empty:
-
-                fig_heatmap = px.imshow(
-
-                    returns_matrix,
-
-                    labels=dict(x="Month", y="Year", color="Return %"),
-
-                    x=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-
-                    y=returns_matrix.index,
-
-                    color_continuous_scale="RdYlGn",
-
-                    color_continuous_midpoint=0,
-
-                    text_auto=".1f",
-
-                    aspect="auto"
-
-                )
-
-                fig_heatmap.update_layout(height=500)
-
-                st.plotly_chart(fig_heatmap, key="heatmap_chart", width="stretch")
-
-            else:
-
-                st.warning("Not enough data for heatmap")
-
-
-
-            # === VISUALIZATION 2: Seasonality Profile ===
-
-            col_h, col_check = st.columns([3, 1])
-
-            col_h.markdown("### 📊 Seasonality Profile")
-
-            exclude_outliers = col_check.checkbox("🚫 Exclude Outliers", value=False, help="Remove extreme months (>1.5x IQR) from stats", key=f"{key_prefix}_outlier_{ticker}")
-
-            
-
-            # Re-calculate with user preference
-
-            seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
-
-            
+            # === UI CONTROLS: Global Settings for this Analysis ===
+            col_controls, _ = st.columns([2, 3])
+            with col_controls:
+                exclude_outliers = st.checkbox("🚫 Exclude Outliers (Statistical IQR)", value=False, 
+                                             help="Robust Mode: Removes extreme volatility events from Heatmap, Risk Stats, and Forecasts.", 
+                                             key=f"{key_prefix}_outlier_{ticker}")
 
             if exclude_outliers:
+                st.info("ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, and Forecast Trends.")
 
-                st.caption("ℹ️ *Displaying data with statistical outliers removed for clearer trend analysis.*")
-
-            col1, col2 = st.columns(2)
-
+            # Calculate monthly returns matrix
+            returns_matrix = analyzer.calculate_monthly_returns_matrix(history, exclude_outliers=exclude_outliers)
+            seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
             
+            st.success(f"✅ Analysis complete! ({len(history)} days)")
+            
+            # === VISUALIZATION 1: Monthly Returns Heatmap ===
+            st.markdown("### 🌡️ Monthly Returns Heatmap")
 
+            if not returns_matrix.empty:
+                fig_heatmap = px.imshow(
+                    returns_matrix,
+                    labels=dict(x="Month", y="Year", color="Return %"),
+                    x=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    y=returns_matrix.index,
+                    color_continuous_scale="RdYlGn",
+                    color_continuous_midpoint=0,
+                    text_auto=".1f",
+                    aspect="auto"
+                )
+                fig_heatmap.update_layout(height=500)
+                st.plotly_chart(fig_heatmap, key=f"{key_prefix}_heatmap_chart", width="stretch")
+            else:
+                st.warning("Not enough data for heatmap")
+
+            # === VISUALIZATION 2: Seasonality Profile ===
+            st.markdown("### 📊 Seasonality Profile")
+            
+            col1, col2 = st.columns(2)
+            
             if not seasonality_stats.empty:
-
                 # 1. Win Rate Chart
 
                 fig_win = px.bar(
@@ -3512,7 +3490,7 @@ def show_recent_reports():
 
 
 def show_shadow_tracker_tab():
-    """Show the Shadow Tracker Tab (V4.2) - Unconventional Institutional Analytics"""
+    """Show the Shadow Tracker Tab - Unconventional Institutional Analytics"""
     st.header("🕵️ Shadow Tracker (Beta)")
     st.markdown("Decode **'Smart Money'** with unconventional metrics: *Block Deals, Silent Accumulation, and Sector Rotation*.")
     

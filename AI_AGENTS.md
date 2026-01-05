@@ -9,6 +9,32 @@ This document serves as the **Single Source of Truth** for the Agentic AI system
 ## 🧠 The Hybrid Intelligence Funnel
 The agents operate in a sequential pipeline designed to mimic a hedge fund's decision-making process:
 `Portfolio Manager` -> `Strategist` -> `Sentiment` -> `Technical` -> `Shadow Analyst` -> `Report Writer`
+    
+```mermaid
+graph TD
+    User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
+    
+    subgraph "Hybrid Intelligence Funnel"
+        A -->|Validated Tickers| B[Market Strategist]
+        B -->|Macro & News Context| C[Sentiment Analyzer]
+        A -->|Tickers| D[Technical Analyst]
+        
+        B -->|Strategic Report| E[Report Generator]
+        C -->|Sentiment Flags| G[Shadow Analyst]
+        D -->|Trend & Levels| G
+        
+        G -->|Trap Signals| E
+        D -->|Technical Report| E
+        C -->|Sentiment Report| E
+    end
+    
+    subgraph "Visualizers"
+        User -->|Request Snapshot| F[Data Visualizer]
+    end
+    
+    E -->|Final Intelligence Report| User
+    F -->|Visual Dashboard| User
+```
 
 ---
 

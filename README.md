@@ -23,6 +23,8 @@ Market-Rover is an AI-powered platform with a **comprehensive suite of intellige
 | **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity |
 | **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
+| **👤 Investor Profiler** | **Model Portfolio Generator** with "Sleep Test" | Asset Allocation, Composite Benchmarking |
+| **🛡️ Integrity Shield** | **Forensic Fraud Detection** (Red/Amber Flags) | Balance Sheet Audit, Cash Flow Analysis |
 
 ---
 
@@ -105,6 +107,25 @@ Monitor your predictions against real market movement:
 - ✅ **Portfolio Metrics** - Instant average performance across all saved forecasts
 - ✅ **🗑️ Deletion Capability** - Clean up old or inaccurate forecasts through an interactive editor
 
+### **👤 Investor Profiler & Model Portfolio**
+*(Sidebar Menu: Investor Profile)*
+
+Scientific asset allocation based on your psychological risk tolerance:
+
+- ✅ **The "Sleep Test"** - 3-step psychometric quiz to determine your Investor Persona (Conservative/Moderate/Aggressive).
+- ✅ **Asset Allocation Engine** - Suggests exact % split between Equity (Large/Mid/Small), Debt, and Gold.
+- ✅ **🤖 Model Portfolio Generator** - Auto-generates a high-quality stock list matching your allocated percentages.
+- ✅ **🚀 Comparison Simulation** - Backtests your generated model portfolio against a **Composite Benchmark** (weighted average of Nifty/Gold/Bonds) to prove Alpha.
+
+### **🛡️ Integrity Shield (Forensic Audit)**
+*(Sidebar Menu: Integrity Shield)*
+
+Institutional-grade fraud detection engine to avoid "landmines":
+
+- ✅ **Red Flag Scanner** - Scans Balance Sheets for manipulation (e.g. rising receivables vs falling sales).
+- ✅ **Cash Flow Analysis** - Detects "fictitious revenue" by comparing Net Profit vs Operating Cash Flow.
+- ✅ **Simple Badge System** - Returns **CLEAN**, **CAUTION**, or **CRITICAL RISK** status instantly.
+
 ### **⚙️ System Health (New)**
 
 Monitor the efficiency of the development cycle itself:
@@ -124,35 +145,31 @@ Monitor the efficiency of the development cycle itself:
 Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 
 ```
-📤 Portfolio Analysis Flow:
-┌──────────────┐
-│ Upload CSV   │
-└──────┬───────┘
-       │
-       v
-┌──────────────────────┐
-│ Portfolio Manager    │ → Validates stocks
-└──────┬───────────────┘
-       │
-       v
-┌──────────────────────┐
-│ News Scraper         │ → Scrapes Moneycontrol (Newspaper3k)
-└──────┬───────────────┘
-       │
-       v
-┌──────────────────────┐
-│ Sentiment Analyzer   │ → Classifies sentiment (Gemini AI)
-└──────┬───────────────┘
-       │
-       v
-┌──────────────────────┐
-│ Market Analyst       │ → Analyzes Nifty 50 context
-└──────┬───────────────┘
-       │
-       v
-┌──────────────────────┐
-│ Report Generator     │ → Creates intelligence report
-└──────────────────────┘
+```mermaid
+graph TD
+    User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
+    
+    subgraph "Hybrid Intelligence Funnel"
+        A -->|Validated Tickers| B[Market Strategist]
+        B -->|Macro & News Context| C[Sentiment Analyzer]
+        A -->|Tickers| D[Technical Analyst]
+        
+        B -->|Strategic Report| E[Report Generator]
+        C -->|Sentiment Flags| G[Shadow Analyst]
+        D -->|Trend & Levels| G
+        
+        G -->|Trap Signals| E
+        D -->|Technical Report| E
+        C -->|Sentiment Report| E
+    end
+    
+    subgraph "Visualizers"
+        User -->|Request Snapshot| F[Data Visualizer]
+    end
+    
+    E -->|Final Intelligence Report| User
+    F -->|Visual Dashboard| User
+```
 ```
 
 **Key Technologies:**
@@ -520,7 +537,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: December 27, 2025*
+*Last Updated: January 5, 2026*
 
 ---
 

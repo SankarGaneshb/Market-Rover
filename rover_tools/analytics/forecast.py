@@ -249,7 +249,7 @@ class AnalyticsForecast:
             "confidence": "High" if len(tested_years) >= 3 else ("Average" if len(tested_years) == 2 else "Low")
         }
 
-    def calculate_2026_forecast(self, history_df):
+    def calculate_2026_forecast(self, history_df, exclude_outliers=False):
         """
         Generates a long-term price forecast for year-end 2026.
         """
@@ -269,14 +269,57 @@ class AnalyticsForecast:
         years_to_project = days_to_project / 365.25
 
         if days_to_project <= 0: return None
-
-        from scipy import stats
+        
+        # Prepare data for regression (Outlier Exclusion logic)
         y = df['Close'].values
         x = np.arange(len(y))
         
+        if exclude_outliers:
+            # We calculate returns to identify extreme VOLATILITY events, not high prices (high prices are real)
+            # But for trend, we might want to exclude "flash crash" prices.
+            
+            # Simple approach: Identify outliers in daily returns
+            daily_returns = df['Close'].pct_change()
+            
+            # Reuse core logic slightly modified to return mask
+            # Assuming self._remove_outliers returns clean series.
+            # We need the INDEX of clean returns.
+            if len(daily_returns) > 4:
+                Q1 = daily_returns.quantile(0.25)
+                Q3 = daily_returns.quantile(0.75)
+                IQR = Q3 - Q1
+                lower = Q1 - 1.5 * IQR
+                upper = Q3 + 1.5 * IQR
+                
+                # Keep days where returns are "Normal"
+                # Note: This removes the rows from df where the *return form previous day* was anomalous
+                mask = (daily_returns >= lower) & (daily_returns <= upper)
+                
+                # We align x and y to this mask
+                # Shift mask to align with 'Close' (return for today depends on today close)
+                # But pct_change aligns with the "end" date.
+                # So if mask[i] is True, means price[i] was a normal move from price[i-1]
+                
+                # Filter x and y
+                # First element of returns is NaN, usually, so mask length is len(df)
+                valid_indices = mask[mask].index
+                
+                # We need integer indices for x
+                # Let's just filter the regression arrays directly
+                valid_mask = mask.fillna(True).values # Keep NaN (first day)
+                
+                x = x[valid_mask]
+                y = y[valid_mask]
+
+        from scipy import stats
+        # If too much data removed (unlikely), fallback
+        if len(y) < 2:
+             y = df['Close'].values
+             x = np.arange(len(y))
+
         slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
         future_trading_days = int(years_to_project * 252)
-        total_days = len(x) + future_trading_days
+        total_days = len(df) + future_trading_days # Use original length for projection base
         trend_target = slope * total_days + intercept
         
         start_price = df['Close'].iloc[0]
@@ -288,7 +331,9 @@ class AnalyticsForecast:
         
         cagr_target = current_price * ((1 + cagr) ** years_to_project)
         
-        volatility = self.calculate_volatility(df)
+        cagr_target = current_price * ((1 + cagr) ** years_to_project)
+        
+        volatility = self.calculate_volatility(df, exclude_outliers=exclude_outliers)
         drift = 0.06 - (0.5 * volatility**2)
         
         std_dev_projection = volatility * np.sqrt(years_to_project)

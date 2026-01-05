@@ -116,24 +116,33 @@ class AnalyticsPortfolio:
                 if ticker in hist_data.columns:
                     series = hist_data[ticker].dropna()
                     if len(series) > 10:
-                        # 1. Detect Anomaly First
+                        # 1. Detect Anomaly First (Standardized IQR)
+                        # We use the unified outlier removal from Core
+                        clean_series = series.copy()
+                        
+                        # Calculate returns
                         daily_pct = series.pct_change().dropna()
-                        min_drop = daily_pct.min()
-                        clean_series = series
                         
-                        if min_drop < -0.20:
-                            drop_date_idx = daily_pct.idxmin()
-                            drop_date_str = drop_date_idx.strftime('%Y-%m-%d')
-                            warnings.append(f"⚠️ **{ticker}**: Drop of {min_drop:.1%} on {drop_date_str} excluded from analysis.")
-                            # Exclude the anomalous return
-                            clean_series = series.drop(drop_date_idx)
+                        # Use unified method
+                        # Note: _remove_outliers returns the CLEAN series.
+                        clean_returns = self._remove_outliers(daily_pct)
                         
+                        # Identify what was removed
+                        removed_indices = daily_pct.index.difference(clean_returns.index)
+                        
+                        if not removed_indices.empty:
+                            dropped_count = len(removed_indices)
+                            warnings.append(f"⚠️ **{ticker}**: Excluded {dropped_count} outlier days (Statistical IQR) from analysis.")
+                            # Filter the series based on cleaned returns
+                            # We keep dates where returns exist in clean_returns (plus adjacent for price continuity, but simplify to returns based calc)
+                            clean_series = series.loc[clean_returns.index]
+
                         # 2. Calculate Metrics on CLEAN Series
                         mini_df = clean_series.to_frame(name='Close')
                         vols[ticker] = self.calculate_volatility(mini_df)
                         
                         # Mean annual return (approx)
-                        daily_ret = clean_series.pct_change().mean()
+                        daily_ret = clean_returns.mean()
                         means[ticker] = daily_ret * 252 # Annualized
                     else:
                         vols[ticker] = 0.0
