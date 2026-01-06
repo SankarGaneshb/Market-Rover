@@ -1,14 +1,15 @@
 import streamlit as st
 import pandas as pd
 from rover_tools.analytics.investor_profiler import InvestorProfiler, InvestorPersona
+from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META
 from utils.user_manager import UserProfileManager
 from utils.security import sanitize_ticker
 
 def show_profiler_tab():
-    st.header("👤 Investor Profiler")
+    st.header("👤 Institutional Investor Profiler")
     st.markdown("""
-    **Discover your Institutional Investor Persona.**
-    Take the 'Sleep Test' to generate a scientific Asset Allocation plan with strict risk controls.
+    **Discover your Persona & Build a 'Smart' Portfolio.**
+    Combine your favorite Brands with AI-driven Forensic & Shadow Strategies.
     """)
     
     profiler = InvestorProfiler()
@@ -16,207 +17,213 @@ def show_profiler_tab():
     # Init Session State
     if "persona" not in st.session_state:
         st.session_state.persona = None
+    if "user_brands" not in st.session_state:
+        st.session_state.user_brands = []
+    if "model_portfolio" not in st.session_state:
+        st.session_state.model_portfolio = None
         
-    # Quiz Section
-    with st.expander("📝 The 'Sleep Test' (3 Questions)", expanded=(st.session_state.persona is None)):
+    # --- 1. SLEEP TEST (QUIZ) ---
+    with st.expander("📝 Step 1: The 'Sleep Test' (Define Persona)", expanded=(st.session_state.persona is None)):
+        st.info("""
+        **What is an Investor Persona?**
+        Your persona is your "financial personality." It balances three key forces:
+        1.  **Risk Tolerance:** How much market volatility can you handle without panic?
+        2.  **Time Horizon:** How long can you leave the money untouched?
+        3.  **Loss Capacity:** Can your lifestyle survive a temporary loss?
+        
+        *Answer honestly to get a mathematically suitable strategy.*
+        """)
+        
         with st.form("profiler_form"):
-            st.subheader("1. The Panic Test 📉")
-            q1 = st.radio(
-                "If your portfolio drops 20% tomorrow, what do you do?",
-                [
-                    "A) Sell everything to stop the pain. (Conservative)",
-                    "B) Do nothing / Wait. (Moderate)",
-                    "C) Buy more. (Aggressive)"
-                ],
-                key="q1"
-            )
-            
-            st.subheader("2. The Deadline Test ⏳")
-            q2 = st.radio(
-                "When do you need this money back?",
-                [
-                    "A) < 3 Years (Short Term - Compounding won't work)",
-                    "B) 3-7 Years (Medium Term)",
-                    "C) 7+ Years (Long Term)"
-                ],
-                key="q2"
-            )
-            
-            st.subheader("3. The Cushion Test 🛏️")
-            q3 = st.radio(
-                "If you lose this money, does your lifestyle change?",
-                [
-                    "A) Yes, I can't pay bills. (Low Capacity)",
-                    "B) It hurts, but I'm okay. (Medium Capacity)",
-                    "C) No impact, I have other assets. (High Capacity)"
-                ],
-                key="q3"
-            )
+            col_q1, col_q2, col_q3 = st.columns(3)
+            with col_q1:
+                st.markdown("**1. The Panic Test 📉**")
+                st.caption("The market crashes 20% tomorrow. What is your immediate reaction?")
+                q1 = st.radio("Behavior:", ["Sell everything immediately", "Wait and watch / Do nothing", "Buy more at lower prices"], key="q1")
+            with col_q2:
+                st.markdown("**2. The Deadline Test ⏳**")
+                st.caption("When do you absolutely need to access this specific capital?")
+                q2 = st.radio("Timeframe:", ["Less than 3 Years", "3 to 7 Years", "More than 7 Years"], key="q2")
+            with col_q3:
+                st.markdown("**3. The Cushion Test 🛏️**")
+                st.caption("If this portfolio drops 50% temporarily, does your lifestyle change?")
+                q3 = st.radio("Impact:", ["My lifestyle would be significantly affected", "I'd have to cut back on some luxuries", "No impact, my lifestyle is secure"], key="q3")
             
             submitted = st.form_submit_button("Analyze Profile 🧠")
             
             if submitted:
-                # Scoring Logic
-                s1 = 1 if "A)" in q1 else (2 if "B)" in q1 else 3)
-                s2 = 1 if "A)" in q2 else (2 if "B)" in q2 else 3)
-                s3 = 1 if "A)" in q3 else (2 if "B)" in q3 else 3)
+                # Mapping user answers to scores (1=Conservative, 2=Moderate, 3=Aggressive)
+                # Q1: Sell=1, Wait=2, Buy=3
+                if "Sell" in q1: s1=1
+                elif "Wait" in q1: s1=2
+                else: s1=3
                 
-                persona = profiler.get_profile(s1, s2, s3)
-                st.session_state.persona = persona
+                # Q2: <3yr = 1, 3-7yr = 2, >7yr = 3
+                if "Less" in q2: s2=1
+                elif "3 to 7" in q2: s2=2
+                else: s2=3
                 
-                # Update Profile Timestamp
-                upm = UserProfileManager()
-                current_user = st.session_state.get('username', 'guest')
-                upm.update_profile_timestamp(current_user)
-                
+                # Q3: Significant=1, Cut back=2, No impact=3
+                if "significantly" in q3: s3=1
+                elif "luxury" in q3 or "cut back" in q3: s3=2
+                else: s3=3
+
+                st.session_state.persona = profiler.get_profile(s1, s2, s3)
                 st.rerun()
 
-    # Result Section
+    # --- 2. THE BRAND SHOP (USER PARTICIPATION) ---
     if st.session_state.persona:
         p = st.session_state.persona
         strategy = profiler.get_allocation_strategy(p)
         
         st.divider()
-        st.subheader(f"🎉 Your Persona: {p.value}")
-        st.info(f"**{strategy['description']}**")
+        st.subheader(f"🎉 Persona: {p.value}")
+        st.info(f"**Strategy: {strategy['description']}**")
         
-        col1, col2 = st.columns(2)
+        st.markdown("### 🛍️ Step 2: The 'Brand Shop' (Buy What You Know)")
+        st.markdown(f"Select up to **3 Nifty 50 Brands** you use/trust daily. We will use these as your **Core Equity Portfolio**.")
         
-        with col1:
-            st.markdown("### 📊 Asset Allocation")
-            alloc = strategy['allocation']
-            df_alloc = pd.DataFrame(list(alloc.items()), columns=["Asset Class", "Weight (%)"])
-            st.dataframe(df_alloc, hide_index=True, use_container_width=True)
-            
-            # Pie Chart
-            import plotly.express as px
-            fig = px.pie(df_alloc, values='Weight (%)', names='Asset Class', hole=0.4)
-            st.plotly_chart(fig, use_container_width=True)
-
-        with col2:
-            st.markdown("### 🎯 Portfolio Structure")
-            st.warning(f"**Strict Ticker Limit: {strategy['max_tickers']} Stocks**")
-            
-            struct = strategy['structure']
-            for k, v in struct.items():
-                st.write(f"- **{k}**: {v} Slots")
-                
+        # Organize Nifty 50 by Sector for easier selection
+        sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
+        selected_brands = st.session_state.user_brands
         
-        st.divider()
-        st.subheader("🤖 AI Model Portfolio Generator")
+        # Tabs for Sectors
+        tabs = st.tabs(sectors)
         
-        if st.button("Generate Model Portfolio"):
-            with st.spinner("Selecting high-quality assets based on your profile..."):
-                model_holdings = profiler.generate_model_portfolio(p)
-                st.session_state.model_portfolio = pd.DataFrame(model_holdings)
-                
-        if "model_portfolio" in st.session_state:
-            df_model = st.session_state.model_portfolio
-            
-            # Editable Editor
-            st.markdown("#### Proposed Holdings")
-            edited_df = st.data_editor(df_model, num_rows="dynamic", use_container_width=True, key="model_editor")
-            
-            col_a, col_b = st.columns(2)
-            
-            # SAVE FEATURE
-            with col_a:
-                st.write("###### Save to Portfolios")
-                pf_name = st.text_input("Portfolio Name", value=f"My {p.value} Model")
-                if st.button("💾 Save Portfolio"):
-                     from utils.portfolio_manager import PortfolioManager
-                     pm = PortfolioManager(st.session_state.get('username'))
-                     # Prepare dataframe for saving (needs Quantity, Average Price columns usually)
-                     # For model, we assume a nominal investment amount, e.g. 10 Lakhs
-                     save_df = edited_df.copy()
-                     save_df['Quantity'] = (100000 * save_df['Weight (%)'] / 100).astype(int) # Dummy allocation logic
-                     save_df['Average Price'] = 1000 # Dummy price
-                     
-                     success, msg = pm.save_portfolio(pf_name, save_df)
-                     if success: st.success(msg)
-                     else: st.error(msg)
-
-            # SIMULATION FEATURE
-            with col_b:
-                st.write("###### Performance Check")
-                if st.button("🚀 Simulate vs Benchmark"):
-                    with st.spinner("Calculating Composite Benchmark..."):
-                        import yfinance as yf
-                        import plotly.graph_objects as go
-                        import datetime
+        new_selection = []
+        
+        for i, sector in enumerate(sectors):
+            with tabs[i]:
+                # Filter tickers for this sector
+                try:
+                    sector_tickers = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector]
+                    
+                    # Create a grid
+                    cols = st.columns(3)
+                    
+                    for j, ticker in enumerate(sector_tickers):
+                        col = cols[j % 3]
                         
-                        # 1. Fetch Data
-                        tickers = edited_df['Symbol'].tolist()
-                        proxies_map = profiler.get_benchmark_proxies()
+                        # Get Metadata
+                        meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
                         
-                        # Get unique proxies needed
-                        needed_proxies = list(set([proxies_map.get(row['Asset Class'], '^NSEI') for _, row in edited_df.iterrows()]))
+                        # Generate SVG Logo
+                        import base64
+                        tick_short = ticker.replace('.NS', '')[:4]
+                        color = meta['color']
+                        text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                         
-                        # Download all data
-                        all_tickers_raw = list(set(tickers + needed_proxies))
-                        all_tickers = []
-                        for t in all_tickers_raw:
-                             clean = sanitize_ticker(t)
-                             if clean: all_tickers.append(clean)
-                        # Validating tickers before download (basic check)
+                        svg_raw = f"""
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                            <rect width="32" height="32" rx="8" fill="{color}"/>
+                            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text>
+                        </svg>
+                        """
+                        b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
+                        icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                         
-                        try:
-                            data = yf.download(all_tickers, period="1y", progress=False)['Close']
+                        # Display Card
+                        with col:
+                            # Visual Card
+                            st.markdown(f"""
+                            <div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
+                                <img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;">
+                                <div style="line-height: 1.2;">
+                                    <div style="font-weight: bold; font-size: 14px;">{tick_short}</div>
+                                    <div style="font-size: 11px; color: #666;">{meta['name']}</div>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
                             
-                            # Normalize to 100
-                            if not data.empty:
-                                rebased = data / data.iloc[0] * 100
+                            # Interaction (Checkbox)
+                            is_checked = ticker in selected_brands
+                            if st.checkbox("Select", value=is_checked, key=f"btn_{ticker}", label_visibility="collapsed"):
+                                new_selection.append(ticker)
                                 
-                                # 2. Calculate Portfolio Curve
-                                # This is a simplified daily rebalance assumption for visualization
-                                portfolio_curve = pd.Series(0, index=data.index)
-                                
-                                for _, row in edited_df.iterrows():
-                                    sym = row['Symbol']
-                                    w = row['Weight (%)'] / 100.0
-                                    if sym in rebased.columns:
-                                        portfolio_curve += rebased[sym] * w
-                                        
-                                # 3. Calculate COMPOSITE BENCHMARK Curve
-                                # Sum (Weight_i * Proxy_Index_i)
-                                benchmark_curve = pd.Series(0, index=data.index)
-                                used_benchmarks = {} # For pie chart
-                                
-                                # Group by asset class to get total weight per class
-                                asset_weights = edited_df.groupby('Asset Class')['Weight (%)'].sum()
-                                
-                                for asset_class, total_weight in asset_weights.items():
-                                    proxy = proxies_map.get(asset_class, '^NSEI')
-                                    w = total_weight / 100.0
-                                    
-                                    if proxy in rebased.columns:
-                                        # Handle missing data in proxy (ffill)
-                                        proxy_series = rebased[proxy].ffill()
-                                        benchmark_curve += proxy_series * w
-                                        used_benchmarks[proxy] = used_benchmarks.get(proxy, 0) + total_weight
+                except Exception as e:
+                     st.error(f"Error loading sector {sector}: {e}")
 
-                                # 4. Plot
-                                fig_perf = go.Figure()
-                                fig_perf.add_trace(go.Scatter(x=portfolio_curve.index, y=portfolio_curve, name=f"{p.value} Portfolio", line=dict(color='green', width=2)))
-                                fig_perf.add_trace(go.Scatter(x=benchmark_curve.index, y=benchmark_curve, name="Composite Benchmark", line=dict(color='gray', dash='dash')))
-                                
-                                fig_perf.update_layout(title="1-Year Performance Simulation (Rebased to 100)", xaxis_title="Date", yaxis_title="Value")
-                                st.plotly_chart(fig_perf, use_container_width=True)
-                                
-                                # Composition Pie
-                                df_bench = pd.DataFrame(list(used_benchmarks.items()), columns=['Proxy Index', 'Weight (%)'])
-                                fig_pie = px.pie(df_bench, values='Weight (%)', names='Proxy Index', title="Benchmark Composition")
-                                st.plotly_chart(fig_pie, use_container_width=True)
-                                
-                                final_ret = portfolio_curve.iloc[-1] - 100
-                                bench_ret = benchmark_curve.iloc[-1] - 100
-                                st.metric("Portfolio Alpha", f"{final_ret - bench_ret:.2f}%", delta=f"{final_ret:.2f}% vs {bench_ret:.2f}%")
-                                
-                            else:
-                                st.error("No data returned from Yahoo Finance.")
-                                
-                        except Exception as e:
-                            st.error(f"Simulation Error: {e}")
+        # Update Session State with new/removed items logic if needed, 
+        # but Streamlit reruns script on interaction, so we need to capture efficient state
+        # Actually standard checkbox 'key' persistence works but 'new_selection' is transient.
+        # Let's enforce the limit and warning here.
+        
+        cnt = len(new_selection)
+        st.write(f"**Selected: {cnt}/3**")
+        
+        if cnt > 3:
+            st.warning("⚠️ You picked more than 3 brands. We will only use the first 3 or most safe ones.")
+            new_selection = new_selection[:3]
+            
+        st.session_state.user_brands = new_selection
+
+        # Sector Constraint Warning
+        # Check duplicates in sectors
+        sel_sectors = [NIFTY_50_SECTOR_MAP.get(t, "Unknown") for t in new_selection]
+        if len(sel_sectors) != len(set(sel_sectors)) and cnt > 1:
+            st.warning("💡 **Diversification Tip:** You have multiple stocks from the same sector. Consider diversifying.")
 
         st.divider()
-        st.success("✅ **Next Step:** customize the generated portfolio in the editor above, then Save it for detailed analysis in the main dashboard.")
+        
+        # --- 3. GENERATION ---
+        st.markdown("### 🤖 Step 3: AI Generation")
+        
+        if st.button("Generate Smart Portfolio 🚀"):
+            with st.spinner(f"Running {strategy['description']} Engine..."):
+                # 1. Generate
+                raw_holdings = profiler.generate_smart_portfolio(p, st.session_state.user_brands)
+                
+                # 2. Validate (Forensic + Shadow + Correlation)
+                flags = profiler.validator.validate_holdings(raw_holdings)
+                
+                # 3. Enrich Data
+                final_data = []
+                for h in raw_holdings:
+                    sym = h['Symbol']
+                    status = "✅ Clean"
+                    note = h.get('Strategy', '')
+                    
+                    if sym in flags:
+                        f = flags[sym]
+                        if f['status'] == 'RED': status = "🔴 RISK"
+                        elif f['status'] == 'AMBER': status = "⚠️ Warning"
+                        note += f" | {f['reason']}"
+                    
+                    row = h.copy()
+                    row['Health Status'] = status
+                    row['AI Reasoning'] = note
+                    final_data.append(row)
+                    
+                st.session_state.model_portfolio = pd.DataFrame(final_data)
+
+        # --- 4. RESULTS ---
+        if st.session_state.model_portfolio is not None:
+             df_res = st.session_state.model_portfolio
+             
+             st.subheader("Your Custom Smart Portfolio")
+             
+             # Styling columns
+             # Reorder
+             cols = ['Symbol', 'Asset Class', 'Weight (%)', 'Health Status', 'AI Reasoning']
+             df_show = df_res[cols]
+             
+             # Color highlight logic (using pandas styler is hard in st.data_editor, so we rely on status text)
+             edited = st.data_editor(df_show, num_rows="dynamic", use_container_width=True, key="res_editor")
+             
+             # Action Buttons
+             c1, c2 = st.columns(2)
+             if c1.button("💾 Save Portfolio"):
+                  from utils.portfolio_manager import PortfolioManager
+                  pm = PortfolioManager(st.session_state.get('username'))
+                  # Conversion to save format
+                  save_df = edited.copy()
+                  # Remove textual columns for saving if needed, or keep for notes
+                  # Usually PM expects Quantity/AvgPrice. We mimic defaults.
+                  save_df['Quantity'] = (100000 * save_df['Weight (%)'] / 100).astype(int)
+                  save_df['Average Price'] = 100.0
+                  pm.save_portfolio(f"Smart {p.value} Portfolio", save_df)
+                  st.success("Saved!")
+                  
+             if c2.button("Run Simulation"):
+                  st.info("Performance Simulation logic (as previously implemented) would run here.")
+

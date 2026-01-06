@@ -57,6 +57,12 @@ def show_system_health_tab():
         
         if not df_completed.empty:
             df_completed['duration_minutes'] = (df_completed['ts_end'] - df_completed['ts_start']).dt.total_seconds() / 60
+            # Fix column renaming from join
+            if 'status_end' in df_completed.columns:
+                df_completed['status'] = df_completed['status_end']
+            elif 'status_start' in df_completed.columns:
+                 df_completed['status'] = df_completed['status_start']
+            
             cycle_times = df_completed
             
     # KPI Calculations

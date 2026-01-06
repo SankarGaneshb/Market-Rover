@@ -216,7 +216,15 @@ class ForensicAnalyzer:
 
     def generate_forensic_report(self):
         """Runs all checks and returns a summary."""
-        if not self.data_loaded: self.load_data()
+        if not self.data_loaded: 
+            success = self.load_data()
+            if not success:
+                return {
+                    "checks": [],
+                    "overall_status": "NO DATA",
+                    "red_flags": 0,
+                    "amber_flags": 0
+                }
         
         report = {
             "checks": [],

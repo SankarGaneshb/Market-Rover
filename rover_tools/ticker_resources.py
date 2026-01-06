@@ -198,3 +198,148 @@ def get_common_tickers(category="All"):
         # Combine all unique tickers
         all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS + NIFTY_MIDCAP + NIFTY_SMALLCAP))
         return sorted(all_tickers)
+
+# --- NEW: Sector Mapping for Nifty 50 Brand Shop ---
+NIFTY_50_SECTOR_MAP = {
+    # Financial Services
+    "HDFCBANK.NS": "Financial Services",
+    "ICICIBANK.NS": "Financial Services",
+    "SBIN.NS": "Financial Services",
+    "AXISBANK.NS": "Financial Services",
+    "KOTAKBANK.NS": "Financial Services",
+    "INDUSINDBK.NS": "Financial Services",
+    "BAJFINANCE.NS": "Financial Services",
+    "BAJAJFINSV.NS": "Financial Services",
+    "HDFCLIFE.NS": "Financial Services",
+    "SBILIFE.NS": "Financial Services",
+    
+    # IT
+    "TCS.NS": "IT",
+    "INFY.NS": "IT",
+    "HCLTECH.NS": "IT",
+    "WIPRO.NS": "IT",
+    "TECHM.NS": "IT",
+    "LTIM.NS": "IT",
+    
+    # Oil, Gas & Consumable Fuels (Energy)
+    "RELIANCE.NS": "Energy", # Oil & Gas
+    "ONGC.NS": "Energy",
+    "NTPC.NS": "Energy", # Power
+    "POWERGRID.NS": "Energy",
+    "BPCL.NS": "Energy",
+    "COALINDIA.NS": "Energy",
+    
+    # FMCG
+    "ITC.NS": "FMCG",
+    "HINDUNILVR.NS": "FMCG",
+    "NESTLEIND.NS": "FMCG",
+    "BRITANNIA.NS": "FMCG",
+    "TATACONSUM.NS": "FMCG",
+    
+    # Automobile
+    "MARUTI.NS": "Automobile",
+    "M&M.NS": "Automobile",
+    "TATAMOTORS.NS": "Automobile",
+    "BAJAJ-AUTO.NS": "Automobile",
+    "EICHERMOT.NS": "Automobile",
+    "HEROMOTOCO.NS": "Automobile",
+    
+    # Healthcare
+    "SUNPHARMA.NS": "Healthcare",
+    "DRREDDY.NS": "Healthcare",
+    "CIPLA.NS": "Healthcare",
+    "DIVISLAB.NS": "Healthcare",
+    "APOLLOHOSP.NS": "Healthcare",
+    
+    # Metals & Mining
+    "TATASTEEL.NS": "Metals",
+    "HINDALCO.NS": "Metals",
+    "JSWSTEEL.NS": "Metals",
+    
+    # Consumer Durables / Construction
+    "ASIANPAINT.NS": "Consumer Durables",
+    "TITAN.NS": "Consumer Durables",
+    "ULTRACEMCO.NS": "Construction Mat",
+    "GRASIM.NS": "Construction Mat",
+    
+    # Telecommunication
+    "BHARTIARTL.NS": "Telecom",
+    
+    # Construction / Infra
+    "LT.NS": "Construction",
+    "ADANIENT.NS": "Metals", # Conglomerate/Metals proxy sometimes
+    "ADANIPORTS.NS": "Services",
+    "UPL.NS": "Chemicals"
+}
+
+ASSET_PROXIES = {
+    # Equity Proxies
+    "Nifty 50": "^NSEI",
+    "Nifty Bank": "^NSEBANK",
+    
+    # Safe Assets
+    "Gold": "GOLDBEES.NS",
+    "Silver": "SILVERBEES.NS",
+    "Liquid": "LIQUIDBEES.NS",
+    
+    # Yield Assets
+    "G-Sec Bond": "NIFTYGS10YR.NS", # 10 Year G-Sec
+    "Corp Bond": "BHARATBOND.NS",  # Proxy
+    "REIT": "EMBASSY.RR.NS",       # Embassy REIT
+    "InvIT": "POWERGRID.BO",       # Powergrid InvIT (BSE usually more liq) - or PGINVIT.NS
+}
+
+# --- NEW: Brand Metadata (Colors & Names) for Visual UI ---
+# Extracted from assets/Nifty50.html
+NIFTY_50_BRAND_META = {
+    "ADANIENT.NS": {"name": "Adani Enterprises", "color": "#0054A6"},
+    "ADANIPORTS.NS": {"name": "Adani Ports & SEZ", "color": "#0054A6"},
+    "APOLLOHOSP.NS": {"name": "Apollo Hospitals", "color": "#007A33"},
+    "ASIANPAINT.NS": {"name": "Asian Paints", "color": "#E21D26"},
+    "AXISBANK.NS": {"name": "Axis Bank", "color": "#971237"},
+    "BAJAJ-AUTO.NS": {"name": "Bajaj Auto", "color": "#003366"},
+    "BAJFINANCE.NS": {"name": "Bajaj Finance", "color": "#0072BB"},
+    "BAJAJFINSV.NS": {"name": "Bajaj Finserv", "color": "#0072BB"},
+    "BEL.NS": {"name": "Bharat Electronics", "color": "#0054A6"},
+    "BPCL.NS": {"name": "BPCL", "color": "#FFD200"},
+    "BHARTIARTL.NS": {"name": "Bharti Airtel", "color": "#E11935"},
+    "BRITANNIA.NS": {"name": "Britannia Industries", "color": "#E31E24"},
+    "CIPLA.NS": {"name": "Cipla", "color": "#D11F26"},
+    "COALINDIA.NS": {"name": "Coal India", "color": "#F6821F"},
+    "DRREDDY.NS": {"name": "Dr. Reddy's Lab", "color": "#6A2D91"},
+    "EICHERMOT.NS": {"name": "Eicher Motors", "color": "#E31E24"},
+    "GRASIM.NS": {"name": "Grasim Industries", "color": "#F6821F"},
+    "HCLTECH.NS": {"name": "HCL Technologies", "color": "#007DBA"},
+    "HDFCBANK.NS": {"name": "HDFC Bank", "color": "#1C3E94"},
+    "HDFCLIFE.NS": {"name": "HDFC Life", "color": "#1C3E94"},
+    "HEROMOTOCO.NS": {"name": "Hero MotoCorp", "color": "#231F20"},
+    "HINDALCO.NS": {"name": "Hindalco Industries", "color": "#F6821F"},
+    "HINDUNILVR.NS": {"name": "Hindustan Unilever", "color": "#003DA5"},
+    "ICICIBANK.NS": {"name": "ICICI Bank", "color": "#052F5F"},
+    "ITC.NS": {"name": "ITC Ltd", "color": "#004B8D"},
+    "INDUSINDBK.NS": {"name": "IndusInd Bank", "color": "#662D91"},
+    "INFY.NS": {"name": "Infosys", "color": "#007CC3"},
+    "JSWSTEEL.NS": {"name": "JSW Steel", "color": "#004A99"},
+    "KOTAKBANK.NS": {"name": "Kotak Mahindra Bank", "color": "#ED1C24"},
+    "LT.NS": {"name": "Larsen & Toubro", "color": "#F6821F"},
+    "LTIM.NS": {"name": "LTIMindtree", "color": "#E83E8C"},
+    "M&M.NS": {"name": "Mahindra & Mahindra", "color": "#E31837"},
+    "MARUTI.NS": {"name": "Maruti Suzuki", "color": "#00428A"},
+    "NTPC.NS": {"name": "NTPC Ltd", "color": "#0072BC"},
+    "NESTLEIND.NS": {"name": "Nestle India", "color": "#754C24"},
+    "ONGC.NS": {"name": "ONGC", "color": "#D11F26"},
+    "POWERGRID.NS": {"name": "Power Grid Corp", "color": "#ED1C24"},
+    "RELIANCE.NS": {"name": "Reliance Industries", "color": "#D32F2F"},
+    "SBILIFE.NS": {"name": "SBI Life", "color": "#00A5E3"},
+    "SBIN.NS": {"name": "State Bank of India", "color": "#00A5E3"},
+    "SUNPHARMA.NS": {"name": "Sun Pharma", "color": "#E30613"},
+    "TCS.NS": {"name": "Tata Consultancy", "color": "#00529B"},
+    "TATACONSUM.NS": {"name": "Tata Consumer", "color": "#008066"},
+    "TATAMOTORS.NS": {"name": "Tata Motors", "color": "#00539C"},
+    "TATASTEEL.NS": {"name": "Tata Steel", "color": "#00539C"},
+    "TECHM.NS": {"name": "Tech Mahindra", "color": "#E31E24"},
+    "TITAN.NS": {"name": "Titan Company", "color": "#B2955A"},
+    "TRENT.NS": {"name": "Trent Ltd", "color": "#2D2926"},
+    "ULTRACEMCO.NS": {"name": "UltraTech Cement", "color": "#FFD200"},
+    "WIPRO.NS": {"name": "Wipro", "color": "#20348C"}
+}
