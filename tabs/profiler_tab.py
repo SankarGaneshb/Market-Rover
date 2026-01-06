@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from rover_tools.analytics.investor_profiler import InvestorProfiler, InvestorPersona
 from utils.user_manager import UserProfileManager
+from utils.security import sanitize_ticker
 
 def show_profiler_tab():
     st.header("👤 Investor Profiler")
@@ -152,7 +153,11 @@ def show_profiler_tab():
                         needed_proxies = list(set([proxies_map.get(row['Asset Class'], '^NSEI') for _, row in edited_df.iterrows()]))
                         
                         # Download all data
-                        all_tickers = list(set(tickers + needed_proxies))
+                        all_tickers_raw = list(set(tickers + needed_proxies))
+                        all_tickers = []
+                        for t in all_tickers_raw:
+                             clean = sanitize_ticker(t)
+                             if clean: all_tickers.append(clean)
                         # Validating tickers before download (basic check)
                         
                         try:

@@ -70,6 +70,8 @@ from utils.visualizer_interface import generate_market_snapshot
 
 from utils.security import sanitize_ticker, RateLimiter, validate_csv_content, sanitize_llm_input
 
+from rover_tools.ticker_resources import get_common_tickers
+
 from utils.forecast_tracker import get_forecast_history
 
 
@@ -638,16 +640,12 @@ def render_analytics_section():
                 tickers = []
 
                 for t in raw_tickers:
-
                     # Auto-append .NS if no suffix is present (common user error)
-
-                    if '.' not in t:
-
-                        tickers.append(f"{t}.NS")
-
-                    else:
-
-                        tickers.append(t)
+                    candidate = f"{t}.NS" if '.' not in t else t
+                    
+                    clean = sanitize_ticker(candidate)
+                    if clean:
+                        tickers.append(clean)
 
                         
 
@@ -1091,37 +1089,84 @@ def show_market_analysis_tab():
 
         
 
-        col_filter, col_input, col_button, col_info = st.columns([1.5, 2, 1, 3])
-
-        from rover_tools.ticker_resources import get_common_tickers
-
-        
-
-        with col_filter:
-
-            # Check for deep link
-
-            default_cat = "All"
-
+        # Move Filters to Full Width for better visibility
+        with st.container():
+             # Helper to get month name
+            import datetime
+            now = datetime.datetime.now()
+            current_month_idx = now.month
             
+            def get_month_name(idx):
+                return datetime.date(2000, idx, 1).strftime("%B")
+                
+            current_month_name = get_month_name(current_month_idx)
+            
+            # Next month logic (handle Dec->Jan rollover)
+            if current_month_idx == 12:
+                next_month_idx = 1
+            else:
+                next_month_idx = current_month_idx + 1
+            next_month_name = get_month_name(next_month_idx)
 
-            ticker_category = st.pills(
+            # Use 2 cols for filters
+            f_col1, f_col2 = st.columns(2)
+            
+            with f_col1:
+                # 1. Index Filter (Universe)
+                target_default = "Nifty 50"
+                ticker_category = st.pills(
+                    "1. Select Universe",
+                    options=["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"],
+                    default=target_default,
+                    key="heatmap_category_pills"
+                )
+            
+            with f_col2:
+                 # 2. Strategy Filter
+                seasonality_label_curr = f"🔥 Top 5 {current_month_name} Stars"
+                seasonality_label_next = f"🔮 Top 5 {next_month_name} Stars"
+                
+                strategy_mode = st.radio(
+                    "2. Filter Strategy",
+                    options=["Standard View", seasonality_label_curr, seasonality_label_next],
+                    horizontal=True,
+                    key="heatmap_strategy_radio"
+                )
+        
+        st.markdown("---")
 
-                "Filter by Index",
-
-                options=["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"],
-
-                default=default_cat,
-
-                key="heatmap_category_pills"
-
-            )
-
-
-
+        col_input, col_button, col_info = st.columns([2, 1, 3])
+        
+        # Remove old col_filter usage
+        
         with col_input:
-
-            common_tickers = get_common_tickers(category=ticker_category)
+            
+            # Logic Branching
+            if strategy_mode == "Standard View":
+                common_tickers = get_common_tickers(category=ticker_category)
+                
+            else:
+                # Seasonality Logic
+                from rover_tools.analytics.win_rate import calculate_seasonality_win_rate
+                
+                # Determine target month
+                if strategy_mode == seasonality_label_curr:
+                    target_m = current_month_idx
+                    target_name = current_month_name
+                else:
+                    target_m = next_month_idx
+                    target_name = next_month_name
+                
+                with st.spinner(f"Identifying historical {target_name} winners in {ticker_category}..."):
+                   # Pass the selected category to the win rate calculator
+                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m)
+                   
+                if top_season_stocks:
+                     # Format: "TICKER - XX% Win Rate"
+                     common_tickers = [f"{s['ticker']} - {s['win_rate']:.0f}% Historic Win Rate ({s['avg_return']:.1f}% Avg)" for s in top_season_stocks]
+                else:
+                     common_tickers = []
+                     st.warning(f"No seasonality data found for {ticker_category} in {target_name}.")
 
             
 
@@ -1336,9 +1381,13 @@ def show_forecast_tracker_tab():
         try:
 
             # Use basic yfinance for speed, sanitizing first
-            sanitized_ticker = ticker.replace("$", "").strip().upper()
-            if not sanitized_ticker.startswith("^") and not sanitized_ticker.endswith(('.NS', '.BO')):
-                 sanitized_ticker += ".NS"
+            # Remove $ manually as sanitize_ticker is strict
+            candidate = ticker.replace("$", "").strip().upper()
+            if not candidate.startswith("^") and not candidate.endswith(('.NS', '.BO')):
+                 candidate += ".NS"
+            
+            sanitized_ticker = sanitize_ticker(candidate)
+            if not sanitized_ticker: continue
             
             t = yf.Ticker(sanitized_ticker)
 
