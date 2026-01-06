@@ -38,5 +38,6 @@ pillow>=10.2.0
 
 # Authentication
 streamlit-authenticator>=0.3.3
-streamlit-oauth>=0.1.0
+streamlit-oauth>=0.1.5
+httpx-oauth>=0.14.0
 PyYAML>=6.0
