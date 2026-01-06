@@ -45,7 +45,7 @@ jobs:
     
     - name: Test imports
       run: |
-        python -c "from crew import create_crew; print('✅ Crew imports OK')"
+        python -c "from crew_engine import create_crew; print('✅ Crew imports OK')"
         python -c "from utils.mock_data import mock_generator; print('✅ Mock data imports OK')"
         python -c "from utils.report_visualizer import ReportVisualizer; print('✅ Visualizer imports OK')"
     
@@ -65,7 +65,7 @@ jobs:
         echo "Checking project structure..."
         test -f main.py && echo "✅ main.py exists"
         test -f app.py && echo "✅ app.py exists"
-        test -f crew.py && echo "✅ crew.py exists"
+        test -f crew_engine.py && echo "✅ crew_engine.py exists"
         test -f config.py && echo "✅ config.py exists"
         test -d utils && echo "✅ utils/ directory exists"
         test -d rover_tools && echo "✅ rover_tools/ directory exists"
