@@ -7,6 +7,9 @@ import streamlit as st
 import os
 from streamlit_oauth import OAuth2Component
 import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SocialAuthManager:
     """
@@ -68,13 +71,14 @@ class SocialAuthManager:
             with cols[idx]:
                 # Create OAuth2Component instance
                 # Note: We create a unique key for each provider to prevent state collisions
+                logger.info(f"Initializing OAuth via OAuth2Component for provider: {name} with revoke_token_endpoint=None")
                 oauth2 = OAuth2Component(
                     settings.get('client_id'),
                     settings.get('client_secret'),
                     settings.get('authorize_endpoint'),
                     settings.get('token_endpoint'),
                     settings.get('token_endpoint'), # refresh token endpoint (often same)
-                    settings.get('revoke_endpoint'),
+                    None, # Revoke endpoint disabled to prevent MissingRevokeTokenAuthMethodError
                 )
 
                 # Render button
