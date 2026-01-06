@@ -1648,6 +1648,17 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
                 )
                 fig_heatmap.update_layout(height=500)
                 st.plotly_chart(fig_heatmap, key=f"{key_prefix}_heatmap_chart", width="stretch")
+                
+                # Download Button for Heatmap Data (Added in V4.1)
+                csv = returns_matrix.to_csv().encode('utf-8')
+                st.download_button(
+                    label="📥 Download Matrix (CSV)",
+                    data=csv,
+                    file_name=f"{ticker}_monthly_returns.csv",
+                    mime="text/csv",
+                    key=f"{key_prefix}_download_heatmap_{ticker}"
+                )
+
             else:
                 st.warning("Not enough data for heatmap")
 
