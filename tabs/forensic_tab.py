@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from rover_tools.analytics.forensic_engine import ForensicAnalyzer
+from utils.security import sanitize_ticker
 
 def show_forensic_tab():
     st.header("🛡️ Forensic Integrity Shield")
@@ -19,8 +20,12 @@ def show_forensic_tab():
             ticker += ".NS"
             
         if st.button("Run Forensic Audit 🔍", type="primary"):
-            st.session_state.forensic_ticker = ticker
-            st.rerun()
+            clean_ticker = sanitize_ticker(ticker)
+            if clean_ticker:
+                st.session_state.forensic_ticker = clean_ticker
+                st.rerun()
+            else:
+                st.error("Invalid Ticker Symbol. Please use alphanumeric characters (e.g. TCS.NS)")
 
     with col2:
         if "forensic_ticker" in st.session_state:
