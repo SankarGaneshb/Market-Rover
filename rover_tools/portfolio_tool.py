@@ -1,11 +1,8 @@
 """
 Portfolio Tool - Reads and validates stock portfolio from CSV.
 """
-import pandas as pd
-from pathlib import Path
 from typing import List, Dict
 from crewai.tools import tool
-from config import ensure_nse_suffix, PORTFOLIO_FILE, PROJECT_ROOT
 
 
 @tool("Portfolio Reader")
@@ -21,6 +18,9 @@ def read_portfolio(portfolio_file: str = None) -> str:
     Returns:
         String representation of portfolio stocks
     """
+    import pandas as pd
+    from pathlib import Path
+    from config import ensure_nse_suffix, PORTFOLIO_FILE, PROJECT_ROOT
     try:
         # Use provided file or default from config
         file_path = portfolio_file or PORTFOLIO_FILE
