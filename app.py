@@ -1991,13 +1991,34 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
 
                  # Save Button
 
-                 from utils.forecast_tracker import save_forecast
+                 # Actions Row
+                 col_dl, col_save = st.columns([1, 1])
+                 
+                 with col_dl:
+                     # Prepare Download Data
+                     # Reconstruct baseline for CSV consistency
+                     base_vals = [curr_p] + [curr_p * (1 + baseline_growth/100)**((d-today).days/365.25) for d in dates_range]
+                     
+                     forecast_df = pd.DataFrame({
+                         'Date': dates,
+                         'Conservative (Low)': cons_vals,
+                         'Baseline (Target)': base_vals,
+                         'Aggressive (High)': aggr_vals
+                     })
+                     
+                     st.download_button(
+                         label="📥 Download Forecast Data",
+                         data=forecast_df.to_csv(index=False).encode('utf-8'),
+                         file_name=f"{ticker}_forecast_2026.csv",
+                         mime="text/csv",
+                         key=f"dl_forecast_{ticker}"
+                     )
 
-                 if st.button("💾 Save Forecast", key=f"save_{ticker}"):
-
-                    if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', [])):
-
-                        st.success("✅ Saved!")
+                 with col_save:
+                     from utils.forecast_tracker import save_forecast
+                     if st.button("💾 Save to Tracker", key=f"save_{ticker}", help="Save this forecast to track performance over time"):
+                        if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', [])):
+                            st.success("✅ Saved!")
 
 
 

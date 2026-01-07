@@ -243,7 +243,8 @@ class InvestorProfiler:
 
         # 2. Shadow Score Winners (Simulated for V1 speed, or use specific known high-beta names)
         # We allocate to Smallcap & Momentum
-        alpha_picks = ["ZOMATO.NS", "KPITTECH.NS", "BSE.NS", "SUZLON.NS"]
+        # Using reliable High-Beta names: TRENT, BEL, HAL, COCHINSHIP
+        alpha_picks = ["TRENT.NS", "BEL.NS", "HAL.NS", "COCHINSHIP.NS"]
         w = 80 / len(alpha_picks) # Remaining weight roughly
         
         for a in alpha_picks:

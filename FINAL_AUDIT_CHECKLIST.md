@@ -61,7 +61,7 @@
 ### ⚠️ **PENDING/MISSING Features**
 
 #### **High Priority**
-1. ❌ **Download Button for Tab 4** - Heatmap/forecast export
+1. ✅ **Download Button for Tab 4** - Heatmap/forecast export
 2. ❌ **Error Analytics Dashboard** - Track failure rates
 3. ❌ **User Guide/Help Section** - First-time user onboarding
 
@@ -123,8 +123,8 @@ def track_api_costs():
 | Tab 2 | "📊 View Reports" | V2.0 | ✅ Clear |
 | Tab 3 | "📈 Market Visualizer (V3.0)" | V3.0 | ✅ Updated |
 | Tab 4 | "🔥 Monthly Heatmap & 2026 Forecast (V4.0)" | V4.0 | ✅ Updated |
-| Page Title | "Market-Rover 2.0" | 2.0 | ⚠️ **OUTDATED** |
-| Sidebar | "Market-Rover 2.0" | 2.0 | ⚠️ **OUTDATED** |
+| Page Title | "Market-Rover" | 4.1 | ✅ Updated |
+| Sidebar | "Market-Rover" | 4.1 | ✅ Updated |
 
 ### ⚠️ **Issues Found**
 
@@ -360,14 +360,14 @@ if uploaded_file.size > 5 * 1024 * 1024:  # 5MB
 
 ### **HIGH Priority (This Week)**
 
-4. ⚠️ **Fix Version Labels** (15 min)
+4. ✅ **Fix Version Labels** (15 min)
    - Update page title to V4.0 or remove version
 
 5. ⚠️ **Add Cost Monitoring** (1 hour)
    - Track Gemini API usage
    - Display in sidebar
 
-6. ⚠️ **Add Download for Tab 4** (30 min)
+6. ✅ **Add Download for Tab 4** (Completed)
    - Export heatmap as PNG/CSV
 
 7. ⚠️ **Improve Tab 3 Progress** (30 min)

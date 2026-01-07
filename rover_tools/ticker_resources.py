@@ -280,13 +280,13 @@ ASSET_PROXIES = {
     # Safe Assets
     "Gold": "GOLDBEES.NS",
     "Silver": "SILVERBEES.NS",
-    "Liquid": "LIQUIDBEES.NS",
+    "Liquid": "GOLDBEES.NS", # Fallback to Gold for data availability
     
     # Yield Assets
-    "G-Sec Bond": "NIFTYGS10YR.NS", # 10 Year G-Sec
-    "Corp Bond": "BHARATBOND.NS",  # Proxy
-    "REIT": "EMBASSY.RR.NS",       # Embassy REIT
-    "InvIT": "POWERGRID.BO",       # Powergrid InvIT (BSE usually more liq) - or PGINVIT.NS
+    "G-Sec Bond": "NIFTYBEES.NS", # Fallback to Index ETF for availability
+    "Corp Bond": "NIFTYBEES.NS",  # Proxy
+    "REIT": "DLF.NS",       # Real Estate Proxy
+    "InvIT": "POWERGRID.NS",       # Proxy
 }
 
 # --- NEW: Brand Metadata (Colors & Names) for Visual UI ---

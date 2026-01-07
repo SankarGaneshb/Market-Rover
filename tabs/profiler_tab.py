@@ -214,16 +214,109 @@ def show_profiler_tab():
              c1, c2 = st.columns(2)
              if c1.button("💾 Save Portfolio"):
                   from utils.portfolio_manager import PortfolioManager
-                  pm = PortfolioManager(st.session_state.get('username'))
+                  # Ensure we get the correct username
+                  current_user = st.session_state.get('username', 'guest')
+                  pm = PortfolioManager(current_user)
+                  
                   # Conversion to save format
                   save_df = edited.copy()
                   # Remove textual columns for saving if needed, or keep for notes
                   # Usually PM expects Quantity/AvgPrice. We mimic defaults.
-                  save_df['Quantity'] = (100000 * save_df['Weight (%)'] / 100).astype(int)
+                  if 'Weight (%)' in save_df.columns:
+                      save_df['Quantity'] = (100000 * save_df['Weight (%)'] / 100).astype(int)
+                  else:
+                      save_df['Quantity'] = 10
+                      
                   save_df['Average Price'] = 100.0
-                  pm.save_portfolio(f"Smart {p.value} Portfolio", save_df)
-                  st.success("Saved!")
                   
-             if c2.button("Run Simulation"):
-                  st.info("Performance Simulation logic (as previously implemented) would run here.")
+                  success, msg = pm.save_portfolio(f"Smart {p.value} Portfolio", save_df)
+                  if success:
+                      st.success("✅ Saved Successfully!")
+                      # CRITICAL: Mark profile as updated to unlock other tabs
+                      user_profile_mgr = UserProfileManager()
+                      user_profile_mgr.update_profile_timestamp(current_user)
+                      st.balloons()
+                  else:
+                      st.error(f"Save failed: {msg}")
+                  
+             if c2.button("Run Simulation 🎢"):
+                  with st.spinner("Running Historical Simulation (1 Year) vs Nifty 50..."):
+                      try:
+                          import yfinance as yf
+                          import plotly.graph_objects as go
+                          import pandas as pd
+                          
+                          # 1. Prepare Portfolio Tickers & Weights
+                          sim_df = edited.copy()
+                          if sim_df.empty:
+                              st.warning("Portfolio is empty.")
+                          else:
+                              tickers = [t if t.endswith('.NS') else f"{t}.NS" for t in sim_df['Symbol'].tolist()]
+                              weights = sim_df['Weight (%)'].values / 100.0
+                              
+                              # 2. Fetch Data (Portfolio + Benchmark)
+                              data = yf.download(tickers + ['^NSEI'], period="1y", progress=False)['Close']
+                              
+                              if data.empty:
+                                  st.error("No data available for simulation.")
+                              else:
+                                  # Benchmark
+                                  bench = data['^NSEI'].pct_change().fillna(0)
+                                  bench_cum = (1 + bench).cumprod()
+                                  
+                                  # Portfolio
+                                  # Filter only stock columns
+                                  stock_data = data[tickers]
+                                  # Calculate weighted returns
+                                  # Align weights to columns found
+                                  valid_tickers = [t for t in tickers if t in stock_data.columns]
+                                  
+                                  if not valid_tickers:
+                                      st.error("Could not fetch data for selected stocks.")
+                                  else:
+                                      # Re-normalize weights for valid data
+                                      # This is a simplification; ideally we use exact weights mapping
+                                      stock_returns = stock_data[valid_tickers].pct_change().fillna(0)
+                                      
+                                      # Simple equal weight fallback if mapping is complex, OR map correctly
+                                      # Let's assume order is preserved or use map
+                                      # Better: Construct daily portfolio value
+                                      
+                                      # We map symbol to weight
+                                      w_map = dict(zip([t if t.endswith('.NS') else f"{t}.NS" for t in sim_df['Symbol']], weights))
+                                      
+                                      # Calculate daily weighted return
+                                      port_ret = pd.Series(0.0, index=stock_returns.index)
+                                      total_w = 0.0
+                                      for t in valid_tickers:
+                                          w = w_map.get(t, 0)
+                                          total_w += w
+                                          port_ret += stock_returns[t] * w
+                                          
+                                      if total_w > 0:
+                                          port_ret = port_ret / total_w # Re-normalize to 100% of captured stocks
+                                          
+                                      port_cum = (1 + port_ret).cumprod()
+                                      
+                                      # 3. Plot
+                                      fig_sim = go.Figure()
+                                      fig_sim.add_trace(go.Scatter(x=port_cum.index, y=port_cum, mode='lines', name='Smart Portfolio', line=dict(color='#00ff00', width=2)))
+                                      fig_sim.add_trace(go.Scatter(x=bench_cum.index, y=bench_cum, mode='lines', name='Nifty 50', line=dict(color='gray', dash='dot')))
+                                      
+                                      fig_sim.update_layout(title="Historical Performance Simulation (1 Year)", yaxis_title="Growth (1 = Base)", height=400)
+                                      st.plotly_chart(fig_sim, use_container_width=True)
+                                      
+                                      # Metrics
+                                      p_ret = (port_cum.iloc[-1] - 1) * 100
+                                      b_ret = (bench_cum.iloc[-1] - 1) * 100
+                                      
+                                      m1, m2 = st.columns(2)
+                                      m1.metric("Portfolio Return", f"{p_ret:.1f}%", delta=f"{p_ret-b_ret:.1f}% vs Index")
+                                      m2.metric("Benchmark Return", f"{b_ret:.1f}%")
+                                      
+                                      st.success("Simulation Complete! This strategy would have performed as shown above.")
+                                      
+                      except Exception as e:
+                          st.error(f"Simulation Error: {str(e)}")
+
 

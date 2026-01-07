@@ -62,6 +62,8 @@ def show_system_health_tab():
                 df_completed['status'] = df_completed['status_end']
             elif 'status_start' in df_completed.columns:
                  df_completed['status'] = df_completed['status_start']
+            else:
+                 df_completed['status'] = 'Unknown'
             
             cycle_times = df_completed
             
