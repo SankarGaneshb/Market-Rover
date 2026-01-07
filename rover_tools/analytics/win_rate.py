@@ -5,7 +5,7 @@ import datetime
 from rover_tools.ticker_resources import get_common_tickers
 
 @st.cache_data(ttl=3600*24) # Cache for 24 hours as historical data for past years won't change
-def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, period="10y", top_n=5):
+def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, period="10y", top_n=5, exclude_outliers=False):
     """
     Calculates the historical win rate for the specified month and category.
     
@@ -14,6 +14,7 @@ def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, perio
         target_month (int): Month to analyze (1-12). Defaults to current month.
         period (str): Historical period to fetch.
         top_n (int): Number of top stocks to return.
+        exclude_outliers (bool): If True, removes IQR outliers from calculations.
         
     Returns:
         list: Top N tickers with their stats dictionary.
@@ -59,6 +60,15 @@ def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, perio
         # We only look at completed months or current month if available? 
         # Usually seasonality looks at historicals.
         season_data = monthly_returns[monthly_returns.index.month == target_month]
+        
+        # Outlier Exclusion Logic
+        if exclude_outliers and len(season_data) >= 4:
+            Q1 = season_data.quantile(0.25)
+            Q3 = season_data.quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            season_data = season_data[(season_data >= lower_bound) & (season_data <= upper_bound)]
         
         if len(season_data) < 2: # Need at least some data points
             continue

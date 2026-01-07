@@ -72,7 +72,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
             # === UI CONTROLS: Global Settings for this Analysis ===
             col_controls, _ = st.columns([2, 3])
             with col_controls:
-                exclude_outliers = st.checkbox("🚫 Exclude Outliers (Statistical IQR)", value=False, 
+                # Use key_prefix + ticker to ensure uniqueness but allow pre-setting from outside?
+                # Actually, individual analysis should probably just use its own state or inherit default.
+                # Changing this to accept a default value.
+                exclude_outliers = st.checkbox("🚫 Exclude Outliers (Statistical IQR)", value=st.session_state.get(f"{key_prefix}_global_outlier", False), 
                                              help="Robust Mode: Removes extreme volatility events from Heatmap, Risk Stats, and Forecasts.", 
                                              key=f"{key_prefix}_outlier_{ticker}")
 
@@ -537,8 +540,14 @@ def show_market_analysis_tab():
                     target_name = next_month_name
                 
                 with st.spinner(f"Identifying historical {target_name} winners in {ticker_category}..."):
+                   # Outlier Toggle for Filter
+                   exclude_filter_outliers = st.checkbox("🚫 Exclude Outliers", value=False, key="seasonality_filter_outlier", help="Exclude extreme months from Win Rate calculation.")
+                   
                    # Pass the selected category to the win rate calculator
-                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m)
+                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m, exclude_outliers=exclude_filter_outliers)
+                   
+                   # Store this preference to pass to analysis view later
+                   st.session_state[f"heatmap_global_outlier"] = exclude_filter_outliers
                    
                 if top_season_stocks:
                      # Format: "TICKER - XX% Win Rate"
