@@ -21,7 +21,35 @@ def show_profiler_tab():
         st.session_state.user_brands = []
     if "model_portfolio" not in st.session_state:
         st.session_state.model_portfolio = None
-        
+    if "profiler_scores" not in st.session_state: # Initialize for scores persistence
+        st.session_state.profiler_scores = None
+    
+    # --- Persistence: Load Profile if exists ---
+    user_mgr = UserProfileManager()
+    current_user = st.session_state.get('username', 'guest')
+    
+    if st.session_state.persona is None:
+        saved_profile = user_mgr.get_user_profile(current_user)
+        if saved_profile and 'persona' in saved_profile:
+            try:
+                # Rehydrate Enum from string value
+                # We need to find the Enum member by value
+                for p in InvestorPersona:
+                    if p.value == saved_profile['persona']:
+                        st.session_state.persona = p
+                        break
+                
+                # Rehydrate brands if available
+                if 'brands' in saved_profile:
+                     st.session_state.user_brands = saved_profile['brands']
+                     
+                # Rehydrate scores (optional, but good for UI consistency if we showed them)
+                if 'scores' in saved_profile:
+                    st.session_state.profiler_scores = saved_profile['scores']
+                    
+            except Exception as e:
+                st.error(f"Error loading profile: {e}")
+
     # --- 1. SLEEP TEST (QUIZ) ---
     with st.expander("📝 Step 1: The 'Sleep Test' (Define Persona)", expanded=(st.session_state.persona is None)):
         st.info("""
@@ -68,7 +96,22 @@ def show_profiler_tab():
                 elif "luxury" in q3 or "cut back" in q3: s3=2
                 else: s3=3
 
-                st.session_state.persona = profiler.get_profile(s1, s2, s3)
+                # Set Persona
+                new_persona = profiler.get_profile(s1, s2, s3)
+                st.session_state.persona = new_persona
+                
+                # Save to Disk
+                scores = {'q1': s1, 'q2': s2, 'q3': s3}
+                st.session_state.profiler_scores = scores # Keep in session
+                
+                user_mgr.save_user_profile(
+                    username=current_user,
+                    persona_val=new_persona.value,
+                    scores=scores,
+                    brands=[] 
+                )
+                
+                st.success(f"Profile Saved: {new_persona.value}")
                 st.rerun()
 
     # --- 2. THE BRAND SHOP (USER PARTICIPATION) ---
@@ -169,6 +212,16 @@ def show_profiler_tab():
         st.markdown("### 🤖 Step 3: AI Generation")
         
         if st.button("Generate Smart Portfolio 🚀"):
+            
+            # Save User Brands Choice
+            if st.session_state.profiler_scores:
+                 user_mgr.save_user_profile(
+                    username=current_user,
+                    persona_val=p.value,
+                    scores=st.session_state.profiler_scores,
+                    brands=st.session_state.user_brands
+                )
+
             with st.spinner(f"Running {strategy['description']} Engine..."):
                 # 1. Generate
                 raw_holdings = profiler.generate_smart_portfolio(p, st.session_state.user_brands)

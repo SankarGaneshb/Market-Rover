@@ -76,13 +76,57 @@ class UserProfileManager:
             }
 
     def update_profile_timestamp(self, username: str):
-        """Updates the last_updated timestamp for a user."""
+        """
+        Updates the last_updated timestamp for a user.
+        DEPRECATED: Use save_user_profile instead for full data.
+        Kept for backward compatibility or simple timestamp updates.
+        """
         db = self._load_db()
         profiles = db.get("profiles", {})
         
-        profiles[username] = {
-            'last_updated': datetime.now().isoformat()
-        }
+        # Preserve existing data if any, just update timestamp
+        if username in profiles:
+            profiles[username]['last_updated'] = datetime.now().isoformat()
+        else:
+            profiles[username] = {
+                'last_updated': datetime.now().isoformat()
+            }
         
         db["profiles"] = profiles
         self._save_db(db)
+
+    def save_user_profile(self, username: str, persona_val: str, scores: dict, brands: list = None):
+        """
+        Saves the full Investor Profile.
+        
+        Args:
+            username: User ID
+            persona_val: String value of InvestorPersona (e.g., "The Compounder")
+            scores: Dict of quiz scores {'q1': 1, 'q2': 2, 'q3': 3}
+            brands: List of selected brand tickers [Optional]
+        """
+        db = self._load_db()
+        profiles = db.get("profiles", {})
+        
+        # Get existing or init new
+        user_data = profiles.get(username, {})
+        
+        # Update fields
+        user_data['last_updated'] = datetime.now().isoformat()
+        user_data['persona'] = persona_val
+        user_data['scores'] = scores
+        if brands is not None:
+             user_data['brands'] = brands
+             
+        profiles[username] = user_data
+        db["profiles"] = profiles
+        self._save_db(db)
+
+    def get_user_profile(self, username: str) -> dict:
+        """
+        Retrieves the full profile data.
+        Returns dict or None if not found/incomplete.
+        """
+        db = self._load_db()
+        profiles = db.get("profiles", {})
+        return profiles.get(username, None)
