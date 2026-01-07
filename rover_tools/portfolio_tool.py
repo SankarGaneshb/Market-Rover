@@ -35,6 +35,7 @@ def read_portfolio(portfolio_file: str = None) -> str:
         
         # Read CSV
         df = pd.read_csv(file_path)
+        df.columns = df.columns.str.strip() # Remove whitespace from headers
         
         # Validate required columns
         required_cols = ['Symbol', 'Company Name']

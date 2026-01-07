@@ -6,7 +6,7 @@ from utils.user_manager import UserProfileManager
 from utils.security import sanitize_ticker
 
 def show_profiler_tab():
-    st.header("👤 Institutional Investor Profiler")
+    st.header("👤 Investor Profiler")
     st.markdown("""
     **Discover your Persona & Build a 'Smart' Portfolio.**
     Combine your favorite Brands with AI-driven Forensic & Shadow Strategies.

@@ -563,7 +563,14 @@ def render_analytics_section():
 
                 normalized = custom_add.replace('\n', ',')
 
-                clean_custom = [c.strip() for c in normalized.split(',') if c.strip()]
+                normalized = custom_add.replace('\n', ',')
+                
+                # Sanitize each custom input
+                clean_custom = []
+                for c in normalized.split(','):
+                    s = sanitize_ticker(c) 
+                    if s: 
+                        clean_custom.append(s)
 
                 final_list.extend(clean_custom)
 
@@ -1210,7 +1217,7 @@ def show_market_analysis_tab():
 
                     
 
-            ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ ROI/Custom Input"]
+            ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ Custom Input"]
 
             
 
@@ -1230,7 +1237,7 @@ def show_market_analysis_tab():
 
             
 
-            if selected_opt == "✏️ ROI/Custom Input" or selected_opt == "✨ Select or Type to Search...":
+            if selected_opt == "✏️ Custom Input" or selected_opt == "✨ Select or Type to Search...":
 
                  # Use query param if custom
 
@@ -1267,8 +1274,12 @@ def show_market_analysis_tab():
             
 
         if analyze_button:
-
-             st.session_state.heatmap_active_ticker = ticker_raw
+             # Sanitize before setting active state
+             clean_input = sanitize_ticker(ticker_raw)
+             if clean_input:
+                 st.session_state.heatmap_active_ticker = clean_input
+             else:
+                 st.error("Invalid ticker format. Please check your input.")
 
         
 
@@ -2051,6 +2062,7 @@ def load_portfolio_file(file_bytes, filename):
     
 
     # Validate columns
+    df.columns = df.columns.str.strip() # Remove leading/trailing spaces from headers
 
     required_columns = ['Symbol', 'Company Name']
 
@@ -3675,9 +3687,11 @@ def show_recent_reports():
 
     
 
-    if REPORT_DIR.exists():
+    target_dir = get_user_report_dir()
+    
+    if target_dir.exists():
 
-        reports = sorted(REPORT_DIR.glob("market_rover_report_*.txt"), reverse=True)
+        reports = sorted(target_dir.glob("market_rover_report_*.txt"), reverse=True)
 
         
 
