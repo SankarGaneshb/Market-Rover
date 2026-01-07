@@ -29,7 +29,9 @@ jobs:
         pip install pandas yfinance nsepython scipy numpy plotly
 
     - name: Run Batch Backtester
-      run: python tools/batch_backtester.py
+      run: |
+        export PYTHONPATH=$PYTHONPATH:.:./rover_tools
+        python rover_tools/batch_backtester.py
 
     - name: Commit Results
       uses: stefanzweifel/git-auto-commit-action@v7

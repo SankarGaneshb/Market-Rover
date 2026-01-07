@@ -8,7 +8,14 @@ import requests
 from datetime import datetime, timedelta
 from nselib import capital_market, derivatives
 from utils.logger import get_logger
-from crewai.tools import tool
+try:
+    from crewai.tools import tool
+except ImportError:
+    # Fallback if crewai is not installed (e.g. in lightweight CI scripts)
+    def tool(name_or_func):
+        def decorator(func):
+            return func
+        return decorator
 
 logger = get_logger(__name__)
 
