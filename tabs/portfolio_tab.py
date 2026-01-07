@@ -4,6 +4,7 @@ from datetime import datetime
 from config import REPORT_DIR, MAX_STOCKS_PER_PORTFOLIO
 from utils.portfolio_manager import PortfolioManager
 from rover_tools.ticker_resources import get_common_tickers
+from utils.security import sanitize_ticker
 
 # Global helper needed for portfolio tab
 def get_user_report_dir():
