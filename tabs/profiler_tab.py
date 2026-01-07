@@ -244,7 +244,7 @@ def show_profiler_tab():
                       try:
                           import yfinance as yf
                           import plotly.graph_objects as go
-                          import pandas as pd
+                          # import pandas as pd # Removed to avoid UnboundLocalError
                           
                           # 1. Prepare Portfolio Tickers & Weights
                           sim_df = edited.copy()
