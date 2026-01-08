@@ -4,7 +4,7 @@ from rover_tools.ticker_resources import get_common_tickers
 from utils.security import sanitize_ticker
 
 # Shared function to run analysis and render UI
-def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
+def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False):
     """Shared function to run analysis and render UI"""
 
     # Sanitize input
@@ -66,18 +66,9 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
                 st.error(f"❌ Could not fetch data for {ticker}")
 
                 return
-
             
-
-            # === UI CONTROLS: Global Settings for this Analysis ===
-            col_controls, _ = st.columns([2, 3])
-            with col_controls:
-                # Use key_prefix + ticker to ensure uniqueness but allow pre-setting from outside?
-                # Actually, individual analysis should probably just use its own state or inherit default.
-                # Changing this to accept a default value.
-                exclude_outliers = st.checkbox("🚫 Exclude Outliers (Statistical IQR)", value=st.session_state.get(f"{key_prefix}_global_outlier", False), 
-                                             help="Robust Mode: Removes extreme volatility events from Heatmap, Risk Stats, and Forecasts.", 
-                                             key=f"{key_prefix}_outlier_{ticker}")
+            # Use global setting passed from parent
+            exclude_outliers = global_outlier
 
             if exclude_outliers:
                 st.info("ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, and Forecast Trends.")
@@ -181,6 +172,36 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default"):
                 st.plotly_chart(fig_seasonality, width="stretch")
 
             
+
+            # === VISUALIZATION 2.5: Annual Calendar (2026 Strategy) ===
+            st.markdown("### 📅 2026 Annual Trading Calendar")
+            st.caption("Auto-generated trading plan adjusting for Weekends & NSE Holidays.")
+            
+            from rover_tools.analytics.seasonality_calendar import SeasonalityCalendar
+            
+            with st.spinner("Calculating Holiday-Safe schedule..."):
+                calendar_tool = SeasonalityCalendar(history)
+                cal_df = calendar_tool.generate_analysis()
+                
+                # Plot
+                fig_cal = calendar_tool.plot_calendar(cal_df)
+                st.pyplot(fig_cal)
+                
+                # Table
+                with st.expander("📝 View Detailed Table"):
+                    # Format for display
+                    display_df = cal_df.copy()
+                    display_df['Avg Gain'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
+                    display_df['Buy Date'] = display_df.apply(lambda x: f"{x['Buy_Date_2026']} ({x['Buy_Weekday']})", axis=1)
+                    display_df['Sell Date'] = display_df.apply(lambda x: f"{x['Sell_Date_2026']} ({x['Sell_Weekday']})", axis=1)
+                    
+                    st.dataframe(
+                        display_df[['Month', 'Avg Gain', 'Buy Date', 'Sell Date']],
+                        use_container_width=True,
+                        hide_index=True
+                    )
+            
+            st.markdown("---")
 
             # === VISUALIZATION 3: 2026 Forecast ===
 
@@ -449,28 +470,21 @@ def show_market_analysis_tab():
 
     
 
-    mode_col, _ = st.columns([1, 2])
-
+    mode_col, setting_col = st.columns([1, 1])
     with mode_col:
-
         analysis_mode = st.radio("Analysis Mode:", ["Stock Analysis 🏢", "Benchmark/Index 📊"], horizontal=True, label_visibility="collapsed")
-
-
+    
+    with setting_col:
+        # Global Outlier Toggle
+        exclude_outliers_global = st.checkbox("🚫 Exclude Outliers (Robust Mode)", value=False, help="Removes extreme volatility events from all analysis (Heatmap, Win Rate, Seasonality, Forecasts).")
 
     st.markdown("---")
 
-
-
     if analysis_mode == "Stock Analysis 🏢":
-
         # === STOCK LOGIC ===
-
         st.subheader("🏢 Stock Heatmap & Forecast")
-
         st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns.")
-
         
-
         # Move Filters to Full Width for better visibility
         with st.container():
              # Helper to get month name
@@ -540,14 +554,10 @@ def show_market_analysis_tab():
                     target_name = next_month_name
                 
                 with st.spinner(f"Identifying historical {target_name} winners in {ticker_category}..."):
-                   # Outlier Toggle for Filter
-                   exclude_filter_outliers = st.checkbox("🚫 Exclude Outliers", value=False, key="seasonality_filter_outlier", help="Exclude extreme months from Win Rate calculation.")
+                   # Use GLOBAL setting
                    
                    # Pass the selected category to the win rate calculator
-                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m, exclude_outliers=exclude_filter_outliers)
-                   
-                   # Store this preference to pass to analysis view later
-                   st.session_state[f"heatmap_global_outlier"] = exclude_filter_outliers
+                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m, exclude_outliers=exclude_outliers_global)
                    
                 if top_season_stocks:
                      # Format: "TICKER - XX% Win Rate"
@@ -668,7 +678,7 @@ def show_market_analysis_tab():
 
         if st.session_state.heatmap_active_ticker:
 
-             run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap")
+             run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
 
 
 
@@ -721,5 +731,4 @@ def show_market_analysis_tab():
             ticker = major_indices[selected_index]
 
             st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
-
-            run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark")
+            run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
