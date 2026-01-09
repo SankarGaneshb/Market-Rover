@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import base64
+import html
 from rover_tools.analytics.investor_profiler import InvestorProfiler, InvestorPersona
 from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META
 from utils.user_manager import UserProfileManager
@@ -151,8 +153,8 @@ def show_profiler_tab():
                         meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
                         
                         # Generate SVG Logo
-                        import base64
-                        tick_short = ticker.replace('.NS', '')[:4]
+                        import html
+                        tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
                         color = meta['color']
                         text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                         
@@ -168,12 +170,15 @@ def show_profiler_tab():
                         # Display Card
                         with col:
                             # Visual Card
+                            # Ensure HTML safety for text
+                            safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
+                            
                             st.markdown(f"""
                             <div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
                                 <img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;">
                                 <div style="line-height: 1.2;">
-                                    <div style="font-weight: bold; font-size: 14px;">{tick_short}</div>
-                                    <div style="font-size: 11px; color: #666;">{meta['name']}</div>
+                                    <div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div>
+                                    <div style="font-size: 11px; color: #666;">{safe_name}</div>
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
@@ -193,6 +198,38 @@ def show_profiler_tab():
         
         cnt = len(new_selection)
         st.write(f"**Selected: {cnt}/3**")
+
+        # Show Selected Icons
+        if new_selection:
+            icon_htmls = []
+            for ticker in new_selection:
+                meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
+                # Escape special chars
+                tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                
+                color = meta['color']
+                text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
+                
+                svg = f"""
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <rect width="32" height="32" rx="8" fill="{color}"/>
+                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text>
+                </svg>
+                """
+                b64 = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
+                src = f"data:image/svg+xml;base64,{b64}"
+                
+                icon_htmls.append(f"""
+                <div style="text-align: center; margin-right: 10px;">
+                    <img src="{src}" style="width: 40px; height: 40px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                </div>
+                """)
+            
+            st.markdown(f"""
+            <div style="display: flex; flex-direction: row; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px; width: fit-content;">
+                {''.join(icon_htmls)}
+            </div>
+            """, unsafe_allow_html=True)
         
         if cnt > 3:
             st.warning("⚠️ You picked more than 3 brands. We will only use the first 3 or most safe ones.")
@@ -300,50 +337,55 @@ def show_profiler_tab():
                           # import pandas as pd # Removed to avoid UnboundLocalError
                           
                           # 1. Prepare Portfolio Tickers & Weights
+                          # 1. Prepare Portfolio Tickers & Weights - Aggregate Duplicates
                           sim_df = edited.copy()
                           if sim_df.empty:
                               st.warning("Portfolio is empty.")
                           else:
-                              tickers = [t if t.endswith('.NS') else f"{t}.NS" for t in sim_df['Symbol'].tolist()]
-                              weights = sim_df['Weight (%)'].values / 100.0
+                              # Aggregate weights by ticker to handle duplicates
+                              raw_tickers = [t if t.endswith('.NS') else f"{t}.NS" for t in sim_df['Symbol'].tolist()]
+                              raw_weights = sim_df['Weight (%)'].values / 100.0
+                              
+                              ticker_weights = {}
+                              for t, w in zip(raw_tickers, raw_weights):
+                                  ticker_weights[t] = ticker_weights.get(t, 0.0) + w
+                              
+                              unique_tickers = list(ticker_weights.keys())
                               
                               # 2. Fetch Data (Portfolio + Benchmark)
-                              data = yf.download(tickers + ['^NSEI'], period="1y", progress=False)['Close']
+                              data = yf.download(unique_tickers + ['^NSEI'], period="1y", progress=False)['Close']
                               
                               if data.empty:
                                   st.error("No data available for simulation.")
                               else:
                                   # Benchmark
-                                  bench = data['^NSEI'].pct_change().fillna(0)
+                                  if '^NSEI' in data.columns:
+                                      bench = data['^NSEI'].pct_change().fillna(0)
+                                  else:
+                                      # Fallback if single column returned (unlikely with list request but possible)
+                                      bench = pd.Series(0, index=data.index)
+
                                   bench_cum = (1 + bench).cumprod()
                                   
                                   # Portfolio
-                                  # Filter only stock columns
-                                  stock_data = data[tickers]
-                                  # Calculate weighted returns
-                                  # Align weights to columns found
-                                  valid_tickers = [t for t in tickers if t in stock_data.columns]
+                                  # Filter only valid stock columns found in data
+                                  valid_tickers = [t for t in unique_tickers if t in data.columns and t != '^NSEI']
                                   
                                   if not valid_tickers:
                                       st.error("Could not fetch data for selected stocks.")
                                   else:
-                                      # Re-normalize weights for valid data
-                                      # This is a simplification; ideally we use exact weights mapping
-                                      stock_returns = stock_data[valid_tickers].pct_change().fillna(0)
-                                      
-                                      # Simple equal weight fallback if mapping is complex, OR map correctly
-                                      # Let's assume order is preserved or use map
-                                      # Better: Construct daily portfolio value
-                                      
-                                      # We map symbol to weight
-                                      w_map = dict(zip([t if t.endswith('.NS') else f"{t}.NS" for t in sim_df['Symbol']], weights))
+                                      stock_data = data[valid_tickers]
+                                      stock_returns = stock_data.pct_change().fillna(0)
                                       
                                       # Calculate daily weighted return
+                                      # Fix for pandas NotImplemented error: ensure we stick to Series arithmetic
                                       port_ret = pd.Series(0.0, index=stock_returns.index)
                                       total_w = 0.0
+                                      
                                       for t in valid_tickers:
-                                          w = w_map.get(t, 0)
+                                          w = ticker_weights.get(t, 0.0)
                                           total_w += w
+                                          # stock_returns[t] is now guaranteed to be a Series (unique column)
                                           port_ret += stock_returns[t] * w
                                           
                                       if total_w > 0:

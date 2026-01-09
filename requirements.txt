@@ -23,8 +23,7 @@ yfinance>=0.2.40
 nsepython>=0.1.0
 nselib>=1.0.0
 pandas_market_calendars>=4.3.0
-xlrd>=2.0.1
-openpyxl>=3.1.2
+
 
 # Web UI & Visualizations
 streamlit>=1.40.0
@@ -39,5 +38,5 @@ pillow>=10.2.0
 # Authentication
 streamlit-authenticator>=0.3.3
 streamlit-oauth>=0.1.5
-httpx-oauth>=0.14.0
+
 PyYAML>=6.0

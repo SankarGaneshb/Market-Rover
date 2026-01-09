@@ -96,13 +96,18 @@ def show_shadow_tracker_tab():
         
         if deals:
              st.markdown("**Recent Large Deals**")
+             import html
              for d in deals:
                  color = "green" if d['Type'] == 'BUY' else "red"
                  icon = "🟢" if d['Type'] == 'BUY' else "🔴"
+                 
+                 safe_symbol = html.escape(str(d['Symbol']))
+                 safe_client = html.escape(str(d['Client']))
+                 
                  st.markdown(f"""
                  <div style='padding: 10px; border-radius: 5px; background-color: #262730; margin-bottom: 5px; border-left: 5px solid {color}'>
-                    <b>{icon} {d['Symbol']}</b><br>
-                    <small>{d['Client']}</small><br>
+                    <b>{icon} {safe_symbol}</b><br>
+                    <small>{safe_client}</small><br>
                     <span style='color:{color}; font-weight:bold'>{d['Type']}</span> @ ₹{d['Price']} ({d['Qty']})
                  </div>
                  """, unsafe_allow_html=True)

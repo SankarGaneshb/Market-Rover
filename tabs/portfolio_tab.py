@@ -93,8 +93,7 @@ def load_portfolio_file(file_bytes, filename):
         
 
         if dropped > 0:
-
-            print(f"⚠️ Security: Dropped {dropped} rows with invalid/malicious tickers")
+            pass # Silently drop or log? Using pass avoids console clutter.
 
             
 
@@ -717,8 +716,23 @@ def render_upload_section_logic(max_parallel):
                     loaded_df = pm.get_portfolio(selected_load)
 
                     if loaded_df is not None:
+                        # Fix for missing symbols in UI: Map short tickers back to full "Symbol - Name" options
+                        # The SelectboxColumn requires the exact string from options list
+                        try:
+                            all_options = get_common_tickers()
+                            # Create map: "RELIANCE.NS" -> "RELIANCE.NS - Reliance Industries Ltd"
+                            ticker_map = {opt.split(' - ')[0]: opt for opt in all_options if ' - ' in opt}
+                            
+                            def map_to_option(val):
+                                val_str = str(val).strip()
+                                return ticker_map.get(val_str, val_str) # Fallback to original if not found
+                                
+                            loaded_df['Symbol'] = loaded_df['Symbol'].apply(map_to_option)
+                        except Exception as e:
+                            print(f"Error mapping tickers: {e}")
 
                         st.session_state.manual_portfolio_df = loaded_df
+
 
                         st.session_state.loaded_portfolio_name = selected_load
 
@@ -820,32 +834,27 @@ def render_upload_section_logic(max_parallel):
 
              # Post-process symbols if using dropdown (split ' - ')
 
+             # Post-process symbols if using dropdown (split ' - ')
              if not allow_custom and not valid_df.empty:
+                 # Ensure Company Name column exists
+                 if 'Company Name' not in valid_df.columns:
+                     valid_df['Company Name'] = ""
 
                  def parse_row(row):
-
                      val = str(row['Symbol'])
-
                      if " - " in val:
-
                          parts = val.split(" - ")
-
                          ticker = parts[0]
-
                          comp = parts[1] if len(parts) > 1 else ""
-
-                         # Fill company name if empty
-
-                         if not row['Company Name'] or row['Company Name'] == "":
-
+                         
+                         # Fill company name if empty using safe access
+                         curr_name = row.get('Company Name', "")
+                         if not curr_name or pd.isna(curr_name) or str(curr_name).strip() == "":
                              row['Company Name'] = comp
-
+                             
                          row['Symbol'] = ticker
-
                      return row
-
                  
-
                  valid_df = valid_df.apply(parse_row, axis=1)
 
              
