@@ -158,12 +158,7 @@ def show_profiler_tab():
                         color = meta['color']
                         text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                         
-                        svg_raw = f"""
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                            <rect width="32" height="32" rx="8" fill="{color}"/>
-                            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text>
-                        </svg>
-                        """
+                        svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
                         b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                         icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                         
@@ -173,15 +168,7 @@ def show_profiler_tab():
                             # Ensure HTML safety for text
                             safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
                             
-                            st.markdown(f"""
-                            <div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
-                                <img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;">
-                                <div style="line-height: 1.2;">
-                                    <div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div>
-                                    <div style="font-size: 11px; color: #666;">{safe_name}</div>
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
+                            st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
                             
                             # Interaction (Checkbox)
                             is_checked = ticker in selected_brands
@@ -210,26 +197,13 @@ def show_profiler_tab():
                 color = meta['color']
                 text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                 
-                svg = f"""
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                    <rect width="32" height="32" rx="8" fill="{color}"/>
-                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text>
-                </svg>
-                """
+                svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
                 b64 = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
                 src = f"data:image/svg+xml;base64,{b64}"
                 
-                icon_htmls.append(f"""
-                <div style="text-align: center; margin-right: 10px;">
-                    <img src="{src}" style="width: 40px; height: 40px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                </div>
-                """)
+                icon_htmls.append(f'<div style="text-align: center; margin-right: 10px;"><img src="{src}" style="width: 40px; height: 40px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>')
             
-            st.markdown(f"""
-            <div style="display: flex; flex-direction: row; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px; width: fit-content;">
-                {''.join(icon_htmls)}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div style="display: flex; flex-direction: row; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px; width: fit-content;">{"".join(icon_htmls)}</div>', unsafe_allow_html=True)
         
         if cnt > 3:
             st.warning("⚠️ You picked more than 3 brands. We will only use the first 3 or most safe ones.")
