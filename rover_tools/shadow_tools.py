@@ -7,6 +7,7 @@ import numpy as np
 import requests
 from datetime import datetime, timedelta
 from nselib import capital_market, derivatives
+from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP
 from utils.logger import get_logger
 try:
     from crewai.tools import tool
@@ -86,26 +87,28 @@ def analyze_sector_flow():
 
 
 # --- 2. WHALE ALERT (Block Deals) ---
-def fetch_block_deals():
+def fetch_block_deals(symbol=None):
     """
     Fetches recent Block/Bulk deals using nselib.
+    If symbol is provided, filters for that specific stock.
     """
     try:
-        # Fetch data for the last 1 week to ensure we get something
+        # Fetch data for the last 1M to ensure we get something
         raw_data = capital_market.block_deals_data(period='1M')
         
         if raw_data.empty:
             return []
 
-        # nselib columns often: ['Date', 'Symbol', 'Client Name', 'Buy/Sell', 'Quantity', 'Trade Price/Wght. Avg. Price', ...]
         # Normalize columns
         raw_data.columns = [c.strip() for c in raw_data.columns]
         
+        # Filter by symbol if provided
+        if symbol:
+            # Handle symbol formatting (NSE:RELIANCE or RELIANCE.NS -> RELIANCE)
+            clean_symbol = symbol.split('.')[0].split(':')[-1].upper()
+            raw_data = raw_data[raw_data['Symbol'].str.upper() == clean_symbol]
+
         deals = []
-        # Take top 5 most recent high value deals
-        # Filter for value > 50L (approx 5M INR) roughly
-        # We need to handle data types carefully (often strings with commas)
-        
         for idx, row in raw_data.iterrows():
             try:
                 qty_str = str(row.get('Quantity', '0')).replace(',', '')
@@ -197,6 +200,34 @@ def detect_silent_accumulation(ticker):
     except Exception as e:
         logger.error(f"Silent Accumulation Check Failed for {ticker}: {e}")
         return {"score": 0, "signals": ["Error analyzing data"]}
+
+
+# --- 3.5 SECTOR ACCUMULATION STATS ---
+def get_sector_stocks_accumulation(sector_name):
+    """
+    Aggregates accumulation scores for all stocks in a sector.
+    """
+    try:
+        # Get stocks for sector
+        sector_stocks = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector_name]
+        
+        if not sector_stocks:
+            return pd.DataFrame()
+            
+        results = []
+        for ticker in sector_stocks:
+            res = detect_silent_accumulation(ticker)
+            results.append({
+                "Symbol": ticker.replace(".NS", ""),
+                "Shadow Score": res.get('score', 0),
+                "Signals": ", ".join(res.get('signals', []))
+            })
+            
+        df = pd.DataFrame(results).sort_values(by="Shadow Score", ascending=False)
+        return df
+    except Exception as e:
+        logger.error(f"Sector Accumulation Stats Failed for {sector_name}: {e}")
+        return pd.DataFrame()
 
 
 # --- 4. TRAP DETECTOR (FII Sentiment) ---
@@ -315,16 +346,19 @@ def analyze_sector_flow_tool() -> str:
     return output
 
 @tool("Fetch Block Deals")
-def fetch_block_deals_tool() -> str:
+def fetch_block_deals_tool(symbol: str = None) -> str:
     """
     Fetches recent large 'Block Deals' or 'Bulk Deals' from the market.
     Useful for identifying what Smart Money (Institutions) are buying or selling.
+    
+    Args:
+        symbol: Optional stock symbol to filter (e.g., RELIANCE.NS)
     """
-    deals = fetch_block_deals()
+    deals = fetch_block_deals(symbol=symbol)
     if not deals:
         return "No recent block deals found."
         
-    output = "🐋 **Whale Alerts (Block Deals)**:\n"
+    output = f"🐋 **Whale Alerts (Block Deals)**{f' for {symbol}' if symbol else ''}:\n"
     for deal in deals:
         output += f"- {deal['Symbol']}: {deal['Type']} {deal['Qty']} @ {deal['Price']} ({deal['Client']})\n"
     return output

@@ -37,7 +37,7 @@ from utils.user_manager import UserProfileManager
 from utils.logger import get_logger
 
 # Import Tabs
-from tabs.portfolio_tab import show_portfolio_analysis_tab, show_recent_reports
+from tabs.portfolio_tab import show_portfolio_analysis_tab
 from tabs.visualizer_tab import show_visualizer_tab
 from tabs.market_analysis_tab import show_market_analysis_tab
 from tabs.forecast_tab import show_forecast_tracker_tab
@@ -101,6 +101,35 @@ def main():
     st.markdown(
         """
         <style>
+        /* Global Spacing Reductions */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 5rem !important;
+        }
+
+        [data-testid="stVerticalBlock"] > div {
+            gap: 0.5rem !important;
+        }
+
+        h1 {
+            margin-top: -1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        h2, h3 {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        .stMetric {
+            margin-bottom: -1rem !important;
+        }
+
+        hr {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
         /* Fixed Footer styling */
         .footer {
             position: fixed;
@@ -154,7 +183,6 @@ def main():
         """)        
         st.markdown("---")
         st.header("📍 Navigation") # NAVIGATION        
-        
         # User Profile Status Check
         user_profile_mgr = UserProfileManager()
         current_user = st.session_state.get('username', 'guest')
@@ -204,88 +232,10 @@ def main():
              st.warning("🔒 Features Locked")
              st.info("You must complete your Investor Profile first.")
              selection = "👤 Investor Profile" # Override locally for rendering logic
-        
-        st.markdown("---")        
-        st.markdown("### ⚙️ Settings")
-        max_parallel = st.slider(
-            "Concurrent Stocks",
-            min_value=1,
-            max_value=10,
-            value=5,
-            help="Number of stocks to analyze simultaneously"
-        )        
-        # Test mode toggle (compact)
-        test_mode = st.checkbox(
-            "🧪 Test Mode",
-            value=st.session_state.test_mode,
-            help="Use mock data without API calls"
-        )
-        st.session_state.test_mode = test_mode
-        if test_mode:
-            st.info("🧪 Test mode enabled - using mock data")
+    # Default settings after UI removal
+    st.session_state.test_mode = False
+    max_parallel = 5
 
-        # Observability metrics
-        st.markdown("---")
-        with st.expander("📊 Observability", expanded=False):
-            st.markdown("### Real-Time Metrics")
-            # API Usage
-            api_usage = get_api_usage()
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("API Calls Today", f"{api_usage['today']}/{api_usage['limit']}")
-            with col2:
-                st.metric("Remaining", api_usage['remaining'])
-            # Progress bar for API quota
-            quota_pct = api_usage['today'] / api_usage['limit']
-            st.progress(quota_pct, text=f"Quota: {quota_pct*100:.0f}%")
-            st.markdown("---")
-            # Performance Stats
-            perf_stats = get_performance_stats()
-            if perf_stats['total_analyses'] > 0:
-                st.markdown("**Performance**")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric(
-                        "Total Analyses",
-                        perf_stats['total_analyses']
-                    )
-                with col2:
-                    st.metric(
-                        "Avg Duration",
-                        f"{perf_stats['avg_duration']:.1f}s"
-                    )
-                st.markdown("---")
-            
-            # Cache Stats
-            cache_stats = get_cache_stats()
-            total_cache = cache_stats['hits'] + cache_stats['misses']
-            if total_cache > 0:
-                st.markdown("**Cache Performance**")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Hit Rate", f"{cache_stats['hit_rate']:.0f}%")
-                with col2:
-                    st.metric("Total Ops", total_cache)
-                st.markdown("---")
-            
-            # Error Stats
-            error_stats = get_error_stats()
-            if error_stats['total'] > 0:
-                st.markdown("**Errors**")
-                st.metric("Total Errors", error_stats['total'])
-                if error_stats['by_type']:
-                    st.json(error_stats['by_type'], expanded=False)
-            
-            # Refresh button (note: refreshes entire app)
-            if st.button("🔄 Refresh App", width="stretch", help="Refreshes the entire app to update all metrics"):
-                st.rerun()
-        
-        st.markdown("---")
-        st.markdown("### 📚 Recent Reports")
-        show_recent_reports()
-
-
-    
     # Main content area - Render based on selection
     
     if selection.startswith("📤 Portfolio Analysis"):

@@ -11,7 +11,8 @@ from rover_tools.shadow_tools import (
     analyze_sector_flow,
     fetch_block_deals,
     detect_silent_accumulation,
-    get_trap_indicator
+    get_trap_indicator,
+    get_sector_stocks_accumulation
 )
 
 # --- Fixtures ---
@@ -150,9 +151,6 @@ def test_detect_silent_accumulation(mock_yf_ticker):
     
     res = detect_silent_accumulation("TEST")
     
-    # Debug print if fails
-    print(f"Signals detected: {res['signals']}")
-    
     assert res['score'] > 0
     signals = " ".join(res['signals'])
     assert "Volume Spike" in signals
@@ -202,6 +200,40 @@ def test_get_trap_indicator(mock_nselib_deriv):
     
     # 200 / 1000 = 20% Long -> Panic
     assert res2['status'] == "Panic"
+
+def test_fetch_block_deals_with_symbol(mock_nselib_cm):
+    mock_df = pd.DataFrame({
+        'Symbol ': ['RELIANCE', 'TCS'],
+        'Date ': ['01-Jan-2024', '01-Jan-2024'],
+        'Client Name ': ['Fund A', 'Fund B'],
+        'Buy/Sell ': ['BUY', 'SELL'],
+        'Quantity ': ['1,00,000', '50,000'],
+        'Trade Price/Wght. Avg. Price ': ['2,500.00', '3,500.00']
+    })
+    mock_nselib_cm.return_value = mock_df
+    
+    # Filter for RELIANCE
+    deals = fetch_block_deals(symbol="RELIANCE.NS")
+    assert len(deals) == 1
+    assert deals[0]['Symbol'] == "RELIANCE"
+    
+def test_get_sector_stocks_accumulation(mock_yf_ticker):
+    # Mock detect_silent_accumulation indirectly by mocking yfinance.Ticker
+    mock_stock = MagicMock()
+    mock_yf_ticker.return_value = mock_stock
+    
+    # Simple history to make detect_silent_accumulation return something
+    dates = pd.date_range(end=datetime.now(), periods=30)
+    hist_df = pd.DataFrame({
+        'Open': [100.0]*30, 'High': [101.0]*30, 'Low': [100.0]*30, 'Close': [100.5]*30, 'Volume': [1000]*30
+    }, index=dates)
+    mock_stock.history.return_value = hist_df
+    
+    df = get_sector_stocks_accumulation("IT")
+    assert not df.empty
+    assert "Symbol" in df.columns
+    # Check if a known IT stock is present (TCS or INFY from NIFTY_50_SECTOR_MAP)
+    assert any(df['Symbol'].isin(['TCS', 'INFY']))
 
 def test_data_fetch_errors():
     # Test graceful handling of exceptions in fetchers

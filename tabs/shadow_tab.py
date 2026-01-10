@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
-from rover_tools.shadow_tools import analyze_sector_flow, fetch_block_deals, detect_silent_accumulation, get_trap_indicator
-from rover_tools.ticker_resources import get_common_tickers
+from rover_tools.shadow_tools import (
+    analyze_sector_flow, fetch_block_deals, 
+    detect_silent_accumulation, get_trap_indicator,
+    get_sector_stocks_accumulation
+)
+from rover_tools.ticker_resources import get_common_tickers, NIFTY_50_SECTOR_MAP
 from utils.portfolio_manager import PortfolioManager
 
 def show_shadow_tracker_tab():
@@ -9,23 +13,26 @@ def show_shadow_tracker_tab():
     st.header("🕵️ Shadow Tracker (Beta)")
     st.markdown("Decode **'Smart Money'** with unconventional metrics: *Block Deals, Silent Accumulation, and Sector Rotation*.")
     
-    # Create two columns main layout
-    col_left, col_right = st.columns([2, 1])
+    # Create Tabs
+    tab_across, tab_sector, tab_stock = st.tabs([
+        "🌐 Across Sectors", 
+        "📂 Specific Sector", 
+        "🎯 Specific Stock"
+    ])
     
-    with col_left:
-        # === 1. SPIDER WEB (Sector Rotation) ===
-        st.subheader("🕸️ The Spider Web (Sector Rotation)")
-        st.caption("Identify sectors where institutional money is secretly rotating using relative strength.")
+    with tab_across:
+        col_flow, col_trap = st.columns([2, 1])
         
-        if st.button("Scan Sector Flows 🌊"):
+        with col_flow:
+            st.subheader("🕸️ The Spider Web (Sector Rotation)")
+            st.caption("Identify sectors where institutional money is secretly rotating.")
+            
             with st.spinner("Analyzing Sector Shifts..."):
                 sector_df = analyze_sector_flow()
                 if not sector_df.empty:
-                    # Highlight top 3
                     top_sectors = sector_df.head(3)['Sector'].tolist()
                     st.success(f"🔥 Smart Money Flow detected in: **{', '.join(top_sectors)}**")
                     
-                    # Stylized Radar/Table
                     st.dataframe(
                         sector_df.style.background_gradient(subset=['Momentum Score'], cmap='Greens'),
                         width='stretch',
@@ -35,100 +42,125 @@ def show_shadow_tracker_tab():
                         }
                     )
                 else:
-                    st.warning("⚠️ Could not fetch sector data. Check connection.")
-        
-        st.divider()
-        
-        # === 3. SILENT ACCUMULATION (Scanner) ===
-        st.subheader("🤫 Silent Accumulation Scanner")
-        st.caption("Detect 'The Stealth Buy': High Delivery + Low Volatility (Smart Money hiding tracks).")
-        
-        # 1. Index Filter
-        shadow_cat = st.pills(
-            "Filter:", 
-            ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], 
-            default="Nifty 50",
-            key="shadow_cat_pills"
-        )
-        
-        # 2. Dropdown
-        shadow_options = get_common_tickers(category=shadow_cat)
-        selected_shadow_ticker = st.selectbox(
-            "Select Stock:", 
-            options=shadow_options,
-            key="shadow_stock_select"
-        )
-        
-        # Extract symbol
-        if " - " in selected_shadow_ticker:
-            acc_ticker = selected_shadow_ticker.split(' - ')[0]
-        else:
-            acc_ticker = selected_shadow_ticker
+                    st.warning("⚠️ Could not fetch sector data.")
 
-        col_acc_btn, _ = st.columns([1, 2])
-        with col_acc_btn:
-             st.write("")
-             acc_btn = st.button("🕵️ Detect Accumulation", type="primary", width='stretch')
+        with col_trap:
+            st.subheader("🪤 FII Trap Detector")
+            st.caption("FII positioning in Index Futures.")
+            trap = get_trap_indicator()
+            
+            status = trap['status']
+            long_pct = trap['fii_long_pct']
+            
+            st.metric("FII Index Long %", f"{long_pct}%", delta=status)
+            
+            if long_pct > 70:
+                 st.warning("⚠️ **Bull Trap Zone!** Overbought.")
+            elif long_pct < 30:
+                 st.success("✅ **Bear Trap Zone!** Oversold.")
+            else:
+                 st.info("⚖️ **Balanced Zone**")
+            st.caption(trap['message'])
+
+    with tab_sector:
+        st.subheader("📂 Sector Deep-Dive")
+        st.caption("Select a sector tab to analyze 'Smart Money' accumulation across its stocks.")
+        
+        available_sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
+        
+        # Sector selection via pills (visual, like Brand Shop tabs, but returns a value for auto-scan)
+        selected_sector = st.pills(
+            "Select Sector Cluster:", 
+            options=available_sectors, 
+            default=available_sectors[0],
+            key="sector_pill_selector"
+        )
+        
+        if selected_sector:
+            st.markdown(f"### 📊 Institutional Flow: {selected_sector}")
+            with st.spinner(f"Forensic scan of {selected_sector} stocks..."):
+                sector_acc_df = get_sector_stocks_accumulation(selected_sector)
+                if not sector_acc_df.empty:
+                    st.dataframe(
+                        sector_acc_df.style.background_gradient(subset=['Shadow Score'], cmap='Blues'),
+                        width='stretch',
+                        column_config={
+                            "Shadow Score": st.column_config.ProgressColumn("Accumulation Score", min_value=0, max_value=100, format="%d")
+                        }
+                    )
+                else:
+                    st.info(f"No deep-dive data available for {selected_sector}.")
+
+    with tab_stock:
+        st.subheader("🎯 Specific Stock Forensic")
+        st.caption("Combine Accumulation metrics with recent Whale Activity (Block Deals).")
+        
+        col_sel, col_btn = st.columns([3, 1])
+        with col_sel:
+            shadow_cat_stock = st.pills(
+                "Filter Index:", 
+                ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], 
+                default="Nifty 50",
+                key="shadow_stock_index_pills"
+            )
+            shadow_options = get_common_tickers(category=shadow_cat_stock)
+            selected_shadow_ticker = st.selectbox(
+                "Search Stock:", 
+                options=shadow_options,
+                key="shadow_stock_select_tab_final"
+            )
+            acc_ticker = selected_shadow_ticker.split(' - ')[0] if " - " in selected_shadow_ticker else selected_shadow_ticker
+
+        with col_btn:
+             st.write("<div style='height: 45px'></div>", unsafe_allow_html=True)
+             # Stock specific scan remains manual as it can be heavy and triggered multiple times
+             scan_stock = st.button("🕵️ Run Stock Scan", type="primary", use_container_width=True)
              
-        if acc_btn:
-            with st.spinner(f"Forensic analysis of {acc_ticker}..."):
+        if scan_stock:
+            # 1. Silent Accumulation
+            st.markdown(f"### 🤫 Accumulation Scan: {acc_ticker}")
+            with st.spinner(f"Analyzing {acc_ticker}..."):
                 res = detect_silent_accumulation(acc_ticker)
                 score = res.get('score', 0)
                 signals = res.get('signals', [])
                 
-                # Visual Meter
-                st.metric("Shadow Score", f"{score}/100", help=">70 indicates strong probability of accumulation")
-                st.progress(score / 100)
+                col_m1, col_m2 = st.columns([1, 2])
+                with col_m1:
+                    st.metric("Shadow Score", f"{score}/100")
+                with col_m2:
+                    st.progress(score / 100)
                 
                 if score > 60:
                     st.success("✅ **Accumulation Detected!**")
-                    for sig in signals:
-                        st.markdown(f"- 🟢 {sig}")
                 elif score < 30:
-                    st.error("❌ **No Signs of Accumulation** (Distribution or Random)")
+                    st.error("❌ **No Signs of Accumulation**")
                 else:
                     st.info("ℹ️ **Neutral / Inconclusive**")
-    
-    with col_right:
-        # === 2. WHALE ALERT ===
-        st.subheader("🐋 Whale Activity")
-        deals = fetch_block_deals()
-        
-        if deals:
-             st.markdown("**Recent Large Deals**")
-             import html
-             for d in deals:
-                 color = "green" if d['Type'] == 'BUY' else "red"
-                 icon = "🟢" if d['Type'] == 'BUY' else "🔴"
-                 
-                 safe_symbol = html.escape(str(d['Symbol']))
-                 safe_client = html.escape(str(d['Client']))
-                 
-                 st.markdown(f"""
-                 <div style='padding: 10px; border-radius: 5px; background-color: #262730; margin-bottom: 5px; border-left: 5px solid {color}'>
-                    <b>{icon} {safe_symbol}</b><br>
-                    <small>{safe_client}</small><br>
-                    <span style='color:{color}; font-weight:bold'>{d['Type']}</span> @ ₹{d['Price']} ({d['Qty']})
-                 </div>
-                 """, unsafe_allow_html=True)
-        else:
-            st.info("No recent block deals found.")
+                
+                for sig in signals:
+                    st.markdown(f"- 🟢 {sig}")
             
-        st.divider()
-        
-        # === 4. TRAP DETECTOR ===
-        st.subheader("🪤 FII Trap Detector")
-        trap = get_trap_indicator()
-        
-        status = trap['status']
-        long_pct = trap['fii_long_pct']
-        
-        st.metric("FII Index Long %", f"{long_pct}%", delta=status)
-        
-        if long_pct > 80:
-             st.warning("⚠️ **Bull Trap Zone!** Market Overbought.")
-        elif long_pct < 20:
-             st.success("✅ **Bear Trap Zone!** Market Oversold (Reversal Likely).")
-        else:
-             st.info("⚖️ **Balanced Zone**")
-        st.caption(trap['message'])
+            st.divider()
+            
+            # 2. Whale Activity
+            st.markdown(f"### 🐋 Whale Activity (Recent Block Deals)")
+            with st.spinner("Fetching specific block deals..."):
+                stock_deals = fetch_block_deals(symbol=acc_ticker)
+                
+                if stock_deals:
+                     import html
+                     for d in stock_deals:
+                         color = "green" if d['Type'] == 'BUY' else "red"
+                         icon = "🟢" if d['Type'] == 'BUY' else "🔴"
+                         safe_symbol = html.escape(str(d['Symbol']))
+                         safe_client = html.escape(str(d['Client']))
+                         
+                         st.markdown(f"""
+                         <div style='padding: 10px; border-radius: 5px; background-color: #262730; margin-bottom: 5px; border-left: 5px solid {color}'>
+                            <b>{icon} {safe_symbol}</b> | {d['Date']}<br>
+                            <small>{safe_client}</small><br>
+                            <span style='color:{color}; font-weight:bold'>{d['Type']}</span> @ ₹{d['Price']} ({d['Qty']})
+                         </div>
+                         """, unsafe_allow_html=True)
+                else:
+                    st.info(f"No recent specific block deals found for {acc_ticker} in the last 1 month.")

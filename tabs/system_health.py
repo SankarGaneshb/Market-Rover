@@ -96,7 +96,7 @@ def show_system_health_tab():
     with col4:
         st.metric("Total Activities", total_sessions)
         
-    st.markdown("---")
+    # st.markdown("---") # Removed redundant divider to save space
     
     # 4. Charts
     col_left, col_right = st.columns(2)

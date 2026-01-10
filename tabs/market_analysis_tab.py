@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
-from rover_tools.ticker_resources import get_common_tickers
+from rover_tools.ticker_resources import get_common_tickers, NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META
 from utils.security import sanitize_ticker
+import base64
+import html
 
 # Shared function to run analysis and render UI
 def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False):
@@ -460,6 +462,70 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             st.info("Check logs for details")
 
 
+def render_visual_ticker_selector(ticker_category):
+    """
+    Renders a visual, card-based selector for tickers, grouped by sector for Nifty 50.
+    Returns the selected ticker if one was clicked, else None.
+    """
+    selected_ticker = None
+    
+    if ticker_category == "Nifty 50":
+        # Group by Sector
+        sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
+        
+        st.markdown("##### 📂 Browse by Sector")
+        tabs = st.tabs(sectors)
+        
+        for i, sector in enumerate(sectors):
+            with tabs[i]:
+                sector_tickers = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector]
+                
+                # Grid for cards
+                cols = st.columns(4)
+                for j, ticker in enumerate(sector_tickers):
+                    col = cols[j % 4]
+                    meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
+                    
+                    # Generate SVG Logo (consistent with Brand Shop)
+                    tick_short = ticker.replace('.NS', '')[:4]
+                    color = meta['color']
+                    text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
+                    
+                    svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                    b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
+                    icon_src = f"data:image/svg+xml;base64,{b64_svg}"
+                    
+                    with col:
+                        # Card UI
+                        safe_name = html.escape(meta['name'])
+                        st.markdown(f"""
+                            <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
+                                <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
+                                <div style="line-height: 1.1;">
+                                    <div style="font-weight: bold; font-size: 13px; color: #333;">{tick_short}</div>
+                                    <div style="font-size: 10px; color: #666;">{safe_name}</div>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        if st.button(f"Analyze {tick_short}", key=f"vis_{ticker}", use_container_width=True):
+                            selected_ticker = ticker
+    else:
+        # For other categories, show a simpler grid of common tickers if not too many
+        common = get_common_tickers(category=ticker_category)
+        if common and len(common) <= 30:
+            st.markdown(f"##### 🏢 {ticker_category} Stocks")
+            cols = st.columns(5)
+            for i, t_full in enumerate(common):
+                ticker = t_full.split(' - ')[0]
+                tick_short = ticker.replace('.NS', '')
+                with cols[i % 5]:
+                    if st.button(tick_short, key=f"vis_{ticker}", use_container_width=True):
+                        selected_ticker = ticker
+                        
+    return selected_ticker
+
+
 def show_market_analysis_tab():
 
     """Show the Unified Market Analysis Tab"""
@@ -524,7 +590,7 @@ def show_market_analysis_tab():
                 
                 strategy_mode = st.radio(
                     "2. Filter Strategy",
-                    options=["Standard View", seasonality_label_curr, seasonality_label_next],
+                    options=["Standard View", seasonality_label_curr, seasonality_label_next, "✏️ Custom Ticker", "📂 Sector Browser"],
                     horizontal=True,
                     key="heatmap_strategy_radio"
                 )
@@ -540,6 +606,12 @@ def show_market_analysis_tab():
             # Logic Branching
             if strategy_mode == "Standard View":
                 common_tickers = get_common_tickers(category=ticker_category)
+            
+            elif strategy_mode == "📂 Sector Browser":
+                common_tickers = [] # Visual browser handles this
+            
+            elif strategy_mode == "✏️ Custom Ticker":
+                common_tickers = []
                 
             else:
                 # Seasonality Logic
@@ -608,37 +680,32 @@ def show_market_analysis_tab():
 
                     
 
-            ticker_options = ["✨ Select or Type to Search..."] + common_tickers + ["✏️ Custom Input"]
-
+            ticker_options = ["✨ Select or Type to Search..."] + common_tickers
+            if strategy_mode != "✏️ Custom Ticker":
+                ticker_options += ["✏️ Custom Input"]
             
-
             selected_opt = st.selectbox(
-
                 "Stock Selection", 
-
                 options=ticker_options, 
-
                 index=default_ix if default_ix < len(ticker_options) else 0,
-
                 key="heatmap_ticker_select",
-
                 help=f"Listing {ticker_category} stocks."
-
             )
-
             
-
-            if selected_opt == "✏️ Custom Input" or selected_opt == "✨ Select or Type to Search...":
-
+            if selected_opt == "✏️ Custom Input" or selected_opt == "✨ Select or Type to Search..." or strategy_mode == "✏️ Custom Ticker":
                  # Use query param if custom
-
                  def_val = qp_ticker if qp_ticker else "SBIN.NS"
-
                  ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value=def_val, key="heatmap_ticker_custom")
-
             else:
-
                  ticker_raw = selected_opt.split(' - ')[0]
+
+        # === Visual Selector Interface ===
+        if strategy_mode == "📂 Sector Browser":
+            st.markdown("---")
+            visual_selection = render_visual_ticker_selector(ticker_category)
+            if visual_selection:
+                st.session_state.heatmap_active_ticker = visual_selection
+                st.rerun()
 
         
 
@@ -721,14 +788,14 @@ def show_market_analysis_tab():
         
 
         st.markdown("##### ⚡ Quick Select Index")
-
-        selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
-
+        selected_index = st.pills("Choose an Index:", index_names + ["✏️ Custom"], selection_mode="single", default="Nifty 50", key="bench_pills")
         
-
-        if selected_index:
-
+        if selected_index == "✏️ Custom":
+             ticker_raw = st.text_input("Enter Index Symbol (e.g. ^GSPC)", value="^NSEI", key="bench_custom_input")
+             if ticker_raw:
+                 st.markdown(f"### Analyzing: **Custom Index** (`{ticker_raw}`)")
+                 run_analysis_ui(ticker_raw, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
+        elif selected_index:
             ticker = major_indices[selected_index]
-
             st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
             run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
