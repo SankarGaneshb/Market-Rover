@@ -16,18 +16,23 @@ from rover_tools.market_context_tool import analyze_market_context
 from rover_tools.visualizer_tool import generate_market_snapshot
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
 from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals_tool, get_trap_indicator_tool
+from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
+from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
 import os
 
-# Import metrics tracking
-from utils.metrics import track_api_call, track_error
-from utils.logger import get_logger
+# ... (existing imports)
 
-# Initialize logger
-logger = get_logger(__name__)
+# ...
 
-# Global LLM instance (lazy initialized)
+# ... (existing imports)
+
+# ...
+
+
+
+
+
 _gemini_llm = None
-
 
 def get_gemini_llm():
     """Create and cache the Gemini LLM instance on first use."""
@@ -106,14 +111,16 @@ def create_news_scraper_agent():
             get_global_cues, 
             get_corporate_actions, 
             scrape_general_market_news, 
-            batch_scrape_news
+            batch_scrape_news,
+            announce_regime_tool, # NEW
+            log_pivot_tool        # NEW
         ],
-        verbose=True,
-        max_iter=3, # Ultra strict limit for rate limiting
-        allow_delegation=False,
-        llm=llm,
-        function_calling_llm=llm
+        # ...
     )
+
+
+
+
 
 
 def create_sentiment_analyzer_agent():
@@ -194,8 +201,17 @@ def create_shadow_analyst_agent():
             "If Sentiment is PANIC but Block Deals are BUYING, you scream 'ACCUMULATION'. "
             "If Sentiment is EUPHORIA but Delivery is LOW, you scream 'TRAP'. "
             "You are the deeper truth behind the noise."
+            "CRITICAL: You have a MEMORY. Always check if you were wrong last time before shouting."
         ),
-        tools=[analyze_sector_flow_tool, fetch_block_deals_tool, batch_detect_accumulation, get_trap_indicator_tool], 
+        tools=[
+            analyze_sector_flow_tool, 
+            fetch_block_deals_tool, 
+            batch_detect_accumulation, 
+            get_trap_indicator_tool,
+            read_past_predictions_tool,
+            save_prediction_tool,
+            log_pivot_tool
+        ], 
         verbose=True,
         max_iter=5, # Strict limit to prevent loops
         allow_delegation=False,

@@ -45,6 +45,7 @@ from tabs.shadow_tab import show_shadow_tracker_tab
 from tabs.forensic_tab import show_forensic_tab
 from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
+from tabs.brain_tab import show_brain_tab
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -170,6 +171,8 @@ def main():
             "🔍 Market Analysis",
             "🕵️ Shadow Tracker",
             "🛡️ Integrity Shield",
+            "---",
+            "🧠 Agent Brain",
              "---",
             "👤 Investor Profile",
             "⚙️ System Health"
@@ -302,6 +305,9 @@ def main():
 
     elif selection.startswith("🛡️ Integrity Shield"):
         show_forensic_tab()
+    
+    elif selection.startswith("🧠 Agent Brain"):
+        show_brain_tab()
         
     elif selection.startswith("👤 Investor Profile"):
         show_profiler_tab()

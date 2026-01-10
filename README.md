@@ -25,6 +25,7 @@ Market-Rover is an AI-powered platform with a **comprehensive suite of intellige
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 | **👤 Investor Profiler** | **Model Portfolio Generator** with "Sleep Test" | Asset Allocation, Composite Benchmarking |
 | **🛡️ Integrity Shield** | **Forensic Fraud Detection** (Red/Amber Flags) | Balance Sheet Audit, Cash Flow Analysis |
+| **🧠 Agent Brain** | **Agent Observability** (Memory, Logic, Pivots) | JSON Ledger, Autonomy Logger |
 
 ---
 
@@ -133,6 +134,15 @@ Monitor the efficiency of the development cycle itself:
 - ✅ **Cycle Time Tracking** - Measure how long features take to build.
 - ✅ **Exception Audit** - Track every "Emergency Override" or broken rule.
 - ✅ **Stability Score** - Dynamic score based on protocol adherence.
+
+### **🧠 Agent Brain (Autonomy Monitor)**
+*(Sidebar Menu: Agent Brain)*
+
+Visualize the **internal thought process** of your AI agents:
+
+- ✅ **Active Memory Viewer** - See the exact "Past Predictions" the agents are recalling.
+- ✅ **Autonomy Event Stream** - Track real-time decisions like "Regime Changes" and "Tool Pivots".
+- ✅ **Live Logic Matrix** - Understand WHY the agent switched to "Defensive Mode".
 
 **Security:** Input sanitization, rate limiting (20 req/min), persistent session state.
 
@@ -386,9 +396,26 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 MAX_PARALLEL_STOCKS=5          # Concurrent analysis
 LOOKBACK_DAYS=7                # News lookback period
 CONVERT_TO_CRORES=true         # Currency formatting
+MAX_ITERATIONS=5               # Max agent reasoning loops
+PORTFOLIO_FILE=Portfolio.csv   # Default portfolio filename
+RATE_LIMIT_DELAY=1.0           # Delay between API calls
+WEB_PORT=8501                  # Streamlit port
+WEB_HOST=0.0.0.0               # Streamlit host
 ```
 
 ### Streamlit Secrets (Production)
+
+To enable Social Login (Google), add the following to your `.streamlit/secrets.toml`:
+
+```toml
+[oauth.google]
+client_id = "your-google-client-id"
+client_secret = "your-google-client-secret"
+authorize_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
+token_endpoint = "https://oauth2.googleapis.com/token"
+user_info_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
+redirect_uri = "https://market-rover.streamlit.app"
+```
 
 ### Daily Issue Reports
 
