@@ -12,16 +12,19 @@ from unittest.mock import MagicMock, patch
 
 def test_rover_agents_initialization():
     # Test that agents are created with correct config
-    # We patch agents.Agent to intercept calls
-    with patch('crewai.Agent') as MockAgent, \
-         patch('crewai.LLM') as MockLLM, \
+    
+    # 1. Reload first to get fresh module
+    import agents
+    importlib.reload(agents)
+    
+    # 2. Patch the objects inside the 'agents' module
+    # We use 'agents.Agent' because that's the reference used inside the module code
+    with patch('agents.Agent') as MockAgent, \
+         patch('agents.LLM') as MockLLM, \
          patch('agents.get_gemini_llm') as MockGetLLM:
         
-        import agents
-        importlib.reload(agents)
         from agents import AgentFactory
         
-        # We need to re-create agents to trigger the mock
         agents_dict = AgentFactory.create_all_agents()
         
         # Verify Portfolio Manager creation
