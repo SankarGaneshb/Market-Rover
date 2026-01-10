@@ -119,7 +119,11 @@ def create_news_scraper_agent():
             announce_regime_tool, # NEW
             log_pivot_tool        # NEW
         ],
-        # ...
+        verbose=True,
+        max_iter=MAX_ITERATIONS,
+        allow_delegation=False,
+        llm=llm,
+        function_calling_llm=llm
     )
 
 
