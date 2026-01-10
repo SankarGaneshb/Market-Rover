@@ -7,8 +7,53 @@ from typing import Type
 from pydantic import BaseModel, Field
 from utils.logger import get_logger
 from utils.metrics import track_error_detail
+import streamlit as st
 
 logger = get_logger(__name__)
+
+@st.cache_data(ttl=300, show_spinner=False)
+def run_snapshot_logic(ticker: str):
+    """
+    Cached worker function for market snapshot analysis.
+    Cache expires in 5 minutes (300s).
+    """
+    # Initialize components
+    fetcher = MarketDataFetcher()
+    analyzer = MarketAnalyzer()
+    visualizer = DashboardRenderer()
+
+    # 1. Fetch Data
+    logger.info("Fetching data for %s...", ticker)
+    ltp = fetcher.fetch_ltp(ticker)
+    if ltp is None:
+        return f"Error: Could not fetch LTP for {ticker}"
+
+    # Fetch full history for heatmap
+    history = fetcher.fetch_full_history(ticker)
+    # Fetch option chain for OI analysis
+    option_chain = fetcher.fetch_option_chain(ticker)
+
+    # 2. Analyze
+    # Use long-term volatility (1 year) for stability
+    volatility = analyzer.calculate_volatility(history, window=252)
+    returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
+    
+    # Scenarios based on Volatility only (No OI)
+    scenarios = analyzer.model_scenarios(ltp, volatility, days_remaining=30)
+        
+    # 2026 Forecast
+    forecast_2026 = analyzer.calculate_2026_forecast(history)
+
+    # 3. Visualize (Returns buffer)
+    image_buffer = visualizer.generate_dashboard(ticker, history, None, scenarios, returns_matrix, forecast_2026)
+    
+    return {
+        "ltp": ltp,
+        "volatility": volatility,
+        "scenarios": scenarios,
+        "forecast_2026": forecast_2026,
+        "image_buffer": image_buffer
+    }
 
 class MarketSnapshotInput(BaseModel):
     """Input schema for Market Snapshot Tool."""
@@ -26,39 +71,21 @@ class MarketSnapshotTool(BaseTool):
 
     def _run(self, ticker: str) -> str:
         logger.debug(f"MarketSnapshotTool called for {ticker}")
-        # Initialize components
-        fetcher = MarketDataFetcher()
-        analyzer = MarketAnalyzer()
-        visualizer = DashboardRenderer()
-
-        # 1. Fetch Data
-        logger.info("Fetching data for %s...", ticker)
-        ltp = fetcher.fetch_ltp(ticker)
-        if ltp is None:
-            return f"Error: Could not fetch LTP for {ticker}"
-
-        # Fetch full history for heatmap
-        history = fetcher.fetch_full_history(ticker)
-        # Fetch option chain for OI analysis
-        option_chain = fetcher.fetch_option_chain(ticker)
-
-        # 2. Analyze
-        print(f"Analyzing {ticker}...")
-        # Use long-term volatility (1 year) for stability
-        volatility = analyzer.calculate_volatility(history, window=252)
-        returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
         
-        # Scenarios based on Volatility only (No OI)
-        scenarios = analyzer.model_scenarios(ltp, volatility, days_remaining=30)
-            
-        # 2026 Forecast
-        forecast_2026 = analyzer.calculate_2026_forecast(history)
-
-        # 3. Visualize
-        print(f"Generating dashboard for {ticker}...")
-        image_buffer = visualizer.generate_dashboard(ticker, history, None, scenarios, returns_matrix, forecast_2026)
+        # Call cached logic
+        result = run_snapshot_logic(ticker)
         
-        # Save image
+        if isinstance(result, str) and result.startswith("Error"):
+            return result
+        
+        # Unpack
+        ltp = result['ltp']
+        volatility = result['volatility']
+        scenarios = result['scenarios']
+        forecast_2026 = result['forecast_2026']
+        image_buffer = result['image_buffer']
+
+        # Save image (Side effect, must be done outside cache or cache returns path)
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
         filename = f"{output_dir}/{ticker}_snapshot.png"
