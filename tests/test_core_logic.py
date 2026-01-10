@@ -33,7 +33,8 @@ with patch('crewai.Agent') as MockAgent, \
 def test_rover_agents_initialization():
     # Test that agents are created with correct config
     # We patch agents.Agent to intercept calls
-    with patch('agents.Agent') as MockAgent:
+    with patch('agents.Agent') as MockAgent, \
+         patch('agents.get_gemini_llm') as MockLLM:
         agents = AgentFactory.create_all_agents()
         
         # Verify Portfolio Manager creation
