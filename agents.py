@@ -18,7 +18,11 @@ from config import MAX_ITERATIONS, GOOGLE_API_KEY
 from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals_tool, get_trap_indicator_tool
 from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
 from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
+from utils.logger import get_logger
+from utils.metrics import track_error
 import os
+
+logger = get_logger(__name__)
 
 # ... (existing imports)
 
