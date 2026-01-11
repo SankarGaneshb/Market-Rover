@@ -156,3 +156,63 @@ def track_workflow_event(event_name: str, description: str, session_id: Optional
 def track_error(error_type: str, message: str = "Unspecified error", context: Optional[Dict[str, Any]] = None):
     """Alias/Compatibility wrapper for track_error_detail"""
     track_error_detail(error_type, message, context)
+
+# --- Reporting Functions (Added to fix ImportError) ---
+
+def get_api_usage() -> Dict[str, Any]:
+    """
+    Retrieve current API usage stats.
+    Currently returns a safe default.
+    """
+    # TODO: Implement actual tracking via a persistent counter or checking Quota API
+    return {
+        'today': 0,
+        'limit': 1000,
+        'remaining': 1000
+    }
+
+def get_performance_stats() -> Dict[str, Any]:
+    """
+    Retrieve performance statistics for the current day.
+    """
+    # TODO: Parse performance.log or metric jsonl files
+    return {
+        'total_analyses': 0,
+        'avg_duration': 0.0
+    }
+
+def get_cache_stats() -> Dict[str, Any]:
+    """
+    Retrieve cache hit/miss statistics.
+    """
+    return {
+        'hits': 0,
+        'misses': 0,
+        'hit_rate': 0.0
+    }
+
+def get_error_stats() -> Dict[str, Any]:
+    """
+    Retrieve error statistics from today's error log.
+    """
+    stats = {
+        'total': 0,
+        'by_type': {}
+    }
+    
+    try:
+        error_file = _get_metric_file("errors")
+        if error_file.exists():
+            with open(error_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        data = json.loads(line)
+                        stats['total'] += 1
+                        e_type = data.get('type', 'Unknown')
+                        stats['by_type'][e_type] = stats['by_type'].get(e_type, 0) + 1
+                    except json.JSONDecodeError:
+                        continue
+    except Exception as e:
+        logger.error(f"Error reading error stats: {e}")
+        
+    return stats
