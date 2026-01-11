@@ -709,7 +709,9 @@ def render_upload_section_logic(max_parallel):
 
             if saved_names:
 
-                selected_load = st.selectbox("📂 Load Saved Portfolio", ["-- Select --"] + saved_names, key="load_portfolio_select")
+                # Auto-select first portfolio if available
+                default_idx = 1 if saved_names else 0
+                selected_load = st.selectbox("📂 Load Saved Portfolio", ["-- Select --"] + saved_names, index=default_idx, key="load_portfolio_select")
 
                 if selected_load != "-- Select --":
 
