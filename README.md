@@ -154,7 +154,6 @@ Visualize the **internal thought process** of your AI agents:
 
 Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 
-```
 ```mermaid
 graph TD
     User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
@@ -179,7 +178,6 @@ graph TD
     
     E -->|Final Intelligence Report| User
     F -->|Visual Dashboard| User
-```
 ```
 
 **Key Technologies:**
