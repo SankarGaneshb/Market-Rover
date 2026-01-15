@@ -4,6 +4,7 @@ from rover_tools.ticker_resources import get_common_tickers, NIFTY_50_SECTOR_MAP
 from utils.security import sanitize_ticker
 import base64
 import html
+from utils.visualizer_interface import generate_market_snapshot
 
 # Shared function to run analysis and render UI
 def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False):
@@ -456,6 +457,38 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                  st.warning("Insufficient data for forecast")
 
 
+
+             
+                 # === SHARE ANALYSIS FEATURE ===
+                 try:
+                    with st.expander("📤 Share Analysis & Snapshot", expanded=False):
+                        st.caption("Generate a professional market snapshot to share with your network.")
+                        
+                        col_share_btn, col_share_links = st.columns([1, 2])
+                        
+                        with col_share_btn:
+                            if st.button("📸 Generate Snapshot", key=f"snap_{key_prefix}_{ticker}", type="secondary"):
+                                with st.spinner("Rendering snapshot (this uses AI)..."):
+                                    res = generate_market_snapshot(ticker)
+                                    if res['success'] and res['image_path']:
+                                        st.image(res['image_path'], caption=f"Market-Rover Snapshot: {ticker}", width="stretch")
+                                        
+                                        # Social Intent Links
+                                        share_text = f"Check out my AI-powered analysis of {ticker} on Market-Rover! %23StockMarket %23{ticker} %23AI"
+                                        
+                                        st.markdown("##### 🔗 Share via:")
+                                        s_col1, s_col2, s_col3 = st.columns(3)
+                                        with s_col1:
+                                            st.link_button("X (Twitter)", f"https://twitter.com/intent/tweet?text={share_text}")
+                                        with s_col2:
+                                            st.link_button("WhatsApp", f"https://wa.me/?text={share_text}")
+                                        with s_col3:
+                                            st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={share_text}") # Basic LinkedIn intent
+                                            
+                                    else:
+                                        st.error(f"Snapshot failed: {res['message']}")
+                 except Exception as ex:
+                    st.warning(f"Share feature unavailable: {str(ex)}")
 
          except Exception as e:
 

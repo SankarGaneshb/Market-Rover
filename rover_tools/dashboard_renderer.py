@@ -205,7 +205,8 @@ class DashboardRenderer:
             ax.text(x_start, 0.3, value, color=color, fontsize=16, fontweight='bold', ha='left')
             x_start += 0.25
         
-        ax.text(0.5, 0.1, "Market Rover 4.1", color='#333333', fontsize=14, ha='center', fontweight='bold', alpha=0.5)
+        # Watermark
+        fig.text(0.98, 0.02, "Market-Rover", color='white', fontsize=18, fontweight='bold', ha='right', alpha=0.3)
 
 if __name__ == "__main__":
     pass

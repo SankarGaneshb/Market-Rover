@@ -38,10 +38,8 @@ from utils.logger import get_logger
 
 # Import Tabs
 from tabs.portfolio_tab import show_portfolio_analysis_tab
-from tabs.visualizer_tab import show_visualizer_tab
 from tabs.market_analysis_tab import show_market_analysis_tab
 from tabs.forecast_tab import show_forecast_tracker_tab
-from tabs.shadow_tab import show_shadow_tracker_tab
 from tabs.shadow_tab import show_shadow_tracker_tab
 from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
@@ -72,10 +70,6 @@ if 'test_mode' not in st.session_state:
     st.session_state.test_mode = False
 
 # Rate limiters for API protection
-if 'visualizer_limiter' not in st.session_state:
-    st.session_state.visualizer_limiter = RateLimiter(max_requests=30, time_window_seconds=60)
-
-if 'heatmap_limiter' not in st.session_state:
     st.session_state.heatmap_limiter = RateLimiter(max_requests=20, time_window_seconds=60)
 
 if 'portfolio_limiter' not in st.session_state:
@@ -193,11 +187,9 @@ def main():
         # Complete Options List
         all_options = [
             "📤 Portfolio Analysis",
-            "📈 Market Visualizer",
             "🎯 Forecast Tracker",
             "---",
             "🔍 Market Analysis",
-            "🕵️ Shadow Tracker",
             "🕵️ Shadow Tracker",
             "---",
             "🧠 Agent Brain",
@@ -244,9 +236,6 @@ def main():
     if selection.startswith("📤 Portfolio Analysis"):
         show_portfolio_analysis_tab(max_parallel)
     
-    elif selection.startswith("📈 Market Visualizer"):
-        show_visualizer_tab()
-
     elif selection.startswith("🔍 Market Analysis"):
         show_market_analysis_tab()
 
