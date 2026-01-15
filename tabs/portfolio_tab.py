@@ -978,7 +978,18 @@ def render_upload_section_logic(max_parallel):
                              ticker = row['Symbol']
                              res = detect_silent_accumulation(ticker)
                              if res: 
-                                 shadow_results.append(res)
+                                 # Adapting to match expected columns
+                                 score = res.get('score', 0)
+                                 signal_str = "Strong" if score >= 70 else ("Moderate" if score >= 40 else "Weak")
+                                 if score == 0:
+                                     signal_str = "None"
+                                     
+                                 shadow_results.append({
+                                     'ticker': ticker,
+                                     'shadow_score': score,
+                                     'signal': signal_str,
+                                     'reasoning': ", ".join(res.get('signals', []))
+                                 })
                              
                              count += 1
                              my_bar.progress(count/total_stocks)
