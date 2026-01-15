@@ -238,6 +238,9 @@ def main():
 
     # Main content area - Render based on selection
     
+    if selection.startswith("👤 Investor Profile"):
+        show_profiler_tab()
+
     if selection.startswith("📤 Portfolio Analysis"):
         show_portfolio_analysis_tab(max_parallel)
     
@@ -259,9 +262,6 @@ def main():
     elif selection.startswith("🧠 Agent Brain"):
         show_brain_tab()
         
-    elif selection.startswith("👤 Investor Profile"):
-        show_profiler_tab()
-
     elif selection.startswith("⚙️ System Health"):
         show_system_health_tab()
 
