@@ -10,7 +10,7 @@ from typing import Optional, Callable
 
 # Structured logging and metrics
 from utils.logger import logger
-from utils.metrics import track_error_detail
+from utils.metrics import track_error_detail, track_workflow_start, track_workflow_end
 
 
 class MarketRoverCrew:
@@ -56,6 +56,8 @@ class MarketRoverCrew:
         logger.info(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
         logger.info("%s", "=" * 60)
         
+        session_id = track_workflow_start("Market Analysis")
+        
         try:
             # Kick off the crew (parallel processing handled within tasks)
             result = self.crew.kickoff()
@@ -63,11 +65,13 @@ class MarketRoverCrew:
             logger.info("%s", "\n" + "=" * 60)
             logger.info("✅ Analysis Complete!")
 
+            track_workflow_end(session_id, "success")
             return result
 
         except Exception as e:
             # Log & persist detailed error information for daily triage
             logger.exception("Error during crew execution: %s", str(e))
+            track_workflow_end(session_id, "failed")
             try:
                 track_error_detail(
                     error_type="CrewExecutionError",
@@ -75,6 +79,7 @@ class MarketRoverCrew:
                     context={
                         'max_parallel_stocks': self.max_parallel_stocks,
                         'num_agents': len(self.agents),
+                        'session_id': session_id
                     },
                     user_id=None,
                 )

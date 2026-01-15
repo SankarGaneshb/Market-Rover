@@ -42,7 +42,7 @@ from tabs.visualizer_tab import show_visualizer_tab
 from tabs.market_analysis_tab import show_market_analysis_tab
 from tabs.forecast_tab import show_forecast_tracker_tab
 from tabs.shadow_tab import show_shadow_tracker_tab
-from tabs.forensic_tab import show_forensic_tab
+from tabs.shadow_tab import show_shadow_tracker_tab
 from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
 from tabs.brain_tab import show_brain_tab
@@ -198,7 +198,7 @@ def main():
             "---",
             "🔍 Market Analysis",
             "🕵️ Shadow Tracker",
-            "🛡️ Integrity Shield",
+            "🕵️ Shadow Tracker",
             "---",
             "🧠 Agent Brain",
              "---",
@@ -256,8 +256,6 @@ def main():
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
 
-    elif selection.startswith("🛡️ Integrity Shield"):
-        show_forensic_tab()
     
     elif selection.startswith("🧠 Agent Brain"):
         show_brain_tab()

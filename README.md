@@ -24,7 +24,6 @@ Market-Rover is an AI-powered platform with a **comprehensive suite of intellige
 | **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 | **👤 Investor Profiler** | **Model Portfolio Generator** with "Sleep Test" | Asset Allocation, Composite Benchmarking |
-| **🛡️ Integrity Shield** | **Forensic Fraud Detection** (Red/Amber Flags) | Balance Sheet Audit, Cash Flow Analysis |
 | **🧠 Agent Brain** | **Agent Observability** (Memory, Logic, Pivots) | JSON Ledger, Autonomy Logger |
 
 ---
@@ -118,14 +117,6 @@ Scientific asset allocation based on your psychological risk tolerance:
 - ✅ **🤖 Model Portfolio Generator** - Auto-generates a high-quality stock list matching your allocated percentages.
 - ✅ **🚀 Comparison Simulation** - Backtests your generated model portfolio against a **Composite Benchmark** (weighted average of Nifty/Gold/Bonds) to prove Alpha.
 
-### **🛡️ Integrity Shield (Forensic Audit)**
-*(Sidebar Menu: Integrity Shield)*
-
-Institutional-grade fraud detection engine to avoid "landmines":
-
-- ✅ **Red Flag Scanner** - Scans Balance Sheets for manipulation (e.g. rising receivables vs falling sales).
-- ✅ **Cash Flow Analysis** - Detects "fictitious revenue" by comparing Net Profit vs Operating Cash Flow.
-- ✅ **Simple Badge System** - Returns **CLEAN**, **CAUTION**, or **CRITICAL RISK** status instantly.
 
 ### **⚙️ System Health (New)**
 
@@ -160,6 +151,7 @@ graph TD
     
     subgraph "Hybrid Intelligence Funnel"
         A -->|Validated Tickers| B[Market Strategist]
+        B -.->|Calls Integrity Shield| B1[Forensic Check]
         B -->|Macro & News Context| C[Sentiment Analyzer]
         A -->|Tickers| D[Technical Analyst]
         

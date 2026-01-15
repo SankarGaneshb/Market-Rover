@@ -41,6 +41,10 @@ def create_market_strategy_task(agent, context):
             2. **Deep Dive**: If `scrape_general_market_news` returns generic noise, pivot to `batch_scrape_news` for specific ticker details.
             3. **Conflict Resolution**: If News says "Results Bad" but Price is up, you MUST use `get_corporate_actions` to check if a Dividend was declared.
             
+            **SATYAM PROTOCOL (Accounting Integrity)**:
+            - If a stock is a Smallcap OR news mentions "Audit" / "Governance", you MUST run `check_accounting_fraud`.
+            - If it returns "FORENSIC AUDIT WARNING", flag this immediately in your report as "UNINVESTABLE" regardless of technicals.
+            
             **Synthesis**:
             Combine these layers. Example: "Asian Paints (Micro) is falling because Crude is up (Global), despite good results (Official)."
 

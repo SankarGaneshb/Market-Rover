@@ -18,6 +18,7 @@ from config import MAX_ITERATIONS, GOOGLE_API_KEY
 from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals_tool, get_trap_indicator_tool
 from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
 from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
+from rover_tools.forensic_tool import check_accounting_fraud # NEW
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
@@ -117,7 +118,8 @@ def create_news_scraper_agent():
             scrape_general_market_news, 
             batch_scrape_news,
             announce_regime_tool, # NEW
-            log_pivot_tool        # NEW
+            log_pivot_tool,        # NEW
+            check_accounting_fraud # INTEGRITY SHIELD
         ],
         verbose=True,
         max_iter=MAX_ITERATIONS,
