@@ -444,8 +444,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                  with col_save:
                      from utils.forecast_tracker import save_forecast
                      if st.button("💾 Save to Tracker", key=f"save_{ticker}", help="Save this forecast to track performance over time"):
-                        if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', [])):
-                            st.success("✅ Saved!")
+                        # Get current user
+                        curr_user = st.session_state.get('username', 'guest')
+                        if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', []), username=curr_user):
+                            st.success(f"✅ Saved for {curr_user}!")
 
 
 
