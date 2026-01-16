@@ -2,6 +2,7 @@ from crewai.tools import BaseTool
 from rover_tools.market_data import MarketDataFetcher
 from rover_tools.market_analytics import MarketAnalyzer
 from rover_tools.dashboard_renderer import DashboardRenderer
+from rover_tools.analytics.seasonality_calendar import SeasonalityCalendar
 import os
 from typing import Type
 from pydantic import BaseModel, Field
@@ -11,7 +12,7 @@ import streamlit as st
 
 logger = get_logger(__name__)
 
-@st.cache_data(ttl=300, show_spinner=False)
+# @st.cache_data(ttl=300, show_spinner=False)
 def run_snapshot_logic(ticker: str):
     """
     Cached worker function for market snapshot analysis.
@@ -30,8 +31,6 @@ def run_snapshot_logic(ticker: str):
 
     # Fetch full history for heatmap
     history = fetcher.fetch_full_history(ticker)
-    # Fetch option chain for OI analysis
-    option_chain = fetcher.fetch_option_chain(ticker)
 
     # 2. Analyze
     # Use long-term volatility (1 year) for stability
@@ -40,20 +39,43 @@ def run_snapshot_logic(ticker: str):
     
     # Scenarios based on Volatility only (No OI)
     scenarios = analyzer.model_scenarios(ltp, volatility, days_remaining=30)
+    
+    # Seasonality Stats (Win Rate, Avg Return)
+    seasonality_stats = analyzer.calculate_seasonality(history)
+    
+    # 2026 Calendar Analysis
+    calendar_tool = SeasonalityCalendar(history)
+    calendar_df = calendar_tool.generate_analysis()
+    # We will pass the tool or df to renderer to generate the plot
         
     # 2026 Forecast
     forecast_2026 = analyzer.calculate_2026_forecast(history)
 
     # 3. Visualize (Returns buffer)
-    image_buffer = visualizer.generate_dashboard(ticker, history, None, scenarios, returns_matrix, forecast_2026)
-    
-    return {
-        "ltp": ltp,
-        "volatility": volatility,
-        "scenarios": scenarios,
-        "forecast_2026": forecast_2026,
-        "image_buffer": image_buffer
-    }
+    try:
+        # 3. Visualize (Returns buffer)
+        # Pass new data components (Seasonality, Calendar) to PDF generator
+        pdf_buffer = visualizer.generate_pdf_report(
+            ticker=ticker, 
+            history_df=history, 
+            scenarios=scenarios, 
+            returns_matrix=returns_matrix, 
+            forecast_2026=forecast_2026,
+            seasonality_stats=seasonality_stats,
+            calendar_tool=calendar_tool,
+            calendar_df=calendar_df
+        )
+        
+        return {
+            "ltp": ltp,
+            "volatility": volatility,
+            "scenarios": scenarios,
+            "forecast_2026": forecast_2026,
+            "pdf_buffer": pdf_buffer
+        }
+    except Exception as e:
+        logger.error(f"Snapshot logic failed for {ticker}: {e}", exc_info=True)
+        return f"Error: {str(e)}"
 
 class MarketSnapshotInput(BaseModel):
     """Input schema for Market Snapshot Tool."""
@@ -62,10 +84,9 @@ class MarketSnapshotInput(BaseModel):
 class MarketSnapshotTool(BaseTool):
     name: str = "Generate Market Snapshot"
     description: str = (
-        "Generates a high-fidelity market snapshot for a given stock ticker. "
-        "Fetches data, performs derivative analysis (PCR, Max Pain, Volatility), "
-        "and creates a visual dashboard. "
-        "Returns the path to the generated image and a text summary."
+        "Generates a multi-page PDF market report for a given stock ticker. "
+        "Includes Price, Heatmap, Seasonality, and 2026 Forecast. "
+        "Returns the path to the generated PDF report and a text summary."
     )
     args_schema: Type[BaseModel] = MarketSnapshotInput
 
@@ -83,17 +104,18 @@ class MarketSnapshotTool(BaseTool):
         volatility = result['volatility']
         scenarios = result['scenarios']
         forecast_2026 = result['forecast_2026']
-        image_buffer = result['image_buffer']
+        forecast_2026 = result['forecast_2026']
+        pdf_buffer = result['pdf_buffer']
 
         # Save image (Side effect, must be done outside cache or cache returns path)
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
-        filename = f"{output_dir}/{ticker}_snapshot.png"
+        filename = f"{output_dir}/{ticker}_report.pdf"
         
         with open(filename, "wb") as f:
-            f.write(image_buffer.getbuffer())
+            f.write(pdf_buffer.getbuffer())
 
-        # 4. Return Summary
+        # 4. Return Summary (Update link to PDF)
         neutral_start = scenarios['neutral_range'][0]
         neutral_end = scenarios['neutral_range'][1]
         bull_tgt = scenarios['bull_target']
@@ -109,7 +131,7 @@ class MarketSnapshotTool(BaseTool):
         - **Bull Target:** {bull_tgt:.0f}
         - **Bear Target:** {bear_tgt:.0f}
         
-        [Dashboard Image]({filename})
+        [Download PDF Report]({filename})
         """
         
         if forecast_2026:

@@ -1,9 +1,21 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 import pandas as pd
 import io
+import warnings
 from PIL import Image
+
+# === MONKEY PATCH FOR STREAMLIT/PYDANTIC CONFLICT ===
+# Matplotlib 3.8+ passes 'skip_file_prefixes' to warnings.warn, which
+# Pydantic's filtered_warn (used by Streamlit) doesn't accept.
+_original_warn = warnings.warn
+def _patched_warn(message, category=None, stacklevel=1, source=None, **kwargs):
+    kwargs.pop('skip_file_prefixes', None)
+    return _original_warn(message, category, stacklevel, source, **kwargs)
+warnings.warn = _patched_warn
+# ====================================================
 
 # Set premium style
 try:
@@ -65,6 +77,130 @@ class DashboardRenderer:
         plt.close(fig)
         
         return buf
+
+    def generate_pdf_report(self, ticker, history_df, scenarios, returns_matrix, forecast_2026, seasonality_stats, calendar_tool, calendar_df):
+        """
+        Generates a detailed multi-page PDF report matching Market Analysis Tab.
+        Pages:
+        1. Executive Summary: Price Chart + Monthly Returns Heatmap
+        2. Seasonality Intelligence: Win Rate & Avg Return Charts
+        3. Strategic Calendar: 2026 Trading Plan
+        4. AI Forecast: 2026 Prediction Models
+        """
+        # Suppress Matplotlib Font Warnings that crash due to Pydantic conflict
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            
+            plt.switch_backend('Agg')
+            buf = io.BytesIO()
+            
+            with PdfPages(buf) as pdf:
+                # === PAGE 1: EXECUTIVE SUMMARY (Price + Heatmap) ===
+                fig1 = plt.figure(figsize=(11.69, 8.27)) # Landscape A4
+                # Grid: Title top, Price Middle, Heatmap Bottom
+                gs1 = fig1.add_gridspec(2, 1, height_ratios=[1, 1])
+                
+                # 1. Price Chart
+                ax1 = fig1.add_subplot(gs1[0])
+                self._plot_price_chart(ax1, ticker, history_df, scenarios, forecast_2026)
+                
+                # 2. Monthly Returns Heatmap
+                ax2 = fig1.add_subplot(gs1[1])
+                self._plot_monthly_heatmap(ax2, returns_matrix, ticker)
+                
+                # Watermark
+                fig1.text(0.98, 0.02, "Market-Rover Report", color='white', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
+                fig1.suptitle(f"{ticker} - Executive Market Analysis", fontsize=20, color='white', fontweight='bold', y=0.98)
+                
+                pdf.savefig(fig1, facecolor='#000000')
+                plt.close(fig1)
+
+                # === PAGE 2: SEASONALITY INTELLIGENCE ===
+                if not seasonality_stats.empty:
+                    fig2 = plt.figure(figsize=(11.69, 8.27))
+                    gs2 = fig2.add_gridspec(2, 1, hspace=0.3)
+                    
+                    # Text Description
+                    fig2.text(0.1, 0.92, "Seasonality Intelligence", fontsize=18, color='white', fontweight='bold')
+                    fig2.text(0.1, 0.89, "Historical performance analysis identifying the strongest and weakest months for this stock.", fontsize=12, color='gray')
+
+                    # 1. Win Rate (Bar Chart)
+                    ax_win = fig2.add_subplot(gs2[0])
+                    sns.barplot(data=seasonality_stats, x='Month_Name', y='Win_Rate', ax=ax_win, palette='Greens')
+                    ax_win.set_ylabel("Win Rate %", color='white')
+                    ax_win.set_xlabel("", color='white')
+                    ax_win.set_title("Historical Win Rate (Probability of Positive Close)", color='white', fontsize=14, fontweight='bold')
+                    ax_win.tick_params(colors='white')
+                    ax_win.set_ylim(0, 100)
+                    
+                    # 2. Avg Return (Bar Chart)
+                    ax_ret = fig2.add_subplot(gs2[1])
+                    # Color based on pos/neg
+                    colors = ['#00FF00' if x > 0 else '#FF0000' for x in seasonality_stats['Avg_Return']]
+                    sns.barplot(data=seasonality_stats, x='Month_Name', y='Avg_Return', ax=ax_ret, palette=colors)
+                    ax_ret.set_ylabel("Average Return %", color='white')
+                    ax_ret.set_xlabel("Month", color='white')
+                    ax_ret.set_title("Average Monthly Return %", color='white', fontsize=14, fontweight='bold')
+                    ax_ret.tick_params(colors='white')
+                    
+                    # Watermark
+                    fig2.text(0.98, 0.02, "Market-Rover Report", color='white', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
+                    pdf.savefig(fig2, facecolor='#000000')
+                    plt.close(fig2)
+
+                # === PAGE 3: 2026 STRATEGIC CALENDAR ===
+                # This returns a generated figure, so we save it directly
+                fig3 = calendar_tool.plot_calendar(calendar_df)
+                
+                # Watermark (Matplotlib default style uses white bg, so use black text watermark)
+                fig3.text(0.98, 0.02, "Market-Rover Report", color='black', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
+                
+                # DESCRIPTION OVERLAY (REMOVED ITALICS/SPECIAL CHARS)
+                fig3.text(0.5, 0.05, "Optimized Trading Schedule: Based on historic best BUY/SELL days. Adjusted for 2026 Holidays.", 
+                          ha='center', fontsize=10, color='#333333')
+                
+                pdf.savefig(fig3) # No facecolor needed as it handles its own white bg
+                plt.close(fig3)
+
+                # === PAGE 4: DETAILED FORECAST NOTES ===
+                fig4 = plt.figure(figsize=(11.69, 8.27))
+                fig4.patch.set_facecolor('#000000')
+                ax_text = fig4.add_subplot(111)
+                ax_text.axis('off')
+                
+                # Extract forecast numbers
+                cagr = forecast_2026.get('cagr_percent', 0)
+                tgt = forecast_2026.get('consensus_target', 0)
+                low = forecast_2026.get('range_low', 0)
+                high = forecast_2026.get('range_high', 0)
+                
+                summary_text = (
+                    f"2026 AI FORECAST SUMMARY: {ticker}\n"
+                    f"--------------------------------------------------\n\n"
+                    f"TARGET PRICE (Dec 2026):  Rs. {tgt:.2f}\n"
+                    f"POTENTIAL UPSIDE (CAGR):  {cagr:.1f}%\n"
+                    f"FORECAST RANGE:           {low:.2f}  -  {high:.2f}\n\n"
+                    f"METHODOLOGY:\n"
+                    f"This forecast is generated using a composite AI model that weighs:\n"
+                    f"1. Linear Trend Regression (Baseline Trend)\n"
+                    f"2. Compounded Annual Growth Rate (Historical Momentum)\n"
+                    f"3. Volatility-Adjusted Scenarios\n\n"
+                    f"DISCLAIMER:\n"
+                    f"This report is for educational purposes only. Market-Rover uses statistical\n"
+                    f"models to project future possibilities based on past data.\n"
+                    f"It does not constitute financial advice.\n"
+                )
+                
+                ax_text.text(0.1, 0.8, summary_text, color='white', fontsize=14, family='monospace', va='top')
+                
+                # Watermark
+                fig4.text(0.98, 0.02, "Market-Rover Report", color='white', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
+                pdf.savefig(fig4, facecolor='#000000')
+                plt.close(fig4)
+                    
+            buf.seek(0)
+            return buf
 
     def _plot_monthly_heatmap(self, ax, returns_matrix, ticker):
         if returns_matrix is None or (hasattr(returns_matrix, 'empty') and returns_matrix.empty):

@@ -5,6 +5,7 @@ from utils.security import sanitize_ticker
 import base64
 import html
 from utils.visualizer_interface import generate_market_snapshot
+from rover_tools.visualizer_tool import run_snapshot_logic
 
 # Shared function to run analysis and render UI
 def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False):
@@ -462,17 +463,35 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             # === SHARE ANALYSIS FEATURE ===
             try:
-                with st.expander("📤 Share Analysis & Snapshot", expanded=False):
-                    st.caption("Generate a professional market snapshot to share with your network.")
+                with st.expander("📤 Download PDF Report", expanded=False):
+                    st.caption("Generate a professional multi-page PDF report with watermarks to share with your network.")
                     
                     col_share_btn, col_share_links = st.columns([1, 2])
                     
                     with col_share_btn:
-                        if st.button("📸 Generate Snapshot", key=f"snap_{key_prefix}_{ticker}", type="secondary"):
-                            with st.spinner("Rendering snapshot (this uses AI)..."):
-                                res = generate_market_snapshot(ticker)
-                                if res['success'] and res['image_path']:
-                                    st.image(res['image_path'], caption=f"Market-Rover Snapshot: {ticker}", width="stretch")
+                        if st.button("📄 Generate PDF Report", key=f"snap_{key_prefix}_{ticker}", type="secondary"):
+                            with st.spinner("Generating multi-page PDF (Direct)..."):
+                                # Bypass Agent/LLM to avoid 429 Errors and Speed up
+                                res = run_snapshot_logic(ticker)
+                                
+                                # Handle Strings (Errors)
+                                if isinstance(res, str) and res.startswith("Error"):
+                                    st.error(f"Report generation failed: {res}")
+                                
+                                # Handle Success Dict
+                                elif isinstance(res, dict) and 'pdf_buffer' in res:
+                                    pdf_buffer = res['pdf_buffer']
+                                    
+                                    # Provide Download Button
+                                    st.download_button(
+                                        label="⬇️ Download PDF",
+                                        data=pdf_buffer,
+                                        file_name=f"{ticker}_Market_Rover_Report.pdf",
+                                        mime="application/pdf",
+                                        key=f"dl_pdf_{ticker}"
+                                    )
+                                    
+                                    st.success("✅ PDF Generated!")
                                     
                                     # Social Intent Links
                                     share_text = f"Check out my AI-powered analysis of {ticker} on Market-Rover! %23StockMarket %23{ticker} %23AI"
@@ -484,10 +503,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                     with s_col2:
                                         st.link_button("WhatsApp", f"https://wa.me/?text={share_text}")
                                     with s_col3:
-                                        st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={share_text}") # Basic LinkedIn intent
+                                        st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={share_text}") 
                                         
                                 else:
-                                    st.error(f"Snapshot failed: {res['message']}")
+                                    st.error(f"Report generation failed: Unknown response format.")
             except Exception as ex:
                 st.warning(f"Share feature unavailable: {str(ex)}")
 

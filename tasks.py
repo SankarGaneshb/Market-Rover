@@ -206,13 +206,13 @@ def create_market_snapshot_task(agent, ticker):
     """
     return Task(
         description=dedent(f"""
-            Generate a comprehensive Visual Market Snapshot for {ticker}.
+            Generate a comprehensive PDF Market Report for {ticker}.
             
-            1. Use `generate_market_snapshot` tool.
-            2. The tool will calculate volatility, support/resistance, and option chain logic.
-            3. It will save a chart to 'output/{{ticker}}_snapshot.png'.
+            1. Use `MarketSnapshotTool` (Generate Market Snapshot).
+            2. The tool will calculate volatility, seasonality, and run the 2026 forecast model.
+            3. It will generate a high-quality multi-page PDF report.
             
-            Return the final path of the image and a brief summary of the volatility data.
+            Return the final path of the PDF and a brief summary of the forecast.
         """),
         agent=agent,
         expected_output="Path to the generated image and a volatility summary."
