@@ -10,6 +10,7 @@ from utils.mock_data import mock_generator
 from utils.report_visualizer import ReportVisualizer
 from utils.logger import get_logger
 from utils.metrics import track_error_detail
+from rover_tools.shadow_tools import detect_silent_accumulation
 
 logger = get_logger(__name__)
 
@@ -430,16 +431,23 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                     
 
+                # Shadow Score Calculation
+                try:
+                    shadow_res = detect_silent_accumulation(ticker_sym)
+                    shadow_score = shadow_res.get('score', 0)
+                    shadow_signals = ", ".join(shadow_res.get('signals', []))
+                except Exception as e:
+                    logger.error(f"Shadow score failed for {ticker_sym}: {e}")
+                    shadow_score = 0
+                    shadow_signals = "Error"
+
                 stock_risk_data.append({
-
                     'symbol': ticker_sym, 
-
                     'company': s['Company Name'], 
-
                     'risk_score': r_score, 
-
-                    'sentiment': 'neutral'
-
+                    'sentiment': 'neutral',
+                    'shadow_score': shadow_score,
+                    'shadow_signals': shadow_signals
                 })
 
             news_timeline_data = []
@@ -447,32 +455,21 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
         
 
         # Display charts in columns
-
         col1, col2 = st.columns(2)
-
         
-
         with col1:
-
             # Sentiment pie chart
-
             if sum(sentiment_data.values()) > 0:
-
                 fig_sentiment = visualizer.create_sentiment_pie_chart(sentiment_data)
-
-                st.plotly_chart(fig_sentiment, width="stretch")
-
+                fig_sentiment.update_layout(height=400) # Ensure fixed height
+                st.plotly_chart(fig_sentiment, width="stretch", use_container_width=True)
         
-
         with col2:
-
             # Portfolio risk heatmap
-
             if stock_risk_data:
-
                 fig_heatmap = visualizer.create_portfolio_heatmap(stock_risk_data)
-
-                st.plotly_chart(fig_heatmap, width="stretch")
+                fig_heatmap.update_layout(height=400) # Ensure fixed height matches sentiment
+                st.plotly_chart(fig_heatmap, width="stretch", use_container_width=True)
 
         
 

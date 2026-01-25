@@ -30,6 +30,7 @@
 4.  **UI/UX**: Removed outdated "v2.0" labels; Unified branding to "Market-Rover".
 5.  **Security**: Implemented Rate Limiting and Input Sanitization for tickers.
 6.  **Integrity Shield**: Fixed invalid tool definition preventing the Agent from initializing (Switched to CrewAI native tools).
+7.  **Shadow Score Integration**: Integrated "Shadow Score" (Institutional Accumulation) directly into the Portfolio Analysis Heatmap for instant visibility.
 
 ---
 

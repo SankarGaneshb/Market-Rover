@@ -97,6 +97,12 @@ class ReportVisualizer:
             else:
                 colors.append(self.color_scheme['negative'])
         
+        shadow_scores = [s.get('shadow_score', 0) for s in stock_data]
+        shadow_signals = [s.get('shadow_signals', '') for s in stock_data]
+        
+        # Combine customdata [sentiment, shadow_score, shadow_signal]
+        custom_data_combined = list(zip(sentiments, shadow_scores, shadow_signals))
+        
         fig = go.Figure(data=go.Bar(
             x=symbols,
             y=risk_scores,
@@ -106,8 +112,8 @@ class ReportVisualizer:
             ),
             text=[f"{score}" for score in risk_scores],
             textposition='auto',
-            hovertemplate='<b>%{x}</b><br>Risk Score: %{y}<br>Sentiment: %{customdata}<extra></extra>',
-            customdata=sentiments
+            hovertemplate='<b>%{x}</b><br>Risk Score: %{y}<br>Shadow Score: %{customdata[1]} (%{customdata[2]})<br>Sentiment: %{customdata[0]}<extra></extra>',
+            customdata=custom_data_combined
         ))
         
         fig.update_layout(
