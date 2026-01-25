@@ -29,6 +29,7 @@
 3.  **System Health**: Patched crash report handling (`KeyError` in logs).
 4.  **UI/UX**: Removed outdated "v2.0" labels; Unified branding to "Market-Rover".
 5.  **Security**: Implemented Rate Limiting and Input Sanitization for tickers.
+6.  **Integrity Shield**: Fixed invalid tool definition preventing the Agent from initializing (Switched to CrewAI native tools).
 
 ---
 

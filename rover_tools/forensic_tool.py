@@ -1,4 +1,4 @@
-from langchain.tools import tool
+from crewai.tools import tool
 from rover_tools.analytics.forensic_engine import ForensicAnalyzer
 
 @tool("Check Accounting Fraud")
