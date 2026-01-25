@@ -31,6 +31,7 @@
 5.  **Security**: Implemented Rate Limiting and Input Sanitization for tickers.
 6.  **Integrity Shield**: Fixed invalid tool definition preventing the Agent from initializing (Switched to CrewAI native tools).
 7.  **Shadow Score Integration**: Integrated "Shadow Score" (Institutional Accumulation) directly into the Portfolio Analysis Heatmap for instant visibility.
+8.  **Code Hygiene**: Removed ~800 lines of unused "dead code" scripts to improve maintenance and test coverage accuracy.
 
 ---
 
