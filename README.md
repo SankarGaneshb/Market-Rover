@@ -1,5 +1,6 @@
-# 🔍 Market-Rover - AI Stock Intelligence Platform
+# 🔍 Market-Rover - AI Stock Intelligence Platform for Indian Markets - Your personal quant researcher
 
+**Multi-agent AI that reads your Indian equity portfolio like a research desk – portfolios, heatmaps, institutional flows, and forecasts in one place.**
 **Your complete toolkit for smart investing decisions powered by cutting-edge AI**
 
 ![Security](https://img.shields.io/badge/Security-100%2F100-success)
@@ -7,7 +8,41 @@
 ![Status](https://img.shields.io/badge/Status-Production-brightgreen)
 ![Process Efficiency](https://img.shields.io/badge/Process%20Efficiency-82.6%25-blue)
 
+## Why Market-Rover?
+
+- Built **for Indian markets**: Nifty, Sensex, sector indices, NSE symbols, and block deals – not generic US-only tooling.
+- **Multi-agent CrewAI + Gemini** brain: 5+ specialized agents for news, sentiment, seasonality, portfolio optimization, and “shadow” institutional flows.
+- Production-ready **Streamlit app** with authentication, rate limiting, logging, and PDF/HTML report exports.
+- Runs comfortably on the **free tier** – Streamlit Cloud + Gemini 1.5/2.0 free limits are enough for normal usage.
+- 
 🌐 **Live App:** https://market-rover.streamlit.app/
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.13 (Strict requirement for CrewAI compatibility)
+- Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
+
+### Quick Start (Local in 1 Minute)
+
+```bash
+# 1. Clone repository
+cd Market-Rover
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Set up environment
+copy .env.example .env
+# Edit .env and add: GOOGLE_API_KEY=your_key_here
+
+# 4. Run the app
+streamlit run app.py
+# Opens at http://localhost:8501
+```
 
 ---
 
@@ -178,35 +213,6 @@ graph TD
 - **yfinance**: Free NSE/BSE stock data
 - **Newspaper3k**: Web scraping engine
 - **Streamlit + Plotly**: Interactive web UI
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.13 (Strict requirement for CrewAI compatibility)
-- Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
-
-### Installation
-
-```bash
-# 1. Clone repository
-cd Market-Rover
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Set up environment
-copy .env.example .env
-# Edit .env and add: GOOGLE_API_KEY=your_key_here
-
-# 4. Run the app
-streamlit run app.py
-# Opens at http://localhost:8501
-```
-
----
 
 ## 📊 Usage Guide
 
@@ -554,7 +560,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: January 5, 2026*
+*Last Updated: January 25, 2026*
 
 ---
 
