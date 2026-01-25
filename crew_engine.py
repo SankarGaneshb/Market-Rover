@@ -11,6 +11,7 @@ from typing import Optional, Callable
 # Structured logging and metrics
 from utils.logger import logger
 from utils.metrics import track_error_detail, track_workflow_start, track_workflow_end
+from utils.retry import retry_operation
 
 
 class MarketRoverCrew:
@@ -45,6 +46,7 @@ class MarketRoverCrew:
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
         )
     
+    @retry_operation(max_retries=3, delay=5.0, exceptions=(ValueError, Exception))
     def run(self):
         """
         Execute the Market-Rover 2.0 workflow with parallel stock processing.

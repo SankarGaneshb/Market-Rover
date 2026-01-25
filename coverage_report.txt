@@ -1,0 +1,34 @@
+Filename                                           | Cov%   | Missed | Total 
+--------------------------------------------------------------------------------
+utils/analysis_runner.py                           |   0.0% | 206    | 206   
+rover_tools/dashboard_renderer.py                  |  12.6% | 167    | 191   
+rover_tools/derivative_analysis.py                 |   0.0% | 135    | 135   
+rover_tools/analytics/investor_profiler.py         |   0.0% | 131    | 131   
+rover_tools/analytics/portfolio_engine.py          |   5.3% | 126    | 133   
+rover_tools/analytics/forensic_engine.py           |   8.5% | 119    | 130   
+rover_tools/news_scraper_tool.py                   |  26.4% | 95     | 129   
+rover_tools/analytics/seasonality_calendar.py      |  12.2% | 94     | 107   
+app.py                                             |   0.0% | 93     | 93    
+scripts/report_system_errors.py                    |  43.1% | 82     | 144   
+utils/report_visualizer.py                         |   0.0% | 80     | 80    
+rover_tools/market_context_tool.py                 |   9.3% | 78     | 86    
+utils/auth.py                                      |   0.0% | 66     | 66    
+utils/social_auth.py                               |   0.0% | 63     | 63    
+rover_tools/generate_daily_report.py               |   0.0% | 60     | 60    
+utils/forecast_tracker.py                          |   0.0% | 56     | 56    
+utils/job_manager.py                               |   0.0% | 55     | 55    
+rover_tools/batch_backtester.py                    |   0.0% | 52     | 52    
+rover_tools/stock_data_tool.py                     |   0.0% | 51     | 51    
+rover_tools/analytics/win_rate.py                  |   0.0% | 48     | 48    
+scripts/validate_issue_assignees.py                |   0.0% | 46     | 46    
+rover_tools/visualizer_tool.py                     |  31.8% | 45     | 66    
+rover_tools/market_data.py                         |  24.1% | 44     | 58    
+utils/metrics.py                                   |  56.6% | 43     | 99    
+scripts/fast_seasonality.py                        |   0.0% | 42     | 42    
+rover_tools/shadow_tools.py                        |  79.5% | 41     | 200   
+scripts/mine_logs.py                               |   0.0% | 41     | 41    
+scripts/extract_infy_table.py                      |   0.0% | 40     | 40    
+scripts/verify_shadow_data.py                      |   0.0% | 38     | 38    
+scripts/fix_main_order.py                          |   0.0% | 36     | 36    
+
+Total Files tracked: 77

@@ -35,7 +35,26 @@ def show_brain_tab():
                 df_mem = df_mem[existing_cols]
                 
             st.dataframe(df_mem, use_container_width=True, hide_index=True)
-            st.caption(f"Total Knowledge Nodes: {len(memories)}")
+            # Calculate Metrics
+            if not df_mem.empty:
+                completed = df_mem[df_mem['outcome'] != 'Pending']
+                total_completed = len(completed)
+                
+                if total_completed > 0:
+                    wins = len(completed[completed['outcome'].str.contains('Success')])
+                    win_rate = (wins / total_completed) * 100
+                    
+                    m1, m2, m3 = st.columns(3)
+                    m1.metric("Total Predictions", len(df_mem))
+                    m2.metric("Validated Outcomes", total_completed)
+                    m3.metric("🎯 Win Rate", f"{win_rate:.1f}%")
+                
+                cols = ['date', 'ticker', 'signal', 'confidence', 'outcome']
+                # Filter strictly for columns that exist
+                existing_cols = [c for c in cols if c in df_mem.columns]
+                df_mem = df_mem[existing_cols]
+                
+            st.dataframe(df_mem, use_container_width=True, hide_index=True)
 
     # --- 2. AUTONOMY STREAM ---
     with col2:

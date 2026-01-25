@@ -1,0 +1,123 @@
+================================================================================
+                         MARKET ROVER 2.0 INTELLIGENCE REPORT
+                              Generated: 2026-01-25 19:59:55
+================================================================================
+
+```
+**Master Intelligence Report**
+
+**Executive Summary:**
+
+Global cues are positive, with rising crude oil and gold prices, and positive movement in NASDAQ and S&P 500. However, the elevated USD/INR (91.56) requires monitoring. Market sentiment is generally positive, aligning with the GROWTH regime. The potential reduction in EU car import tariffs presents both opportunities and risks, particularly for M&M. Technical analysis suggests a defensive approach (buy at support), despite the growth regime. Forensic analysis identifies potential accumulation zones and bull traps that require further investigation.
+
+**Portfolio Analysis:**
+
+**1. M&M.NS:**
+
+*   **Fundamental:** Potential reduction in EU car import tariffs from 110% to 40% could increase competition in the EU market, impacting M&M's export strategy. Further investigation is needed.
+*   **Technical:** Downtrend. Current Price: ₹3543.40. Major Support: ₹3400 - ₹3450 range. Resistance: ₹3600.
+*   **Institutional Radar:** Potential Accumulation Zone. Sentiment is weak, price near support. Awaiting block deal and sector flow confirmation.
+*   **Action:** Monitor block deals and sector flow.
+
+**2. ULTRACEMCO.NS:**
+
+*   **Fundamental:** No specific news identified. Monitor for sector-specific developments related to infrastructure and construction.
+*   **Technical:** Downtrend. Current Price: ₹12369.00. Major Support: ₹12000 - ₹12200 range. Resistance: ₹12500.
+*   **Institutional Radar:** Neutral. Price near support, but no strong sentiment divergence.
+*   **Action:** Wait.
+
+**3. KOTAKBANK.NS:**
+
+*   **Fundamental:** No specific news identified. Track overall banking sector performance and interest rate trends.
+*   **Technical:** Downtrend. Current Price: ₹422.80. Major Support: ₹410 - ₹415 range. Resistance: ₹430.
+*   **Institutional Radar:** Neutral. Price near support, but no strong sentiment divergence.
+*   **Action:** Wait.
+
+**4. GOLDBEES.NS:**
+
+*   **Fundamental:** Gold prices are up (+1.44%), positively impacting GOLDBEES.
+*   **Technical:** Uptrend. Current Price: ₹127.42. Resistance: ₹128.
+*   **Institutional Radar:** Potential Bull Trap. Sentiment is positive, price near resistance. Check FII positioning.
+*   **Action:** Check FII positioning.
+
+**5. NIFTYBEES.NS:**
+
+*   **Fundamental:** General market sentiment is positive, supporting NIFTYBEES.
+*   **Technical:** Downtrend. Current Price: ₹283.91. Major Support: ₹275 - ₹280 range. Resistance: ₹290.
+*   **Institutional Radar:** Neutral. Market sentiment is positive but technicals are weak. Check FII positioning.
+*   **Action:** Wait and check FII positioning.
+
+**Risk Highlights:**
+
+*   **USD/INR:** Elevated USD/INR could negatively impact companies with significant dollar-denominated debt or import costs.
+*   **EU Tariff Changes:** The potential reduction in EU car import tariffs could increase competition for M&M in the EU market.
+*   **GOLDBEES Bull Trap:** Rising gold prices may be a bull trap. Monitor FII positioning to confirm.
+*   **Technical Downtrends:** Despite the GROWTH regime, several stocks are in downtrends, requiring a cautious approach.
+
+```json
+{
+  "MarketRegime": "GROWTH",
+  "GlobalCues": {
+    "CrudeOil": {
+      "Price": 61.07,
+      "Change": "+2.88%"
+    },
+    "Gold": {
+      "Price": 4979.70,
+      "Change": "+1.44%"
+    },
+    "USDINR": {
+      "Price": 91.56,
+      "Change": "+0.02%"
+    },
+    "NASDAQSandP500": "Positive"
+  },
+  "StockAnalysis": [
+    {
+      "Symbol": "M&M.NS",
+      "Fundamental": "Potential reduction in EU car import tariffs could increase competition.",
+      "Technical": "Downtrend, Support: ₹3400-₹3450, Resistance: ₹3600",
+      "InstitutionalRadar": "Potential Accumulation Zone. Awaiting block deal and sector flow confirmation.",
+      "Action": "Monitor block deals and sector flow.",
+      "Sentiment": "Neutral to Slightly Negative"
+    },
+    {
+      "Symbol": "ULTRACEMCO.NS",
+      "Fundamental": "Monitor sector-specific developments.",
+      "Technical": "Downtrend, Support: ₹12000-₹12200, Resistance: ₹12500",
+      "InstitutionalRadar": "Neutral",
+      "Action": "Wait.",
+      "Sentiment": "Neutral"
+    },
+    {
+      "Symbol": "KOTAKBANK.NS",
+      "Fundamental": "Track banking sector performance and interest rate trends.",
+      "Technical": "Downtrend, Support: ₹410-₹415, Resistance: ₹430",
+      "InstitutionalRadar": "Neutral",
+      "Action": "Wait.",
+      "Sentiment": "Neutral"
+    },
+    {
+      "Symbol": "GOLDBEES.NS",
+      "Fundamental": "Gold prices are up (+1.44%).",
+      "Technical": "Uptrend, Resistance: ₹128",
+      "InstitutionalRadar": "Potential Bull Trap. Check FII positioning.",
+      "Action": "Check FII positioning.",
+      "Sentiment": "Positive"
+    },
+    {
+      "Symbol": "NIFTYBEES.NS",
+      "Fundamental": "General market sentiment is positive.",
+      "Technical": "Downtrend, Support: ₹275-₹280, Resistance: ₹290",
+      "InstitutionalRadar": "Neutral. Check FII positioning.",
+      "Action": "Wait and check FII positioning.",
+      "Sentiment": "Positive"
+    }
+  ],
+  "RiskHighlights": [
+    "Elevated USD/INR could negatively impact companies with dollar-denominated debt.",
+    "EU tariff changes could increase competition for M&M in the EU market.",
+    "GOLDBEES Bull Trap: Monitor FII positioning to confirm.",
+    "Technical Downtrends: Several stocks are in downtrends, requiring a cautious approach."
+  ]
+}

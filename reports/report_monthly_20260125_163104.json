@@ -1,0 +1,172 @@
+[
+  {
+    "signature": "ValueError | ValueError: bad value",
+    "occurrences": 10,
+    "unique_users": 2,
+    "sample": {
+      "ts": "2025-12-27T12:46:54.237675+00:00",
+      "type": "ValueError",
+      "message": "bad value",
+      "user_id": "user1",
+      "trace": "ValueError: bad value\n  File \"a.py\", line 10"
+    },
+    "last_seen": "2026-01-25T16:03:43.648484+00:00",
+    "impact_score": 20
+  },
+  {
+    "signature": "KeyError | KeyError: 'x'",
+    "occurrences": 5,
+    "unique_users": 1,
+    "sample": {
+      "ts": "2025-12-27T12:46:54.237675+00:00",
+      "type": "KeyError",
+      "message": "missing",
+      "user_id": "user1",
+      "trace": "KeyError: 'x'\n  File \"b.py\", line 20"
+    },
+    "last_seen": "2026-01-25T16:03:43.648484+00:00",
+    "impact_score": 5
+  },
+  {
+    "signature": "ImportError | Traceback (most recent call last):",
+    "occurrences": 5,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2025-12-30T13:17:33.076534",
+      "type": "ImportError",
+      "message": "cannot import name 'rover_tools' from 'plotly' (C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\__init__.py)",
+      "context": {
+        "location": "run_analysis",
+        "job_id": "9c12a1e7-e843-4e44-a80a-366003fa002b"
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2893, in run_analysis\n    fig_heatmap = visualizer.create_portfolio_heatmap(stock_risk_data)\n  File \"C:\\Users\\bsank\\Market-Rover\\utils\\report_visualizer.py\", line 100, in create_portfolio_heatmap\n    fig = go.Figure(data=go.Bar(\n        x=symbols,\n    ...<8 lines>...\n        customdata=sentiments\n    ))\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\graph_objs\\_figure.py\", line 72, in __init__\n    super().__init__(data, layout, frames, skip_invalid, **kwargs)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\basedatatypes.py\", line 597, in __init__\n    from plotly.offline.offline import _get_jconfig\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\offline\\__init__.py\", line 8, in <module>\n    from .offline import (\n    ...<9 lines>...\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\offline\\offline.py\", line 12, in <module>\n    from plotly import rover_tools\nImportError: cannot import name 'rover_tools' from 'plotly' (C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\plotly\\__init__.py)\n"
+    },
+    "last_seen": "2025-12-30T13:59:47.665785",
+    "impact_score": 5
+  },
+  {
+    "signature": "CrewExecutionError | Traceback (most recent call last):",
+    "occurrences": 3,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2025-12-30T13:08:16.739866",
+      "type": "CrewExecutionError",
+      "message": "Invalid response from LLM call - None or empty.",
+      "context": {
+        "max_parallel_stocks": 5,
+        "num_agents": 7
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\crew.py\", line 61, in run\n    result = self.crew.kickoff()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 714, in kickoff\n    result = self._run_sequential_process()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 1073, in _run_sequential_process\n    return self._execute_tasks(self.tasks)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 1159, in _execute_tasks\n    task_output = task.execute_sync(\n        agent=exec_data.agent,\n        context=context,\n        tools=exec_data.tools,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 458, in execute_sync\n    return self._execute_core(agent, context, tools)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 695, in _execute_core\n    raise e  # Re-raise the exception after emitting the event\n    ^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 626, in _execute_core\n    result = agent.execute_task(\n        task=self,\n        context=context,\n        tools=tools,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 423, in execute_task\n    result = self.execute_task(task, context, tools)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 423, in execute_task\n    result = self.execute_task(task, context, tools)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 422, in execute_task\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n"
+    },
+    "last_seen": "2025-12-30T13:31:33.031687",
+    "impact_score": 3
+  },
+  {
+    "signature": "ValueError | Traceback (most recent call last):",
+    "occurrences": 2,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2025-12-30T13:08:16.752246",
+      "type": "ValueError",
+      "message": "Invalid response from LLM call - None or empty.",
+      "context": {
+        "location": "run_analysis",
+        "job_id": "14271f75-f3b5-4073-9ac2-4a77c70a403e"
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2693, in run_analysis\n    raise error\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2627, in run_crew\n    result = crew.run()\n  File \"C:\\Users\\bsank\\Market-Rover\\crew.py\", line 61, in run\n    result = self.crew.kickoff()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 714, in kickoff\n    result = self._run_sequential_process()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 1073, in _run_sequential_process\n    return self._execute_tasks(self.tasks)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\crew.py\", line 1159, in _execute_tasks\n    task_output = task.execute_sync(\n        agent=exec_data.agent,\n        context=context,\n        tools=exec_data.tools,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 458, in execute_sync\n    return self._execute_core(agent, context, tools)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 695, in _execute_core\n    raise e  # Re-raise the exception after emitting the event\n    ^^^^^^^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\task.py\", line 626, in _execute_core\n    result = agent.execute_task(\n        task=self,\n        context=context,\n        tools=tools,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 423, in execute_task\n    result = self.execute_task(task, context, tools)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 423, in execute_task\n    result = self.execute_task(task, context, tools)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 422, in execute_task\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 389, in execute_task\n    result = self._execute_without_timeout(task_prompt, task)\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agent\\core.py\", line 485, in _execute_without_timeout\n    return self.agent_executor.invoke(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        {\n        ^\n    ...<4 lines>...\n        }\n        ^\n    )[\"output\"]\n    ^\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 192, in invoke\n    formatted_answer = self._invoke_loop()\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 303, in _invoke_loop\n    raise e\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\agents\\crew_agent_executor.py\", line 233, in _invoke_loop\n    answer = get_llm_response(\n        llm=self.llm,\n    ...<6 lines>...\n        executor_context=self,\n    )\n  File \"C:\\Users\\bsank\\Market-Rover\\.venv\\Lib\\site-packages\\crewai\\utilities\\agent_utils.py\", line 282, in get_llm_response\n    raise ValueError(\"Invalid response from LLM call - None or empty.\")\nValueError: Invalid response from LLM call - None or empty.\n"
+    },
+    "last_seen": "2025-12-30T13:31:33.039243",
+    "impact_score": 2
+  },
+  {
+    "signature": "ValidationError | Traceback (most recent call last):",
+    "occurrences": 1,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2025-12-29T12:14:35.843513",
+      "type": "ValidationError",
+      "message": "4 validation errors for Agent\ntools.0\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function analyze_sector_...w at 0x00000288B1EED800>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.1\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function fetch_block_deals at 0x00000288B1EED6C0>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.2\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function detect_silent_a...n at 0x00000288CE0A7420>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.3\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function get_trap_indica...r at 0x00000288CE0A7D80>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type",
+      "context": {
+        "location": "run_analysis",
+        "job_id": "22212ad9-f16b-455a-9b3e-0b9e58961ee8"
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2592, in run_analysis\n    crew = create_crew(max_parallel_stocks=max_parallel)\n  File \"C:\\Users\\bsank\\Market-Rover\\crew.py\", line 111, in create_crew\n    return MarketRoverCrew(max_parallel_stocks, progress_callback)\n  File \"C:\\Users\\bsank\\Market-Rover\\crew.py\", line 29, in __init__\n    self.agents = AgentFactory.create_all_agents()\n                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\bsank\\Market-Rover\\agents.py\", line 213, in create_all_agents\n    'shadow_analyst': create_shadow_analyst_agent()\n                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\bsank\\Market-Rover\\agents.py\", line 183, in create_shadow_analyst_agent\n    return Agent(\n        role=\"Institutional Shadow Analyst\",\n    ...<10 lines>...\n        llm=get_gemini_llm()\n    )\n  File \"C:\\Users\\jayas\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\pydantic\\main.py\", line 253, in __init__\n    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)\npydantic_core._pydantic_core.ValidationError: 4 validation errors for Agent\ntools.0\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function analyze_sector_...w at 0x00000288B1EED800>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.1\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function fetch_block_deals at 0x00000288B1EED6C0>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.2\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function detect_silent_a...n at 0x00000288CE0A7420>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\ntools.3\n  Input should be a valid dictionary or instance of BaseTool [type=model_type, input_value=<function get_trap_indica...r at 0x00000288CE0A7D80>, input_type=function]\n    For further information visit https://errors.pydantic.dev/2.11/v/model_type\n"
+    },
+    "last_seen": "2025-12-29T12:14:35.843513",
+    "impact_score": 1
+  },
+  {
+    "signature": "NameError | Traceback (most recent call last):",
+    "occurrences": 1,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2026-01-05T15:20:06.770253+00:00",
+      "type": "NameError",
+      "message": "name 'get_user_report_dir' is not defined",
+      "context": {
+        "location": "run_analysis",
+        "job_id": "0a0b2951-0ca3-4595-a258-41e0b66cece6"
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2757, in run_analysis\n    target_dir = get_user_report_dir()\n                 ^^^^^^^^^^^^^^^^^^^\nNameError: name 'get_user_report_dir' is not defined\n"
+    },
+    "last_seen": "2026-01-05T15:20:06.770253+00:00",
+    "impact_score": 1
+  },
+  {
+    "signature": "KeyError | Traceback (most recent call last):",
+    "occurrences": 1,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2026-01-05T16:01:34.853012+00:00",
+      "type": "KeyError",
+      "message": "'Company Name'",
+      "context": {
+        "location": "run_analysis",
+        "job_id": "d47ac038-ef1a-4378-94ce-f44a76608ec8"
+      },
+      "user_id": null,
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\bsank\\Market-Rover\\app.py\", line 2920, in run_analysis\n    'company': s['Company Name'],\n               ~^^^^^^^^^^^^^^^^\nKeyError: 'Company Name'\n"
+    },
+    "last_seen": "2026-01-05T16:01:34.853012+00:00",
+    "impact_score": 1
+  },
+  {
+    "signature": "VerificationTestError | NoneType: None",
+    "occurrences": 1,
+    "unique_users": 0,
+    "sample": {
+      "ts": "2026-01-07T17:37:16.752615+00:00",
+      "type": "VerificationTestError",
+      "message": "Simulated crash for verification 1767807436.752592",
+      "context": {
+        "test_run": true,
+        "timestamp": "2026-01-07 23:07:16.752603"
+      },
+      "user_id": null,
+      "trace": "NoneType: None\n"
+    },
+    "last_seen": "2026-01-07T17:37:16.752615+00:00",
+    "impact_score": 1
+  },
+  {
+    "signature": "VerificationTestError | ",
+    "occurrences": 1,
+    "unique_users": 0,
+    "sample": {
+      "timestamp": "2026-01-11T01:30:25.610323",
+      "type": "VerificationTestError",
+      "message": "Simulated crash for verification 1768075225.609718",
+      "context": {
+        "test_run": true,
+        "timestamp": "2026-01-11 01:30:25.609733"
+      }
+    },
+    "last_seen": "2026-01-25T16:31:04.800145+00:00",
+    "impact_score": 1
+  }
+]
