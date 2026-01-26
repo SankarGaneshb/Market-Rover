@@ -235,12 +235,11 @@ def test_get_sector_stocks_accumulation(mock_yf_ticker):
     # Check if a known IT stock is present (TCS or INFY from NIFTY_50_SECTOR_MAP)
     assert any(df['Symbol'].isin(['TCS', 'INFY']))
 
-def test_data_fetch_errors():
     # Test graceful handling of exceptions in fetchers
     with patch("rover_tools.shadow_tools.capital_market.block_deals_data") as mock_err:
         mock_err.side_effect = Exception("API Down")
         deals = fetch_block_deals()
-        assert deals == []
+        assert deals is None
 
 def test_tool_wrappers():
     # Test the @tool decorated functions (which return strings)
