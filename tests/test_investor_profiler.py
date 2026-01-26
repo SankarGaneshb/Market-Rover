@@ -1,5 +1,6 @@
 
 import pytest
+import pandas as pd
 from unittest.mock import MagicMock, patch
 from rover_tools.analytics.investor_profiler import InvestorProfiler, PortfolioValidator, InvestorPersona
 
