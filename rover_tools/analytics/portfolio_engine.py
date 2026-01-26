@@ -163,7 +163,8 @@ class AnalyticsPortfolio:
         
         avg_vol = df[df['volatility'] > 0]['volatility'].mean()
         if pd.isna(avg_vol): avg_vol = 0.20
-        df['volatility'] = df['volatility'].replace(0, avg_vol)
+        # Replace 0 with average, then clip to minimum 1% to prevent infinite Sharpe ratios
+        df['volatility'] = df['volatility'].replace(0, avg_vol).clip(lower=0.01)
         
         if mode == "growth":
             # Growth Strategy: Weight ~ Return / Volatility (Sharpe)

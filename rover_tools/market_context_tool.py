@@ -64,6 +64,8 @@ def analyze_market_context(portfolio_stocks: str = None) -> str:
             output += f"   Week Change: {nifty_data['week_change']:+.2f}%\n"
             output += f"   Month Change: {nifty_data['month_change']:+.2f}%\n"
             output += f"   Sentiment: {nifty_data['sentiment']}\n\n"
+        else:
+            raise Exception("Critical Market Data (Nifty 50) is unavailable.")
         
         # Detect sectors from portfolio
         sectors_to_analyze = set()
