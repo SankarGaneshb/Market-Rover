@@ -29,7 +29,10 @@ def show_shadow_tracker_tab():
             
             with st.spinner("Analyzing Sector Shifts..."):
                 sector_df = analyze_sector_flow()
-                if not sector_df.empty:
+                
+                if sector_df is None:
+                     st.warning("⚠️ Connection Error: Unable to fetch sector data.")
+                elif not sector_df.empty:
                     top_sectors = sector_df.head(3)['Sector'].tolist()
                     st.success(f"🔥 Smart Money Flow detected in: **{', '.join(top_sectors)}**")
                     
@@ -42,7 +45,7 @@ def show_shadow_tracker_tab():
                         }
                     )
                 else:
-                    st.warning("⚠️ Could not fetch sector data.")
+                    st.info("⚠️ Sector data unavailable (No data parsed).")
 
         with col_trap:
             st.subheader("🪤 FII Trap Detector")
@@ -80,7 +83,10 @@ def show_shadow_tracker_tab():
             st.markdown(f"### 📊 Institutional Flow: {selected_sector}")
             with st.spinner(f"Forensic scan of {selected_sector} stocks..."):
                 sector_acc_df = get_sector_stocks_accumulation(selected_sector)
-                if not sector_acc_df.empty:
+                
+                if sector_acc_df is None:
+                    st.warning(f"⚠️ Connection Error: Could not analyze {selected_sector}.")
+                elif not sector_acc_df.empty:
                     st.dataframe(
                         sector_acc_df.style.background_gradient(subset=['Shadow Score'], cmap='Blues'),
                         width='stretch',
@@ -147,7 +153,9 @@ def show_shadow_tracker_tab():
             with st.spinner("Fetching specific block deals..."):
                 stock_deals = fetch_block_deals(symbol=acc_ticker)
                 
-                if stock_deals:
+                if stock_deals is None:
+                     st.warning("⚠️ Connection Error: Unable to fetch whale data. Exchange API might be down or busy.")
+                elif stock_deals:
                      import html
                      for d in stock_deals:
                          color = "green" if d['Type'] == 'BUY' else "red"

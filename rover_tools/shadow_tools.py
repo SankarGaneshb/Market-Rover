@@ -82,8 +82,8 @@ def analyze_sector_flow():
         return df
         
     except Exception as e:
-        logger.error(f"Sector Analysis Failed: {e}")
-        return pd.DataFrame()
+        logger.warning(f"Sector Analysis Failed: {e}")
+        return None
 
 
 # --- 2. WHALE ALERT (Block Deals) ---
@@ -92,49 +92,57 @@ def fetch_block_deals(symbol=None):
     Fetches recent Block/Bulk deals using nselib.
     If symbol is provided, filters for that specific stock.
     """
-    try:
-        # Fetch data for the last 1M to ensure we get something
-        raw_data = capital_market.block_deals_data(period='1M')
-        
-        if raw_data.empty:
-            return []
+    # Retry mechanism for robustness
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # Fetch data for the last 1M to ensure we get something
+            raw_data = capital_market.block_deals_data(period='1M')
+            
+            if raw_data.empty:
+                return []
 
-        # Normalize columns
-        raw_data.columns = [c.strip() for c in raw_data.columns]
-        
-        # Filter by symbol if provided
-        if symbol:
-            # Handle symbol formatting (NSE:RELIANCE or RELIANCE.NS -> RELIANCE)
-            clean_symbol = symbol.split('.')[0].split(':')[-1].upper()
-            raw_data = raw_data[raw_data['Symbol'].str.upper() == clean_symbol]
+            # Normalize columns
+            raw_data.columns = [c.strip() for c in raw_data.columns]
+            
+            # Filter by symbol if provided
+            if symbol:
+                # Handle symbol formatting (NSE:RELIANCE or RELIANCE.NS -> RELIANCE)
+                clean_symbol = symbol.split('.')[0].split(':')[-1].upper()
+                raw_data = raw_data[raw_data['Symbol'].str.upper() == clean_symbol]
 
-        deals = []
-        for idx, row in raw_data.iterrows():
-            try:
-                qty_str = str(row.get('Quantity', '0')).replace(',', '')
-                price_str = str(row.get('Trade Price/Wght. Avg. Price', '0')).replace(',', '')
-                qty = float(qty_str)
-                price = float(price_str)
-                value_lac = (qty * price) / 100000
-                
-                if value_lac > 100: # Show only deals > 1 Cr for relevance
-                    deals.append({
-                        "Date": row.get('Date', ''),
-                        "Symbol": row.get('Symbol', ''),
-                        "Client": row.get('Client Name', 'Unknown'),
-                        "Type": row.get('Buy/Sell', 'Unknown'),
-                        "Qty": f"{qty/100000:.2f}L",
-                        "Price": price
-                    })
-            except Exception:
-                continue
-                
-        # Return top 5 most recent
-        return deals[:5]
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch block deals: {e}")
-        return []
+            deals = []
+            for idx, row in raw_data.iterrows():
+                try:
+                    qty_str = str(row.get('Quantity', '0')).replace(',', '')
+                    price_str = str(row.get('Trade Price/Wght. Avg. Price', '0')).replace(',', '')
+                    qty = float(qty_str)
+                    price = float(price_str)
+                    value_lac = (qty * price) / 100000
+                    
+                    if value_lac > 100: # Show only deals > 1 Cr for relevance
+                        deals.append({
+                            "Date": row.get('Date', ''),
+                            "Symbol": row.get('Symbol', ''),
+                            "Client": row.get('Client Name', 'Unknown'),
+                            "Type": row.get('Buy/Sell', 'Unknown'),
+                            "Qty": f"{qty/100000:.2f}L",
+                            "Price": price
+                        })
+                except Exception:
+                    continue
+                    
+            # Return top 5 most recent
+            return deals[:5]
+            
+        except Exception as e:
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(2 * (attempt + 1)) # Backoff: 2s, 4s
+                logger.warning(f"Block deals fetch failed (Attempt {attempt+1}/{max_retries}), retrying... Error: {e}")
+            else:
+                logger.error(f"Failed to fetch block deals after {max_retries} attempts: {e}")
+                return None
 
 
 # --- 3. SILENT ACCUMULATION (Delivery + IV) ---
@@ -226,8 +234,8 @@ def get_sector_stocks_accumulation(sector_name):
         df = pd.DataFrame(results).sort_values(by="Shadow Score", ascending=False)
         return df
     except Exception as e:
-        logger.error(f"Sector Accumulation Stats Failed for {sector_name}: {e}")
-        return pd.DataFrame()
+        logger.warning(f"Sector Accumulation Stats Failed for {sector_name}: {e}")
+        return None
 
 
 # --- 4. TRAP DETECTOR (FII Sentiment) ---
@@ -332,6 +340,10 @@ def analyze_sector_flow_tool() -> str:
     Returns a text summary of top performing sectors and their momentum.
     """
     df = analyze_sector_flow()
+    
+    if df is None:
+        return "⚠️ Connection Error: Unable to fetch sector data."
+        
     if df.empty:
         return "Sector analysis unavailable."
     
@@ -355,6 +367,10 @@ def fetch_block_deals_tool(symbol: str = None) -> str:
         symbol: Optional stock symbol to filter (e.g., RELIANCE.NS)
     """
     deals = fetch_block_deals(symbol=symbol)
+    
+    if deals is None:
+        return "⚠️ Connection Error: Unable to fetch whale data from exchange. Please try again later."
+        
     if not deals:
         return "No recent block deals found."
         

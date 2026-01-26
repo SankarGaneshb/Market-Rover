@@ -38,6 +38,15 @@ This guide covers how to handle operational issues that require manual intervent
 1.  **Upload Data**: Ensure `Portfolio.csv` is present in the root directory.
 2.  **Format Check**: Ensure it has columns: `Symbol`, `Qty`, `Avg Price`.
 
+### 4. API Connection Errors (Shadow Tracker)
+**Status**: Automated Warning / Retry
+**Symptom**: "⚠️ Connection Error" on the Shadow Tracker tab or "Warning" in logs.
+**Cause**: The external NSE data source is down, busy, or blocking requests (common during off-hours).
+**Action**:
+1.  No action required usually; the system retries automatically (3 times).
+2.  If persistent (>24 hours), check `logs/market_rover.log` for "API Down" patterns.
+3.  **Mine Logs**: Run `python scripts/mine_logs.py` to see failure timestamps and frequency.
+
 ---
 
 ## 🛑 Limitations & Scope
@@ -52,7 +61,9 @@ Please note what is **NOT** covered by the automated retry system:
 
 ## 📝 Issue Reporting
 
-If you encounter a new bug, please log it using this template (or use the built-in `scripts/report_system_errors.py` for automated aggregation).
+If you encounter a new bug, please log it using this template.
+
+> **Tip**: Run `python scripts/mine_logs.py` first to extract recent error messages from the logs automatically.
 
 **Bug Report Template**:
 ```markdown

@@ -26,6 +26,8 @@ def mine_logs():
         "dates": Counter()
     }
     
+    unique_errors = Counter()
+    
     with open(LOG_FILE, 'r', encoding='utf-8', errors='ignore') as f:
         for line in f:
             # Extract Date
@@ -41,6 +43,11 @@ def mine_logs():
                     stats["completions"] += 1
                 elif re.search(p_error, line):
                     stats["errors"] += 1
+                    # Extract error message (assumes format: ... | ERROR | message)
+                    parts = line.split("| ERROR |", 1)
+                    if len(parts) > 1:
+                        error_msg = parts[1].strip()
+                        unique_errors[error_msg] += 1
 
     print("\n📊 Mined Results:")
     print(f"- Total Sessions Started: {stats['starts']}")
@@ -50,6 +57,11 @@ def mine_logs():
     if stats['starts'] > 0:
         success_rate = (stats['completions'] / stats['starts']) * 100
         print(f"- Approx. Success Rate: {success_rate:.1f}%")
+
+    if unique_errors:
+        print("\n❌ Error Details:")
+        for err, count in unique_errors.most_common():
+            print(f"  [{count}x] {err}")
         
     print("\n📅 Activity by Day:")
     for date, count in sorted(stats['dates'].items()):
