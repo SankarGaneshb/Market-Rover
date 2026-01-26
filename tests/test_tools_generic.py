@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from unittest.mock import MagicMock, patch
 from rover_tools.stock_data_tool import get_stock_data
-from rover_tools.news_scraper_tool import scrape_news
+from rover_tools.news_scraper_tool import scrape_stock_news
 from rover_tools.visualizer_tool import generate_market_chart
 
 # Mocking decorators if they exist (assuming similar to market_context)
@@ -56,10 +56,10 @@ def test_scrape_news_mocked():
         mock_build.return_value = mock_paper
         
         try:
-             if hasattr(scrape_news, 'run'):
-                 result = scrape_news.run("TCS")
+             if hasattr(scrape_stock_news, 'run'):
+                 result = scrape_stock_news.run("TCS")
              else:
-                 result = scrape_news("TCS")
+                 result = scrape_stock_news("TCS")
         except Exception:
             pass # Just ensure it runs 
 

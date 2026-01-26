@@ -1,4 +1,8 @@
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 import pytest
 from rover_tools.news_scraper_tool import scrape_stock_news  # Corrected path
 from utils.metrics import PerformanceMonitor
