@@ -1,24 +1,23 @@
-# 🚀 Market-Rover v4.1 - Release Notes
+# 🚀 Market-Rover v4.2 - Release Notes
 
-**Release Date:** Jan 7, 2026
-**Version:** v4.1.0-GA
+**Release Date:** Jan 26, 2026
+**Version:** v4.2.0
 **Status:** **Stable / Production Release**
 
 ---
 
 ## 🌟 Highlights
 
-**Market-Rover v4.1** is a significant upgrade focusing on stability, data integrity, and institutional-grade analytics. This release marks the transition from "Beta" to a production-ready system.
+**Market-Rover v4.2** introduces enterprise-grade resilience to its data pipeline. We have hardened the market data fetching process to handle exchange outages gracefull by treating BSE as a first-class fallback for NSE.
 
-### 🛡️ **Integrity Shield (New)**
-- **Forensic Accounting:** Automatically scans balance sheets for 8 red flags (Benish M-Score, Altman Z-Score).
-- **Shadow Radar:** Detects "Smart Money" accumulation before price breakouts.
-- **Investor Profiler:** A behavioral finance engine (Sleep Test) that builds a "Smart Portfolio" tailored to your risk persona.
+### 🛡️ **Data Resilience (New)**
+- **Exchange Fallback**: Automatically switches to BSE (`.BO`) if NSE (`.NS`) data is unavailable.
+- **Smart Retries**: Implemented exponential backoff for network requests to prevent API throttling failures.
+- **Test Coverage**: Achieved ~80% test coverage for core analytical engines (`Portfolio`, `Forensic`, `Profiler`).
 
 ### 📊 **Institutional Analytics**
-- **Heatmap 2.0:** Interactive monthly return heatmaps with outlier exclusion logic.
-- **Forecast Engine:** AI-driven 2026 price targets using Monte Carlo + Regression models.
-- **Simulation**: Backtest your generated strategies against Nifty 50 instantly.
+- **Forensic Engine**: Validated fraud detection algorithms (Satyam, CWIP, Revenue Quality).
+- **Investor Profiler**: Validated "Sleep Test" logic and asset allocation strategies.
 
 ---
 

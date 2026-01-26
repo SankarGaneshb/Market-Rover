@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 from utils.logger import get_logger
 from utils.metrics import track_error_detail
+from utils.retry import retry_operation
 
 logger = get_logger(__name__)
 
@@ -11,52 +12,88 @@ class MarketDataFetcher:
     def __init__(self):
         pass
 
+    @retry_operation(max_retries=2, delay=1.0)
+    def _fetch_yf_price_unsafe(self, ticker):
+        """Internal helper with retry logic for fetching price."""
+        stock = yf.Ticker(ticker)
+        # fast_info access can fail network-wise
+        price = stock.fast_info['last_price']
+        if price is None:
+             raise ValueError(f"Received None price for {ticker}")
+        return price
+
+    @retry_operation(max_retries=2, delay=1.0)
+    def _fetch_yf_history_unsafe(self, ticker, period, interval):
+        """Internal helper with retry logic for fetching history."""
+        stock = yf.Ticker(ticker)
+        hist = stock.history(period=period, interval=interval)
+        if hist.empty:
+             raise ValueError(f"Received empty history for {ticker}")
+        return hist
+
     def fetch_ltp(self, ticker):
         """
-        Fetches the Last Traded Price (LTP) for a given ticker.
+        Fetches the Last Traded Price (LTP) with NSE -> BSE fallback.
         """
-        try:
-            # Sanitize input
-            ticker = ticker.replace("$", "").strip().upper()
-            
-            # Try yfinance first (works for both NSE/BSE if suffix is correct)
-            # Assuming NSE for now, appending .NS if not present, UNLESS it's an index (starts with ^)
-            if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
-                ticker += ".NS"
-            
-            stock = yf.Ticker(ticker)
-            # fast_info is faster than .info
-            price = stock.fast_info['last_price']
-            return price
-        except Exception as e:
-            logger.error(f"Error fetching LTP for {ticker}: {e}")
+        # Sanitize input
+        ticker = ticker.replace("$", "").strip().upper()
+        
+        # Determine strict NSE and BSE variants
+        base_ticker = ticker.replace(".NS", "").replace(".BO", "")
+        
+        # If it's an index (starts with ^), try direct fetch
+        if ticker.startswith("^"):
             try:
-                track_error_detail(type(e).__name__, str(e), context={"function": "fetch_ltp", "ticker": ticker})
+                return self._fetch_yf_price_unsafe(ticker)
+            except Exception as e:
+                logger.error(f"Failed to fetch index {ticker}: {e}")
+                return None
+
+        # Fallback Strategy for Stocks
+        targets = [f"{base_ticker}.NS", f"{base_ticker}.BO"]
+        if ticker.endswith(".BO"): # If user specifically asked for BSE, prioritize it
+             targets = [f"{base_ticker}.BO", f"{base_ticker}.NS"]
+
+        for t in targets:
+            try:
+                return self._fetch_yf_price_unsafe(t)
             except Exception:
-                pass
-            return None
+                logger.warning(f"Fetch failed for {t}, attempting fallback...")
+                continue
+                
+        logger.error(f"All attempts failed for {base_ticker} (NSE/BSE)")
+        if targets: # Log error detail for the primary target
+            track_error_detail("FetchError", "All sources failed", context={"ticker": base_ticker})
+        return None
 
     def fetch_historical_data(self, ticker, period="max", interval="1mo"):
         """
-        Fetches historical data for seasonality analysis.
-        Default is max history with monthly interval.
+        Fetches historical data with NSE -> BSE fallback.
         """
-        try:
-            ticker = ticker.replace("$", "").strip().upper()
-            
-            if not ticker.startswith("^") and not ticker.endswith(".NS") and not ticker.endswith(".BO"):
-                ticker += ".NS"
-            
-            stock = yf.Ticker(ticker)
-            hist = stock.history(period=period, interval=interval)
-            return hist
-        except Exception as e:
-            logger.error(f"Error fetching history for {ticker}: {e}")
+        # Sanitize input
+        ticker = ticker.replace("$", "").strip().upper()
+        base_ticker = ticker.replace(".NS", "").replace(".BO", "")
+        
+        # Index handling
+        if ticker.startswith("^"):
             try:
-                track_error_detail(type(e).__name__, str(e), context={"function": "fetch_historical_data", "ticker": ticker})
+                return self._fetch_yf_history_unsafe(ticker, period, interval)
             except Exception:
-                pass
-            return pd.DataFrame()
+                return pd.DataFrame()
+
+        targets = [f"{base_ticker}.NS", f"{base_ticker}.BO"]
+        if ticker.endswith(".BO"):
+             targets = [f"{base_ticker}.BO", f"{base_ticker}.NS"]
+
+        for t in targets:
+            try:
+                return self._fetch_yf_history_unsafe(t, period, interval)
+            except Exception:
+                logger.warning(f"History fetch failed for {t}, attempting fallback...")
+                continue
+        
+        logger.error(f"All history attempts failed for {base_ticker}")
+        return pd.DataFrame()
 
     def fetch_full_history(self, ticker):
         """
