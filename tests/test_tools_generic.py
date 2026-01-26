@@ -1,5 +1,6 @@
 
 import pytest
+import pandas as pd
 from unittest.mock import MagicMock, patch
 from rover_tools.stock_data_tool import get_stock_data
 from rover_tools.news_scraper_tool import scrape_news
