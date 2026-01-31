@@ -199,61 +199,6 @@ class DerivativeAnalyzer:
             except Exception:
                 pass
             return None
-                if not option_chain or not isinstance(option_chain, dict):
-                    return None
-
-                ce_ois = option_chain.get("CE", []) or []
-                pe_ois = option_chain.get("PE", []) or []
-
-                # Basic PCR calculation
-                total_ce_oi = sum([x.get("openInterest", 0) or 0 for x in ce_ois])
-                total_pe_oi = sum([x.get("openInterest", 0) or 0 for x in pe_ois])
-                pcr = (total_pe_oi / total_ce_oi) if total_ce_oi else None
-
-                # Max pain using OI-weighted distance
-                strikes = set([x.get("strikePrice") for x in ce_ois + pe_ois if x.get("strikePrice") is not None])
-                pain_scores = {}
-                for s in strikes:
-                    pain = 0
-                    for ce in ce_ois:
-                        pain += abs((ce.get("strikePrice") or 0) - s) * (ce.get("openInterest", 0) or 0)
-                    for pe in pe_ois:
-                        pain += abs((pe.get("strikePrice") or 0) - s) * (pe.get("openInterest", 0) or 0)
-                    pain_scores[s] = pain
-                max_pain = min(pain_scores, key=pain_scores.get) if pain_scores else None
-
-                # Support / resistance nearby max_pain
-                sorted_strikes = sorted(list(strikes))
-                support = None
-                resistance = None
-                if max_pain is not None and sorted_strikes:
-                    idx = sorted_strikes.index(max_pain) if max_pain in sorted_strikes else None
-                    if idx is not None:
-                        if idx > 0:
-                            support = sorted_strikes[max(0, idx - 1)]
-                        if idx < len(sorted_strikes) - 1:
-                            resistance = sorted_strikes[min(len(sorted_strikes) - 1, idx + 1)]
-
-                # ATM IV
-                atm_iv = None
-                if ltp is not None and strikes:
-                    atm = min(strikes, key=lambda x: abs(x - ltp))
-                    atm_ce = next((x for x in ce_ois if x.get("strikePrice") == atm), None)
-                    if atm_ce:
-                        atm_iv = atm_ce.get("impliedVolatility") or 0
-
-                return {
-                    "pcr": pcr,
-                    "max_pain": max_pain,
-                    "support_strike": support,
-                    "resistance_strike": resistance,
-                    "expiry": option_chain.get("expiryDate"),
-                    "strikes": sorted_strikes,
-                    "ce_ois": ce_ois,
-                    "pe_ois": pe_ois,
-                    "atm_iv": atm_iv,
-                }
-
     def model_scenarios(self, ltp, volatility, max_pain, expiry_date=None, iv=0):
         """
         Generates Neutral, Bull, and Bear targets.

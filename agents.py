@@ -2,7 +2,6 @@
 Agent definitions for Market Rover system.
 """
 from crewai import Agent
-from langchain_google_genai import ChatGoogleGenerativeAI
 from tools.portfolio_tool import read_portfolio
 from tools.news_scraper_tool import scrape_moneycontrol_news
 from tools.stock_data_tool import get_stock_data
@@ -18,59 +17,66 @@ from utils.logger import get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
-<<<<<<< HEAD
-# Global LLM instance (lazy initialized)
-_gemini_llm = None
+# Global LLM instance (cached inside proxy)
 
 
-def get_gemini_llm():
-    """Create and cache the Gemini LLM instance on first use.
+class GeminiLLMProxy:
+    """Lightweight proxy to lazily initialize Gemini LLM on first use.
 
-    Raises a clear error if `GOOGLE_API_KEY` is not configured.
+    This avoids import-time failures when `GOOGLE_API_KEY` or the
+    Gemini client library is unavailable. The proxy exposes an `invoke`
+    method that forwards calls to the real LLM instance.
     """
-    global _gemini_llm
-    if _gemini_llm is not None:
-        return _gemini_llm
 
-    if not GOOGLE_API_KEY:
-        logger.error("GOOGLE_API_KEY not found in environment variables. Please check your .env file.")
-        raise ValueError("GOOGLE_API_KEY not found in environment variables.")
+    def __init__(self):
+        self._llm = None
 
-    # Do not mutate global process env unless necessary; set for libraries that expect it
-    os.environ.setdefault("GOOGLE_API_KEY", GOOGLE_API_KEY)
+    def _ensure(self):
+        if self._llm is not None:
+            return self._llm
 
-    try:
-        from langchain_core.callbacks import BaseCallbackHandler
+        if not GOOGLE_API_KEY:
+            logger.error("GOOGLE_API_KEY not found in environment variables.")
+            raise ValueError("GOOGLE_API_KEY not configured")
 
-        class MetricsCallbackHandler(BaseCallbackHandler):
-            """Track API calls for observability"""
-            def on_llm_start(self, *args, **kwargs):
-                track_api_call("gemini", "generate")
-                logger.debug("Gemini API call started")
+        # Defer imports until actually needed
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            from langchain_core.callbacks import BaseCallbackHandler
 
-        _gemini_llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            temperature=0.3,
-            convert_system_message_to_human=True,
-            callbacks=[MetricsCallbackHandler()]
-        )
-        logger.info("Gemini LLM initialized successfully")
-        return _gemini_llm
-    except Exception as e:
-        logger.error(f"Failed to initialize Gemini LLM: {e}")
-        track_error("llm_initialization")
-        raise
-        backstory=(
-            "You are an expert portfolio manager who meticulously tracks "
-            "stock holdings. You ensure all stock symbols are properly formatted "
-            "with NSE suffixes (.NS) and validate the data integrity."
-        ),
-        tools=[read_portfolio],
-        verbose=True,
-        max_iter=MAX_ITERATIONS,
-        allow_delegation=False,
-        llm=get_gemini_llm()
-    )
+            class MetricsCallbackHandler(BaseCallbackHandler):
+                def on_llm_start(self, *args, **kwargs):
+                    track_api_call("gemini", "generate")
+                    logger.debug("Gemini API call started")
+
+            os.environ.setdefault("GOOGLE_API_KEY", GOOGLE_API_KEY)
+
+            self._llm = ChatGoogleGenerativeAI(
+                model="gemini-2.5-flash",
+                temperature=0.3,
+                convert_system_message_to_human=True,
+                callbacks=[MetricsCallbackHandler()],
+            )
+            logger.info("Gemini LLM initialized successfully")
+            return self._llm
+        except Exception as e:
+            logger.exception("Failed to initialize Gemini LLM: %s", e)
+            track_error("llm_initialization")
+            raise
+
+    def invoke(self, *args, **kwargs):
+        llm = self._ensure()
+        # Some LLM interfaces expose different method names; prefer `invoke` if present
+        if hasattr(llm, "invoke"):
+            return llm.invoke(*args, **kwargs)
+        elif hasattr(llm, "generate"):
+            return llm.generate(*args, **kwargs)
+        else:
+            raise RuntimeError("Underlying LLM object has no known call method")
+
+
+# Public proxy instance used by tests and other modules. This keeps import_safe.
+gemini_llm = GeminiLLMProxy()
 
 
 def create_news_scraper_agent():

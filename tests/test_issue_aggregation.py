@@ -8,6 +8,7 @@ from scripts import generate_daily_issue_report as gen
 METRICS_DIR = Path('metrics')
 METRICS_DIR.mkdir(exist_ok=True)
 
+
 def test_aggregate_groups(tmp_path, monkeypatch):
     date_str = datetime.utcnow().date().isoformat()
     errors_file = METRICS_DIR / f"errors_{date_str}.jsonl"
@@ -33,4 +34,3 @@ def test_aggregate_groups(tmp_path, monkeypatch):
 
     # Clean up
     errors_file.unlink()
-*** End Patch

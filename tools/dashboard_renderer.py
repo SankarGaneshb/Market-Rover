@@ -8,10 +8,11 @@ from PIL import Image
 # Set premium style
 try:
     plt.style.use('dark_background')
-except:
-    pass # Fallback
+except Exception:
+    pass
 
 sns.set_theme(style="darkgrid", rc={"axes.facecolor": "#121212", "grid.color": "#2A2A2A"})
+
 
 class DashboardRenderer:
     def __init__(self):
@@ -24,33 +25,24 @@ class DashboardRenderer:
         2. Monthly Returns Heatmap (Historical Performance)
         3. Key Analysis Metrics
         """
-        # Ensure non-interactive backend for production safety
         plt.switch_backend('Agg')
-        
         fig = plt.figure(figsize=(16, 12), constrained_layout=True)
         gs = fig.add_gridspec(3, 2, height_ratios=[1.5, 1.5, 0.8])
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
         # --- 1. Price Chart (Top Row, spans both cols) ---
         ax1 = fig.add_subplot(gs[0, :])
         try:
             self._plot_price_chart(ax1, ticker, history_df, scenarios, forecast_2026)
         except Exception:
             ax1.text(0.5, 0.5, "Price chart unavailable", ha='center', va='center', color='white')
-=======
-        # --- 1. Price Chart (Top Row, spans both cols) ---
-        ax1 = fig.add_subplot(gs[0, :])
-        try:
-            self._plot_price_chart(ax1, ticker, history_df, scenarios)
-        except Exception:
-            ax1.text(0.5, 0.5, "Price chart unavailable", ha='center', va='center', color='white')
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
 
         # --- 2. Monthly Returns Heatmap (Middle Row, spans both cols) ---
         ax2 = fig.add_subplot(gs[1, :])
-        self._plot_monthly_heatmap(ax2, returns_matrix, ticker)
+        try:
+            self._plot_monthly_heatmap(ax2, returns_matrix, ticker)
+        except Exception:
+            ax2.text(0.5, 0.5, "Heatmap unavailable", ha='center', va='center', color='white')
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
         # --- 3. OI Chart (Bottom Left) ---
         ax3 = fig.add_subplot(gs[2, 0])
         try:
@@ -60,26 +52,16 @@ class DashboardRenderer:
 
         # --- 4. Key Metrics (Bottom Right) ---
         ax4 = fig.add_subplot(gs[2, 1])
-        self._plot_metrics(ax4, oi_data, scenarios)
-=======
-        # --- 3. OI Chart (Bottom Left) ---
-        ax3 = fig.add_subplot(gs[2, 0])
         try:
-            self._plot_oi_chart(ax3, oi_data)
+            self._plot_metrics(ax4, oi_data, scenarios)
         except Exception:
-            ax3.text(0.5, 0.5, "OI chart unavailable", ha='center', va='center', color='white')
-
-        # --- 4. Key Metrics (Bottom Right) ---
-        ax4 = fig.add_subplot(gs[2, 1])
-        self._plot_metrics(ax4, oi_data, scenarios)
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
+            ax4.text(0.5, 0.5, "Metrics unavailable", ha='center', va='center', color='white')
 
         # Save to buffer
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=150, bbox_inches='tight', facecolor='#000000')
         buf.seek(0)
         plt.close(fig)
-        
         return buf
 
     def _plot_monthly_heatmap(self, ax, returns_matrix, ticker):
@@ -87,27 +69,20 @@ class DashboardRenderer:
             ax.text(0.5, 0.5, "No Historical Data Available", ha='center', va='center', color='white')
             return
 
-        # Create heatmap
-        sns.heatmap(returns_matrix, ax=ax, cmap="RdYlGn", center=0, annot=True, fmt=".1f", 
+        sns.heatmap(returns_matrix, ax=ax, cmap="RdYlGn", center=0, annot=True, fmt=".1f",
                     cbar=False, linewidths=0.5, linecolor='#121212')
-        
         ax.set_title(f"{ticker} - Monthly Returns (%)", fontsize=16, color='white', fontweight='bold')
         ax.tick_params(axis='x', colors='white', labelsize=10)
         ax.tick_params(axis='y', colors='white', labelsize=10)
         ax.set_ylabel("Year", color='white', fontsize=12)
         ax.set_xlabel("Month", color='white', fontsize=12)
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
     def _plot_price_chart(self, ax, ticker, history_df, scenarios, forecast_2026=None):
-=======
-    def _plot_price_chart(self, ax, ticker, history_df, scenarios):
         # Guard against empty or invalid history
         if history_df is None or history_df.empty or 'Close' not in history_df.columns:
             ax.text(0.5, 0.5, "No price history to plot", ha='center', va='center', color='white')
             return
 
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
-        # Filter last 6 months for clarity
         df = history_df.tail(126).copy()
         if df.empty:
             ax.text(0.5, 0.5, "No recent price data", ha='center', va='center', color='white')
@@ -115,14 +90,12 @@ class DashboardRenderer:
 
         ax.plot(df.index, df['Close'], color='#00E5FF', linewidth=2, label='Price')
 
-        # Determine projection dates
         try:
             last_date = df.index[-1]
         except Exception:
             last_date = pd.Timestamp.now()
-        next_date = last_date + pd.Timedelta(days=30)  # Visual projection
+        next_date = last_date + pd.Timedelta(days=30)
 
-        # Safely get scenario targets
         bull = scenarios.get('bull_target') if isinstance(scenarios, dict) else None
         bear = scenarios.get('bear_target') if isinstance(scenarios, dict) else None
         neutral = scenarios.get('neutral_range') if isinstance(scenarios, dict) else None
@@ -135,7 +108,6 @@ class DashboardRenderer:
             ax.hlines(bear, last_date, next_date, colors='#FF0000', linestyles='dashed', label='Bear Target')
             ax.text(next_date, bear, f" Bear: {bear:.0f}", color='#FF0000', va='center')
 
-        # Neutral Range (Shaded)
         if neutral and len(neutral) >= 2:
             ax.fill_between([last_date, next_date], neutral[0], neutral[1], color='#FFFF00', alpha=0.1, label='Neutral Zone')
 
@@ -143,43 +115,18 @@ class DashboardRenderer:
         ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white')
         ax.grid(True, linestyle='--', alpha=0.3)
 
-<<<<<<< HEAD:tools/dashboard_renderer.py
-        # --- 2026 Prediction Overlay ---
-        if forecast_2026:
-            target_date = forecast_2026['target_date']
-            
-            # Ensure timezone compatibility for plotting
-            if last_date.tz is not None and target_date.tz is None:
-                target_date = target_date.tz_localize(last_date.tz)
-            elif last_date.tz is None and target_date.tz is not None:
-                target_date = target_date.tz_localize(None)
+        # Optional forecast overlay
+        if forecast_2026 and isinstance(forecast_2026, dict):
+            try:
+                target_date = forecast_2026.get('target_date')
+                consensus = forecast_2026.get('consensus_target')
+                if target_date is not None and consensus is not None:
+                    ax.scatter([target_date], [consensus], color='#f59e0b', s=100, marker='*', zorder=10,
+                               label=f"2026 Target: {consensus:.0f}")
+                    ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white', fontsize=8)
+            except Exception:
+                pass
 
-            # Plot connection lines (dotted) from last price to targets
-            
-            # Trend (Blue)
-            ax.plot([last_date, target_date], [df['Close'].iloc[-1], forecast_2026['models']['Trend (Linear Reg)']], 
-                    color='#3b82f6', linestyle=':', label='Trend Prediction')
-            
-            # CAGR (Purple)
-            ax.plot([last_date, target_date], [df['Close'].iloc[-1], forecast_2026['models']['CAGR (Growth)']], 
-                    color='#8b5cf6', linestyle=':', label=f"CAGR ({forecast_2026['cagr_percent']:.1f}%)")
-            
-            # Consensus Target (Star)
-            consensus = forecast_2026['consensus_target']
-            ax.scatter([target_date], [consensus], color='#f59e0b', s=100, marker='*', zorder=10, label=f"2026 Target: {consensus:.0f}")
-            
-            # Target Zone (Shaded vertical area at end)
-            # We can't easily shade vertical efficiently on a time axis without correct limits,
-            # but we can fill between the Low and High bounds at the target date
-            ax.errorbar([target_date], [consensus], 
-                        yerr=[[consensus - forecast_2026['range_low']], [forecast_2026['range_high'] - consensus]], 
-                        color='#f59e0b', capsize=5, elinewidth=2)
-            
-            # Update legend to include new items
-            ax.legend(loc='upper left', facecolor='#1E1E1E', edgecolor='white', fontsize=8)
-
-    def _plot_metrics(self, ax, scenarios):
-=======
     def _plot_oi_chart(self, ax, oi_data):
         if not oi_data or not isinstance(oi_data, dict):
             ax.text(0.5, 0.5, "No OI Data Available", ha='center', va='center', color='white')
@@ -193,7 +140,6 @@ class DashboardRenderer:
             ax.text(0.5, 0.5, "No strike data available", ha='center', va='center', color='white')
             return
 
-        # Filter to show only relevant strikes (near ATM)
         mid_idx = len(strikes) // 2
         start = max(0, mid_idx - 10)
         end = min(len(strikes), mid_idx + 10)
@@ -207,7 +153,6 @@ class DashboardRenderer:
             return
 
         x = range(len(subset_strikes))
-
         ax.bar(x, subset_ce, width=0.4, label='Call OI (Res)', color='#FF5252', align='center')
         ax.bar(x, subset_pe, width=0.4, label='Put OI (Sup)', color='#69F0AE', align='edge')
 
@@ -218,33 +163,22 @@ class DashboardRenderer:
         ax.legend(facecolor='#1E1E1E')
 
     def _plot_metrics(self, ax, oi_data, scenarios):
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
         ax.axis('off')
-        
-        # Create a display
         metrics = [
-<<<<<<< HEAD:tools/dashboard_renderer.py
-            ("Days Remaining", f"{scenarios.get('days_remaining', 30)}", "#FFFFFF"),
-            ("Expected Move", f"±{scenarios['expected_move']:.2f}", "#00E5FF"),
-            ("Bull Target", f"{scenarios['bull_target']:.2f}", "#69F0AE"),
-            ("Bear Target", f"{scenarios['bear_target']:.2f}", "#FF5252"),
-=======
             ("PCR (Put-Call Ratio)", f"{oi_data.get('pcr', 'N/A')}", "#FFFFFF"),
             ("Max Pain Strike", f"{oi_data.get('max_pain', 'N/A')}", "#FFFF00"),
             ("Support (Max Put OI)", f"{oi_data.get('support_strike', 'N/A')}", "#69F0AE"),
             ("Resistance (Max Call OI)", f"{oi_data.get('resistance_strike', 'N/A')}", "#FF5252"),
-            ("Expected Move (Monthly)", f"±{scenarios.get('expected_move', 0):.2f}", "#00E5FF")
->>>>>>> 379772d (Observability: add daily error aggregation, CI validator, manual aggregator workflow, logging and error persistence; instrument modules and add run wrapper):tools/visualizer.py
+            ("Expected Move (Monthly)", f"±{scenarios.get('expected_move', 0):.2f}", "#00E5FF"),
         ]
-        
-        # Draw horizontally roughly
-        x_start = 0.1
+        x_start = 0.05
         for label, value, color in metrics:
             ax.text(x_start, 0.6, label, color='gray', fontsize=12, ha='left')
             ax.text(x_start, 0.3, value, color=color, fontsize=16, fontweight='bold', ha='left')
             x_start += 0.25
-        
+
         ax.text(0.5, 0.1, "Market Rover 4.1", color='#333333', fontsize=14, ha='center', fontweight='bold', alpha=0.5)
+
 
 if __name__ == "__main__":
     pass
