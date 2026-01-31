@@ -1320,27 +1320,26 @@ def show_reports_tab():
                         try:
                             # Use cached loading for better performance
                             html_content = load_report_content(str(html_path))
-                            
+
                             # Use Streamlit's HTML component to render the full report
                             st.components.v1.html(html_content, height=800, scrolling=True)
-                            
-                                except Exception as e:
-                                    st.error(f"❌ Error loading HTML report: {str(e)}")
-                                    # Persist detailed error for daily aggregation
-                                    try:
-                                        track_error_detail(type(e).__name__, str(e), context={"location": "show_reports_tab", "file": str(html_path)})
-                                    except Exception:
-                                        pass
-                                    # Fallback to TXT if available
-                                    if has_txt:
-                                        st.warning("Showing text version instead...")
-                                        with open(files['txt'], 'r', encoding='utf-8') as f:
-                                            st.text_area(
-                                                "Report Content",
-                                                f.read(),
-                                                height=300,
-                                                key=f"fallback_{timestamp}"
-                                            )
+                        except Exception as e:
+                            st.error(f"❌ Error loading HTML report: {str(e)}")
+                            # Persist detailed error for daily aggregation
+                            try:
+                                track_error_detail(type(e).__name__, str(e), context={"location": "show_reports_tab", "file": str(html_path)})
+                            except Exception:
+                                pass
+                            # Fallback to TXT if available
+                            if has_txt:
+                                st.warning("Showing text version instead...")
+                                with open(files['txt'], 'r', encoding='utf-8') as f:
+                                    st.text_area(
+                                        "Report Content",
+                                        f.read(),
+                                        height=300,
+                                        key=f"fallback_{timestamp}"
+                                    )
                     
                     else:
                         # Display plain text report
