@@ -62,7 +62,7 @@ python test_mock_data.py
 flake8 . --count --select=E9,F63,F7,F82 --show-source
 
 # Test imports
-python -c "from crew import create_crew; print('OK')"
+python -c "from crew_engine import create_crew; print('OK')"
 python -c "from utils.mock_data import mock_generator; print('OK')"
 python -c "from utils.report_visualizer import ReportVisualizer; print('OK')"
 ```

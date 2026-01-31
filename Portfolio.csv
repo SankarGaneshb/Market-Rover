@@ -1,0 +1,6 @@
+Symbol,Asset Class,Weight (%),Health Status,AI Reasoning,Quantity,Average Price,Company Name
+M&M.NS,Equity_Core,8.33,✅ Clean,User Choice (Core) | Forensic Clean,8330,100.0,Mahindra & Mahindra Ltd
+ULTRACEMCO.NS,Equity_Core,8.33,🔴 RISK,User Choice (Core) | Forensic Alert: 1 Red Flags,8330,100.0,UltraTech Cement Ltd
+KOTAKBANK.NS,Equity_Core,8.33,✅ Clean,User Choice (Core) | Forensic Clean,8330,100.0,Kotak Mahindra Bank Ltd
+GOLDBEES.NS,Safety_Cash,25.0,✅ Clean,Liquidity,25000,100.0,
+NIFTYBEES.NS,Safety_Bond,25.0,✅ Clean,Sovereign Guarantee,25000,100.0,

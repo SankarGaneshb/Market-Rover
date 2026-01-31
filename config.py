@@ -16,7 +16,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
 
 # System Settings
-MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "15"))
+MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))
 LOOKBACK_DAYS = int(os.getenv("LOOKBACK_DAYS", "7"))
 PORTFOLIO_FILE = os.getenv("PORTFOLIO_FILE", "Portfolio.csv")
 
@@ -84,7 +84,7 @@ def ensure_nse_suffix(symbol: str) -> str:
     Returns:
         Symbol with .NS suffix
     """
-    symbol = symbol.strip().upper()
+    symbol = symbol.replace("$", "").strip().upper()
     if not symbol.endswith(NSE_SUFFIX) and not symbol.endswith(BSE_SUFFIX):
         symbol += NSE_SUFFIX
     return symbol
@@ -111,3 +111,7 @@ LABEL_RULES = [
     ('ValueError', 'type:data'),
     ('KeyError', 'type:data'),
 ]
+
+# Application Limits
+MAX_STOCKS_PER_PORTFOLIO = int(os.getenv("MAX_STOCKS_PER_PORTFOLIO", "20"))
+MAX_PORTFOLIOS_PER_USER = int(os.getenv("MAX_PORTFOLIOS_PER_USER", "3"))

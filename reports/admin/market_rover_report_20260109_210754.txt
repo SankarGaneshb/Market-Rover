@@ -1,0 +1,126 @@
+================================================================================
+                         MARKET ROVER 2.0 INTELLIGENCE REPORT
+                              Generated: 2026-01-09 21:07:54
+================================================================================
+
+```json
+{
+  "reportTitle": "Weekly Stock Intelligence Report",
+  "date": "2024-02-29",
+  "executiveSummary": {
+    "globalCues": "Global markets show mixed signals. Rising crude oil prices pose a headwind, while strength in US tech benefits TCS. Gold's rise indicates risk-off sentiment. USD/INR impacts exporters and importers differently.",
+    "macroHeadwinds": "Market sentiment is cautiously optimistic about India's growth story, but FII selling and concerns about microcap valuations warrant caution. Rising crude oil is a key concern."
+  },
+  "portfolioAnalysis": {
+    "reliance": {
+      "ticker": "RELIANCE.NS",
+      "quantity": 12500,
+      "averagePrice": 1000,
+      "fundamentalAnalysis": {
+        "news": "To be completed: Scrape news for RELIANCE.NS to identify any company-specific developments.",
+        "corporateActions": "To be completed: Fetch corporate actions for RELIANCE.NS to identify any upcoming events (dividends, results, etc.).",
+        "sentiment": "Negative",
+        "sentimentRationale": "Rising crude oil prices are a headwind, potentially squeezing margins. The weaker rupee increases imported raw material costs."
+      },
+      "technicalAnalysis": {
+        "currentPrice": 1475.30,
+        "trend": "Downtrend since breaking below ₹2800. Currently consolidating.",
+        "support": "₹1400-1450 range.",
+        "resistance": "₹1500, ₹1600.",
+        "relativeStrength": "Underperforming Nifty 50.",
+        "recommendation": "Watch for a break above ₹1500 for potential upside. Otherwise, further downside towards ₹1400 is possible."
+      },
+      "institutionalRadar": {
+        "shadowScan": "Price Squeeze, Volume Spike.",
+        "contrarianSignal": "Potential Accumulation. Negative sentiment and price at support, combined with a volume spike and price squeeze, suggest institutions may be accumulating the stock."
+      }
+    },
+    "tcs": {
+      "ticker": "TCS.NS",
+      "quantity": 12500,
+      "averagePrice": 1000,
+      "fundamentalAnalysis": {
+        "news": "To be completed: Scrape news for TCS.NS to identify any company-specific developments.",
+        "corporateActions": "To be completed: Fetch corporate actions for TCS.NS to identify any upcoming events (dividends, results, etc.).",
+         "sentiment": "Positive",
+        "sentimentRationale": "Benefits from a strong NASDAQ and a weaker rupee."
+      },
+      "technicalAnalysis": {
+        "currentPrice": 3207.80,
+        "trend": "Sideways to Downtrend.",
+        "support": "₹3150, ₹3000.",
+        "resistance": "₹3250, ₹3300.",
+        "relativeStrength": "Mixed relative to Nifty 50.",
+        "recommendation": "A break above ₹3250 could signal a potential uptrend. Failure to hold ₹3150 could lead to further downside."
+      },
+      "institutionalRadar": {
+        "shadowScan": "Price Squeeze.",
+        "contrarianSignal": "Neutral. Sentiment and technicals are mixed. The price squeeze suggests a period of indecision."
+      }
+    },
+    "liquidbees": {
+      "ticker": "LIQUIDBEES.NS",
+      "quantity": 50000,
+      "averagePrice": 1000,
+      "fundamentalAnalysis": {
+        "news": "To be completed: Scrape news for LIQUIDBEES.NS to identify any company-specific developments.",
+        "corporateActions": "N/A",
+         "sentiment": "Neutral",
+        "sentimentRationale": "Dependent on interest rate movements and overall liquidity conditions, which are not explicitly positive or negative in the report."
+      },
+      "technicalAnalysis": {
+        "currentPrice": 1000.00,
+        "trend": "Neutral.",
+        "support": "₹999.",
+        "resistance": "₹1001.",
+        "relativeStrength": "Tracks underlying assets.",
+        "recommendation": "Primarily used for liquidity management; price action is less relevant for technical analysis."
+      },
+      "institutionalRadar": {
+        "shadowScan": "Price Squeeze, Volume Spike, Above 20-DMA.",
+        "contrarianSignal": "Potential Accumulation. Neutral sentiment, combined with volume spike and price squeeze above 20-DMA, suggests institutions may be accumulating."
+      }
+    },
+    "goldbees": {
+      "ticker": "GOLDBEES.NS",
+      "quantity": 25000,
+      "averagePrice": 1000,
+      "fundamentalAnalysis": {
+        "news": "To be completed: Scrape news for GOLDBEES.NS to identify any company-specific developments.",
+        "corporateActions": "N/A",
+         "sentiment": "Positive",
+        "sentimentRationale": "Rising gold prices are a positive catalyst, indicating risk-off sentiment or inflationary concerns."
+      },
+      "technicalAnalysis": {
+        "currentPrice": 113.61,
+        "trend": "Sideways to Uptrend.",
+        "support": "₹112, ₹110.",
+        "resistance": "₹114, ₹115.",
+        "relativeStrength": "Outperforming Nifty 50 due to safe-haven demand.",
+        "recommendation": "Continue to monitor gold prices; a break above ₹115 could signal further upside."
+      },
+      "institutionalRadar": {
+        "shadowScan": "Price Squeeze, Above 20-DMA, Strong Close.",
+        "contrarianSignal": "Confirmation. Positive sentiment aligns with technicals and shadow scan signals."
+      }
+    }
+  },
+  "riskHighlights": [
+    "Rising crude oil prices pose a significant risk to Reliance Industries' margins and the broader Indian economy.",
+    "Pause in inflows into the Nifty Microcap 250 index fund indicates potential valuation concerns in the microcap space.",
+    "Divergence between FII and DII investment strategies suggests uncertainty in market direction."
+  ],
+  "recommendations": [
+    "Monitor Crude Oil Prices: Closely track crude oil movements and their potential impact on Reliance Industries.",
+    "Check Corporate Actions: Fetch corporate actions for RELIANCE.NS and TCS.NS to identify any upcoming events.",
+    "Scrape Stock-Specific News: Gather the latest news for all portfolio stocks to identify any company-specific developments.",
+    "Re-evaluate Portfolio Allocation: Based on the gathered information, consider re-evaluating portfolio allocation to mitigate risks and capitalize on opportunities."
+  ],
+  "overallMarketSentiment": {
+    "sentiment": "Neutral to Slightly Positive",
+    "rationale": "Market experts are optimistic about the 'India growth story,' but FIIs are net sellers, indicating some caution. The pause in inflows into the Nifty Microcap 250 index fund suggests concerns about valuations in a specific market segment. Global cues are mixed (positive US market, rising crude oil).",
+    "extremeSentiment": "No",
+    "justification": "While there are positive and negative factors influencing individual stocks and the overall market, none of the indicators point to widespread panic or euphoria. The report suggests a cautious optimism, with a need for monitoring key factors like crude oil prices and corporate actions. The divergence between FII and DII investment strategies further suggests a lack of uniform sentiment."
+  }
+}
+```

@@ -36,7 +36,7 @@ def sanitize_ticker(ticker: str) -> Optional[str]:
     # Valid ticker pattern: alphanumeric + optional .NS/.BO suffix
     # Max length: 20 characters
     # Updated to allow ^ prefix for indices (e.g. ^NSEI)
-    ticker_pattern = r'^\^?[A-Z0-9]{1,15}(?:\.[A-Z]{1,3})?$'
+    ticker_pattern = r'^\^?[A-Z0-9-&]{1,20}(?:\.[A-Z]{1,5})?$'
     
     if re.match(ticker_pattern, ticker):
         return ticker
@@ -185,3 +185,56 @@ class RateLimiter:
                         if current_time - req_time < self.time_window]
         
         return max(0, self.max_requests - len(self.requests))
+
+
+def with_rate_limit(limit_type: str = "default"):
+    """
+    Decorator to enforce rate limiting on specific functions.
+    Uses a global registry of RateLimiters.
+    
+    Args:
+        limit_type: Key to identify which limiter to use (e.g., 'visualizer', 'search')
+        
+    Usage:
+        @with_rate_limit('visualizer')
+        def generate_chart():
+            ...
+    """
+    import functools
+    from streamlit import session_state
+    
+    # Default configs
+    LIMIT_CONFIGS = {
+        'default': {'max': 60, 'window': 60},
+        'visualizer': {'max': 30, 'window': 60},
+        'heavy_tool': {'max': 10, 'window': 60},
+        'search': {'max': 20, 'window': 60}
+    }
+    
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # If we are not in a Streamlit context, we might skip or use a global dict
+            # For Market-Rover, we primarily rely on session_state
+            if not hasattr(session_state, 'rate_limiters'):
+                session_state.rate_limiters = {}
+            
+            if limit_type not in session_state.rate_limiters:
+                config = LIMIT_CONFIGS.get(limit_type, LIMIT_CONFIGS['default'])
+                session_state.rate_limiters[limit_type] = RateLimiter(
+                    max_requests=config['max'], 
+                    time_window_seconds=config['window']
+                )
+            
+            limiter = session_state.rate_limiters[limit_type]
+            allowed, msg = limiter.is_allowed()
+            
+            if not allowed:
+                # In Streamlit, we can stop execution with a warning
+                import streamlit as st
+                st.warning(f"⚠️ {msg}")
+                return None
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

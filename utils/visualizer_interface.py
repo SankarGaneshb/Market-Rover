@@ -55,7 +55,7 @@ def generate_market_snapshot(ticker):
         # The tool saves it to output/{ticker}_snapshot.png
         # We need to verify it exists
         output_dir = Path("output")
-        image_path = output_dir / f"{ticker}_snapshot.png"
+        image_path = output_dir / f"{ticker}_report.pdf"
         
         if image_path.exists():
             return {

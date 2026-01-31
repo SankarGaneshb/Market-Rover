@@ -1,7 +1,7 @@
-# Deploying Market-Rover 2.0 to Streamlit Community Cloud
+# Deploying Market-Rover to Streamlit Community Cloud
 
 ## Overview
-This guide walks you through deploying Market-Rover 2.0 to Streamlit Community Cloud for free, public hosting with built-in authentication.
+This guide walks you through deploying Market-Rover to Streamlit Community Cloud for free, public hosting with built-in authentication.
 
 ---
 
@@ -11,7 +11,7 @@ This guide walks you through deploying Market-Rover 2.0 to Streamlit Community C
 1. GitHub account
 2. Streamlit Community Cloud account (free - sign up at [share.streamlit.io](https://share.streamlit.io))
 3. Google Gemini API key ([get one here](https://makersuite.google.com/app/apikey))
-4. Market-Rover 2.0 code (this repository)
+4. Market-Rover code (this repository)
 
 ---
 
@@ -32,7 +32,7 @@ git remote add origin https://github.com/YOUR_USERNAME/Market-Rover.git
 git add .
 
 # Commit
-git commit -m "feat: Market-Rover 2.0 - Ready for Streamlit Cloud deployment"
+git commit -m "feat: Market-Rover - Ready for Streamlit Cloud deployment"
 
 # Push to GitHub
 git push -u origin main
@@ -124,7 +124,7 @@ Your app will be live at: `https://YOUR_APP_NAME.streamlit.app`
    - Verify Gemini API responds
 
 4. **View Reports**:
-   - Navigate to "View Reports" tab
+   - Use the **Sidebar > Portfolio Analysis** to view past reports.
    - Check HTML reports with visualizations
 
 ---

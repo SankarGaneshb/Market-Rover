@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nifty 50 Dashboard - Full 50</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+        .header-section { text-align: center; margin-bottom: 30px; }
+        .counter { font-size: 0.9rem; color: #666; margin-top: 5px; }
+        
+        .search-container { margin: 20px auto; max-width: 500px; }
+        #stockSearch { 
+            width: 100%; padding: 12px 20px; border-radius: 25px; 
+            border: 1px solid #ddd; font-size: 16px; outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 15px; max-width: 1200px; margin: 0 auto; 
+        }
+        .stock-card { 
+            background: white; border-radius: 12px; padding: 15px; 
+            display: flex; align-items: center; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            transition: transform 0.2s; 
+        }
+        .stock-card.hidden { display: none; }
+        .favicon { width: 45px; height: 45px; border-radius: 10px; margin-right: 15px; }
+        .stock-info { display: flex; flex-direction: column; }
+        .ticker { font-weight: bold; font-size: 1rem; color: #111; }
+        .name { font-size: 0.75rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1>Nifty 50 Market Watch</h1>
+        <div id="countDisplay" class="counter">Showing 50 of 50 stocks</div>
+        <div class="search-container">
+            <input type="text" id="stockSearch" placeholder="Search ticker or name..." onkeyup="filterStocks()">
+        </div>
+    </div>
+
+    <div class="grid-container" id="stockGrid"></div>
+
+    <script>
+        const nifty50 = [
+            { "ticker": "ADANIENT", "name": "Adani Enterprises", "primary": "#0054A6" },
+            { "ticker": "ADANIPORTS", "name": "Adani Ports & SEZ", "primary": "#0054A6" },
+            { "ticker": "APOLLOHOSP", "name": "Apollo Hospitals", "primary": "#007A33" },
+            { "ticker": "ASIANPAINT", "name": "Asian Paints", "primary": "#E21D26" },
+            { "ticker": "AXISBANK", "name": "Axis Bank", "primary": "#971237" },
+            { "ticker": "BAJAJ-AUTO", "name": "Bajaj Auto", "primary": "#003366" },
+            { "ticker": "BAJFINANCE", "name": "Bajaj Finance", "primary": "#0072BB" },
+            { "ticker": "BAJAJFINSV", "name": "Bajaj Finserv", "primary": "#0072BB" },
+            { "ticker": "BEL", "name": "Bharat Electronics", "primary": "#0054A6" },
+            { "ticker": "BPCL", "name": "BPCL", "primary": "#FFD200" },
+            { "ticker": "BHARTIARTL", "name": "Bharti Airtel", "primary": "#E11935" },
+            { "ticker": "BRITANNIA", "name": "Britannia Industries", "primary": "#E31E24" },
+            { "ticker": "CIPLA", "name": "Cipla", "primary": "#D11F26" },
+            { "ticker": "COALINDIA", "name": "Coal India", "primary": "#F6821F" },
+            { "ticker": "DRREDDY", "name": "Dr. Reddy's Lab", "primary": "#6A2D91" },
+            { "ticker": "EICHERMOT", "name": "Eicher Motors", "primary": "#E31E24" },
+            { "ticker": "GRASIM", "name": "Grasim Industries", "primary": "#F6821F" },
+            { "ticker": "HCLTECH", "name": "HCL Technologies", "primary": "#007DBA" },
+            { "ticker": "HDFCBANK", "name": "HDFC Bank", "primary": "#1C3E94" },
+            { "ticker": "HDFCLIFE", "name": "HDFC Life", "primary": "#1C3E94" },
+            { "ticker": "HEROMOTOCO", "name": "Hero MotoCorp", "primary": "#231F20" },
+            { "ticker": "HINDALCO", "name": "Hindalco Industries", "primary": "#F6821F" },
+            { "ticker": "HINDUNILVR", "name": "Hindustan Unilever", "primary": "#003DA5" },
+            { "ticker": "ICICIBANK", "name": "ICICI Bank", "primary": "#052F5F" },
+            { "ticker": "ITC", "name": "ITC Ltd", "primary": "#004B8D" },
+            { "ticker": "INDUSINDBK", "name": "IndusInd Bank", "primary": "#662D91" },
+            { "ticker": "INFY", "name": "Infosys", "primary": "#007CC3" },
+            { "ticker": "JSWSTEEL", "name": "JSW Steel", "primary": "#004A99" },
+            { "ticker": "KOTAKBANK", "name": "Kotak Mahindra Bank", "primary": "#ED1C24" },
+            { "ticker": "LT", "name": "Larsen & Toubro", "primary": "#F6821F" },
+            { "ticker": "LTIM", "name": "LTIMindtree", "primary": "#E83E8C" },
+            { "ticker": "M&M", "name": "Mahindra & Mahindra", "primary": "#E31837" },
+            { "ticker": "MARUTI", "name": "Maruti Suzuki", "primary": "#00428A" },
+            { "ticker": "NTPC", "name": "NTPC Ltd", "primary": "#0072BC" },
+            { "ticker": "NESTLEIND", "name": "Nestle India", "primary": "#754C24" },
+            { "ticker": "ONGC", "name": "ONGC", "primary": "#D11F26" },
+            { "ticker": "POWERGRID", "name": "Power Grid Corp", "primary": "#ED1C24" },
+            { "ticker": "RELIANCE", "name": "Reliance Industries", "primary": "#D32F2F" },
+            { "ticker": "SBILIFE", "name": "SBI Life", "primary": "#00A5E3" },
+            { "ticker": "SBIN", "name": "State Bank of India", "primary": "#00A5E3" },
+            { "ticker": "SUNPHARMA", "name": "Sun Pharma", "primary": "#E30613" },
+            { "ticker": "TCS", "name": "Tata Consultancy", "primary": "#00529B" },
+            { "ticker": "TATACONSUM", "name": "Tata Consumer", "primary": "#008066" },
+            { "ticker": "TATAMOTORS", "name": "Tata Motors", "primary": "#00539C" },
+            { "ticker": "TATASTEEL", "name": "Tata Steel", "primary": "#00539C" },
+            { "ticker": "TECHM", "name": "Tech Mahindra", "primary": "#E31E24" },
+            { "ticker": "TITAN", "name": "Titan Company", "primary": "#B2955A" },
+            { "ticker": "TRENT", "name": "Trent Ltd", "primary": "#2D2926" },
+            { "ticker": "ULTRACEMCO", "name": "UltraTech Cement", "primary": "#FFD200" },
+            { "ticker": "WIPRO", "name": "Wipro", "primary": "#20348C" }
+        ];
+
+        const container = document.getElementById('stockGrid');
+
+// Replace your existing forEach loop with this "Safe" version
+nifty50.forEach(stock => {
+    const textColor = ["#FFD200", "#FFF200"].includes(stock.primary) ? "#000000" : "#ffffff";
+    
+    // Use substring for the icon text, but sanitize it for XML
+    let displayTicker = stock.ticker.substring(0, 4).replace("&", "&amp;");
+    
+    // Build the SVG string with the sanitized ticker
+    const svgRaw = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <rect width="32" height="32" rx="8" fill="${stock.primary}"/>
+        <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="Arial" font-weight="bold" font-size="9">${displayTicker}</text>
+    </svg>`;
+    
+    // Base64 encoding provides the most reliable cross-browser rendering
+    const svgIcon = `data:image/svg+xml;base64,${btoa(svgRaw)}`;
+
+    const card = document.createElement('div');
+    card.className = 'stock-card';
+    card.setAttribute('data-ticker', stock.ticker.toLowerCase());
+    card.setAttribute('data-name', stock.name.toLowerCase());
+    
+    card.innerHTML = `
+        <img class="favicon" src="${svgIcon}" alt="${stock.ticker}">
+        <div class="stock-info">
+            <span class="ticker">${stock.ticker}</span>
+            <span class="name">${stock.name}</span>
+        </div>
+    `;
+    container.appendChild(card);
+});
+
+        function filterStocks() {
+            const query = document.getElementById('stockSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.stock-card');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                if (card.getAttribute('data-ticker').includes(query) || card.getAttribute('data-name').includes(query)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById('countDisplay').innerText = `Showing ${visibleCount} of 50 stocks`;
+        }
+    </script>
+</body>
+</html>
