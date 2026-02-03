@@ -10,7 +10,53 @@ from ticker_resources import get_common_tickers
 
 # Configuration
 OUTPUT_FILE = "data/backtest_registry.json"
+SUMMARY_FILE = "backtest_summary.md"
 DELAY_SECONDS = 2 # To avoid rate limits
+
+def generate_markdown_report(results_map, updated_count, failed_count):
+    """
+    Generates a markdown summary of the backtest results.
+    """
+    report_date = datetime.now().strftime("%d %b %Y")
+    
+    # Convert map to list for sorting
+    results_list = []
+    for ticker, data in results_map.items():
+        # Filter for only recently updated items (today)
+        if data.get("last_updated") == datetime.now().strftime("%Y-%m-%d"):
+            data["ticker"] = ticker
+            # Calculate a combined error score for sorting
+            data["error_score"] = min(data["median_error"], data["sd_error"])
+            results_list.append(data)
+            
+    # Sort by error score (lower is better)
+    results_list.sort(key=lambda x: x["error_score"])
+    
+    md = f"# 🧪 Weekly Strategy Backtest Report\n"
+    md += f"**Date:** {report_date}\n\n"
+    md += f"- **Strategies Tested:** {updated_count}\n"
+    md += f"- **Failures:** {failed_count}\n\n"
+    
+    md += "## 🏆 Top Performers (Lowest Error)\n"
+    if results_list:
+        md += "| Ticker | Strategy | Error % | Tested |\n"
+        md += "|--------|----------|---------|--------|\n"
+        for item in results_list[:5]:
+            md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {item['years_tested']}y |\n"
+    else:
+        md += "No updates found for this run.\n"
+
+    md += "\n## 📉 Least Accurate (High Error)\n"
+    if results_list:
+        md += "| Ticker | Strategy | Error % | Tested |\n"
+        md += "|--------|----------|---------|--------|\n"
+        for item in results_list[-5:][::-1]: # Show worst 5
+             md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {item['years_tested']}y |\n"
+
+    with open(SUMMARY_FILE, "w", encoding="utf-8") as f:
+        f.write(md)
+    
+    print(f"Summary report generated: {SUMMARY_FILE}")
 
 def run_batch_backtest():
     """
@@ -86,6 +132,8 @@ def run_batch_backtest():
         
     print(f"\n🎉 Batch Backtest Complete. Updated: {updated_count}, Failed: {failed_count}")
     print(f"Results saved to {OUTPUT_FILE}")
+    
+    generate_markdown_report(results_map, updated_count, failed_count)
 
 if __name__ == "__main__":
     run_batch_backtest()

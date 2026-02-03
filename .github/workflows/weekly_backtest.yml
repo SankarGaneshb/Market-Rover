@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  discussions: write
 
 jobs:
   backtest:
@@ -32,6 +33,15 @@ jobs:
       run: |
         export PYTHONPATH=$PYTHONPATH:.:./rover_tools
         python rover_tools/batch_backtester.py
+
+    - name: Set Date
+      run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+    - name: Create Discussion
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh discussion create --category "General" --title "Weekly Strategy Backtest: ${{ env.DATE }}" --body-file backtest_summary.md
 
     - name: Commit Results
       uses: stefanzweifel/git-auto-commit-action@v7

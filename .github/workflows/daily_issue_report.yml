@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  issues: write
+  discussions: write
 
 jobs:
   daily-report:
@@ -31,14 +31,11 @@ jobs:
     - name: Generate Daily Report
       run: python -m rover_tools.generate_daily_report
 
-    - name: Create Issue
-      uses: peter-evans/create-issue-from-file@v6
-      with:
-        title: "Daily Market Intelligence: ${{ env.DATE }}"
-        content-filepath: daily_report.md
-        labels: |
-          report
-          automated
+    - name: Set Date
+      run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+    - name: Create Discussion
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DATE: $(date +'%Y-%m-%d')
+      run: |
+        gh discussion create --category "General" --title "Daily Market Intelligence: ${{ env.DATE }}" --body-file daily_report.md
