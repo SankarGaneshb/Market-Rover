@@ -306,12 +306,18 @@ class InvestorProfiler:
         target_alpha = 40 - alpha_picks_weight_used
         if target_alpha < 0: target_alpha = 0
         
-        valid_alpha = [a for a in alpha_picks if a not in current_symbols] # alpha_picks are actually same names
-        # Let's diversify alpha picks
+        # Merge lists to ensure we have enough candidates
         alpha_picks_ext = ["BSE.NS", "CDSL.NS", "MCX.NS", "ANGELONE.NS"]
-        valid_alpha = [a for a in alpha_picks_ext if a not in current_symbols]
+        all_alpha_candidates = alpha_picks + alpha_picks_ext
+        
+        valid_alpha = [a for a in all_alpha_candidates if a not in current_symbols]
         
         if valid_alpha and target_alpha > 0:
+             # Take top 4 or however many fit? Or just equal weight all?
+             # Let's stick to simple equal weight of valid candidates (capped at say 4-5 to avoid dilution)
+             # If list is too long, slice it
+             if len(valid_alpha) > 5: valid_alpha = valid_alpha[:5]
+             
              w = target_alpha / len(valid_alpha)
              for a in valid_alpha:
                  additions.append({"Symbol": a, "Asset Class": "Equity_Alpha", "Weight (%)": w, "Strategy": "Momentum/Shadow"})
