@@ -76,8 +76,8 @@ def get_pro_llm():
     global _pro_llm
     if _pro_llm is not None:
         return _pro_llm
-    # User specifically requested Gemini 3 Pro Preview
-    _pro_llm = _create_llm("gemini-3-pro-preview")
+    # User specifically requested Gemini 1.5 Pro (renamed from 3-preview)
+    _pro_llm = _create_llm("gemini-1.5-pro")
     return _pro_llm
 
 # Legacy accessor for compatibility (mapped to Pro for safety)
