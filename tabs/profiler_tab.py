@@ -118,6 +118,8 @@ def show_profiler_tab():
 
     if "user_growth_brands" not in st.session_state:
         st.session_state.user_growth_brands = []
+    if "user_alpha_brands" not in st.session_state:
+        st.session_state.user_alpha_brands = []
 
     # --- 2. THE BRAND SHOP (USER PARTICIPATION) ---
     if st.session_state.persona:
@@ -143,8 +145,11 @@ def show_profiler_tab():
                  st.info(f"**Strategy: {strategy.get('description', 'Custom')}**")
              
              # --- Primary Selection (Nifty 50) ---
+             # Limit Logic: Hunter = 2, Others = 3
+             nifty50_limit = 2 if p == InvestorPersona.HUNTER else 3
+             
              st.markdown("### 🛍️ Step 2: The 'Brand Shop' (Buy What You Know)")
-             st.markdown(f"Select up to **3 Nifty 50 Brands** you use/trust daily. We will use these as your **Core Equity Portfolio**.")
+             st.markdown(f"Select up to **{nifty50_limit} Nifty 50 Brands** you use/trust daily for your **Core Portfolio**.")
              
              # Organize Nifty 50 by Sector for easier selection
              sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
@@ -195,73 +200,60 @@ def show_profiler_tab():
                                      
                      except Exception as e:
                           st.error(f"Error loading sector {sector}: {e}")
-
+        
         cnt = len(new_selection)
-        st.write(f"**Selected Main Brands: {cnt}/3**")
+        st.write(f"**Selected Main Brands: {cnt}/{nifty50_limit}**")
 
         if new_selection:
             # Simple icon visualization code omitted for brevity as it's purely visual
             pass
         
-        if cnt > 3:
-            st.warning("⚠️ You picked more than 3 brands. We will only use the first 3.")
-            new_selection = new_selection[:3]
+        if cnt > nifty50_limit:
+            st.warning(f"⚠️ You picked more than {nifty50_limit} brands. We will only use the first {nifty50_limit}.")
+            new_selection = new_selection[:nifty50_limit]
             
         st.session_state.user_brands = new_selection
 
-        # --- Secondary Selection (Midcap/Next50) for Compounder/Hunter ---
-        is_growth_persona = (p == InvestorPersona.COMPOUNDER or p == InvestorPersona.HUNTER)
+        # --- Secondary Selection (Midcap/Next50) Logic ---
+        # Compounder: Next 50 Only (Step 2.5)
+        # Hunter: Next 50 (Step 2.5) + Midcap (Step 3)
         
-        if is_growth_persona:
-            from rover_tools.ticker_resources import NIFTY_NEXT_50_SECTOR_MAP, NIFTY_MIDCAP_SECTOR_MAP, NIFTY_NEXT_50, NIFTY_MIDCAP
+        is_compounder = (p == InvestorPersona.COMPOUNDER)
+        is_hunter = (p == InvestorPersona.HUNTER)
+        
+        if is_compounder or is_hunter:
+            from rover_tools.ticker_resources import NIFTY_NEXT_50_SECTOR_MAP, NIFTY_MIDCAP_SECTOR_MAP
             
-            # Configure based on Persona
-            if p == InvestorPersona.COMPOUNDER:
-                sec_title = "🚀 Step 2.5: Growth Accelerators (Nifty Next 50)"
-                sec_limit = 2
-                target_map = NIFTY_NEXT_50_SECTOR_MAP
-                # We need a meta map. For now we mock it or infer from Nifty 50 if overlap
-                # Or just use raw list
-            else: # Hunter
-                sec_title = "🏹 Step 2.5: Alpha Hunters (Nifty Midcap)"
-                sec_limit = 2
-                target_map = NIFTY_MIDCAP_SECTOR_MAP
+            # --- STEP 2.5: Growth Accelerators (Next 50) ---
+            # Common for both Compounder & Hunter
+            st.divider()
+            st.markdown(f"### 🚀 Step 2.5: Growth Accelerators (Nifty Next 50)")
+            st.markdown(f"Select up to **2 Brands** from this high-growth segment.")
             
-            st.markdown(f"### {sec_title}")
-            st.markdown(f"Select up to **{sec_limit} Brands** from this high-growth segment.")
-            
-            # 1. Get Sectors
+            target_map = NIFTY_NEXT_50_SECTOR_MAP
             growth_sectors = sorted(list(set(target_map.values())))
             growth_selected = st.session_state.user_growth_brands
             
-            # 2. Tabs
             g_tabs = st.tabs(growth_sectors)
-            
             growth_new_selection = []
             
             for i, sector in enumerate(growth_sectors):
                 with g_tabs[i]:
                     try:
-                        # Filter tickers
                         g_tickers = [t for t, s in target_map.items() if s == sector]
-                        
                         g_cols = st.columns(3)
                         for j, ticker in enumerate(g_tickers):
                             col = g_cols[j % 3]
-                            
-                            # Fallback Meta
-                            # We check if it exists in primary map, else generic
-                            meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#5b21b6"}) # Purple default
+                            meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#5b21b6"})
                             
                             import html
                             tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
                             color = meta['color']
-                            # Check specific known colors for common Next50
+                            # Quick color Fixes
                             if ticker == "ZOMATO.NS": color = "#E23744"
                             if ticker == "BEL.NS": color = "#0054A6"
                             if ticker == "TRENT.NS": color = "#2D2926"
                             if ticker == "DLF.NS": color = "#0054A6"
-                            
                             text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
 
                             svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
@@ -274,31 +266,80 @@ def show_profiler_tab():
                                 is_checked = ticker in growth_selected
                                 if st.checkbox("Select", value=is_checked, key=f"btn_g_{ticker}", label_visibility="collapsed"):
                                     growth_new_selection.append(ticker)
-
                     except Exception as e:
                         st.error(f"Error: {e}")
             
             cnt_growth = len(growth_new_selection)
-            st.write(f"**Selected: {cnt_growth}/{sec_limit}**")
+            st.write(f"**Selected Growth Brands: {cnt_growth}/2**")
             
-            if cnt_growth > sec_limit:
-                st.warning(f"⚠️ Max {sec_limit} allowed. Using first {sec_limit}.")
-                growth_new_selection = growth_new_selection[:sec_limit]
+            if cnt_growth > 2:
+                st.warning(f"⚠️ Max 2 allowed. Using first 2.")
+                growth_new_selection = growth_new_selection[:2]
             
             st.session_state.user_growth_brands = growth_new_selection
             
+            
+            # --- STEP 3: Alpha Hunters (Midcap) ---
+            # Hunter Only
+            if is_hunter:
+                st.divider()
+                st.markdown(f"### 🏹 Step 3: Alpha Hunters (Nifty Midcap)")
+                st.markdown(f"Select up to **2 Brands** from this aggressive segment.")
+                
+                target_map_alpha = NIFTY_MIDCAP_SECTOR_MAP
+                alpha_sectors = sorted(list(set(target_map_alpha.values())))
+                alpha_selected = st.session_state.user_alpha_brands
+                
+                a_tabs = st.tabs(alpha_sectors)
+                alpha_new_selection = []
+                
+                for i, sector in enumerate(alpha_sectors):
+                    with a_tabs[i]:
+                        try:
+                            a_tickers = [t for t, s in target_map_alpha.items() if s == sector]
+                            a_cols = st.columns(3)
+                            for j, ticker in enumerate(a_tickers):
+                                col = a_cols[j % 3]
+                                meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#0e7490"}) # Cyan default
+                                
+                                import html
+                                tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                                color = meta['color']
+                                text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
+
+                                svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                                b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
+                                icon_src = f"data:image/svg+xml;base64,{b64_svg}"
+
+                                with col:
+                                    st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{ticker.replace(".NS", "")}</div></div></div>', unsafe_allow_html=True)
+                                    
+                                    is_checked = ticker in alpha_selected
+                                    if st.checkbox("Select", value=is_checked, key=f"btn_a_{ticker}", label_visibility="collapsed"):
+                                        alpha_new_selection.append(ticker)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                
+                cnt_alpha = len(alpha_new_selection)
+                st.write(f"**Selected Alpha Brands: {cnt_alpha}/2**")
+                
+                if cnt_alpha > 2:
+                    st.warning(f"⚠️ Max 2 allowed. Using first 2.")
+                    alpha_new_selection = alpha_new_selection[:2]
+                
+                st.session_state.user_alpha_brands = alpha_new_selection
+                
         st.divider()
         
-        # --- 3. GENERATION (AUTOMATIC) ---
-        st.markdown("### 🤖 Step 3: AI Smart Portfolio")
+        # --- 4. GENERATION (AUTOMATIC) ---
+        st.markdown("### 🤖 Step 4: AI Smart Portfolio")
         
         # Check conditions
+        # Note: Step number in UI text is loose (we used 2, 2.5, 3, 4 etc)
         ready_to_gen = st.session_state.persona is not None and len(st.session_state.user_brands) >= 1
-        if is_growth_persona and len(st.session_state.user_growth_brands) < 1:
-             st.info("💡 You can proceed, but selecting at least 1 Growth Brand matches your persona better.")
         
         if ready_to_gen:
-             # Save User Brands Choice
+             # Save User Brands Choice (silent)
              if st.session_state.profiler_scores:
                  pass 
 
@@ -307,7 +348,8 @@ def show_profiler_tab():
                 raw_holdings = profiler.generate_smart_portfolio(
                     p, 
                     st.session_state.user_brands, 
-                    user_growth_brands=st.session_state.user_growth_brands if is_growth_persona else []
+                    user_growth_brands=st.session_state.user_growth_brands if (is_compounder or is_hunter) else [],
+                    user_alpha_brands=st.session_state.user_alpha_brands if is_hunter else []
                 )
                 
                 # 2. Validate (Forensic + Shadow + Correlation)

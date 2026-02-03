@@ -122,14 +122,15 @@ class InvestorProfiler:
             }
         return {}
 
-    def generate_smart_portfolio(self, persona, user_picked_brands=[], user_growth_brands=[]):
+    def generate_smart_portfolio(self, persona, user_picked_brands=[], user_growth_brands=[], user_alpha_brands=[]):
         """
         Generates a Model Portfolio using Persona-Specific Logic + User's Core Picks.
         
         Args:
             persona: InvestorPersona Enum
             user_picked_brands: List of ticker strings (e.g. ['RELIANCE.NS']) - mapped to Broad/Core
-            user_growth_brands: List of ticker strings (e.g. ['SRF.NS']) - mapped to Mid/Alpha
+            user_growth_brands: List of ticker strings (e.g. ['SRF.NS']) - mapped to Mid/Growth (Next 50)
+            user_alpha_brands: List of ticker strings (e.g. ['BEL.NS']) - mapped to Alpha/Midcap (Hunter only)
         """
         strategy = self.get_allocation_strategy(persona)
         holdings = []
@@ -160,15 +161,20 @@ class InvestorProfiler:
              # Let's assign them to the primary growth bucket.
              
              target_bucket = "Equity_Mid" if persona == self.personas.COMPOUNDER else "Equity_Mid"
-             # Weight calculation:
-             # Compounder has 50% for Mid. If user picks 2, let's say they take half of that? 
-             # Or simply split the bucket?
-             # Let's imply each user pick gets ~8-10% to be significant.
              per_stock_w = 10 
              
              for t in user_growth_brands:
                  holdings.append({"Symbol": t, "Asset Class": target_bucket, "Weight (%)": per_stock_w, "Strategy": "User Choice (Growth)"})
                  growth_picks_weight_used += per_stock_w
+        
+        alpha_picks_weight_used = 0
+        if user_alpha_brands and persona == self.personas.HUNTER:
+             target_bucket = "Equity_Alpha"
+             per_stock_w = 10
+             
+             for t in user_alpha_brands:
+                 holdings.append({"Symbol": t, "Asset Class": target_bucket, "Weight (%)": per_stock_w, "Strategy": "User Choice (Alpha)"})
+                 alpha_picks_weight_used += per_stock_w
 
         # 3. Run Specific AI Strategy to fill the rest
         if persona == self.personas.PRESERVER:
@@ -178,7 +184,7 @@ class InvestorProfiler:
         elif persona == self.personas.COMPOUNDER:
              holdings += self._generate_compounder(holdings, growth_picks_weight_used)
         elif persona == self.personas.HUNTER:
-             holdings += self._generate_shark(holdings, growth_picks_weight_used)
+             holdings += self._generate_shark(holdings, growth_picks_weight_used, alpha_picks_weight_used)
              
         # 4. Normalize Weights ensures total is 100
         total_w = sum([h['Weight (%)'] for h in holdings])
@@ -251,7 +257,7 @@ class InvestorProfiler:
                  
         return additions
         
-    def _generate_shark(self, current_holdings, growth_picks_weight_used=0):
+    def _generate_shark(self, current_holdings, growth_picks_weight_used=0, alpha_picks_weight_used=0):
         """Hunter: Momentum + Shadow Score"""
         additions = []
         
@@ -273,18 +279,41 @@ class InvestorProfiler:
         # Using reliable High-Beta names: TRENT, BEL, HAL, COCHINSHIP
         alpha_picks = ["TRENT.NS", "BEL.NS", "HAL.NS", "COCHINSHIP.NS"]
         
-        # Target is roughly 80% total for Hunter (Small+Mid)
-        # But we used 20% for Core/Sector Ldr (User picks)
-        # So we have 80% remaining. Minus what User picked in Growth.
-        target_allocation = 80 - growth_picks_weight_used
-        if target_allocation < 0: target_allocation = 0
+        # Target Allocation Logic:
+        # Hunter:
+        # Equity_Core (Nifty 50): 20% (Filled by User Step 1)
+        # Equity_Mid (Next 50): 40% (Filled by User Step 2 + AI)
+        # Equity_Alpha (Midcap): 40% (Filled by User Step 3 + AI)
+        # Note: Original allocation was 40 Mid / 40 Small. Let's align to that.
         
+        # Mid/Growth Bucket (Total 40)
+        target_mid = 40 - growth_picks_weight_used
+        if target_mid < 0: target_mid = 0
+        
+        # We don't have an AI engine for Next 50 specifically yet in this function, 
+        # usually _generate_shark was just filling Alpha.
+        # Let's use some Next 50 proxies if we need to fill this bucket.
+        next50_proxies = ["ZOMATO.NS", "DLF.NS", "SIEMENS.NS", "VBL.NS"]
         current_symbols = [h['Symbol'] for h in current_holdings]
-        valid_picks = [a for a in alpha_picks if a not in current_symbols]
         
-        if valid_picks:
-             w = target_allocation / len(valid_picks)
-             for a in valid_picks:
+        valid_next50 = [n for n in next50_proxies if n not in current_symbols]
+        if valid_next50 and target_mid > 0:
+            w_mid = target_mid / len(valid_next50)
+            for n in valid_next50:
+                 additions.append({"Symbol": n, "Asset Class": "Equity_Mid", "Weight (%)": w_mid, "Strategy": "Growth/Next50"})
+
+        # Alpha/Midcap Bucket (Total 40)
+        target_alpha = 40 - alpha_picks_weight_used
+        if target_alpha < 0: target_alpha = 0
+        
+        valid_alpha = [a for a in alpha_picks if a not in current_symbols] # alpha_picks are actually same names
+        # Let's diversify alpha picks
+        alpha_picks_ext = ["BSE.NS", "CDSL.NS", "MCX.NS", "ANGELONE.NS"]
+        valid_alpha = [a for a in alpha_picks_ext if a not in current_symbols]
+        
+        if valid_alpha and target_alpha > 0:
+             w = target_alpha / len(valid_alpha)
+             for a in valid_alpha:
                  additions.append({"Symbol": a, "Asset Class": "Equity_Alpha", "Weight (%)": w, "Strategy": "Momentum/Shadow"})
              
         return additions
