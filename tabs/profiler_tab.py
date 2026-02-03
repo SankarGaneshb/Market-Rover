@@ -448,6 +448,10 @@ def show_profiler_tab():
                   if success:
                       st.success("✅ Saved Successfully!")
                       
+                      # USER REQUEST: Move to Market Analysis after completion
+                      st.session_state.nav_selection = "🔍 Market Analysis"
+                      st.rerun()
+                      
                       # CRITICAL: Mark profile as updated to unlock other tabs
                       user_profile_mgr = UserProfileManager() # local instance
                       user_profile_mgr.update_profile_timestamp(current_user)

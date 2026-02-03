@@ -199,7 +199,6 @@ def main():
         ]
         
         # Determining Valid Options based on User Status
-        # Determining Valid Options based on User Status
         if force_profile:
              # Case 1: New User or Expired Profile -> Show ONLY Profile
              valid_options = ["👤 Investor Profile"]
@@ -208,22 +207,37 @@ def main():
                   st.session_state.nav_selection = "👤 Investor Profile"
                   
         else:
-             # Case 2: Existing User -> Show everything EXCEPT Profile
-             valid_options = [o for o in all_options if o != "---" and o != "👤 Investor Profile"]
+             # Case 2: Existing User -> Show everything EXCEPT Profile (or keep it as optional?)
+             # User requested: "Once persona completed show in left sidebar... move to Market Analysis"
+             # So we keep "👤 Investor Profile" available if they want to re-take it, but defaults change.
+             valid_options = [o for o in all_options if o != "---"]
              
-             # If user was somehow on Profile page (e.g. just saved), OR if not initialized, redirect to Portfolio
-             if "nav_selection" not in st.session_state or st.session_state.nav_selection == "👤 Investor Profile":
-                  st.session_state.nav_selection = "📤 Portfolio Analysis"
+             # If JUST finished profile (detected by flag or default), landing page might change.
+             # But here we just define options.
+             
+             # SHOW PERSONA WIDGET
+             if profile_status.get('exists'):
+                 p_val = profile_status.get('persona', 'Unknown')
+                 # Simple Map for Emoji
+                 p_emoji = "🛡️" if "Defender" in p_val else ("🦅" if "Hunter" in p_val else ("🌱" if "Preserver" in p_val else "🚀"))
+                 
+                 st.markdown("### 🆔 Your Persona")
+                 st.info(f"**{p_emoji} {p_val}**")
+                 st.markdown("---")
 
         # Safe default if selection is invalid (e.g. state persists but options changed)
         # Note: We must ensure nav_selection exists before checking "not in valid_options"
         if "nav_selection" in st.session_state and st.session_state.nav_selection not in valid_options:
-             st.session_state.nav_selection = valid_options[0]
+             # If we have a profile, default to Market Analysis as requested
+             if not force_profile:
+                 st.session_state.nav_selection = "🔍 Market Analysis"
+             else:
+                 st.session_state.nav_selection = valid_options[0]
 
         selection = st.radio(
             "Navigate", 
             valid_options, 
-            index=valid_options.index(st.session_state.nav_selection),
+            index=valid_options.index(st.session_state.nav_selection) if st.session_state.nav_selection in valid_options else 0,
             key="nav_radio",
             label_visibility="hidden"
         )
