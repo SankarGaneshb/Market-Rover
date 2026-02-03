@@ -736,19 +736,43 @@ def render_upload_section_logic(max_parallel):
     
     with st.expander("📝 View / Edit Holdings", expanded=(st.session_state.pf_input_mode == "Create / Upload")):
         
-        # Determine config based on toggle (which might not exist in Manage mode, default to False)
-        # We need to recreate the config locally
+        # Ensure DF Structure
+        if 'manual_portfolio_df' not in st.session_state:
+             st.session_state.manual_portfolio_df = pd.DataFrame([{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}])
+        
+        # FIX: Ensure numeric types to prevent "Blank Rows" in data_editor
+        work_df = st.session_state.manual_portfolio_df.copy()
+        
+        # 1. Enforce Types
+        if "Quantity" in work_df.columns:
+            work_df["Quantity"] = pd.to_numeric(work_df["Quantity"], errors='coerce').fillna(0).astype(int)
+        if "Average Price" in work_df.columns:
+            work_df["Average Price"] = pd.to_numeric(work_df["Average Price"], errors='coerce').fillna(0.0).astype(float)
+        
+        # 2. Auto-Detect Custom Symbols (if not already enabled)
+        # If we load a portfolio with symbols NOT in our common list, we must enable Custom View,
+        # otherwise SelectboxColumn will render them as blank/error.
+        from rover_tools.ticker_resources import get_common_tickers
+        common_set = set(get_common_tickers())
+        current_symbols = set(work_df['Symbol'].unique())
+        
+        # Check if we have unknown symbols (ignoring empty/None)
+        unknowns = [s for s in current_symbols if s and str(s).strip() and s not in common_set]
+        
+        # State management for toggle
         is_custom = st.session_state.get('allow_custom_view', False)
+        if unknowns and not is_custom:
+             # Auto-enable if we detect unknown symbols
+             st.session_state.allow_custom_view = True
+             is_custom = True
+        
         if st.toggle("Enable Custom Symbols", value=is_custom, key='allow_custom_view'):
              symbol_col_view = st.column_config.TextColumn("Symbol", required=True)
         else:
              symbol_col_view = st.column_config.SelectboxColumn(options=get_common_tickers(), required=True)
 
-        if 'manual_portfolio_df' not in st.session_state:
-             st.session_state.manual_portfolio_df = pd.DataFrame([{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}])
-
         edited_df = st.data_editor(
-            st.session_state.manual_portfolio_df,
+            work_df,
             num_rows="dynamic",
             width='stretch',
             column_config={
