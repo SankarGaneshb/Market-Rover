@@ -68,7 +68,7 @@ def get_flash_llm():
     global _flash_llm
     if _flash_llm is not None:
         return _flash_llm
-    _flash_llm = _create_llm("gemini-1.5-flash")
+    _flash_llm = _create_llm("gemini-2.0-flash")
     return _flash_llm
 
 def get_pro_llm():
