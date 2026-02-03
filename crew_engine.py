@@ -2,7 +2,25 @@
 Crew configuration for Market-Rover 2.0
 Orchestrates all agents and tasks using CrewAI with parallel execution support.
 """
-from crewai import Crew, Process
+# Guard imports that may not be available in CI/test environments so pytest can import this module
+# Tests patch module-level symbols like `Crew` and `AgentFactory`, so ensure those names exist even
+# when optional dependencies are missing.
+try:
+    from crewai import Crew, Process
+except Exception:
+    # Provide lightweight fallbacks so tests can import and patch these names.
+    class _DummyCrew:
+        def __init__(self, *args, **kwargs):
+            pass
+        def kickoff(self):
+            return None
+
+    class _DummyProcess:
+        sequential = "sequential"
+
+    Crew = _DummyCrew
+    Process = _DummyProcess
+
 from agents import AgentFactory
 from tasks import TaskFactory
 from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY
@@ -105,8 +123,7 @@ class MarketRoverCrew:
 
 def create_crew(max_parallel_stocks: Optional[int] = None, 
                 progress_callback: Optional[Callable] = None):
-    """
-    Factory function to create a new MarketRoverCrew instance.
+    """Factory function to create a new MarketRoverCrew instance.
     
     Args:
         max_parallel_stocks: Maximum number of stocks to process in parallel
