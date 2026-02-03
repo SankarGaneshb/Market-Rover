@@ -19,9 +19,11 @@ def test_rover_agents_initialization():
     
     # 2. Patch the objects inside the 'agents' module
     # We use 'agents.Agent' because that's the reference used inside the module code
-    with patch('agents.Agent') as MockAgent, \
+    with patch.dict(os.environ, {"GOOGLE_API_KEY": "fake_key"}), \
+         patch('agents.Agent') as MockAgent, \
          patch('agents.LLM') as MockLLM, \
-         patch('agents.get_gemini_llm') as MockGetLLM:
+         patch('agents.get_gemini_llm') as MockGetLLM, \
+         patch('agents.get_flash_llm') as MockFlashLLM:
         
         from agents import AgentFactory
         
