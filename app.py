@@ -10,11 +10,11 @@ os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 import warnings
 warnings.filterwarnings('ignore')
 import streamlit as st
-import pandas as pd
-from pathlib import Path
+
+
 import sys
-from datetime import datetime
-import time
+
+
 
 # Ensure root is in path
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,12 +22,12 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 try:
-    import plotly
-    import rover_tools
+    import plotly  # noqa: F401
+    import rover_tools  # noqa: F401
 except ImportError as e:
     st.error(f"Critical Dependency Error: {e}")
 
-from config import UPLOAD_DIR, REPORT_DIR
+
 from utils.job_manager import JobManager
 from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
                            get_error_stats)

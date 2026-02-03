@@ -3,10 +3,9 @@ Report visualization utilities for Market-Rover 2.0
 Generates interactive charts and exports to multiple formats
 """
 import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
+
 import pandas as pd
-from typing import Dict, List, Optional
+from typing import Dict, List
 from datetime import datetime
 from pathlib import Path
 

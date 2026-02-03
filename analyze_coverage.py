@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import os
+
 
 try:
     tree = ET.parse('coverage.xml')

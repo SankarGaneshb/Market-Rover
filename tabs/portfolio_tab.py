@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
+import time
 from datetime import datetime
-from config import REPORT_DIR, MAX_STOCKS_PER_PORTFOLIO
+from config import REPORT_DIR
 from utils.portfolio_manager import PortfolioManager
 from rover_tools.ticker_resources import get_common_tickers
 from utils.security import sanitize_ticker

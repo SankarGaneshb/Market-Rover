@@ -5,7 +5,7 @@ Agent definitions for Market Rover system.
     If you modify any agent roles or goals, please update `AI_AGENTS.md`.
 """
 from crewai import Agent, LLM
-from langchain_google_genai import ChatGoogleGenerativeAI
+
 from rover_tools.batch_tools import batch_scrape_news, batch_get_stock_data, batch_detect_accumulation
 from rover_tools.portfolio_tool import read_portfolio
 from rover_tools.news_scraper_tool import scrape_general_market_news

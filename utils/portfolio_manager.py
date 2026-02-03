@@ -1,7 +1,7 @@
 import json
 import os
 import pandas as pd
-from datetime import datetime
+
 import config
 
 DATA_FILE = "data/saved_portfolios.json"

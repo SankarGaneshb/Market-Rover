@@ -5,7 +5,7 @@ Usage:
     python -m utils.tracking stop <session_id> [success|failed]
     python -m utils.tracking event <event_type> <description>
 """
-import sys
+
 import argparse
 from utils.metrics import track_workflow_start, track_workflow_end, track_workflow_event
 

@@ -4,7 +4,7 @@ Handles OAuth flows multiple providers (Google, Facebook, etc.) and enforces whi
 Requires 'streamlit-oauth' and keys in secrets.toml.
 """
 import streamlit as st
-import os
+
 from streamlit_oauth import OAuth2Component
 import httpx
 import logging
