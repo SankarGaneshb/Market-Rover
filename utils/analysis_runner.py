@@ -393,44 +393,29 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             # Real Risk Calculation
 
+            # Real Risk Calculation
             from rover_tools.market_analytics import MarketAnalyzer
-
             ma_risk = MarketAnalyzer()
-
             
-
             stock_risk_data = []
-
             
-
             # UX: Progress for Post-Analysis
-
             risk_progress = st.progress(0)
-
             risk_status = st.empty()
-
             
-
+            # Collect Tickers for Correlation
+            all_tickers = [s['Symbol'] for s in stocks]
+            
             for i, s in enumerate(stocks):
-
                 risk_status.text(f"📊 Calculating Risk Metrics for {s.get('Symbol')}...")
-
                 risk_progress.progress((i + 1) / len(stocks))
-
                 
-
                 ticker_sym = s['Symbol']
-
                 try:
-
                     r_score = ma_risk.calculate_risk_score(ticker_sym)
-
                 except:
-
                     r_score = 50
-
                     
-
                 # Shadow Score Calculation
                 try:
                     shadow_res = detect_silent_accumulation(ticker_sym)
@@ -445,14 +430,26 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                     'symbol': ticker_sym, 
                     'company': s['Company Name'], 
                     'risk_score': r_score, 
-                    'sentiment': 'neutral',
+                    'sentiment': 'neutral', # Could rely on previous sentiment logic if granuallar
                     'shadow_score': shadow_score,
                     'shadow_signals': shadow_signals
                 })
 
             news_timeline_data = []
 
-        
+        # --- CORRELATION MATRIX ---
+        risk_status.text("🔗 Calculating Correlation Matrix...")
+        try:
+            # Clean tickers
+            clean_tickers = []
+            for t in all_tickers:
+                 full = f"{t}.NS" if '.' not in t else t
+                 clean_tickers.append(full)
+                 
+            corr_matrix = ma_risk.calculate_correlation_matrix(clean_tickers)
+        except Exception as e:
+            logger.error(f"Correlation failed: {e}")
+            corr_matrix = pd.DataFrame()
 
         # Display charts in columns
         col1, col2 = st.columns(2)
@@ -471,262 +468,177 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 fig_heatmap.update_layout(height=400) # Ensure fixed height matches sentiment
                 st.plotly_chart(fig_heatmap, width="stretch", use_container_width=True)
 
-        
-
-        # Individual stock risk gauges
-
-        if stock_risk_data and len(stock_risk_data) <= 6:  # Show gauges for small portfolios
-
-            st.markdown("### 🎯 Individual Stock Risk")
-
-            gauge_cols = st.columns(min(3, len(stock_risk_data)))
-
-            
-
-            for idx, stock_data in enumerate(stock_risk_data):
-
-                with gauge_cols[idx % 3]:
-
-                    fig_gauge = visualizer.create_risk_gauge(
-
-                        stock_data['risk_score'], 
-
-                        stock_data['symbol']
-
-                    )
-
-                    st.plotly_chart(fig_gauge, width="stretch")
+        # Row 2: Correlation & Individual Risk
+        col3, col4 = st.columns(2)
+        with col3:
+             if not corr_matrix.empty:
+                 # Use the new masked heatmap function
+                 fig_corr = visualizer.create_correlation_heatmap(corr_matrix)
+                 st.plotly_chart(fig_corr, width="stretch", use_container_width=True)
+                 
+        with col4:
+             # Individual stock risk gauges (Top 3 Riskiest)
+             if stock_risk_data:
+                 sorted_risk = sorted(stock_risk_data, key=lambda x: x['risk_score'], reverse=True)[:3]
+                 for idx, stock_data in enumerate(sorted_risk):
+                     # Show mini-gauges
+                     fig_gauge = visualizer.create_risk_gauge(
+                         stock_data['risk_score'], 
+                         stock_data['symbol']
+                     )
+                     fig_gauge.update_layout(height=130, margin=dict(l=20, r=20, t=30, b=20))
+                     st.plotly_chart(fig_gauge, use_container_width=True)
 
         
+        # --- REBALANCING ---
+        st.markdown("### ⚖️ Rebalancing Opportunities")
+        with st.expander("Show Rebalancing Strategies", expanded=True):
+             # Quick Rebalance Preview
+             # Transform data for rebalancer
+             rebal_input = []
+             for s in stocks:
+                 # Estimate value if not present (Quantity * Price)
+                 qty = s.get('Quantity', 10)
+                 price = s.get('Average Price', 1000.0)
+                 rebal_input.append({
+                     'symbol': f"{s['Symbol']}.NS" if '.' not in s['Symbol'] else s['Symbol'],
+                     'value': float(qty) * float(price)
+                 })
+             
+             col_strategies = st.columns(2)
+             
+             # Risk Parity
+             with col_strategies[0]:
+                 st.markdown("**🛡️ Risk Parity**")
+                 try:
+                    res_safe, _ = ma_risk.analyze_rebalance(rebal_input, mode='safety')
+                    if not res_safe.empty:
+                        # Show top 3 actions
+                        st.dataframe(res_safe[['action', 'target_weight']].head(3), hide_index=True)
+                 except:
+                    st.caption("Not enough data")
 
-        # News timeline (if available)
+             # Growth
+             with col_strategies[1]:
+                 st.markdown("**🚀 Growth Opt.**")
+                 try:
+                    res_growth, _ = ma_risk.analyze_rebalance(rebal_input, mode='growth')
+                    if not res_growth.empty:
+                         st.dataframe(res_growth[['action', 'target_weight']].head(3), hide_index=True)
+                 except:
+                    st.caption("Not enough data")
 
-        if news_timeline_data:
-
-            st.markdown("### 📅 News Timeline")
-
-            fig_timeline = visualizer.create_news_timeline(news_timeline_data)
-
-            st.plotly_chart(fig_timeline, width="stretch")
-
-        
 
         # Show report text in expander
-
         with st.expander("📄 Full Text Report", expanded=False):
-
             st.text(str(result)[:2000] + "..." if len(str(result)) > 2000 else str(result))
-
         
-
         # Download buttons
-
         st.markdown("### 📥 Download Report")
-
         download_col1, download_col2, download_col3 = st.columns(3)
-
         
-
         with download_col1:
-
             st.download_button(
-
                 label="📄 Download TXT",
-
                 data=str(result),
-
                 file_name=report_filename.replace('.txt', '_text.txt'),
-
                 mime="text/plain",
-
                 width="stretch"
-
             )
-
         
-
         with download_col2:
-
             # HTML export with charts
-
             figures = []
-
             if sum(sentiment_data.values()) > 0:
-
                 figures.append(visualizer.create_sentiment_pie_chart(sentiment_data))
-
             if stock_risk_data:
-
                 figures.append(visualizer.create_portfolio_heatmap(stock_risk_data))
-
+            if not corr_matrix.empty:
+                 figures.append(visualizer.create_correlation_heatmap(corr_matrix))
             
-
             html_path = target_dir / report_filename.replace('.txt', '.html')
-
             visualizer.export_to_html(figures, str(result), html_path)
-
             
-
             with open(html_path, 'r', encoding='utf-8') as f:
-
                 html_content = f.read()
-
             
-
             st.download_button(
-
                 label="🌐 Download HTML",
-
                 data=html_content,
-
                 file_name=report_filename.replace('.txt', '.html'),
-
                 mime="text/html",
-
                 width="stretch"
-
             )
-
         
-
         with download_col3:
-
             # CSV export (data only)
-
             csv_data = df.to_csv(index=False)
-
             st.download_button(
-
                 label="📊 Download CSV",
-
                 data=csv_data,
-
                 file_name=report_filename.replace('.txt', '_data.csv'),
-
                 mime="text/csv",
-
                 width="stretch"
-
             )
-
     
-
     except Exception as e:
-
         # Mark job as failed
-
         st.session_state.job_manager.fail_job(job_id, str(e))
-
         try:
-
             track_error_detail(type(e).__name__, str(e), context={"location": "run_analysis", "job_id": job_id})
-
         except Exception:
-
             pass
-
         status_text.text("")
-
         detail_text.text("")
-
         
-
         # User-friendly error messages
-
         error_msg = str(e).lower()
-
         
-
         if "rate limit" in error_msg or "429" in error_msg:
-
             st.error("⏱️ **Rate Limit Reached**")
-
             st.warning("""
-
             The API rate limit has been exceeded. This happens when making too many requests in a short time.
-
             
-
             **What you can do:**
-
             - Wait 1-2 minutes and try again
-
             - Reduce the number of concurrent stocks in the sidebar (try 2-3 instead of 5)
-
             - Analyze smaller portfolios at a time
-
             
-
             **Technical details:** The Google Gemini API has usage limits to prevent abuse.
-
             """)
-
         
-
         elif "api" in error_msg and ("key" in error_msg or "auth" in error_msg):
-
             st.error("🔑 **API Authentication Error**")
-
             st.warning("""
-
             There's an issue with your API credentials.
-
             
-
             **What you can do:**
-
             - Check that your `.env` file contains a valid `GOOGLE_API_KEY`
-
             - Verify your API key is active at https://makersuite.google.com/app/apikey
-
             - Make sure the key hasn't expired
-
             """)
-
         
-
         elif "connection" in error_msg or "network" in error_msg:
-
             st.error("🌐 **Network Connection Error**")
-
             st.warning("""
-
             Unable to connect to the API services.
-
             
-
             **What you can do:**
-
             - Check your internet connection
-
             - Try again in a few moments
-
             - Check if a firewall is blocking the connection
-
             """)
-
         
-
         elif "portfolio" in error_msg or "csv" in error_msg:
-
             st.error("📊 **Portfolio Data Error**")
-
             st.warning(f"""
-
             There's an issue with the portfolio data.
-
             
-
             **Error details:** {str(e)}
-
             
-
             **What you can do:**
-
             - Verify your CSV has the required columns: Symbol, Company Name
-
             - Ensure symbols are valid (e.g. RELIANCE.NS)
-
             """)
         
         else:

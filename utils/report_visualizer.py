@@ -347,17 +347,71 @@ class ReportVisualizer:
         return output_path
 
 
-def export_to_csv(data: List[Dict], output_path: Path) -> Path:
-    """
-    Export portfolio data to CSV format.
-    
-    Args:
-        data: List of stock data dictionaries
-        output_path: Path to save CSV file
+    def create_correlation_heatmap(self, matrix: pd.DataFrame) -> go.Figure:
+        """
+        Create a masked correlation heatmap (lower triangle only).
         
-    Returns:
-        Path to saved CSV file
-    """
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    return output_path
+        Args:
+            matrix: Correlation matrix DataFrame
+            
+        Returns:
+            Plotly figure object
+        """
+        import numpy as np
+        
+        # Create mask
+        mask = np.triu(np.ones_like(matrix, dtype=bool))
+        
+        # Apply mask by setting upper triangle to None (Plotly handles None as transparency in heatmap usually, 
+        # or we might need to rely on custom text or filtering values. 
+        # Actually Plotly Heatmap doesn't support 'mask' natively like Seaborn.
+        # We must set values to None or NaN.)
+        
+        # Convert to float for safety (avoid int issues with None)
+        matrix_masked = matrix.where(~mask, None)
+
+        fig = go.Figure(data=go.Heatmap(
+            z=matrix_masked.values,
+            x=matrix_masked.columns,
+            y=matrix_masked.index,
+            text=matrix_masked.values,
+            texttemplate="%{text:.2f}",
+            textfont={"size": 10},
+            colorscale='RdBu_r',
+            zmin=-1, 
+            zmax=1,
+            xgap=1, 
+            ygap=1,
+            hoverongaps=False
+        ))
+        
+        fig.update_layout(
+            title={
+                'text': '🔗 Correlation Heatmap (Lower Triangle)',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 20}
+            },
+            height=500,
+            width=500,
+            yaxis_autorange='reversed', # Upper left origin
+            paper_bgcolor='white',
+            plot_bgcolor='white'
+        )
+        
+        return fig
+
+    def export_to_csv(data: List[Dict], output_path: Path) -> Path:
+        """
+        Export portfolio data to CSV format.
+        
+        Args:
+            data: List of stock data dictionaries
+            output_path: Path to save CSV file
+            
+        Returns:
+            Path to saved CSV file
+        """
+        df = pd.DataFrame(data)
+        df.to_csv(output_path, index=False)
+        return output_path

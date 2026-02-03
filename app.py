@@ -198,32 +198,38 @@ def main():
             "⚙️ System Health"
         ]
         
-        # Filter separators for actual selection
-        valid_options = [o for o in all_options if o != "---"]
-        
-        if "nav_selection" not in st.session_state:
-            st.session_state.nav_selection = valid_options[0]
-            
-        # Hook for forced redirect
-        if force_profile and st.session_state.nav_selection != "👤 Investor Profile":
-             st.session_state.nav_selection = "👤 Investor Profile"
+        # Determining Valid Options based on User Status
+        # Determining Valid Options based on User Status
+        if force_profile:
+             # Case 1: New User or Expired Profile -> Show ONLY Profile
+             valid_options = ["👤 Investor Profile"]
+             # Force logic: If not initialized or invalid, set to Profile
+             if "nav_selection" not in st.session_state or st.session_state.nav_selection != "👤 Investor Profile":
+                  st.session_state.nav_selection = "👤 Investor Profile"
+                  
+        else:
+             # Case 2: Existing User -> Show everything EXCEPT Profile
+             valid_options = [o for o in all_options if o != "---" and o != "👤 Investor Profile"]
              
+             # If user was somehow on Profile page (e.g. just saved), OR if not initialized, redirect to Portfolio
+             if "nav_selection" not in st.session_state or st.session_state.nav_selection == "👤 Investor Profile":
+                  st.session_state.nav_selection = "📤 Portfolio Analysis"
+
+        # Safe default if selection is invalid (e.g. state persists but options changed)
+        # Note: We must ensure nav_selection exists before checking "not in valid_options"
+        if "nav_selection" in st.session_state and st.session_state.nav_selection not in valid_options:
+             st.session_state.nav_selection = valid_options[0]
+
         selection = st.radio(
             "Navigate", 
             valid_options, 
-            index=valid_options.index(st.session_state.nav_selection) if st.session_state.nav_selection in valid_options else 0,
+            index=valid_options.index(st.session_state.nav_selection),
             key="nav_radio",
             label_visibility="hidden"
         )
         
         # Sync selection back to state
         st.session_state.nav_selection = selection
-
-        # Enforce Profile Check (Double Check)
-        if force_profile and selection != "👤 Investor Profile":
-             st.warning("🔒 Features Locked")
-             st.info("You must complete your Investor Profile first.")
-             selection = "👤 Investor Profile" # Override locally for rendering logic
     # Default settings after UI removal
     st.session_state.test_mode = False
     max_parallel = 5

@@ -627,379 +627,191 @@ def show_portfolio_analysis_tab(max_parallel: int):
         render_analytics_section()
 
 def render_upload_section_logic(max_parallel):
-    st.header("Upload Portfolio")
-
-    # Mode Selection
-
-    input_mode = st.radio(
-
-        "Choose Input Method",
-        
-        ["Manage Portfolios (Create/Edit)", "📂 Upload CSV File"],
-        
-        horizontal=True,
-        
-        help="Manage your portfolios (Create/Edit) or Upload an existing CSV."
-
-    )
-
-    
-
-    df = None
-
-    filename = None
+    st.header("📊 Portfolio Operations")
 
     pm = PortfolioManager(st.session_state.get('username'))
-
     saved_names = pm.get_portfolio_names()
-
     
+    # State management for input mode
+    if 'pf_input_mode' not in st.session_state:
+        # Default to 'Manage' if portfolios exist, else 'Upload'
+        st.session_state.pf_input_mode = "Manage Portfolios" if saved_names else "Create / Upload"
 
-    if input_mode == "📂 Upload CSV File":
-
-        # Case 1: File upload
-
-        uploaded_file = st.file_uploader(
-
-            "Choose your Portfolio CSV file",
-
-            type=['csv'],
-
-            help="Upload a CSV file with columns: Symbol, Company Name, Quantity, Average Price"
-
-        )
-
-        
-
-        if uploaded_file is not None:
-
-            try:
-
-                # Use cached loading
-
-                file_bytes = uploaded_file.read()
-
-                df = load_portfolio_file(file_bytes, uploaded_file.name)
-
-                filename = uploaded_file.name
-
-                st.success(f"✅ Portfolio loaded: {len(df)} stocks")
-
-            except Exception as e:
-
-                st.error(f"❌ Error reading CSV: {str(e)}")
-
-                
-
-    elif input_mode == "Manage Portfolios (Create/Edit)":
+    # Input Mode Toggle (Small, Cleaner)
+    # st.write("---")
+    c_mode_1, c_mode_2 = st.columns([1, 4])
+    with c_mode_1:
+         pass # Spacing
+         
+    # Logic to switch mode
+    # If we have saved names, we show the loaded portfolio by default
     
-        # Case 2: Manual Creation / Editing
-
+    df = None
+    filename = None
+    
+    # --- AUTO-LOAD LOGIC ---
+    if saved_names and st.session_state.pf_input_mode == "Manage Portfolios":
         
-
-        # Load Saved Portfolios
-
-        saved_names = pm.get_portfolio_names()
-
+        # Load most recent or selected
+        if 'loaded_portfolio_name' not in st.session_state:
+            st.session_state.loaded_portfolio_name = saved_names[0] # Default to first
+            
+        # Dropdown to switch
+        col_sel, col_opt = st.columns([3, 1])
+        with col_sel:
+            selected_load = st.selectbox("📂 Active Portfolio", saved_names, 
+                                       index=saved_names.index(st.session_state.loaded_portfolio_name) if st.session_state.loaded_portfolio_name in saved_names else 0,
+                                       key="load_portfolio_select_main")
+            
+            if selected_load != st.session_state.loaded_portfolio_name:
+                 st.session_state.loaded_portfolio_name = selected_load
+                 # Force reload on next run (or immediate if we do it cleanly)
         
+        with col_opt:
+            st.write("")
+            st.write("")
+            if st.button("➕ New / Import", help="Switch to creation mode"):
+                 st.session_state.pf_input_mode = "Create / Upload"
+                 st.rerun()
 
-        col_load, col_custom = st.columns([2, 1])
+        # Get Data
+        loaded_df = pm.get_portfolio(st.session_state.loaded_portfolio_name)
+        if loaded_df is not None:
+             st.session_state.manual_portfolio_df = loaded_df
+             df = loaded_df
+             filename = f"portfolio_{st.session_state.loaded_portfolio_name}.csv"
+             
+             # Show Table (Read-Onlyish preview, but editable below for updates)
+             st.info(f"Loaded **{len(df)}** assets from *{st.session_state.loaded_portfolio_name}*")
+             
+    else:
+        # --- CREATION MODE ---
+        st.subheader("📝 Create or Import Portfolio")
+        
+        if saved_names:
+            if st.button("🔙 Back to Saved Portfolios"):
+                st.session_state.pf_input_mode = "Manage Portfolios"
+                st.rerun()
 
-        with col_load:
+        tab_create, tab_upload = st.tabs(["Manual Entry", "Upload CSV"])
+        
+        with tab_upload:
+            uploaded_file = st.file_uploader("Upload CSV", type=['csv'], help="Required columns: Symbol, Company Name")
+            if uploaded_file is not None:
+                try:
+                    file_bytes = uploaded_file.read()
+                    df = load_portfolio_file(file_bytes, uploaded_file.name)
+                    filename = uploaded_file.name
+                    st.success(f"✅ Loaded {len(df)} stocks")
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
 
-            if saved_names:
-
-                # Auto-select first portfolio if available
-                default_idx = 1 if saved_names else 0
-                selected_load = st.selectbox("📂 Load Saved Portfolio", ["-- Select --"] + saved_names, index=default_idx, key="load_portfolio_select")
-
-                if selected_load != "-- Select --":
-
-                    loaded_df = pm.get_portfolio(selected_load)
-
-                    if loaded_df is not None:
-                        # Fix for missing symbols in UI: Map short tickers back to full "Symbol - Name" options
-                        # The SelectboxColumn requires the exact string from options list
-                        try:
-                            all_options = get_common_tickers()
-                            # Create map: "RELIANCE.NS" -> "RELIANCE.NS - Reliance Industries Ltd"
-                            ticker_map = {opt.split(' - ')[0]: opt for opt in all_options if ' - ' in opt}
-                            
-                            def map_to_option(val):
-                                val_str = str(val).strip()
-                                return ticker_map.get(val_str, val_str) # Fallback to original if not found
-                                
-                            loaded_df['Symbol'] = loaded_df['Symbol'].apply(map_to_option)
-                        except Exception as e:
-                            print(f"Error mapping tickers: {e}")
-
-                        st.session_state.manual_portfolio_df = loaded_df
-
-
-                        st.session_state.loaded_portfolio_name = selected_load
-
-                        st.toast(f"Loaded '{selected_load}'")
-
-            else:
-
-                 st.info("No saved portfolios yet.")
-
-                 
-
-        with col_custom:
-
-             allow_custom = st.toggle("Allow Custom Symbols", help="Enable free text entry for symbols not in the list.")
-
-
-
-        # Initialize Data
-
-        if 'manual_portfolio_df' not in st.session_state:
-
-            st.session_state.manual_portfolio_df = pd.DataFrame(columns=['Symbol', 'Company Name', 'Quantity', 'Average Price'])
-
-            if st.session_state.manual_portfolio_df.empty:
-
-                 st.session_state.manual_portfolio_df = pd.DataFrame(
-
+        with tab_create:
+            # Initialize Data
+            if 'manual_portfolio_df' not in st.session_state:
+                st.session_state.manual_portfolio_df = pd.DataFrame(
                     [{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}] * 5
-
                 )
 
-
-
-        # Configure Column Types
-
-        if allow_custom:
-
-            symbol_col = st.column_config.TextColumn("Symbol (Custom)", help="Enter full ticker (e.g. INFBEES.NS)", required=True)
-
-        else:
-
-            symbol_col = st.column_config.SelectboxColumn(
-
-                options=get_common_tickers(),
-
-                required=True
-
-            )
-
+            allow_custom = st.toggle("Allow Custom Symbols", help="Enable free text entry")
             
+            if allow_custom:
+                symbol_col = st.column_config.TextColumn("Symbol (Custom)", required=True)
+            else:
+                symbol_col = st.column_config.SelectboxColumn(options=get_common_tickers(), required=True)
 
-        # Check current length and warn
+            # Editor logic happens later in common section
+            # We defer 'df' assignment for Manual Entry until after editor
+            df = st.session_state.manual_portfolio_df # Provisional
+            
+    # --- COMMON EDITOR & ANALYSIS AREA ---
+    # We always show the editor if we have df (even if loaded), allowing quick edits
+    
+    if 'manual_portfolio_df' not in st.session_state and df is not None:
+         st.session_state.manual_portfolio_df = df
 
-        current_rows = len(st.session_state.manual_portfolio_df)
-
-        if current_rows > MAX_STOCKS_PER_PORTFOLIO:
-
-             st.error(f"⚠️ You have {current_rows} stocks. Maximum allowed is {MAX_STOCKS_PER_PORTFOLIO}. Please remove some before saving.")
-
+    # Editor is shown ONLY if we are in Manual Creation OR if we want to allow editing matches.
+    # To keep it simple: "View/Edit Portfolio" expander
+    
+    with st.expander("📝 View / Edit Holdings", expanded=(st.session_state.pf_input_mode == "Create / Upload")):
+        
+        # Determine config based on toggle (which might not exist in Manage mode, default to False)
+        # We need to recreate the config locally
+        is_custom = st.session_state.get('allow_custom_view', False)
+        if st.toggle("Enable Custom Symbols", value=is_custom, key='allow_custom_view'):
+             symbol_col_view = st.column_config.TextColumn("Symbol", required=True)
         else:
+             symbol_col_view = st.column_config.SelectboxColumn(options=get_common_tickers(), required=True)
 
-             st.caption(f"ℹ️ Limit: {MAX_STOCKS_PER_PORTFOLIO} stocks per portfolio.")
-
-
+        if 'manual_portfolio_df' not in st.session_state:
+             st.session_state.manual_portfolio_df = pd.DataFrame([{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}])
 
         edited_df = st.data_editor(
-
             st.session_state.manual_portfolio_df,
-
             num_rows="dynamic",
-
             width='stretch',
-
             column_config={
-
-                "Symbol": symbol_col,
-
-                "Company Name": st.column_config.TextColumn("Company Name", help="Auto-filled if using dropdown"),
-
+                "Symbol": symbol_col_view,
+                "Company Name": st.column_config.TextColumn("Company Name"),
                 "Quantity": st.column_config.NumberColumn("Quantity", min_value=0, step=1),
-
                 "Average Price": st.column_config.NumberColumn("Avg Price", min_value=0.0, format="₹ %.2f")
-
             },
-
-            key="portfolio_editor"
-
+            key="portfolio_editor_main"
         )
-
         
-
-        # Process Edited Data
-
+        # Validation Logic
         if edited_df is not None:
-
              valid_df = edited_df[edited_df["Symbol"].astype(str).str.strip() != ""].copy()
-
              
-
-             # Post-process symbols if using dropdown (split ' - ')
-
-             # Post-process symbols if using dropdown (split ' - ')
-             if not allow_custom and not valid_df.empty:
-                 # Ensure Company Name column exists
-                 if 'Company Name' not in valid_df.columns:
-                     valid_df['Company Name'] = ""
-
-                 def parse_row(row):
-                     val = str(row['Symbol'])
-                     if " - " in val:
-                         parts = val.split(" - ")
-                         ticker = parts[0]
-                         comp = parts[1] if len(parts) > 1 else ""
-                         
-                         # Fill company name if empty using safe access
-                         curr_name = row.get('Company Name', "")
-                         if not curr_name or pd.isna(curr_name) or str(curr_name).strip() == "":
-                             row['Company Name'] = comp
-                             
-                         row['Symbol'] = ticker
-                     return row
-                 
+             # Post-process (Split ' - ')
+             def parse_row(row):
+                 val = str(row['Symbol'])
+                 if " - " in val:
+                     parts = val.split(" - ")
+                     row['Symbol'] = parts[0]
+                     if not row['Company Name']: row['Company Name'] = parts[1]
+                 return row
+             
+             if not valid_df.empty:
                  valid_df = valid_df.apply(parse_row, axis=1)
+                 df = valid_df # Update the main DF reference
+                 st.session_state.manual_portfolio_df = valid_df # Persist changes
 
-             
-
-                 if not valid_df.empty:
-
-                     df = valid_df
-
-                     filename = f"manual_portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-
-
-
-    # Common Preview & Analysis Logic
-
+    # --- ACTION BAR (Analyze & Save) ---
     if df is not None and not df.empty:
-
-        # SAVE SECTION (Available for both Upload and Manual)
-
-        with st.expander("💾 Save / Manage Portfolios"):
-
-             col_sched_1, col_sched_2 = st.columns([3, 1])
-
-             with col_sched_1:
-                 # Auto-fill name if loaded
-                 default_save_name = st.session_state.get('loaded_portfolio_name', "")
-                 save_name = st.text_input("Portfolio Name", value=default_save_name, placeholder="e.g., My October Holdings")
-
-             with col_sched_2:
-
-                 st.write("") # align
-
-                 st.write("")
-
-                 if st.button("Save / Update", key="btn_save_pf_common"):
-
-                      success, msg = pm.save_portfolio(save_name, df)
-
-                      if success:
-
-                          st.success(msg)
-
-                          st.rerun()
-
-                      else:
-
-                          st.error(msg)
-
-             
-
-             # Delete option
-
-             if saved_names:
-
-                  st.markdown("---")
-
-                  col_del_1, col_del_2 = st.columns([3, 1])
-
-                  with col_del_1:
-
-                      to_delete = st.selectbox("Delete Saved Portfolio", saved_names, key="del_pf_select_common")
-
-                  with col_del_2:
-
-                      st.write("")
-
-                      st.write("")
-
-                      if st.button("Delete", key="btn_del_pf_common"):
-
-                          pm.delete_portfolio(to_delete)
-
-                          st.rerun()
-
-
-
-        if input_mode == "📂 Upload CSV File":
-
-             # Preview only for upload mode
-
-             st.subheader("📋 Portfolio Preview")
-
-             st.dataframe(df, width="stretch")
-
-             
-
-        # Analysis button
-
-        st.markdown("---")
         
-        # Use simple 2-column layout with gap
-        col_btn_1, col_btn_2 = st.columns(2, gap="medium")
-
-        with col_btn_1:
-             if st.button("🚀 Analyze Portfolio", type="primary", width="stretch"):
-                 # Check rate limit
+        # Save Controls
+        col_act_save, col_act_analyze = st.columns([1, 1], gap="large")
+        
+        with col_act_save:
+             if st.button("💾 Save Changes", use_container_width=True):
+                 name = st.text_input("Confirm Name", value=st.session_state.get('loaded_portfolio_name', 'My Portfolio'))
+                 if name:
+                     pm.save_portfolio(name, df)
+                     st.success("Saved!")
+                     st.session_state.loaded_portfolio_name = name
+                     st.session_state.pf_input_mode = "Manage Portfolios"
+                     time.sleep(1)
+                     st.rerun()
+        
+        with col_act_analyze:
+             # Primary Action
+             if st.button("🚀 Analyze Portfolio", type="primary", use_container_width=True):
                  allowed, message = st.session_state.portfolio_limiter.is_allowed()
                  if not allowed:
                      st.error(f"⏱️ {message}")
-                 elif df is not None:
-                     from utils.analysis_runner import run_analysis # Import dynamically to avoid circle if we move it
-                     run_analysis(df, filename, max_parallel)
                  else:
-                     st.error("Please create or upload a portfolio first.")
-        
-        with col_btn_2:
-             if st.button("🕵️ Check Shadow Scores", width='stretch', help="Scan for Institutional Accumulation (Silent Buying)"):
-                 if df is not None and not df.empty:
-                     with st.spinner("Scanning Portfolio for Silent Accumulation..."):
-                         from rover_tools.shadow_tools import detect_silent_accumulation
-                         
-                         progress_text = "Scanning stocks..."
-                         my_bar = st.progress(0, text=progress_text)
-                         
-                         shadow_results = []
-                         total_stocks = len(df)
-                         
-                         count = 0
-                         for idx, row in df.iterrows():
-                             ticker = row['Symbol']
-                             res = detect_silent_accumulation(ticker)
-                             if res: 
-                                 # Adapting to match expected columns
-                                 score = res.get('score', 0)
-                                 signal_str = "Strong" if score >= 70 else ("Moderate" if score >= 40 else "Weak")
-                                 if score == 0:
-                                     signal_str = "None"
-                                     
-                                 shadow_results.append({
-                                     'ticker': ticker,
-                                     'shadow_score': score,
-                                     'signal': signal_str,
-                                     'reasoning': ", ".join(res.get('signals', []))
-                                 })
-                             
-                             count += 1
-                             my_bar.progress(count/total_stocks)
-                             
-                         my_bar.empty()
-                         
-                         if shadow_results:
-                             st.success(f"Found {len(shadow_results)} stocks with potential accumulation.")
-                             # Show results
-                             res_df = pd.DataFrame(shadow_results)
-                             st.dataframe(res_df[['ticker', 'shadow_score', 'signal', 'reasoning']], width='stretch')
-                         else:
-                             st.info("No silent accumulation detected.")
+                     from utils.analysis_runner import run_analysis
+                     run_analysis(df, filename or "portfolio_analysis", max_parallel)
+
+
+
+
+    
+    # End of active function logic. 
+    pass
+
+    # --- ANALYSIS CLEANUP ---
+    # The Analysis Button and logic are now inside render_upload_section_logic
+    # We remove the old duplicated blocks below this line.
+    pass

@@ -37,14 +37,11 @@ logger = get_logger(__name__)
 
 
 
-_gemini_llm = None
+_flash_llm = None
+_pro_llm = None
 
-def get_gemini_llm():
-    """Create and cache the Gemini LLM instance on first use."""
-    global _gemini_llm
-    if _gemini_llm is not None:
-        return _gemini_llm
-
+def _create_llm(model_name: str, temp: float = 0.3):
+    """Internal helper to create LLM instance."""
     if not GOOGLE_API_KEY:
         logger.error("GOOGLE_API_KEY not found in environment variables.")
         raise ValueError("GOOGLE_API_KEY not found.")
@@ -56,21 +53,40 @@ def get_gemini_llm():
         del os.environ["OPENAI_API_KEY"]
 
     try:
-        _gemini_llm = LLM(
-            model="gemini/gemini-2.0-flash",
-            temperature=0.3,
+        return LLM(
+            model=f"gemini/{model_name}",
+            temperature=temp,
             api_key=GOOGLE_API_KEY
         )
-        return _gemini_llm
     except Exception as e:
-        logger.error(f"Failed to initialize Gemini LLM: {e}")
+        logger.error(f"Failed to initialize Gemini LLM ({model_name}): {e}")
         track_error("llm_initialization")
         raise
 
+def get_flash_llm():
+    """Create and cache the Gemini Flash LLM (Fast, Low Latency)."""
+    global _flash_llm
+    if _flash_llm is not None:
+        return _flash_llm
+    _flash_llm = _create_llm("gemini-1.5-flash-001")
+    return _flash_llm
+
+def get_pro_llm():
+    """Create and cache the Gemini Pro LLM (Deep Reasoning)."""
+    global _pro_llm
+    if _pro_llm is not None:
+        return _pro_llm
+    # User specifically requested Gemini 3 Pro Preview
+    _pro_llm = _create_llm("gemini-3-pro-preview")
+    return _pro_llm
+
+# Legacy accessor for compatibility (mapped to Pro for safety)
+get_gemini_llm = get_pro_llm
+
 
 def create_portfolio_manager_agent():
-    """Agent A: Portfolio Manager"""
-    llm = get_gemini_llm()
+    """Agent A: Portfolio Manager (Low Complexity -> Flash)"""
+    llm = get_flash_llm()
     return Agent(
         role="Portfolio Manager",
         goal="Read and process user's stock portfolio from CSV",
@@ -134,8 +150,8 @@ def create_news_scraper_agent():
 
 
 def create_sentiment_analyzer_agent():
-    """Agent C: Sentiment Analyzer"""
-    llm = get_gemini_llm()
+    """Agent C: Sentiment Analyzer (High Volume -> Flash)"""
+    llm = get_flash_llm()
     return Agent(
         role="Sentiment Analysis Expert",
         goal="Analyze news articles and classify sentiment as Positive, Negative, or Neutral",
