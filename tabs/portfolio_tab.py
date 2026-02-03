@@ -668,24 +668,31 @@ def render_upload_section_logic(max_parallel):
             
             if selected_load != st.session_state.loaded_portfolio_name:
                  st.session_state.loaded_portfolio_name = selected_load
-                 # Force reload on next run (or immediate if we do it cleanly)
+                 # Force reload state
+                 st.session_state.manual_portfolio_df = None
+                 st.rerun()
         
         with col_opt:
             st.write("")
             st.write("")
             if st.button("➕ New / Import", help="Switch to creation mode"):
                  st.session_state.pf_input_mode = "Create / Upload"
+                 st.session_state.manual_portfolio_df = None
                  st.rerun()
 
-        # Get Data
-        loaded_df = pm.get_portfolio(st.session_state.loaded_portfolio_name)
-        if loaded_df is not None:
-             st.session_state.manual_portfolio_df = loaded_df
-             df = loaded_df
+        # Get Data (Condition: Only if not already loaded in session to allow edits)
+        if 'manual_portfolio_df' not in st.session_state or st.session_state.manual_portfolio_df is None:
+             loaded_df = pm.get_portfolio(st.session_state.loaded_portfolio_name)
+             if loaded_df is not None:
+                  st.session_state.manual_portfolio_df = loaded_df
+                  df = loaded_df
+                  filename = f"portfolio_{st.session_state.loaded_portfolio_name}.csv"
+                  st.info(f"Loaded **{len(df)}** assets from *{st.session_state.loaded_portfolio_name}*")
+             else:
+                  df = None
+        else:
+             df = st.session_state.manual_portfolio_df
              filename = f"portfolio_{st.session_state.loaded_portfolio_name}.csv"
-             
-             # Show Table (Read-Onlyish preview, but editable below for updates)
-             st.info(f"Loaded **{len(df)}** assets from *{st.session_state.loaded_portfolio_name}*")
              
     else:
         # --- CREATION MODE ---
@@ -710,67 +717,44 @@ def render_upload_section_logic(max_parallel):
                     st.error(f"❌ Error: {str(e)}")
 
         with tab_create:
-            # Initialize Data
-            if 'manual_portfolio_df' not in st.session_state:
+            # Initialize Data (5 Empty Rows) only for NEW creation
+            if 'manual_portfolio_df' not in st.session_state or st.session_state.manual_portfolio_df is None:
                 st.session_state.manual_portfolio_df = pd.DataFrame(
                     [{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}] * 5
                 )
 
-            allow_custom = st.toggle("Allow Custom Symbols", help="Enable free text entry")
-            
-            if allow_custom:
-                symbol_col = st.column_config.TextColumn("Symbol (Custom)", required=True)
-            else:
-                symbol_col = st.column_config.SelectboxColumn(options=get_common_tickers(), required=True)
-
-            # Editor logic happens later in common section
-            # We defer 'df' assignment for Manual Entry until after editor
+            # We use the common editor below for Manual Entry too.
             df = st.session_state.manual_portfolio_df # Provisional
             
     # --- COMMON EDITOR & ANALYSIS AREA ---
-    # We always show the editor if we have df (even if loaded), allowing quick edits
     
-    if 'manual_portfolio_df' not in st.session_state and df is not None:
-         st.session_state.manual_portfolio_df = df
+    # Ensure DF exists in state
+    if 'manual_portfolio_df' not in st.session_state or st.session_state.manual_portfolio_df is None:
+         # Fallback empty structure
+         st.session_state.manual_portfolio_df = pd.DataFrame([{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}])
 
     # Editor is shown ONLY if we are in Manual Creation OR if we want to allow editing matches.
     # To keep it simple: "View/Edit Portfolio" expander
     
     with st.expander("📝 View / Edit Holdings", expanded=(st.session_state.pf_input_mode == "Create / Upload")):
         
-        # Ensure DF Structure
-        if 'manual_portfolio_df' not in st.session_state:
-             st.session_state.manual_portfolio_df = pd.DataFrame([{"Symbol": "", "Company Name": "", "Quantity": 0, "Average Price": 0.0}])
-        
-        # FIX: Ensure numeric types to prevent "Blank Rows" in data_editor
         work_df = st.session_state.manual_portfolio_df.copy()
         
-        # 1. Enforce Types
+        # 1. Enforce Types (Robustness)
         if "Quantity" in work_df.columns:
             work_df["Quantity"] = pd.to_numeric(work_df["Quantity"], errors='coerce').fillna(0).astype(int)
         if "Average Price" in work_df.columns:
             work_df["Average Price"] = pd.to_numeric(work_df["Average Price"], errors='coerce').fillna(0.0).astype(float)
         
-        # 2. Auto-Detect Custom Symbols (if not already enabled)
-        # If we load a portfolio with symbols NOT in our common list, we must enable Custom View,
-        # otherwise SelectboxColumn will render them as blank/error.
-        from rover_tools.ticker_resources import get_common_tickers
-        common_set = set(get_common_tickers())
-        current_symbols = set(work_df['Symbol'].unique())
+        # 2. Config toggle
+        # Default to Custom (Text) View to prevent 'Blank' issues with Unknown symbols
+        # Unless user explicitly wants Dropdown
+        is_custom = st.session_state.get('allow_custom_view', True)
         
-        # Check if we have unknown symbols (ignoring empty/None)
-        unknowns = [s for s in current_symbols if s and str(s).strip() and s not in common_set]
-        
-        # State management for toggle
-        is_custom = st.session_state.get('allow_custom_view', False)
-        if unknowns and not is_custom:
-             # Auto-enable if we detect unknown symbols
-             st.session_state.allow_custom_view = True
-             is_custom = True
-        
-        if st.toggle("Enable Custom Symbols", value=is_custom, key='allow_custom_view'):
+        if st.toggle("Enable Text Entry (Custom Symbols)", value=is_custom, key='allow_custom_view'):
              symbol_col_view = st.column_config.TextColumn("Symbol", required=True)
         else:
+             from rover_tools.ticker_resources import get_common_tickers
              symbol_col_view = st.column_config.SelectboxColumn(options=get_common_tickers(), required=True)
 
         edited_df = st.data_editor(
@@ -824,12 +808,21 @@ def render_upload_section_logic(max_parallel):
         with col_act_analyze:
              # Primary Action
              if st.button("🚀 Analyze Portfolio", type="primary", use_container_width=True):
-                 allowed, message = st.session_state.portfolio_limiter.is_allowed()
-                 if not allowed:
-                     st.error(f"⏱️ {message}")
+                 
+                 # VALIDATION: Check for empty data before sending
+                 clean_tickers = [str(x).strip() for x in df['Symbol'].tolist() if str(x).strip()] if 'Symbol' in df else []
+                 
+                 if not clean_tickers:
+                     st.error("⚠️ Portfolio is empty! Please add valid symbols before analyzing.")
+                 elif len(clean_tickers) < 1:
+                     st.error("⚠️ Please add at least one valid stock symbol.")
                  else:
-                     from utils.analysis_runner import run_analysis
-                     run_analysis(df, filename or "portfolio_analysis", max_parallel)
+                     allowed, message = st.session_state.portfolio_limiter.is_allowed()
+                     if not allowed:
+                         st.error(f"⏱️ {message}")
+                     else:
+                         from utils.analysis_runner import run_analysis
+                         run_analysis(df, filename or "portfolio_analysis", max_parallel)
 
 
 
