@@ -47,6 +47,17 @@ This guide covers how to handle operational issues that require manual intervent
 2.  If persistent (>24 hours), check `logs/market_rover.log` for "API Down" patterns.
 3.  **Mine Logs**: Run `python scripts/mine_logs.py` to see failure timestamps and frequency.
 
+### 5. Automated Workflow Failures
+**Status**: GitHub Actions / Dependabot
+**Symptom**: "Daily Report" didn't post, or Dependabot PR didn't merge.
+**Action**:
+1.  **Check Actions Tab**: Go to `Actions` -> `Daily Issue Report` or `Dependabot Automation` to see the failure log.
+2.  **Dependabot**:
+    *   If auto-merge failed, check if the "checks" passed (e.g. tests).
+    *   Manually merge if it's a safe update.
+3.  **Backtest**:
+    *   If data is missing for `batch_backtester.py`, verify `yfinance` is up.
+
 ---
 
 ## 🛑 Limitations & Scope

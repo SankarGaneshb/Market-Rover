@@ -60,6 +60,7 @@ Market-Rover is an AI-powered platform with a **comprehensive suite of intellige
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
 | **👤 Investor Profiler** | **Model Portfolio Generator** with "Sleep Test" | Asset Allocation, Composite Benchmarking |
 | **🧠 Agent Brain** | **Agent Observability** (Memory, Logic, Pivots) | JSON Ledger, Autonomy Logger |
+| **📢 Automated Intel** | **Daily Markets & Weekly Backtests** (Discussions) | GitHub Actions, gh-cli, Dependabot |
 
 ---
 
@@ -413,11 +414,11 @@ user_info_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
 redirect_uri = "https://market-rover.streamlit.app"
 ```
 
-### Daily Issue Reports
+### Automated Market Intelligence
 
-- Market-Rover persists detailed error records to `metrics/errors_YYYY-MM-DD.jsonl`.
-- Run the daily aggregator `scripts/generate_daily_issue_report.py` to create `reports/daily_issues_YYYY-MM-DD.json`.
-- The system automatically creates GitHub Issues for critical failures.
+- **Daily Report**: The system generates a comprehensive market report every day at 00:00 UTC and posts it to **GitHub Discussions**.
+- **Weekly Backtest**: Every Sunday, it backtests strategy performance and posts a **Summary Report** to Discussions.
+- **Failures**: Critical system failures are still logged as Issues.
 
 ```toml
 GOOGLE_API_KEY = "your-key-here"

@@ -38,6 +38,16 @@ graph TD
 
 ---
 
+## 🕵️ Headless Execution (Automated Reports)
+
+While agents typically respond to user clicks, the **Report Generator** and **Strategist** agents also run in **Headless Mode** via GitHub Actions to generate:
+1.  **Daily Market Intelligence**: Runs `rover_tools/generate_daily_report.py`.
+2.  **Weekly Strategy Backtest**: Runs `rover_tools/batch_backtester.py`.
+
+These workflows execute the same agent logic but output directly to **GitHub Discussions** instead of the Streamlit UI.
+
+---
+
 ## 🕵️ Agent Roster
 
 ### 1. Portfolio Manager (Agent A)

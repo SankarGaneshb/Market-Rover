@@ -96,5 +96,13 @@ Welcome to **Market-Rover**, your AI-powered stock intelligence system. This gui
 *   **Data Accuracy**: Data comes from `yfinance` and `NSE`. Occasional delays may occur.
 
 ---
+## 📢 Automated Intelligence
 
-*Market-Rover V4.1*
+Market-Rover works for you even when you're sleeping. Check the [GitHub Discussions](https://github.com/SankarGaneshb/Market-Rover/discussions) tab for:
+
+1.  **Daily Market Reports**: Posted every day at 00:00 UTC. Covers Nifty trends, Sector Rotation, and Key Insights.
+2.  **Weekly Strategy Backtest**: Posted every Sunday. Creates a "League Table" of AI strategies (Median vs StdDev) showing which is winning in the current market regime.
+
+---
+
+*Market-Rover V4.2*

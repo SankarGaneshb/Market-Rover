@@ -12,5 +12,33 @@ jobs:
     - uses: actions/first-interaction@v3
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_message: "Message that will be displayed on users' first issue"
-        pr_message: "Message that will be displayed on users' first pull request"
+        issue_message: |
+          Welcome! 👋 Thanks for reporting your first issue.
+
+          To help you understand the system and provide better context, here is a quick functional & technical flow:
+
+          **🔹 Functional Context (What it does)**
+          1.  **Overview**: Check [README.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/README.md) for the project goal.
+          2.  **Usage**: See [USER_GUIDE.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/USER_GUIDE.md) for how the app is used.
+          3.  **Operations**: [OPERATIONAL_MANUAL.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/OPERATIONAL_MANUAL.md) explains the daily automated workflows.
+
+          **🔹 Technical Context (How it works)**
+          1.  **Architecture**: [ARCHITECTURE.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/ARCHITECTURE.md) outlines the system design.
+          2.  **AI Core**: [AI_AGENTS.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/AI_AGENTS.md) explains the agentic behaviors.
+
+          Please ensure your issue description aligns with these flows to help us resolve it faster!
+        pr_message: |
+          Welcome! 🎉 Thanks for your first Pull Request.
+
+          A maintainer will review this shortly. Please ensure your changes align with our technical flow:
+
+          **🔹 Contribution Checklist**
+          1.  **Standards**: Follow [CONTRIBUTING.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/CONTRIBUTING.md).
+          2.  **Architecture**: Ensure changes match [ARCHITECTURE.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/ARCHITECTURE.md) patterns.
+          3.  **Agents**: If modifying agents, review [AI_AGENTS.md](https://github.com/SankarGaneshb/Market-Rover/blob/main/AI_AGENTS.md).
+
+          **🔹 Verification**
+          - [ ] Ran local tests?
+          - [ ] Verified functionality locally?
+
+          We look forward to merging your contribution!

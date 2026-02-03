@@ -76,7 +76,33 @@ graph TB
 
 ---
 
-## 2. The Operational Workflow ("The Loop")
+## 2. Automated Workflows (Headless)
+
+In addition to the user-driven loop, Market-Rover runs autonomous jobs on GitHub Actions.
+
+```mermaid
+graph LR
+    Cron[GitHub Cron Schedule]
+    
+    subgraph Daily [Daily Issue Report]
+        Cron -->|00:00 UTC| D_Job[generate_daily_report.py]
+        D_Job -->|Markdown| D_Disc[GitHub Discussion]
+    end
+    
+    subgraph Weekly [Weekly Backtest]
+        Cron -->|Sunday| W_Job[batch_backtester.py]
+        W_Job -->|Summary MD| W_Disc[GitHub Discussion]
+        W_Job -->|JSON| Registry[backtest_registry.json]
+    end
+    
+    subgraph Maint [Maintenance]
+        Dep[Dependabot] -->|PR| AutoMerge[Auto-Merge Workflow]
+    end
+```
+
+---
+
+## 3. The Operational Workflow ("The Loop")
 
 This flowchart depicts the end-to-end execution path when a user initiates a market analysis.
 
