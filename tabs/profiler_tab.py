@@ -213,38 +213,79 @@ def show_profiler_tab():
         is_growth_persona = (p == InvestorPersona.COMPOUNDER or p == InvestorPersona.HUNTER)
         
         if is_growth_persona:
-            st.markdown("### 🚀 Step 2.5: Growth Accelerators (Midcaps)")
-            st.markdown("Select up to **2 High-Growth Midcap Brands**.")
+            from rover_tools.ticker_resources import NIFTY_NEXT_50_SECTOR_MAP, NIFTY_MIDCAP_SECTOR_MAP, NIFTY_NEXT_50, NIFTY_MIDCAP
             
-            from rover_tools.ticker_resources import NIFTY_MIDCAP
+            # Configure based on Persona
+            if p == InvestorPersona.COMPOUNDER:
+                sec_title = "🚀 Step 2.5: Growth Accelerators (Nifty Next 50)"
+                sec_limit = 2
+                target_map = NIFTY_NEXT_50_SECTOR_MAP
+                # We need a meta map. For now we mock it or infer from Nifty 50 if overlap
+                # Or just use raw list
+            else: # Hunter
+                sec_title = "🏹 Step 2.5: Alpha Hunters (Nifty Midcap)"
+                sec_limit = 2
+                target_map = NIFTY_MIDCAP_SECTOR_MAP
             
-            # Use Expander to save space
-            with st.expander("Show Midcap Options", expanded=True):
-                midcap_selections = []
-                current_growth = st.session_state.user_growth_brands
-                
-                # Simple List Layout
-                m_cols = st.columns(3)
-                for idx, m_ticker_raw in enumerate(NIFTY_MIDCAP):
-                    # Format: "SYMBOL.NS - Name"
-                    parts = m_ticker_raw.split(" - ")
-                    sym = parts[0]
-                    name = parts[1] if len(parts) > 1 else sym
-                    
-                    col = m_cols[idx % 3]
-                    with col:
-                         is_chk = sym in current_growth
-                         if st.checkbox(f"{name} ({sym.replace('.NS','')})", key=f"growth_{sym}", value=is_chk):
-                             midcap_selections.append(sym)
-                             
-            cnt_growth = len(midcap_selections)
-            st.write(f"**Selected Growth Brands: {cnt_growth}/2**")
+            st.markdown(f"### {sec_title}")
+            st.markdown(f"Select up to **{sec_limit} Brands** from this high-growth segment.")
             
-            if cnt_growth > 2:
-                st.warning("⚠️ Max 2 growth brands allowed. Using top 2.")
-                midcap_selections = midcap_selections[:2]
-                
-            st.session_state.user_growth_brands = midcap_selections
+            # 1. Get Sectors
+            growth_sectors = sorted(list(set(target_map.values())))
+            growth_selected = st.session_state.user_growth_brands
+            
+            # 2. Tabs
+            g_tabs = st.tabs(growth_sectors)
+            
+            growth_new_selection = []
+            
+            for i, sector in enumerate(growth_sectors):
+                with g_tabs[i]:
+                    try:
+                        # Filter tickers
+                        g_tickers = [t for t, s in target_map.items() if s == sector]
+                        
+                        g_cols = st.columns(3)
+                        for j, ticker in enumerate(g_tickers):
+                            col = g_cols[j % 3]
+                            
+                            # Fallback Meta
+                            # We check if it exists in primary map, else generic
+                            meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#5b21b6"}) # Purple default
+                            
+                            import html
+                            tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                            color = meta['color']
+                            # Check specific known colors for common Next50
+                            if ticker == "ZOMATO.NS": color = "#E23744"
+                            if ticker == "BEL.NS": color = "#0054A6"
+                            if ticker == "TRENT.NS": color = "#2D2926"
+                            if ticker == "DLF.NS": color = "#0054A6"
+                            
+                            text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
+
+                            svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                            b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
+                            icon_src = f"data:image/svg+xml;base64,{b64_svg}"
+
+                            with col:
+                                st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{ticker.replace(".NS", "")}</div></div></div>', unsafe_allow_html=True)
+                                
+                                is_checked = ticker in growth_selected
+                                if st.checkbox("Select", value=is_checked, key=f"btn_g_{ticker}", label_visibility="collapsed"):
+                                    growth_new_selection.append(ticker)
+
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+            
+            cnt_growth = len(growth_new_selection)
+            st.write(f"**Selected: {cnt_growth}/{sec_limit}**")
+            
+            if cnt_growth > sec_limit:
+                st.warning(f"⚠️ Max {sec_limit} allowed. Using first {sec_limit}.")
+                growth_new_selection = growth_new_selection[:sec_limit]
+            
+            st.session_state.user_growth_brands = growth_new_selection
             
         st.divider()
         

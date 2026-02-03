@@ -199,6 +199,66 @@ def get_common_tickers(category="All"):
         all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS + NIFTY_MIDCAP + NIFTY_SMALLCAP))
         return sorted(all_tickers)
 
+# --- NIFTY NEXT 50 (Junior Nifty) ---
+NIFTY_NEXT_50 = [
+    "BEL.NS - Bharat Electronics Ltd",
+    "HAL.NS - Hindustan Aeronautics Ltd",
+    "TRENT.NS - Trent Ltd",
+    "ZOMATO.NS - Zomato Ltd",
+    "DLF.NS - DLF Ltd",
+    "SIEMENS.NS - Siemens Ltd",
+    "VBL.NS - Varun Beverages Ltd",
+    "PIDILITIND.NS - Pidilite Industries Ltd",
+    "IOC.NS - Indian Oil Corporation Ltd",
+    "CHOLAFIN.NS - Cholamandalam Investment and Finance Company Ltd",
+    "GAIL.NS - GAIL (India) Ltd",
+    "AMBUJACEM.NS - Ambuja Cements Ltd",
+    "ABB.NS - ABB India Ltd",
+    "BANKBARODA.NS - Bank of Baroda",
+    "VEDL.NS - Vedanta Ltd",
+    "HAVELLS.NS - Havells India Ltd",
+    "DABUR.NS - Dabur India Ltd",
+    "SHREECEM.NS - Shree Cement Ltd",
+    "CANBK.NS - Canara Bank",
+    "PNB.NS - Punjab National Bank",
+    "TVSMOTOR.NS - TVS Motor Company Ltd",
+    "GODREJCP.NS - Godrej Consumer Products Ltd",
+    "ICICIGI.NS - ICICI Lombard General Insurance Company Ltd",
+    "SBICARD.NS - SBI Cards and Payment Services Ltd",
+    "MARICO.NS - Marico Ltd",
+    "MOTHERSON.NS - Samvardhana Motherson International Ltd",
+    "ICICIPRULI.NS - ICICI Prudential Life Insurance Company Ltd",
+    "PIIND.NS - PI Industries Ltd",
+    "BERGEPAINT.NS - Berger Paints India Ltd",
+    "INDIGO.NS - InterGlobe Aviation Ltd"
+]
+
+# --- Sector Mapping for Next 50 ---
+NIFTY_NEXT_50_SECTOR_MAP = {
+    "BEL.NS": "Defence/Ind", "HAL.NS": "Defence/Ind", "SIEMENS.NS": "Defence/Ind", "ABB.NS": "Defence/Ind",
+    "TRENT.NS": "Consumer Dist", "ZOMATO.NS": "Consumer Dist", "VBL.NS": "Consumer Goods", "DABUR.NS": "Consumer Goods",
+    "GODREJCP.NS": "Consumer Goods", "MARICO.NS": "Consumer Goods", "BERGEPAINT.NS": "Consumer Goods",
+    "PIDILITIND.NS": "Chemicals", "PIIND.NS": "Chemicals",
+    "DLF.NS": "Real Estate", "AMBUJACEM.NS": "Construction Mat", "SHREECEM.NS": "Construction Mat",
+    "IOC.NS": "Energy", "GAIL.NS": "Energy", "VEDL.NS": "Metals",
+    "CHOLAFIN.NS": "Financials", "BANKBARODA.NS": "Financials", "PNB.NS": "Financials", "CANBK.NS": "Financials",
+    "SBICARD.NS": "Financials", "ICICIGI.NS": "Financials", "ICICIPRULI.NS": "Financials",
+    "TVSMOTOR.NS": "Automobile", "MOTHERSON.NS": "Automobile", "HAVELLS.NS": "Consumer Durables", "INDIGO.NS": "Services"
+}
+
+# --- Sector Mapping for Midcap ---
+NIFTY_MIDCAP_SECTOR_MAP = {
+    "SRF.NS": "Chemicals", "DEEPAKNTR.NS": "Chemicals", "ASTRAL.NS": "Chemicals",
+    "VOLTAS.NS": "Consumer Durables", "POLYCAB.NS": "Consumer Durables",
+    "TATACOMM.NS": "Telecom", "ZEEL.NS": "Media", "PVRINOX.NS": "Media",
+    "LICHSGFIN.NS": "Financials", "L&TFH.NS": "Financials", "YESBANK.NS": "Financials", "IDFCFIRSTB.NS": "Financials",
+    "ASHOKLEY.NS": "Automobile", "BALKRISIND.NS": "Automobile",
+    "CUMMINSIND.NS": "Industrial", "BHARATFORG.NS": "Industrial", "L&T.NS": "Industrial",
+    "INDHOTEL.NS": "Services", "OBEROIRLTY.NS": "Real Estate",
+    "PERSISTENT.NS": "IT", "KPITTECH.NS": "IT", "BSOFT.NS": "IT",
+    "CONCOR.NS": "Logistics", "PAGEIND.NS": "Textiles"
+}
+
 # --- NEW: Sector Mapping for Nifty 50 Brand Shop ---
 NIFTY_50_SECTOR_MAP = {
     # Financial Services
