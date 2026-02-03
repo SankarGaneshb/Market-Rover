@@ -122,13 +122,14 @@ class InvestorProfiler:
             }
         return {}
 
-    def generate_smart_portfolio(self, persona, user_picked_brands=[]):
+    def generate_smart_portfolio(self, persona, user_picked_brands=[], user_growth_brands=[]):
         """
         Generates a Model Portfolio using Persona-Specific Logic + User's Core Picks.
         
         Args:
             persona: InvestorPersona Enum
-            user_picked_brands: List of ticker strings (e.g. ['RELIANCE.NS', 'TCS.NS'])
+            user_picked_brands: List of ticker strings (e.g. ['RELIANCE.NS']) - mapped to Broad/Core
+            user_growth_brands: List of ticker strings (e.g. ['SRF.NS']) - mapped to Mid/Alpha
         """
         strategy = self.get_allocation_strategy(persona)
         holdings = []
@@ -137,30 +138,49 @@ class InvestorProfiler:
         # We respect user choice but clip to allocation
         core_weight = 0
         if persona == self.personas.PRESERVER: core_weight = 25
-        elif persona == self.personas.DEFENDER: core_weight = 40 # Part of 60% equity
+        elif persona == self.personas.DEFENDER: core_weight = 40 
         elif persona == self.personas.COMPOUNDER: core_weight = 30
-        elif persona == self.personas.HUNTER: core_weight = 20
+        elif persona == self.personas.HUNTER: core_weight = 20 # Mapped to Sector Leaders
         
         # Distribute core weight among user picks
         if user_picked_brands:
             w = core_weight / len(user_picked_brands)
             for t in user_picked_brands:
                 holdings.append({"Symbol": t, "Asset Class": "Equity_Core", "Weight (%)": w, "Strategy": "User Choice (Core)"})
-        else:
-            # Fallback if user picked mainly nothing
-            pass 
+        
+        # 2. Handle Secondary/Growth Picks (Compounder/Hunter only)
+        # These reduce the weight available for the AI 'Midcap/Alpha' generation
+        # NOTE: user_growth_brands are passed directly to the strategy engines or added here if we want explicit control.
+        # Let's add them here as "User Choice (Growth)" and pass them to sub-engines to avoid duplication.
+        
+        growth_picks_weight_used = 0
+        
+        if user_growth_brands and (persona == self.personas.COMPOUNDER or persona == self.personas.HUNTER):
+             # For Compounder: Midcap (50% bucket). For Hunter: Midcap (40% bucket) or Alpha.
+             # Let's assign them to the primary growth bucket.
+             
+             target_bucket = "Equity_Mid" if persona == self.personas.COMPOUNDER else "Equity_Mid"
+             # Weight calculation:
+             # Compounder has 50% for Mid. If user picks 2, let's say they take half of that? 
+             # Or simply split the bucket?
+             # Let's imply each user pick gets ~8-10% to be significant.
+             per_stock_w = 10 
+             
+             for t in user_growth_brands:
+                 holdings.append({"Symbol": t, "Asset Class": target_bucket, "Weight (%)": per_stock_w, "Strategy": "User Choice (Growth)"})
+                 growth_picks_weight_used += per_stock_w
 
-        # 2. Run Specific AI Strategy to fill the rest
+        # 3. Run Specific AI Strategy to fill the rest
         if persona == self.personas.PRESERVER:
             holdings += self._generate_fortress(holdings)
         elif persona == self.personas.DEFENDER:
              holdings += self._generate_shield(holdings)
         elif persona == self.personas.COMPOUNDER:
-             holdings += self._generate_compounder(holdings)
+             holdings += self._generate_compounder(holdings, growth_picks_weight_used)
         elif persona == self.personas.HUNTER:
-             holdings += self._generate_shark(holdings)
+             holdings += self._generate_shark(holdings, growth_picks_weight_used)
              
-        # 3. Normalize Weights ensures total is 100
+        # 4. Normalize Weights ensures total is 100
         total_w = sum([h['Weight (%)'] for h in holdings])
         if total_w > 0:
             factor = 100.0 / total_w
@@ -203,28 +223,35 @@ class InvestorProfiler:
              
         return additions
 
-    def _generate_compounder(self, current_holdings):
+    def _generate_compounder(self, current_holdings, growth_picks_weight_used=0):
         """Compounder: Growth at Reasonable Price (Midcaps)"""
         additions = []
         
         # 1. Add Gold (20%)
         additions.append({"Symbol": ASSET_PROXIES['Gold'], "Asset Class": "Safety_Gold", "Weight (%)": 20, "Strategy": "Hedge"})
         
-        # 2. Pick High Quality Midcaps (50% Allocation)
+        # 2. Pick High Quality Midcaps (50% Allocation - Used)
+        target_allocation = 50 - growth_picks_weight_used
+        if target_allocation < 0: target_allocation = 0
+        
         # Scan Nifty Midcap list -> Filter Forensic Safe -> Pick.
         # For efficiency V1, we pick diversified top names known for growth
         # In a real engine, we'd run 'rover_tools.analytics.forensic_engine' live here.
         # We will pick 2 distinct sectors.
         midcap_picks = ["TRENT.NS", "BEL.NS", "LTIM.NS"] 
-        w = 50 / len(midcap_picks)
-        for m in midcap_picks:
-             # Basic duplicate check
-             if not any(h['Symbol'] == m for h in current_holdings):
+        
+        # Filter out what user already picked
+        current_symbols = [h['Symbol'] for h in current_holdings]
+        valid_picks = [m for m in midcap_picks if m not in current_symbols]
+        
+        if valid_picks:
+             w = target_allocation / len(valid_picks)
+             for m in valid_picks:
                  additions.append({"Symbol": m, "Asset Class": "Equity_Midcap", "Weight (%)": w, "Strategy": "Quality Growth"})
                  
         return additions
         
-    def _generate_shark(self, current_holdings):
+    def _generate_shark(self, current_holdings, growth_picks_weight_used=0):
         """Hunter: Momentum + Shadow Score"""
         additions = []
         
@@ -245,9 +272,19 @@ class InvestorProfiler:
         # We allocate to Smallcap & Momentum
         # Using reliable High-Beta names: TRENT, BEL, HAL, COCHINSHIP
         alpha_picks = ["TRENT.NS", "BEL.NS", "HAL.NS", "COCHINSHIP.NS"]
-        w = 80 / len(alpha_picks) # Remaining weight roughly
         
-        for a in alpha_picks:
-             additions.append({"Symbol": a, "Asset Class": "Equity_Alpha", "Weight (%)": w, "Strategy": "Momentum/Shadow"})
+        # Target is roughly 80% total for Hunter (Small+Mid)
+        # But we used 20% for Core/Sector Ldr (User picks)
+        # So we have 80% remaining. Minus what User picked in Growth.
+        target_allocation = 80 - growth_picks_weight_used
+        if target_allocation < 0: target_allocation = 0
+        
+        current_symbols = [h['Symbol'] for h in current_holdings]
+        valid_picks = [a for a in alpha_picks if a not in current_symbols]
+        
+        if valid_picks:
+             w = target_allocation / len(valid_picks)
+             for a in valid_picks:
+                 additions.append({"Symbol": a, "Asset Class": "Equity_Alpha", "Weight (%)": w, "Strategy": "Momentum/Shadow"})
              
         return additions
