@@ -12,3 +12,4 @@ seaborn
 newspaper3k
 nselib
 nsepython
+lxml_html_clean
