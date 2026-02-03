@@ -630,6 +630,8 @@ def show_portfolio_analysis_tab(max_parallel: int):
 def render_upload_section_logic(max_parallel):
     st.header("📊 Portfolio Operations")
 
+    from rover_tools.ticker_resources import get_common_tickers
+    
     pm = PortfolioManager(st.session_state.get('username'))
     saved_names = pm.get_portfolio_names()
     
