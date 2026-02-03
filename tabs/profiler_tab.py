@@ -119,64 +119,78 @@ def show_profiler_tab():
     # --- 2. THE BRAND SHOP (USER PARTICIPATION) ---
     if st.session_state.persona:
         p = st.session_state.persona
-        strategy = profiler.get_allocation_strategy(p)
         
-        st.divider()
-        st.subheader(f"🎉 Persona: {p.value}")
-        st.info(f"**Strategy: {strategy['description']}**")
+        # Robustness: Handle if p is String instead of Enum (Streamlit State quirk)
+        persona_val = p.value if hasattr(p, 'value') else str(p)
         
-        st.markdown("### 🛍️ Step 2: The 'Brand Shop' (Buy What You Know)")
-        st.markdown(f"Select up to **3 Nifty 50 Brands** you use/trust daily. We will use these as your **Core Equity Portfolio**.")
+        # Re-verify Enum membership to be safe
+        real_persona_enum = None
+        for member in InvestorPersona:
+            if member.value == persona_val:
+                real_persona_enum = member
+                break
         
-        # Organize Nifty 50 by Sector for easier selection
-        sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
-        selected_brands = st.session_state.user_brands
-        
-        # Tabs for Sectors
-        tabs = st.tabs(sectors)
-        
-        new_selection = []
-        
-        for i, sector in enumerate(sectors):
-            with tabs[i]:
-                # Filter tickers for this sector
-                try:
-                    sector_tickers = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector]
-                    
-                    # Create a grid
-                    cols = st.columns(3)
-                    
-                    for j, ticker in enumerate(sector_tickers):
-                        col = cols[j % 3]
-                        
-                        # Get Metadata
-                        meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
-                        
-                        # Generate SVG Logo
-                        import html
-                        tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
-                        color = meta['color']
-                        text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
-                        
-                        svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
-                        b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
-                        icon_src = f"data:image/svg+xml;base64,{b64_svg}"
-                        
-                        # Display Card
-                        with col:
-                            # Visual Card
-                            # Ensure HTML safety for text
-                            safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
-                            
-                            st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
-                            
-                            # Interaction (Checkbox)
-                            is_checked = ticker in selected_brands
-                            if st.checkbox("Select", value=is_checked, key=f"btn_{ticker}", label_visibility="collapsed"):
-                                new_selection.append(ticker)
-                                
-                except Exception as e:
-                     st.error(f"Error loading sector {sector}: {e}")
+        if real_persona_enum:
+             p = real_persona_enum # Fix it
+             strategy = profiler.get_allocation_strategy(p)
+             
+             st.divider()
+             st.subheader(f"🎉 Persona: {p.value}")
+             if strategy:
+                 st.info(f"**Strategy: {strategy.get('description', 'Custom')}**")
+             
+             st.markdown("### 🛍️ Step 2: The 'Brand Shop' (Buy What You Know)")
+             st.markdown(f"Select up to **3 Nifty 50 Brands** you use/trust daily. We will use these as your **Core Equity Portfolio**.")
+             
+             # Organize Nifty 50 by Sector for easier selection
+             sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
+             selected_brands = st.session_state.user_brands
+             
+             # Tabs for Sectors
+             tabs = st.tabs(sectors)
+             
+             new_selection = []
+             
+             for i, sector in enumerate(sectors):
+                 with tabs[i]:
+                     # Filter tickers for this sector
+                     try:
+                         sector_tickers = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector]
+                         
+                         # Create a grid
+                         cols = st.columns(3)
+                         
+                         for j, ticker in enumerate(sector_tickers):
+                             col = cols[j % 3]
+                             
+                             # Get Metadata
+                             meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
+                             
+                             # Generate SVG Logo
+                             import html
+                             tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                             color = meta['color']
+                             text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
+                             
+                             svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                             b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
+                             icon_src = f"data:image/svg+xml;base64,{b64_svg}"
+                             
+                             # Display Card
+                             with col:
+                                 # Visual Card
+                                 # Ensure HTML safety for text
+                                 safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
+                                 
+                                 st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
+                                 
+                                 # Interaction (Checkbox)
+                                 is_checked = ticker in selected_brands
+                                 if st.checkbox("Select", value=is_checked, key=f"btn_{ticker}", label_visibility="collapsed"):
+                                     new_selection.append(ticker)
+                                     
+                     except Exception as e:
+                          st.error(f"Error loading sector {sector}: {e}")
 
         # Update Session State with new/removed items logic if needed, 
         # but Streamlit reruns script on interaction, so we need to capture efficient state
