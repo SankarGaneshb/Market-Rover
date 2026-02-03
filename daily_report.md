@@ -1,23 +1,23 @@
 # 📊 Daily Market Intelligence Report
-**Date:** 02 Jan 2026
+**Date:** 04 Feb 2026
 
 ## 🌍 Market Overview
 | Index | Price | Change | % Change |
 |-------|-------|--------|----------|
-| Nifty 50 | 26,328.55 | +182.00 | 🟢 +0.70% |
-| Bank Nifty | 60,150.95 | +569.10 | 🟢 +0.96% |
-| Sensex | 85,762.01 | +573.41 | 🟢 +0.67% |
+| Nifty 50 | 25,727.55 | +639.15 | 🟢 +2.55% |
+| Bank Nifty | 60,041.30 | +1,422.30 | 🟢 +2.43% |
+| Sensex | 83,739.13 | +2,072.67 | 🟢 +2.54% |
 
 ## 🕸️ The Spider Web (Sector Rotation)
 Relative strength of major sectors to detect capital flow.
 
 | Rank | Sector | Momentum Score | 1W % | 1M % |
 |------|--------|----------------|------|------|
-| 1 | Nifty Metal | 8.71 | 5.7% | 10.72% |
-| 2 | Nifty Auto | 3.30 | 3.83% | 2.95% |
-| 3 | Nifty PSU Bank | 3.29 | 4.98% | 2.17% |
-| 4 | Nifty Energy | 2.77 | 3.47% | 2.3% |
-| 5 | Nifty Infra | 1.95 | 2.1% | 1.85% |
+| 1 | Nifty Metal | 1.40 | -1.76% | 3.5% |
+| 2 | Nifty IT | 1.22 | -0.29% | 2.23% |
+| 3 | Nifty Energy | 0.47 | 2.8% | -1.09% |
+| 4 | Nifty Bank | 0.29 | 0.74% | -0.0% |
+| 5 | Nifty Pharma | -0.59 | 2.12% | -2.39% |
 
 ## 💡 Key Insights
 - **Market Trend**: Short-term trend appears **Bullish** based on Nifty 50 performance.
