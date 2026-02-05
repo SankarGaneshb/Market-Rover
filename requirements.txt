@@ -14,3 +14,4 @@ nselib
 nsepython
 lxml_html_clean
 duckduckgo-search>=5.0.0
+streamlit-authenticator
