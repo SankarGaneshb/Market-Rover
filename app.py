@@ -225,12 +225,19 @@ def main():
                  st.info(f"**{p_emoji} {p_val}**")
                  st.markdown("---")
 
+
         # Safe default if selection is invalid (e.g. state persists but options changed)
         # Note: We must ensure nav_selection exists before checking "not in valid_options"
-        if "nav_selection" in st.session_state and st.session_state.nav_selection not in valid_options:
+        
+        # 1. Initialize logic
+        if "nav_selection" not in st.session_state:
+             st.session_state.nav_selection = valid_options[0]
+
+        # 2. Re-validate
+        if st.session_state.nav_selection not in valid_options:
              # If we have a profile, default to Market Analysis as requested
              if not force_profile:
-                 st.session_state.nav_selection = "🔍 Market Analysis"
+                 st.session_state.nav_selection = "🔍 Market Analysis" # This is safe because Market Analysis is in valid_options if force_profile is False
              else:
                  st.session_state.nav_selection = valid_options[0]
 
