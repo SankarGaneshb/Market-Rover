@@ -13,3 +13,4 @@ newspaper3k
 nselib
 nsepython
 lxml_html_clean
+duckduckgo-search>=5.0.0
