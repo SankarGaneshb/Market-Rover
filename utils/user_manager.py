@@ -65,7 +65,8 @@ class UserProfileManager:
                 'exists': True,
                 'last_updated': last_updated,
                 'days_old': days_old,
-                'needs_update': needs_update
+                'needs_update': needs_update,
+                'persona': data.get('persona')
             }
         except:
              return {
