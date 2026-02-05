@@ -96,7 +96,21 @@
       },
       {
         "timestamp": "2026-02-04T01:27:17.030747",
-        "ticker": "TEST.NS",
+        "ticker": "RELIANCE.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-04T02:04:20.079664",
+        "ticker": "RELIANCE.NS",
         "current_price": 100.0,
         "target_price": 120.0,
         "target_date": "2026-12-31",
