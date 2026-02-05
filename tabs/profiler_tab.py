@@ -483,7 +483,6 @@ def show_profiler_tab():
                       try:
                           import yfinance as yf
                           import plotly.graph_objects as go
-                          import pandas as pd
                           
                           # 1. Prepare Portfolio Tickers & Weights - Aggregate Duplicates
                           sim_df = edited.copy()
