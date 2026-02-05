@@ -210,7 +210,8 @@ def main():
              # Case 2: Existing User -> Show everything EXCEPT Profile (or keep it as optional?)
              # User requested: "Once persona completed show in left sidebar... move to Market Analysis"
              # So we keep "👤 Investor Profile" available if they want to re-take it, but defaults change.
-             valid_options = [o for o in all_options if o != "---"]
+             # CHANGE: User specifically wants it locked/hidden if valid.
+             valid_options = [o for o in all_options if o != "---" and o != "👤 Investor Profile"]
              
              # If JUST finished profile (detected by flag or default), landing page might change.
              # But here we just define options.
