@@ -254,7 +254,7 @@ def main():
         st.session_state.nav_selection = selection
     # Default settings after UI removal
     st.session_state.test_mode = False
-    max_parallel = 5
+    max_parallel = 2 # Reduced from 5 to prevent API Rate Limits (429)
 
     # Main content area - Render based on selection
     
