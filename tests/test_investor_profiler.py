@@ -43,11 +43,12 @@ def test_get_allocation_strategy(profiler):
     # Just check structure return types
     s_preserver = profiler.get_allocation_strategy(InvestorPersona.PRESERVER)
     assert s_preserver['risk_level'] == "Low"
-    assert "Gold" in s_preserver['allocation']
+    # New check: Equity only
+    assert s_preserver['allocation'] == {"Equity": 100}
 
     s_hunter = profiler.get_allocation_strategy(InvestorPersona.HUNTER)
     assert s_hunter['risk_level'] == "Aggressive"
-    assert "Equity_Small" in s_hunter['allocation']
+    assert "Midcap" in s_hunter['structure']
 
 def test_generate_smart_portfolio_preserver(profiler):
     # Preserver logic
@@ -56,23 +57,28 @@ def test_generate_smart_portfolio_preserver(profiler):
     
     holdings = profiler.generate_smart_portfolio(persona, user_picks)
     
-    # Check if TCS is included
+    # Check if TCS is included (User Core)
     tcs = next((h for h in holdings if h['Symbol'] == "TCS.NS"), None)
     assert tcs is not None
     assert tcs['Asset Class'] == "Equity_Core"
     
-    # Check Gold (Safety_Gold)
-    gold = next((h for h in holdings if h['Asset Class'] == "Safety_Gold"), None)
-    assert gold is not None
+    # Check AI addition (Should be safe Nifty 50, e.g., HUL/Reliance, NOT Gold)
+    ai_picks = [h for h in holdings if h['Symbol'] != "TCS.NS"]
+    assert len(ai_picks) > 0
+    # Verify strategy tag
+    assert "Low Volatility Leader" in ai_picks[0]['Strategy']
 
 def test_generate_smart_portfolio_hunter(profiler):
     # Hunter logic
     persona = InvestorPersona.HUNTER
     holdings = profiler.generate_smart_portfolio(persona, [])
     
-    # Should include specific Hunter picks like TRENT, BEL etc.
-    assert any(h['Symbol'] == "TRENT.NS" for h in holdings)
-    assert any(h['Strategy'] == "Momentum/Shadow" for h in holdings)
+    # Should include Bluechip Growth, Next 50, or Midcap
+    # We removed "Equity_Small" and "Momentum/Shadow" specific text in favor of broader buckets
+    # Strategy names: "Midcap Alpha", "Next50 Growth", "Bluechip Growth"
+    
+    strategies = [h['Strategy'] for h in holdings]
+    assert any("Midcap Alpha" in s for s in strategies)
 
 # --- PortfolioValidator Tests ---
 
