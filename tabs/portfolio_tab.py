@@ -612,23 +612,17 @@ def show_portfolio_analysis_tab(max_parallel: int):
 
     """
 
-    sub_tab1, sub_tab2 = st.tabs(["📊 Report Generator", "🧪 Analytics Lab"])
+    # sub_tab1, sub_tab2 = st.tabs(["📊 Report Generator", "🧪 Analytics Lab"])
+    # REMOVED Analytics Lab as per user request (redundant).
+    # Renamed "Report Generator" flow to "Portfolio Analysis".
 
-    
+    render_upload_section_logic(max_parallel)
 
-    with sub_tab1:
-        # We need run_analysis passed or imported.
-        # For now, let's call render_upload_section and assume run_analysis is available via import if we move it to a util.
-        # But we haven't moved it yet.
-        # Let's import handle_upload_section_logic which we will define
-        render_upload_section_logic(max_parallel)
-
-    with sub_tab2:
-
-        render_analytics_section()
+    # with sub_tab2:
+    #     render_analytics_section()
 
 def render_upload_section_logic(max_parallel):
-    st.header("🛍️ Portfolio Brand Shop")
+    st.header("📤 Portfolio Analysis")
 
     from rover_tools.ticker_resources import (
         NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META,
