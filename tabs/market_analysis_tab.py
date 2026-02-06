@@ -593,7 +593,7 @@ def show_market_analysis_tab():
 
     mode_col, setting_col = st.columns([1, 1])
     with mode_col:
-        analysis_mode = st.radio("Analysis Mode:", ["Stock Analysis 🏢", "Benchmark/Index 📊"], horizontal=True, label_visibility="collapsed")
+        analysis_mode = st.radio("Analysis Mode:", ["Stock Analysis 🏢", "Benchmark/Index 📊"], index=1, horizontal=True, label_visibility="collapsed")
     
     with setting_col:
         # Global Outlier Toggle
