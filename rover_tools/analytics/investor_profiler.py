@@ -90,35 +90,35 @@ class InvestorProfiler:
         """Returns the specific Asset Allocation & Ticker Constraints."""
         if persona == self.personas.PRESERVER:
             return {
-                "description": "Capital Protection + FD Beating Returns (Fortress Strategy)",
+                "description": "Capital Protection with Blue-chip Focus",
                 "risk_level": "Low",
-                "max_tickers": 5,
-                "allocation": {"Equity": 25, "Gold": 25, "Debt": 50}, 
-                "structure": {"Best Brands (Nifty 50)": 2, "Gold ETF": 1, "Liquid/G-Sec": 2} # Slots
+                "max_tickers": 3,
+                "allocation": {"Equity": 100}, 
+                "structure": {"Nifty 50 Bluechips": 3} 
             }
         elif persona == self.personas.DEFENDER:
              return {
-                "description": "Inflation Protection + Regular Income (Dividend Shield)",
+                "description": "Blue-chip Safety + Dividend Income",
                 "risk_level": "Conservative",
-                "max_tickers": 7,
-                "allocation": {"Equity": 60, "REIT": 15, "Gold": 15, "Debt": 10},
-                "structure": {"Dividend Brands": 3, "REITs": 1, "Gold ETF": 1, "Corp Bond": 1}
+                "max_tickers": 3,
+                "allocation": {"Equity": 100},
+                "structure": {"Bluechips": 2, "Dividend Yield": 1}
             }
         elif persona == self.personas.COMPOUNDER:
             return {
-                "description": "Wealth Creation (Quality Compounder Strategy)",
+                "description": "Balanced Growth (Core + Next 50)",
                 "risk_level": "Moderate",
-                "max_tickers": 10,
-                "allocation": {"Equity_Large": 30, "Equity_Mid": 50, "Gold": 20},
-                "structure": {"Core Brands": 3, "Growth Midcaps": 4, "Gold ETF": 1}
+                "max_tickers": 4,
+                "allocation": {"Equity": 100},
+                "structure": {"Bluechips": 2, "Next 50": 2}
             }
         elif persona == self.personas.HUNTER:
              return {
-                "description": "Alpha Generation (Momentum Shark Strategy)",
+                "description": "Aggressive Growth across Market Caps",
                 "risk_level": "Aggressive",
-                "max_tickers": 12,
-                "allocation": {"Equity_Small": 40, "Equity_Mid": 40, "Sector_Ldr": 20},
-                "structure": {"Sector Leaders": 3, "Hidden Gems": 5, "Turnaround": 2}
+                "max_tickers": 6,
+                "allocation": {"Equity": 100},
+                "structure": {"Growth Bluechips": 2, "Next 50": 2, "Midcap": 2}
             }
         return {}
 
@@ -195,131 +195,177 @@ class InvestorProfiler:
                 
         return holdings
 
-    # --- STRATEGY ENGINES ---
+    # --- HELPER LISTS FOR STYLE FACTORS ---
+    # Proxies for specific Nifty 50 styles
+    DIVIDEND_STOCKS = ["ITC.NS", "POWERGRID.NS", "COALINDIA.NS", "NTPC.NS", "ONGC.NS", "BPCL.NS", "HEROMOTOCO.NS"]
+    GROWTH_STOCKS = ["TITAN.NS", "BAJFINANCE.NS", "ASIANPAINT.NS", "SUNPHARMA.NS", "ADANIENT.NS", "APOLLOHOSP.NS", "TRENT.NS"] # TRENT is Nifty 50 now? It's often high growth.
+    VALUE_STOCKS = ["ITC.NS", "COALINDIA.NS", "ONGC.NS", "NTPC.NS"] # Overlap with Dividend often
+
+    # --- STRATEGY ENGINES (EQUITY ONLY REFACTOR) ---
 
     def _generate_fortress(self, current_holdings):
-        """Preserver: Safety First (Gold + Bonds)"""
+        """Preserver: 3 Blue-chips (Nifty 50)"""
+        # Target: 3 Stocks Total. 
+        # User defined picks are already in 'current_holdings'.
+        # We need to fill the rest up to 3 with Low Volatility Nifty 50.
+        
         additions = []
+        current_count = len(current_holdings)
+        needed = 3 - current_count
         
-        # 1. Add Gold (25%)
-        additions.append({"Symbol": ASSET_PROXIES['Gold'], "Asset Class": "Safety_Gold", "Weight (%)": 25, "Strategy": "Hedge"})
+        if needed <= 0: return []
         
-        # 2. Add Debt (50%) -> Split Liquid and G-Sec
-        additions.append({"Symbol": ASSET_PROXIES['Liquid'], "Asset Class": "Safety_Cash", "Weight (%)": 25, "Strategy": "Liquidity"})
-        additions.append({"Symbol": ASSET_PROXIES['G-Sec Bond'], "Asset Class": "Safety_Bond", "Weight (%)": 25, "Strategy": "Sovereign Guarantee"})
+        # Low Volatility Proxies
+        safe_picks = ["HUL.NS", "NESTLEIND.NS", "TCS.NS", "RELIANCE.NS", "HDFCBANK.NS"]
+        # Filter existing
+        current_syms = [h['Symbol'] for h in current_holdings]
+        valid_picks = [s for s in safe_picks if s not in current_syms]
         
+        # Weight per stock (Remaining weight / needed)
+        # Note: Weights are normalized at the end, so we can just assign equal shares here.
+        w = 100 / 3 
+        
+        for i in range(needed):
+            if i < len(valid_picks):
+                additions.append({"Symbol": valid_picks[i], "Asset Class": "Equity_Core", "Weight (%)": w, "Strategy": "Low Volatility Leader"})
+            
         return additions
 
     def _generate_shield(self, current_holdings):
-        """Defender: Income Focus (REITs + Div Stocks)"""
+        """Defender: 2 Blue-chips + 1 Dividend Yield (Nifty 50)"""
         additions = []
+        current_syms = [h['Symbol'] for h in current_holdings]
         
-        # 1. Add REIT (15%)
-        additions.append({"Symbol": ASSET_PROXIES['REIT'], "Asset Class": "Income_REIT", "Weight (%)": 15, "Strategy": "Rental Income"})
-
-        # 2. Add Gold (15%)
-        additions.append({"Symbol": ASSET_PROXIES['Gold'], "Asset Class": "Safety_Gold", "Weight (%)": 15, "Strategy": "Inflation Hedge"})
+        # We need 1 Dividend Stock explicitly if not present
+        has_div = any(s in self.DIVIDEND_STOCKS for s in current_syms)
         
-        # 3. Add High Dividend Stock (Automatic Pick) - e.g. ITC or POWERGRID if not in user picks
-        # Simple Logic: Check if ITC is in user picks. If not, add it.
-        # Ideally we scan specifically for Yield, but hardcoding high-quality proxies is safer for V1
-        div_proxy = "ITC.NS"
-        if not any(h['Symbol'] == div_proxy for h in current_holdings):
-             additions.append({"Symbol": div_proxy, "Asset Class": "Equity_Div", "Weight (%)": 10, "Strategy": "Dividend Aristocrat"})
-             
+        # Slot 1: Dividend (Priority)
+        if not has_div:
+            # Pick one from list
+            for d in self.DIVIDEND_STOCKS:
+                if d not in current_syms:
+                    additions.append({"Symbol": d, "Asset Class": "Equity_Div", "Weight (%)": 33, "Strategy": "High Yield"})
+                    current_syms.append(d)
+                    break
+        
+        # Fill rest to reach 3 Total (2 Bluechips + 1 Div)
+        total_needed = 3
+        current_total = len(current_holdings) + len(additions)
+        needed = total_needed - current_total
+        
+        if needed > 0:
+            # Fill with Standard Bluechips (e.g. Banks/Consumers)
+            general_picks = ["ICICIBANK.NS", "INFY.NS", "LT.NS", "MARUTI.NS"]
+            valid = [g for g in general_picks if g not in current_syms]
+            
+            w = 33
+            for i in range(needed):
+                if i < len(valid):
+                    additions.append({"Symbol": valid[i], "Asset Class": "Equity_Core", "Weight (%)": w, "Strategy": "Core Defender"})
+                    
         return additions
 
     def _generate_compounder(self, current_holdings, growth_picks_weight_used=0):
-        """Compounder: Growth at Reasonable Price (Midcaps)"""
+        """Compounder: 2 Blue-chips + 2 Next 50"""
         additions = []
+        current_syms = [h['Symbol'] for h in current_holdings]
         
-        # 1. Add Gold (20%)
-        additions.append({"Symbol": ASSET_PROXIES['Gold'], "Asset Class": "Safety_Gold", "Weight (%)": 20, "Strategy": "Hedge"})
+        # Total Targets: 4
+        # Nifty 50: 2
+        # Next 50: 2
         
-        # 2. Pick High Quality Midcaps (50% Allocation - Used)
-        target_allocation = 50 - growth_picks_weight_used
-        if target_allocation < 0: target_allocation = 0
+        # 1. Check Nifty 50 Count (User mostly picks these)
+        # We assume user picks are mostly Nifty 50.
+        # Let's fill Next 50 requirement first.
         
-        # Scan Nifty Midcap list -> Filter Forensic Safe -> Pick.
-        # For efficiency V1, we pick diversified top names known for growth
-        # In a real engine, we'd run 'rover_tools.analytics.forensic_engine' live here.
-        # We will pick 2 distinct sectors.
-        midcap_picks = ["TRENT.NS", "BEL.NS", "LTIM.NS"] 
+        # Next 50 Proxies
+        next50_pool = [
+             "ZOMATO.NS", "DLF.NS", "HAL.NS", "SIEMENS.NS", 
+             "VBL.NS", "TRENT.NS", "GODREJCP.NS", "PIDILITIND.NS"
+        ]
         
-        # Filter out what user already picked
-        current_symbols = [h['Symbol'] for h in current_holdings]
-        valid_picks = [m for m in midcap_picks if m not in current_symbols]
+        # Count current Next 50 (approx check or assume user picks are core)
+        # We'll just force add 2 Next 50s if we have space, or fill to max 4.
         
-        if valid_picks:
-             w = target_allocation / len(valid_picks)
-             for m in valid_picks:
-                 additions.append({"Symbol": m, "Asset Class": "Equity_Midcap", "Weight (%)": w, "Strategy": "Quality Growth"})
-                 
+        needed_total = 4
+        current_len = len(current_holdings)
+        remaining_slots = needed_total - current_len
+        
+        if remaining_slots <= 0: return []
+        
+        # Strategy: Prioritize filling Next 50 slots if user hasn't picked 4 items.
+        # If user picked 2, we add 2 Next 50.
+        # If user picked 1, we add 2 Next 50 + 1 Nifty 50.
+        
+        # Add up to 2 Next 50s
+        added_next50 = 0
+        w = 25
+        
+        for n in next50_pool:
+            if n not in current_syms and added_next50 < 2 and remaining_slots > 0:
+                additions.append({"Symbol": n, "Asset Class": "Equity_Next50", "Weight (%)": w, "Strategy": "Emerging Giant"})
+                current_syms.append(n)
+                added_next50 += 1
+                remaining_slots -= 1
+        
+        # If still slots left, fill with Nifty 50 Bluechips
+        if remaining_slots > 0:
+             bluechips = ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "BHARTIARTL.NS"]
+             for b in bluechips:
+                 if b not in current_syms and remaining_slots > 0:
+                     additions.append({"Symbol": b, "Asset Class": "Equity_Core", "Weight (%)": w, "Strategy": "Core Compounder"})
+                     current_syms.append(b)
+                     remaining_slots -= 1
+                     
         return additions
         
     def _generate_shark(self, current_holdings, growth_picks_weight_used=0, alpha_picks_weight_used=0):
-        """Hunter: Momentum + Shadow Score"""
+        """Hunter: 2 Bluechip Growth + 2 Next 50 + 2 Midcap"""
         additions = []
+        current_syms = [h['Symbol'] for h in current_holdings]
         
-        # 1. Sector Rotation Check (Live)
-        # We try to get top sector
-        try:
-             sector_df = analyze_sector_flow()
-             if not sector_df.empty:
-                 top_sector = sector_df.iloc[0]['Sector'] # e.g. "Nifty Auto"
-                 # Map sector to a Proxy ETF or Stock?
-                 # For now, we add a general "Alpha" name. 
-                 # Let's say we pick a proxy from Smallcap
-                 pass
-        except:
-             pass
+        # Total: 6
+        # 2 Growth Bluechip (Nifty 50 - Exclude Value/Div)
+        # 2 Next 50
+        # 2 Midcap
+        
+        # We fill buckets sequentially based on what's missing.
+        # We assume USER picks might fall into any bucket.
+        # For V1 simplicity, we just try to fill the specific buckets.
+        
+        w = 16.6 # 100/6
+        
+        # Bucket 1: Midcap (2)
+        mid_pool = ["POLYCAB.NS", "PERSISTENT.NS", "TATACOMM.NS", "SRF.NS", "VOLTAS.NS"]
+        added_mid = 0
+        for m in mid_pool:
+            if m not in current_syms and added_mid < 2:
+                additions.append({"Symbol": m, "Asset Class": "Equity_Midcap", "Weight (%)": w, "Strategy": "Midcap Alpha"})
+                current_syms.append(m)
+                added_mid += 1
 
-        # 2. Shadow Score Winners (Simulated for V1 speed, or use specific known high-beta names)
-        # We allocate to Smallcap & Momentum
-        # Using reliable High-Beta names: TRENT, BEL, HAL, COCHINSHIP
-        alpha_picks = ["TRENT.NS", "BEL.NS", "HAL.NS", "COCHINSHIP.NS"]
+        # Bucket 2: Next 50 (2)
+        next50_pool = ["ZOMATO.NS", "HAL.NS", "BEL.NS", "DLF.NS", "VBL.NS"]
+        added_next = 0
+        for n in next50_pool:
+            if n not in current_syms and added_next < 2:
+                additions.append({"Symbol": n, "Asset Class": "Equity_Next50", "Weight (%)": w, "Strategy": "Next50 Growth"})
+                current_syms.append(n)
+                added_next += 1
+                
+        # Bucket 3: Bluechip Growth (2)
+        # Should exclude Value/Div logic
+        growth_pool = self.GROWTH_STOCKS
+        added_growth = 0
         
-        # Target Allocation Logic:
-        # Hunter:
-        # Equity_Core (Nifty 50): 20% (Filled by User Step 1)
-        # Equity_Mid (Next 50): 40% (Filled by User Step 2 + AI)
-        # Equity_Alpha (Midcap): 40% (Filled by User Step 3 + AI)
-        # Note: Original allocation was 40 Mid / 40 Small. Let's align to that.
+        # Check if we still have space (Max 6 total constraint)
+        current_total_len = len(current_holdings) + len(additions)
         
-        # Mid/Growth Bucket (Total 40)
-        target_mid = 40 - growth_picks_weight_used
-        if target_mid < 0: target_mid = 0
-        
-        # We don't have an AI engine for Next 50 specifically yet in this function, 
-        # usually _generate_shark was just filling Alpha.
-        # Let's use some Next 50 proxies if we need to fill this bucket.
-        next50_proxies = ["ZOMATO.NS", "DLF.NS", "SIEMENS.NS", "VBL.NS"]
-        current_symbols = [h['Symbol'] for h in current_holdings]
-        
-        valid_next50 = [n for n in next50_proxies if n not in current_symbols]
-        if valid_next50 and target_mid > 0:
-            w_mid = target_mid / len(valid_next50)
-            for n in valid_next50:
-                 additions.append({"Symbol": n, "Asset Class": "Equity_Mid", "Weight (%)": w_mid, "Strategy": "Growth/Next50"})
-
-        # Alpha/Midcap Bucket (Total 40)
-        target_alpha = 40 - alpha_picks_weight_used
-        if target_alpha < 0: target_alpha = 0
-        
-        # Merge lists to ensure we have enough candidates
-        alpha_picks_ext = ["BSE.NS", "CDSL.NS", "MCX.NS", "ANGELONE.NS"]
-        all_alpha_candidates = alpha_picks + alpha_picks_ext
-        
-        valid_alpha = [a for a in all_alpha_candidates if a not in current_symbols]
-        
-        if valid_alpha and target_alpha > 0:
-             # Take top 4 or however many fit? Or just equal weight all?
-             # Let's stick to simple equal weight of valid candidates (capped at say 4-5 to avoid dilution)
-             # If list is too long, slice it
-             if len(valid_alpha) > 5: valid_alpha = valid_alpha[:5]
-             
-             w = target_alpha / len(valid_alpha)
-             for a in valid_alpha:
-                 additions.append({"Symbol": a, "Asset Class": "Equity_Alpha", "Weight (%)": w, "Strategy": "Momentum/Shadow"})
+        for g in growth_pool:
+            if g not in current_syms and added_growth < 2 and current_total_len < 6:
+                additions.append({"Symbol": g, "Asset Class": "Equity_Growth", "Weight (%)": w, "Strategy": "Bluechip Growth"})
+                current_syms.append(g)
+                added_growth += 1
+                current_total_len += 1
              
         return additions

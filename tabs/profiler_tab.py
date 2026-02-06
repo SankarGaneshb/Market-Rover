@@ -145,11 +145,14 @@ def show_profiler_tab():
                  st.info(f"**Strategy: {strategy.get('description', 'Custom')}**")
              
              # --- Primary Selection (Nifty 50) ---
-             # Limit Logic: Hunter = 2, Others = 3
-             nifty50_limit = 2 if p == InvestorPersona.HUNTER else 3
+             # Limit Logic: Preserver = 3, Others = 2 (Slots filled by Strategy Automations)
+             nifty50_limit = 3 if p == InvestorPersona.PRESERVER else 2
              
              st.markdown("### 🛍️ Step 2: The 'Brand Shop' (Buy What You Know)")
              st.markdown(f"Select up to **{nifty50_limit} Nifty 50 Brands** you use/trust daily for your **Core Portfolio**.")
+             
+             if p == InvestorPersona.DEFENDER:
+                 st.info("ℹ️ **Defender Bonus:** 1 High-Dividend Stock will be added automatically to complete your portfolio.")
              
              # Organize Nifty 50 by Sector for easier selection
              sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
