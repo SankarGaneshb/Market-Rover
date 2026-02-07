@@ -1,12 +1,21 @@
 # 🚀 Market-Rover v4.3 - Release Notes
 
 **Release Date:** Feb 07, 2026
-**Version:** v4.3.1
+**Version:** v4.3.2
 **Status:** **Stable / Production Release**
 
 ---
 
 ## 🌟 Highlights
+
+**Market-Rover v4.3.2** is a hotfix release addressing a crash in the Portfolio Analysis tab.
+
+### 🛠️ **Fixes**
+- **Portfolio Tab Crash**: Resolved `AttributeError: get_property_status` caused by a deprecated method call in the user profile check.
+
+---
+
+## 🌟 Highlights (v4.3.1)
 
 **Market-Rover v4.3** introduces a **Strategic 2-Year Trading Calendar** and now includes **Average Annual Gain %** metrics.
 

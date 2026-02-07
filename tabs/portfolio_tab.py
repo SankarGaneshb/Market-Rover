@@ -685,9 +685,9 @@ def render_upload_section_logic(max_parallel):
     # Fallback if persona is missing (e.g. direct nav)
     if not persona_val:
         # Try fetch
+        # Try fetch
         user_mgr = UserProfileManager()
-        profile = user_mgr.get_property_status(st.session_state.get('username', 'guest')) # Ops, Method name is get_profile_status
-        # Actually let's use the one we fixed
+        # Fixed: Use correct method name
         status = user_mgr.get_profile_status(st.session_state.get('username', 'guest'))
         persona_val = status.get('persona')
         
