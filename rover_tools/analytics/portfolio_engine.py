@@ -70,6 +70,39 @@ class AnalyticsPortfolio:
             print(f"Error calculating correlation: {e}")
             return pd.DataFrame()
 
+    def _remove_outliers(self, returns):
+        """
+        Removes statistical outliers from a return series using IQR.
+        """
+        if returns.empty:
+            return returns
+            
+        Q1 = returns.quantile(0.25)
+        Q3 = returns.quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        return returns[(returns >= lower) & (returns <= upper)]
+
+    def calculate_volatility(self, data):
+        """
+        Calculates annualized volatility from price data.
+        """
+        if data.empty or len(data) < 2:
+            return 0.0
+        
+        # Calculate daily returns
+        if 'Close' in data.columns:
+            daily_returns = data['Close'].pct_change().dropna()
+        else:
+             daily_returns = data.iloc[:,0].pct_change().dropna()
+             
+        if daily_returns.empty:
+            return 0.0
+
+        # Annualize standard deviation
+        return daily_returns.std() * np.sqrt(252)
+
     def analyze_rebalance(self, portfolio_data, mode="safety"):
         """
         Suggests rebalancing based on selected strategy:

@@ -687,9 +687,9 @@ def show_market_analysis_tab():
             
             with f_col2:
                  # 2. Strategy Filter
-                stars_1y = "⭐ Top 1Y Stars"
-                stars_3y = "⭐⭐ Top 3Y Stars"
-                stars_5y = "⭐⭐⭐ Top 5Y Stars"
+                stars_1y = "* Top 1Y Stars"
+                stars_3y = "*** Top 3 Stars"
+                stars_5y = "***** Top 5 Stars"
                 stars_5y_plus = "🌟 Top 5Y+ Stars"
                 
                 strategy_mode = st.radio(
@@ -719,9 +719,9 @@ def show_market_analysis_tab():
                 
                 # Determine period based on selection
                 period = "1y"
-                if "3Y" in strategy_mode: period = "3y"
+                if "3 Stars" in strategy_mode: period = "3y"
                 elif "5Y+" in strategy_mode: period = "5y+"
-                elif "5Y" in strategy_mode: period = "5y"
+                elif "5 Stars" in strategy_mode: period = "5y"
                 
                 with st.spinner(f"Identifying {period} winners in {ticker_category}..."):
                    # Use GLOBAL setting
@@ -737,52 +737,32 @@ def show_market_analysis_tab():
             
 
             # Check for query param ticker
-
             qp_ticker = st.query_params.get("ticker", None)
-
             default_ix = 0
 
-            
-
             # If query param exists, try to find it
-
             if qp_ticker:
-
                 qp_ticker = f"{qp_ticker}.NS" if not qp_ticker.endswith(".NS") else qp_ticker
-
                 # Try to find in list
-
                 matches = [i for i, t in enumerate(common_tickers) if qp_ticker in t]
-
                 if matches:
-
                     default_ix = matches[0]
-
-                else:
-
-                    # If not in list, might need custom (logic below simplifies to just default sbins if not found in pills)
-
-                    pass
-
             else:
-
+                # Default to SBIN if available, else 0
                 for i, t in enumerate(common_tickers):
-
                     if "SBIN.NS" in t:
-
-                        default_ix = i + 1 
-
+                        default_ix = i 
                         break
                 
                 # Auto-select first stock if no specific default found (and list has items)
-                if default_ix == 0 and len(common_tickers) > 0:
-                     default_ix = 1
+                if len(common_tickers) > 0 and default_ix >= len(common_tickers):
+                     default_ix = 0
 
-                    
-
-            ticker_options = ["✨ Select or Type to Search..."] + common_tickers
-            if strategy_mode != "✏️ Custom Ticker":
-                ticker_options += ["✏️ Custom Input"]
+            ticker_options = common_tickers
+            
+            if not ticker_options:
+                 st.warning("No stocks found for this criteria.")
+                 ticker_options = ["No Data"]
             
             selected_opt = st.selectbox(
                 "Stock Selection", 
@@ -792,12 +772,10 @@ def show_market_analysis_tab():
                 help=f"Listing {ticker_category} stocks."
             )
             
-            if selected_opt == "✏️ Custom Input" or selected_opt == "✨ Select or Type to Search..." or strategy_mode == "✏️ Custom Ticker":
-                 # Use query param if custom
-                 def_val = qp_ticker if qp_ticker else "SBIN.NS"
-                 ticker_raw = st.text_input("Enter Symbol (e.g. INFBEES.NS)", value=def_val, key="heatmap_ticker_custom")
-            else:
+            if selected_opt and selected_opt != "No Data":
                  ticker_raw = selected_opt.split(' - ')[0]
+            else:
+                 ticker_raw = None
 
         # === Visual Selector Interface ===
         if strategy_mode == "📂 Sector Browser":
@@ -831,8 +809,6 @@ def show_market_analysis_tab():
             # Extract ticker part if it's "TICKER - Name"
             if final_default and " - " in final_default:
                  final_default = final_default.split(' - ')[0]
-            elif final_default == "✨ Select or Type to Search...":
-                 final_default = None
 
             st.session_state.heatmap_active_ticker = qp_ticker if qp_ticker else final_default
 
@@ -871,14 +847,8 @@ def show_market_analysis_tab():
             "Nifty 50": "^NSEI",
 
             "Sensex": "^BSESN",
-
-            "Nifty IT": "^CNXIT",
-
-            "Nifty Auto": "^CNXAUTO",
-
-            "Nifty FMCG": "^CNXFMCG",
-
-            "Nifty Metal": "^CNXMETAL",
+            
+            "Nifty Next 50": "JUNIORBEES.NS",
 
             "Nifty Midcap 100": "^CRSLDX"
 
