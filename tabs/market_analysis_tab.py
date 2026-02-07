@@ -108,7 +108,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                      st.error(f"Error applying time filter: {ex}")
 
             if exclude_outliers:
-                st.info("ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, and Forecast Trends.")
+                st.info(f"ℹ️ **Robust Analysis Enabled**: Outliers removed. Analysis filtered to last {lookback_period}.")
 
             # Calculate monthly returns matrix
             returns_matrix = analyzer.calculate_monthly_returns_matrix(history, exclude_outliers=exclude_outliers)
@@ -255,15 +255,15 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             with st.spinner("🔄 Backtesting strategies..."):
 
-                backtest_res = analyzer.backtest_strategies(history)
+                backtest_res = analyzer.backtest_strategies(history, exclude_outliers=exclude_outliers)
 
             
 
             # Generate Forecasts
 
-            forecast_median = analyzer.calculate_median_strategy_forecast(history)
+            forecast_median = analyzer.calculate_median_strategy_forecast(history, exclude_outliers=exclude_outliers)
 
-            forecast_sd = analyzer.calculate_sd_strategy_forecast(history)
+            forecast_sd = analyzer.calculate_sd_strategy_forecast(history, exclude_outliers=exclude_outliers)
 
             
 
@@ -676,11 +676,13 @@ def show_market_analysis_tab():
         exclude_outliers_global = st.checkbox("🚫 Exclude Outliers (Robust Mode)", value=False, help="Removes extreme volatility events from all analysis (Heatmap, Win Rate, Seasonality, Forecasts).")
         
         # Time Filter
+        # Time Filter
         lookback_period = st.selectbox(
             "Filter History:",
             ["1y", "3y", "5y", "5y+ (Max)"],
             index=3, # Default to Max
-            help="Limit analysis to specific time window. '5y+ (Max)' uses all available data."
+            help="Limit analysis to specific time window. '5y+ (Max)' uses all available data.",
+            label_visibility="collapsed"
         )
 
     st.markdown("---")
