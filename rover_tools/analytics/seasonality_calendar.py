@@ -26,17 +26,42 @@ HOLIDAYS_2026 = [
     datetime(2026, 12, 25).date()
 ]
 
+# NSE Holidays 2027 (Projected)
+HOLIDAYS_2027 = [
+    datetime(2027, 1, 26).date(),
+    datetime(2027, 3, 6).date(),
+    datetime(2027, 3, 10).date(),
+    datetime(2027, 3, 22).date(),
+    datetime(2027, 3, 26).date(),
+    datetime(2027, 4, 14).date(),
+    datetime(2027, 4, 15).date(),
+    datetime(2027, 4, 19).date(),
+    datetime(2027, 5, 1).date(),
+    datetime(2027, 5, 17).date(),
+    datetime(2027, 6, 15).date(),
+    datetime(2027, 8, 15).date(),
+    datetime(2027, 9, 4).date(),
+    datetime(2027, 10, 2).date(),
+    datetime(2027, 10, 10).date(),
+    datetime(2027, 10, 29).date(), # Diwali
+    datetime(2027, 11, 14).date(),
+    datetime(2027, 12, 25).date()
+]
+
 class SeasonalityCalendar:
     """
     Analyzes historical data to find optimal monthly Buy/Sell days 
-    and maps them to a specific year's calendar (default 2026), 
-    adjusting for weekends and holidays.
+    and maps them to a specific strategy: Buy in 2026, Sell in 2027.
     """
     
-    def __init__(self, history, year=2026):
+    def __init__(self, history, buy_year=2026, sell_year=2027):
         self.history = history
-        self.year = year
-        self.holidays = HOLIDAYS_2026  # Hardcoded for 2026 for now
+        self.buy_year = buy_year
+        self.sell_year = sell_year
+        self.holidays_map = {
+            2026: HOLIDAYS_2026,
+            2027: HOLIDAYS_2027
+        }
 
     def _get_best_days_for_month(self, month):
         """Finds best buy/sell days for a given month index (1-12)"""
@@ -75,7 +100,7 @@ class SeasonalityCalendar:
                     
         return best_buy, best_sell, best_gain
 
-    def _adjust_date_for_holidays(self, month, day, action):
+    def _adjust_date_for_holidays(self, year, month, day, action):
         """
         Adjusts a date to avoid Weekends (Sat/Sun) and NSE Holidays.
         Buy -> Shift Forward (Monday/Next Open Day)
@@ -83,10 +108,19 @@ class SeasonalityCalendar:
         Returns: (day, weekday_str, is_adjusted)
         """
         try:
-            # Handle Feb 29 (Treat as Feb 28 for non-leap 2026)
-            if month == 2 and day > 28: day = 28
+            # Handle Feb 29 
+            if month == 2 and day > 28:
+                 # Check leap year
+                 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
+                     day = 29
+                 else:
+                     day = 28
             
-            dt = datetime(self.year, month, day).date()
+            # Additional safety for 31st on 30-day months
+            if day == 31 and month in [4, 6, 9, 11]:
+                day = 30
+
+            dt = datetime(year, month, day).date()
             
             # Protocol: 
             # Buy on Weekend -> Shift to Monday (Forward)
@@ -96,10 +130,12 @@ class SeasonalityCalendar:
             shifts = 0
             is_adjusted = False
             
+            holidays = self.holidays_map.get(year, [])
+
             # Initial Check
             while shifts < max_shifts:
                 wd = dt.weekday() # Mon=0, Sun=6
-                is_holiday = (dt in self.holidays)
+                is_holiday = (dt in holidays)
                 
                 if wd >= 5 or is_holiday:
                     is_adjusted = True
@@ -107,30 +143,16 @@ class SeasonalityCalendar:
                         dt += timedelta(days=1)
                     elif action == 'sell':
                         dt -= timedelta(days=1) # Shift backward
-                        # Edge case: If backward shift pushes to prev month (e.g. May 1st -> Apr 30th)
-                        # We should probably limit to current month or allow logic to handle it.
-                        # For simplicity, if day becomes < 1, reset to 1 and try forward?
-                        # Or just accept it falling into prev month (but for visual chart this might be weird).
-                        # Let's just shift backward.
                     
                     shifts += 1
                 else:
                     break
             
-            # Safety for month boundary crossing (Plotting expects month 1-12)
-            if dt.month != month:
-                # If we shifted out of the month, force closest day within month?
-                # Actually, strictly speaking, moving selling to prev month is valid "Calendar planning".
-                # But for the chart (Y-Axis = Month), it might be confusing.
-                # Let's keep simpler logic: if Sell shift back goes to prev month, try shift forward instead?
-                # No, standard rule: Sell -> Friday.
-                pass 
-
             return dt, dt.strftime("%a"), is_adjusted
             
         except Exception as e:
             # print(f"Error adjusting date: {e}")
-            return datetime(self.year, month, 1).date(), "??", True
+            return datetime(year, month, 1).date(), "??", True
 
     def generate_analysis(self):
         """
@@ -142,8 +164,8 @@ class SeasonalityCalendar:
             b_day, s_day, gain = self._get_best_days_for_month(m)
             
             # Adjust
-            b_dt, b_wd, b_adj = self._adjust_date_for_holidays(m, b_day, 'buy')
-            s_dt, s_wd, s_adj = self._adjust_date_for_holidays(m, s_day, 'sell')
+            b_dt, b_wd, b_adj = self._adjust_date_for_holidays(self.buy_year, m, b_day, 'buy')
+            s_dt, s_wd, s_adj = self._adjust_date_for_holidays(self.sell_year, m, s_day, 'sell')
             
             results.append({
                 "Month_Num": m,
@@ -154,95 +176,91 @@ class SeasonalityCalendar:
                 "Buy_Date_2026": b_dt,
                 "Buy_Weekday": b_wd,
                 "Buy_Adjusted": b_adj,
-                "Sell_Date_2026": s_dt,
+                "Sell_Date_2026": s_dt, # Variable name kept for compatibility, but is actually sell_year
                 "Sell_Weekday": s_wd,
                 "Sell_Adjusted": s_adj,
                 # For plotting original "Ghost" dots
-                "Buy_Date_Orig": datetime(self.year, m, b_day).date() if not (m==2 and b_day>28) else datetime(2026, 2, 28).date(),
-                "Sell_Date_Orig": datetime(self.year, m, s_day).date() if not (m==2 and s_day>28) else datetime(2026, 2, 28).date()
+                "Buy_Date_Orig": datetime(self.buy_year, m, b_day).date() if not (m==2 and b_day>28) else datetime(self.buy_year, 2, 28).date(),
+                "Sell_Date_Orig": datetime(self.sell_year, m, s_day).date() if not (m==2 and s_day>28) else datetime(self.sell_year, 2, 28).date()
             })
             
         return pd.DataFrame(results)
 
     def plot_calendar(self, df):
         """
-        Returns a Matplotlib Figure: Side-by-Side Layout (Jan-Jun, Jul-Dec)
-        For Compact Viewing on Single Page. Force White Background.
+        Returns a Matplotlib Figure: Side-by-Side Layout (2026 Buy vs 2027 Sell)
         """
         # Force white style
         plt.style.use('default') 
         
-        # Wide Layout: 16x6 inches (Fits screen better)
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6), sharey=False)
+        # Taller Layout to fit 12 months: 16x10 inches
+        fig, axes = plt.subplots(1, 2, figsize=(16, 12), sharey=True)
         fig.patch.set_facecolor('white')
         
-        # Split Data
-        df1 = df[df['Month_Num'] <= 6]  # Jan-Jun
-        df2 = df[df['Month_Num'] >= 7]  # Jul-Dec
+        # Both plots show all 12 months
         
-        def plot_half_year(ax, sub_df, title):
+        def plot_year_column(ax, sub_df, title, mode):
             ax.set_facecolor('white')
             # Invert Y so first month is top
             display_months = sub_df['Month'].tolist()
             
-            # Map month num to 0..5 index
-            # We want top=0, bottom=5
-            # Reset index to make loop easy
+            # Map month num to 0..11 index
             sub_df = sub_df.reset_index(drop=True)
             
             for i, row in sub_df.iterrows():
                 y_pos = (len(sub_df) - 1) - i # Top down
                 
-                # --- BUY ---
-                b_date = row['Buy_Date_2026']
-                if row['Buy_Adjusted']:
-                    # Ghost
-                    ax.scatter(x=row['Buy_Date_Orig'].day, y=y_pos, s=120, color='green', alpha=0.3, zorder=3)
-                    # Connector
-                    ax.plot([row['Buy_Date_Orig'].day, b_date.day], [y_pos, y_pos], color='green', linestyle=':', alpha=0.5, zorder=3)
-                    # Hollow
-                    ax.scatter(x=b_date.day, y=y_pos, s=180, edgecolors='green', facecolors='none', linewidth=2.0, zorder=4)
+                if mode == 'buy':
+                    # --- BUY (Green) ---
+                    date_col = 'Buy_Date_2026'
+                    wd_col = 'Buy_Weekday'
+                    adj_col = 'Buy_Adjusted'
+                    orig_col = 'Buy_Date_Orig'
+                    color = 'green'
                 else:
-                    ax.scatter(x=b_date.day, y=y_pos, s=180, color='green', edgecolors='white', linewidth=1.5, zorder=4)
+                    # --- SELL (Red) ---
+                    date_col = 'Sell_Date_2026'
+                    wd_col = 'Sell_Weekday'
+                    adj_col = 'Sell_Adjusted'
+                    orig_col = 'Sell_Date_Orig'
+                    color = 'red'
 
-                # --- SELL ---
-                s_date = row['Sell_Date_2026']
-                if row['Sell_Adjusted']:
-                    # Ghost
-                    ax.scatter(x=row['Sell_Date_Orig'].day, y=y_pos, s=120, color='red', alpha=0.3, zorder=3)
-                    # Connector
-                    ax.plot([row['Sell_Date_Orig'].day, s_date.day], [y_pos, y_pos], color='red', linestyle=':', alpha=0.5, zorder=3)
-                    # Hollow
-                    ax.scatter(x=s_date.day, y=y_pos, s=180, edgecolors='red', facecolors='none', linewidth=2.0, zorder=4)
-                else:
-                    ax.scatter(x=s_date.day, y=y_pos, s=180, color='red', edgecolors='white', linewidth=1.5, zorder=4)
+                act_date = row[date_col]
                 
+                if row[adj_col]:
+                    # Ghost
+                    ax.scatter(x=row[orig_col].day, y=y_pos, s=120, color=color, alpha=0.3, zorder=3)
+                    # Connector
+                    ax.plot([row[orig_col].day, act_date.day], [y_pos, y_pos], color=color, linestyle=':', alpha=0.5, zorder=3)
+                    # Hollow
+                    ax.scatter(x=act_date.day, y=y_pos, s=180, edgecolors=color, facecolors='none', linewidth=2.0, zorder=4)
+                else:
+                    ax.scatter(x=act_date.day, y=y_pos, s=180, color=color, edgecolors='white', linewidth=1.5, zorder=4)
+
                 # Annotations
-                ax.text(b_date.day, y_pos + 0.35, f"{b_date.day}\n({row['Buy_Weekday']})", 
-                        ha='center', va='top', color='green', fontsize=8, fontweight='bold')
-                ax.text(s_date.day, y_pos + 0.35, f"{s_date.day}\n({row['Sell_Weekday']})", 
-                        ha='center', va='top', color='red', fontsize=8, fontweight='bold')
+                ax.text(act_date.day, y_pos - 0.2, f"{act_date.day}\n({row[wd_col]})", 
+                        ha='center', va='top', color=color, fontsize=9, fontweight='bold')
 
             # Formatting
             ax.set_yticks(range(len(sub_df)))
-            ax.set_yticklabels(display_months[::-1], fontsize=10, fontweight='bold', color='black')
-            ax.set_xticks(range(1, 32, 2)) # Every 2nd day to save space
+            ax.set_yticklabels(display_months[::-1], fontsize=11, fontweight='bold', color='black')
+            ax.set_xticks(range(1, 32, 2)) # Every 2nd day
             ax.set_xlim(0, 32)
             ax.tick_params(axis='x', colors='black')
             ax.tick_params(axis='y', colors='black')
             ax.grid(True, linestyle='--', alpha=0.3, color='gray')
-            ax.set_title(title, fontsize=12, fontweight='bold', color='black', pad=10)
+            ax.set_title(title, fontsize=14, fontweight='bold', color='black', pad=15)
             
             # Remove spines for cleaner look
             for spine in ax.spines.values():
                 spine.set_color('#dddddd')
 
-        # Plot Left (Jan-Jun)
-        plot_half_year(axes[0], df1, "First Half (Jan - Jun)")
+        # Plot Left (2026 Buy)
+        plot_year_column(axes[0], df, f"Entry Plan ({self.buy_year})", 'buy')
         
-        # Plot Right (Jul-Dec)
-        plot_half_year(axes[1], df2, "Second Half (Jul - Dec)")
+        # Plot Right (2027 Sell)
+        plot_year_column(axes[1], df, f"Exit Plan ({self.sell_year})", 'sell')
 
-        fig.suptitle(f"Strategic Trading Calendar {self.year} (Holiday Adjusted)", fontsize=16, fontweight='bold', color='black')
+        fig.suptitle(f"Strategic Trading Calendar {self.buy_year}-{self.sell_year}", fontsize=18, fontweight='bold', color='black')
         plt.tight_layout()
         return fig
