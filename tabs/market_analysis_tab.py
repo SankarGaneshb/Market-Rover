@@ -214,18 +214,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                         hide_index=True
                     )
                     
-                    # Summary Row for Annual Gain
-                    avg_annual = cal_df['Avg_Annual_Gain'].mean() if not cal_df.empty else 0.0
-                    annual_delta = None
-                    annual_label = f"+{avg_annual:.2f}%"
-                    if avg_annual == 0.0 and len(history) < 365*2:
-                         annual_label = "N/A (Need >2Y Data)"
-                         
-                    st.metric(
-                        "2027 Avg Annual Gain Forecast", 
-                        annual_label, 
-                        help="Average historical return of holding for 1 year (Buy in Month M, Sell in Month M next year). Needs >2 years of data."
-                    )
+
             
             st.markdown("---")
 
@@ -732,7 +721,11 @@ def show_market_analysis_tab():
             if visual_selection:
                 st.session_state.heatmap_active_ticker = visual_selection
                 st.rerun()
-                
+
+            # Ensure session state is synced with URL params (for reload)
+            if 'heatmap_active_ticker' not in st.session_state and qp_ticker:
+                 st.session_state.heatmap_active_ticker = qp_ticker
+                 
             # Display Analysis Logic
             active_ticker = st.session_state.get('heatmap_active_ticker')
             

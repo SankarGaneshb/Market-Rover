@@ -1,5 +1,3 @@
-Symbol,Asset Class,Weight (%),Quantity,Average Price
-RELIANCE.NS,Equity_LargeCap,12.5,12500,1000
-TCS.NS,Equity_LargeCap,12.5,12500,1000
-LIQUIDBEES.NS,Safety_Liquid,50.0,50000,1000
-GOLDBEES.NS,Safety_Gold,25.0,25000,1000
+Symbol,Company Name,Quantity,Average Price
+RELIANCE.NS,Reliance,10,2500
+TCS.NS,TCS,5,3500
