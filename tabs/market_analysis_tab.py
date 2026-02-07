@@ -773,7 +773,9 @@ def show_market_analysis_tab():
             )
             
             if selected_opt and selected_opt != "No Data":
-                 ticker_raw = selected_opt.split(' - ')[0]
+                 # Handle "TICKER - Name" AND "TICKER (+XX%)"
+                 # Split by ' - ' first, then space to isolate ticker
+                 ticker_raw = selected_opt.split(' - ')[0].split(' ')[0]
             else:
                  ticker_raw = None
 
@@ -806,9 +808,9 @@ def show_market_analysis_tab():
         if 'heatmap_active_ticker' not in st.session_state:
             # Auto-init with the default selection
             final_default = ticker_options[default_ix] if default_ix < len(ticker_options) else None
-            # Extract ticker part if it's "TICKER - Name"
-            if final_default and " - " in final_default:
-                 final_default = final_default.split(' - ')[0]
+            # Extract ticker part
+            if final_default:
+                 final_default = final_default.split(' - ')[0].split(' ')[0]
 
             st.session_state.heatmap_active_ticker = qp_ticker if qp_ticker else final_default
 
