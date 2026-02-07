@@ -5,7 +5,8 @@ from utils.auth import AuthManager
 @pytest.fixture
 def mock_streamlit():
     with patch('utils.auth.st') as mock_st, \
-         patch('utils.auth.stauth') as mock_stauth:
+         patch('utils.auth.stauth') as mock_stauth, \
+         patch('utils.social_auth.st') as mock_social_st:
         
         # Mock secrets dict
         mock_secrets = {
@@ -19,21 +20,22 @@ def mock_streamlit():
                 'key': 'cookie_key',
                 'expiry_days': 1
             },
-            'oauth': {}
+            'oauth': {},
+            'show_auth_debug': False # Add this to avoid default lookup issues
         }
         
-        # Patch st.secrets on the mock object
+        # Patch st.secrets on all mock objects
         mock_st.secrets = mock_secrets
         mock_st.session_state = {}
+        
+        mock_social_st.secrets = mock_secrets
+        mock_social_st.session_state = {}
         
         # Ensure Authenticator returns a Mock object
         mock_authenticator_instance = MagicMock()
         mock_stauth.Authenticate.return_value = mock_authenticator_instance
         
-        # Also patch streamlit.secrets just in case utils.auth accesses it before patch?
-        # But patching the imported module 'utils.auth.st' should handle usages in that module.
-        # We can keep the global patch for extra safety if needed, but the stauth mock is the key.
-        # Let's keep the global patch too to be safe.
+        # Global patch as safety net
         with patch('streamlit.secrets', new=mock_secrets):
              yield mock_st
 
