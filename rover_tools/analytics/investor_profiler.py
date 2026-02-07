@@ -3,7 +3,7 @@ from enum import Enum
 from rover_tools.analytics.forensic_engine import ForensicAnalyzer
 from rover_tools.shadow_tools import detect_silent_accumulation, analyze_sector_flow
 from rover_tools.analytics.portfolio_engine import AnalyticsPortfolio
-from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP, ASSET_PROXIES, NIFTY_MIDCAP, NIFTY_SMALLCAP
+from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP, ASSET_PROXIES, NIFTY_MIDCAP
 
 class InvestorPersona(Enum):
     PRESERVER = "The Preserver"     # Minimal Risk, FD Beating

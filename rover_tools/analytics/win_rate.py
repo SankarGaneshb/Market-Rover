@@ -116,21 +116,13 @@ def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, perio
 def get_performance_stars(category="Nifty 50", period="1y", top_n=5):
     """
     Calculates top performing stocks (Stars) based on absolute return over a period.
-    
-    Args:
-        category (str): Index category.
-        period (str): '1y', '3y', '5y', '5y+'.
-        top_n (int): Number of stars to return.
-        
-    Returns:
-        list: Top N tickers with performance stats.
     """
     # Map friendly period to yfinance period
     yf_period_map = {
         "1y": "1y",
         "3y": "5y", # Fetch 5y to be safe for 3y calc
         "5y": "5y",
-        "5y+": "max"
+        "5y+": "max" # Go max for long term
     }
     
     yf_period = yf_period_map.get(period, "1y")
@@ -139,68 +131,102 @@ def get_performance_stars(category="Nifty 50", period="1y", top_n=5):
     tickers = get_common_tickers(category=category)
     yf_tickers = [t.split(' - ')[0].strip() for t in tickers]
     
+    if not yf_tickers:
+        return []
+        
     try:
-        data = yf.download(yf_tickers, period=yf_period, interval="1wk", progress=False)['Close']
+        # Fetch data
+        # Note: auto_adjust=True is default in newer versions, but we want explicit Close or Adj Close
+        data = yf.download(yf_tickers, period=yf_period, interval="1wk", progress=False, group_by='ticker', auto_adjust=True)
     except Exception as e:
         print(f"Error fetching data: {e}")
         return []
 
     results = []
     
-    # Calculate cutoff date based on period
-    end_date = data.index[-1]
-    
+    # Calculate target start date based on today
+    today = datetime.datetime.now()
     if period == "1y":
-        start_date = end_date - pd.DateOffset(years=1)
+        target_start = today - datetime.timedelta(days=365)
     elif period == "3y":
-        start_date = end_date - pd.DateOffset(years=3)
+        target_start = today - datetime.timedelta(days=365*3)
     elif period == "5y":
-        start_date = end_date - pd.DateOffset(years=5)
+        target_start = today - datetime.timedelta(days=365*5)
     elif period == "5y+":
-        start_date = end_date - pd.DateOffset(years=5) # Minimum 5 years for "5y+" check? 
-        # Actually 5y+ usually means long term winners. Let's stick to 5Y for consistency or max available?
-        # Requirement says "Top Last 5+ Years Stars". Let's treat it as 10Y or Max.
-        # Let's use 10Y for 5y+ to show long term compounders
-        start_date = end_date - pd.DateOffset(years=10)
+        target_start = today - datetime.timedelta(days=365*10) # 10 Years
     else:
-        start_date = end_date - pd.DateOffset(years=1)
+        target_start = today - datetime.timedelta(days=365)
 
     for ticker in yf_tickers:
-        if ticker not in data.columns:
-            continue
-            
-        series = data[ticker].dropna()
-        if series.empty:
-            continue
-            
-        # Get price at start and end
-        # Find nearest date to start_date
-        
-        # Ensure we have enough data
-        if series.index[0] > start_date + pd.Timedelta(days=30):
-             # Listed AFTER the start date, so not a valid candidate for this timeframe
-             continue
-             
-        # Get start/end prices
-        # searching for index closest to start_date
         try:
-            start_price = series.asof(start_date)
-            current_price = series.iloc[-1]
+            # Handle MultiIndex (Ticker, Price) or Flat
+            if isinstance(data.columns, pd.MultiIndex):
+                if ticker in data.columns:
+                    series = data[ticker]['Close'].dropna()
+                else:
+                    continue
+            else:
+                # If flat (single ticker?)
+                if ticker in data.columns: # Sometimes flat cols are just tickers if group_by='ticker' wasn't used or single ticker
+                     series = data[ticker].dropna()
+                elif 'Close' in data.columns:
+                     series = data['Close'].dropna()
+                else:
+                     continue
             
-            if pd.isna(start_price) or start_price == 0:
+            if series.empty:
                 continue
                 
-            total_return = ((current_price - start_price) / start_price) * 100
+            # Get current price
+            current_price = series.iloc[-1]
+            last_date = series.index[-1]
             
-            # Filter: Must be positive to be a "Star"
-            if total_return > 0:
-                results.append({
-                    'ticker': ticker,
-                    'total_return': total_return,
-                    'current_price': current_price,
-                    'start_price': start_price
-                })
-        except Exception:
+            # Helper to find nearest date price
+            # We look for a date <= target_start
+            # But since series is sorted, we can search sorted
+            
+            # Ensure target_start is localized if series is tz-aware
+            ts = pd.Timestamp(target_start)
+            if series.index.tz is not None and ts.tz is None:
+                 ts = ts.tz_localize(series.index.tz)
+            elif series.index.tz is None and ts.tz is not None:
+                 ts = ts.tz_localize(None)
+
+
+            # Find index of date closest to target_start
+            # searchsorted finds the index where ts would be inserted. 
+            idx = series.index.searchsorted(ts)
+            
+            if idx >= len(series):
+                idx = len(series) - 1
+            
+            # This gives us a date >= target_start usually. 
+            # If we want exact period return, we should try to get close.
+            # Let's perform a simpler robust check:
+            # If the Series starts AFTER target_start + buffer, skip (IPO usually)
+            if series.index[0] > ts + pd.Timedelta(days=60):
+                continue
+                
+            start_price = series.iloc[idx]
+            start_date_actual = series.index[idx]
+            
+            # Simple CAGR validation check - if start date is too far off?
+            # actually for "Stars" just absolute return from that approx date is fine.
+            
+            if start_price > 0:
+                total_return = ((current_price - start_price) / start_price) * 100
+                
+                # Filter: Must be positive to be a "Star"
+                if total_return > 0:
+                     # Create label
+                    results.append({
+                        'ticker': ticker,
+                        'total_return': total_return,
+                        'current_price': current_price,
+                        'start_price': start_price,
+                        'years': round((last_date - start_date_actual).days / 365.25, 1)
+                    })
+        except Exception as e:
             continue
             
     # Sort
@@ -212,9 +238,10 @@ def get_performance_stars(category="Nifty 50", period="1y", top_n=5):
     
     final_list = []
     for _, row in df_results.iterrows():
-         full_str = next((t for t in tickers if row['ticker'] in t), row['ticker'])
+         # Re-fetch full name string
+         full_str = next((t for t in tickers if t.startswith(row['ticker'])), row['ticker'])
          final_list.append({
-            'full_name': full_str, # e.g. "RELIANCE.NS - Reliance Industries"
+            'full_name': full_str,
             'ticker': row['ticker'],
             'total_return': row['total_return'],
             'label': f"{row['ticker']} (+{row['total_return']:.0f}%)"

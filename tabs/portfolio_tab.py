@@ -178,7 +178,7 @@ def render_analytics_section():
 
             # Filter Pills
 
-            cat = st.pills("Filter:", ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], default="Nifty 50", key="corr_pills")
+            cat = st.pills("Filter:", ["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"], default="Nifty 50", key="corr_pills")
 
             
 
@@ -519,19 +519,21 @@ def render_analytics_section():
 
                             
 
-                        st.dataframe(result.style.applymap(color_action, subset=['action'])
-
-                                     .format({
-
-                                         'current_weight': '{:.1%}', 
-
-                                         'target_weight': '{:.1%}', 
-
-                                         'volatility': '{:.1%}',
-
-                                         'return': '{:.1%}'
-
-                                     }), width='stretch')
+                        st.dataframe(
+                            result.style.applymap(color_action, subset=['action']),
+                            width='stretch',
+                            column_order=("symbol", "name", "current_weight", "target_weight", "action", "volatility", "return", "comment"),
+                            column_config={
+                                "symbol": "Ticker",
+                                "name": "Company Name",
+                                "current_weight": st.column_config.NumberColumn("Current %", format="%.1f%%"),
+                                "target_weight": st.column_config.NumberColumn("Target %", format="%.1f%%"),
+                                "volatility": st.column_config.NumberColumn("Volatility (Risk)", format="%.1f%%"),
+                                "return": st.column_config.NumberColumn("Return (Annual)", format="%.1f%%"),
+                                "action": "Action",
+                                "comment": "Reasoning"
+                            }
+                        )
 
                                      
 

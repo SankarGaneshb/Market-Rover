@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import yfinance as yf
+from rover_tools.ticker_resources import get_ticker_name
 
 class AnalyticsPortfolio:
     def calculate_correlation_matrix(self, tickers, period="1y"):
@@ -207,8 +208,11 @@ class AnalyticsPortfolio:
             lambda row: pd.Series(get_action_reason(row)), axis=1
         )
             
+        # Add Name Column
+        df['name'] = df['symbol'].apply(get_ticker_name)
+            
         # Return helpful columns for display
-        return df[['symbol', 'current_weight', 'target_weight', 'volatility', 'return', 'action', 'comment']], warnings
+        return df[['symbol', 'name', 'current_weight', 'target_weight', 'volatility', 'return', 'action', 'comment']], warnings
 
     def calculate_risk_score(self, ticker, period="1y"):
         """

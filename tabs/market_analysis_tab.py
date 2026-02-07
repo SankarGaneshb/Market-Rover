@@ -1,6 +1,12 @@
 import streamlit as st
 import pandas as pd
-from rover_tools.ticker_resources import get_common_tickers, NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META
+from rover_tools.ticker_resources import (
+    get_common_tickers, 
+    NIFTY_50_SECTOR_MAP, 
+    NIFTY_50_BRAND_META,
+    NIFTY_MIDCAP_SECTOR_MAP,
+    NIFTY_NEXT_50_SECTOR_MAP
+)
 from utils.security import sanitize_ticker
 import base64
 import html
@@ -526,31 +532,68 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
 def render_visual_ticker_selector(ticker_category):
     """
-    Renders a visual, card-based selector for tickers, grouped by sector for Nifty 50.
+    Renders a visual, card-based selector for tickers, grouped by sector.
     Returns the selected ticker if one was clicked, else None.
     """
     selected_ticker = None
     
+    # Determine which map to use
+    sector_map = {}
     if ticker_category == "Nifty 50":
-        # Group by Sector
-        sectors = sorted(list(set(NIFTY_50_SECTOR_MAP.values())))
+        sector_map = NIFTY_50_SECTOR_MAP
+    elif ticker_category == "Sensex":
+        sector_map = NIFTY_50_SECTOR_MAP # 90% Overlap
+    elif ticker_category == "Nifty Next 50":
+        sector_map = NIFTY_NEXT_50_SECTOR_MAP
+    elif ticker_category == "Midcap":
+        sector_map = NIFTY_MIDCAP_SECTOR_MAP
         
+    # Get tickers for this category
+    category_tickers_full = get_common_tickers(category=ticker_category)
+    # Extract clean tickers
+    category_tickers = [t.split(' - ')[0].strip() for t in category_tickers_full]
+    
+    # If we have a map, use it
+    if sector_map:
+        # Filter map items that are in this category
+        # For Sensex, we might have tickers in category that are in NIFTY_50_SECTOR_MAP
+        # For those NOT in map, assign "Others"
+        
+        mapped_data = {}
+        for ticker in category_tickers:
+            # Check direct map
+            if ticker in sector_map:
+                mapped_data[ticker] = sector_map[ticker]
+            # Check fallback to Nifty 50 map (common for Sensex)
+            elif ticker in NIFTY_50_SECTOR_MAP:
+                mapped_data[ticker] = NIFTY_50_SECTOR_MAP[ticker]
+            else:
+                 mapped_data[ticker] = "Others"
+                 
+        # Group by Sector
+        sectors = sorted(list(set(mapped_data.values())))
+        # Move "Others" to end
+        if "Others" in sectors:
+            sectors.remove("Others")
+            sectors.append("Others")
+            
         st.markdown("##### 📂 Browse by Sector")
         tabs = st.tabs(sectors)
         
         for i, sector in enumerate(sectors):
             with tabs[i]:
-                sector_tickers = [t for t, s in NIFTY_50_SECTOR_MAP.items() if s == sector]
+                # Get tickers in this sector
+                curr_sector_tickers = [t for t, s in mapped_data.items() if s == sector]
                 
                 # Grid for cards
                 cols = st.columns(4)
-                for j, ticker in enumerate(sector_tickers):
+                for j, ticker in enumerate(curr_sector_tickers):
                     col = cols[j % 4]
                     meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
                     
                     # Generate SVG Logo (consistent with Brand Shop)
                     tick_short = ticker.replace('.NS', '')[:4]
-                    color = meta['color']
+                    color = meta.get('color', "#333333")
                     text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                     
                     svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
@@ -559,7 +602,7 @@ def render_visual_ticker_selector(ticker_category):
                     
                     with col:
                         # Card UI
-                        safe_name = html.escape(meta['name'])
+                        safe_name = html.escape(meta.get('name', ticker))
                         st.markdown(f"""
                             <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
                                 <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
@@ -570,23 +613,20 @@ def render_visual_ticker_selector(ticker_category):
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        if st.button(f"Analyze {tick_short}", key=f"vis_{ticker}", use_container_width=True):
+                        if st.button(f"Analyze {tick_short}", key=f"vis_{ticker}_{ticker_category}", use_container_width=True):
                             selected_ticker = ticker
     else:
-        # For other categories, show a simpler grid of common tickers if not too many
-        common = get_common_tickers(category=ticker_category)
-        if common and len(common) <= 30:
+        # Fallback for undefined maps (e.g. strict All or unknown)
+        if len(category_tickers) <= 50:
             st.markdown(f"##### 🏢 {ticker_category} Stocks")
             cols = st.columns(5)
-            for i, t_full in enumerate(common):
-                ticker = t_full.split(' - ')[0]
+            for i, ticker in enumerate(category_tickers):
                 tick_short = ticker.replace('.NS', '')
                 with cols[i % 5]:
                     if st.button(tick_short, key=f"vis_{ticker}", use_container_width=True):
                         selected_ticker = ticker
                         
     return selected_ticker
-
 
 def show_market_analysis_tab():
 
@@ -640,7 +680,7 @@ def show_market_analysis_tab():
                 target_default = "Nifty 50"
                 ticker_category = st.pills(
                     "1. Select Universe",
-                    options=["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"],
+                    options=["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"],
                     default=target_default,
                     key="heatmap_category_pills"
                 )
@@ -669,7 +709,9 @@ def show_market_analysis_tab():
             
             # Logic Branching
             if strategy_mode == "📂 Sector Browser":
-                common_tickers = [] # Visual browser handles this
+                 # Populate with ALL tickers so the dropdown works if a visual selection is made
+                 # This fixes the issue where "Enter Symbol" shows up erroneously
+                 common_tickers = get_common_tickers(category=ticker_category)
             
             else:
                 # Stars Logic
@@ -830,8 +872,6 @@ def show_market_analysis_tab():
 
             "Sensex": "^BSESN",
 
-            "Bank Nifty": "^NSEBANK",
-
             "Nifty IT": "^CNXIT",
 
             "Nifty Auto": "^CNXAUTO",
@@ -840,9 +880,7 @@ def show_market_analysis_tab():
 
             "Nifty Metal": "^CNXMETAL",
 
-            "Nifty Midcap 100": "^CRSLDX", 
-
-            "Nifty Smallcap 100": "^CNXSC" 
+            "Nifty Midcap 100": "^CRSLDX"
 
         }
 

@@ -6,9 +6,8 @@ import pytest
 from rover_tools.ticker_resources import (
     NIFTY_50,
     SENSEX,
-    BANK_NIFTY,
+    NIFTY_NEXT_50,
     NIFTY_MIDCAP,
-    NIFTY_SMALLCAP,
     get_common_tickers,
     NIFTY_50_SECTOR_MAP,
     NIFTY_50_BRAND_META
@@ -17,9 +16,8 @@ from rover_tools.ticker_resources import (
 def test_constants_validity():
     assert len(NIFTY_50) > 0
     assert len(SENSEX) > 0
-    assert len(BANK_NIFTY) > 0
+    assert len(NIFTY_NEXT_50) > 0
     assert len(NIFTY_MIDCAP) > 0
-    assert len(NIFTY_SMALLCAP) > 0
     
     # Check format: "TICKER.NS - Name"
     assert ".NS" in NIFTY_50[0]
@@ -32,13 +30,17 @@ def test_get_common_tickers():
     
     sensex = get_common_tickers("Sensex")
     assert sensex == sorted(SENSEX)
+
+    next50 = get_common_tickers("Nifty Next 50")
+    assert next50 == sorted(NIFTY_NEXT_50)
     
-    # Test "All" (Default or fallback)
+    # Test "All" (Default or fallback) - Should NOT contain Smallcap logic if we removed it
     all_tickers = get_common_tickers("Invalid Category")
     assert len(all_tickers) > len(NIFTY_50)
     assert NIFTY_50[0] in all_tickers
+    assert NIFTY_NEXT_50[0] in all_tickers
 
-def test_sector_map_consitency():
+def test_sector_map_consistency():
     # Check that keys in Sector Map are bare tickers (usually)
     # The file has "HDFCBANK.NS" keys. 
     # NIFTY_50 list has "HDFCBANK.NS - HDFC Bank Ltd"

@@ -105,7 +105,7 @@ def show_shadow_tracker_tab():
         with col_sel:
             shadow_cat_stock = st.pills(
                 "Filter Index:", 
-                ["All", "Nifty 50", "Sensex", "Bank Nifty", "Midcap", "Smallcap"], 
+                ["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"], 
                 default="Nifty 50",
                 key="shadow_stock_index_pills"
             )

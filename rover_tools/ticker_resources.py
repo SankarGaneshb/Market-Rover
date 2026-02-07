@@ -188,16 +188,44 @@ def get_common_tickers(category="All"):
         return sorted(NIFTY_50)
     elif category == "Sensex":
         return sorted(SENSEX)
-    elif category == "Bank Nifty":
-        return sorted(BANK_NIFTY)
+    elif category == "Nifty Next 50":
+        return sorted(NIFTY_NEXT_50)
     elif category == "Midcap":
         return sorted(NIFTY_MIDCAP)
-    elif category == "Smallcap":
-        return sorted(NIFTY_SMALLCAP)
     else:
-        # Combine all unique tickers
-        all_tickers = list(set(NIFTY_50 + SENSEX + BANK_NIFTY + POPULAR_OTHERS + NIFTY_MIDCAP + NIFTY_SMALLCAP))
+        # Combine all unique tickers (Restricted to allowed indices)
+        all_tickers = list(set(NIFTY_50 + SENSEX + NIFTY_NEXT_50 + NIFTY_MIDCAP))
         return sorted(all_tickers)
+
+# Helper to get ticker name
+def get_ticker_name(symbol):
+    """
+    Returns the company name for a given ticker symbol.
+    """
+    symbol = symbol.strip().upper()
+    if not symbol.endswith(".NS") and not symbol.endswith(".BO"):
+         # Try appending .NS
+         candidates = [symbol, f"{symbol}.NS"]
+    else:
+         candidates = [symbol]
+         
+    # Check Brand Meta first (Fastest)
+    for c in candidates:
+        if c in NIFTY_50_BRAND_META:
+            return NIFTY_50_BRAND_META[c]['name']
+            
+    # Check Lists
+    all_lists = NIFTY_50 + SENSEX + NIFTY_NEXT_50 + NIFTY_MIDCAP
+    
+    for entry in all_lists:
+        parts = entry.split(" - ")
+        if len(parts) >= 2:
+            t = parts[0].strip()
+            n = parts[1].strip()
+            if t in candidates:
+                return n
+                
+    return symbol # Fallback to symbol if not found
 
 # --- NIFTY NEXT 50 (Junior Nifty) ---
 NIFTY_NEXT_50 = [
