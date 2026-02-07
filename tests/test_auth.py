@@ -4,7 +4,9 @@ from utils.auth import AuthManager
 
 @pytest.fixture
 def mock_streamlit():
-    with patch('utils.auth.st') as mock_st:
+    with patch('utils.auth.st') as mock_st, \
+         patch('utils.auth.stauth') as mock_stauth:
+        
         # Mock secrets dict
         mock_secrets = {
             'credentials': {
@@ -19,15 +21,21 @@ def mock_streamlit():
             },
             'oauth': {}
         }
-        # Apply secrets to both the mock object and the actual streamlit module if needed,
-        # but primarily we need to intercept where it's accessed.
-        # Since utils.auth imports streamlit as st, modifying mock_st.secrets should work 
-        # IF the code uses st.secrets. However, streamlit-authenticator might access streamlit.secrets directly.
-        # So we also patch streamlit.secrets globally for safety within this context.
+        
+        # Patch st.secrets on the mock object
+        mock_st.secrets = mock_secrets
+        mock_st.session_state = {}
+        
+        # Ensure Authenticator returns a Mock object
+        mock_authenticator_instance = MagicMock()
+        mock_stauth.Authenticate.return_value = mock_authenticator_instance
+        
+        # Also patch streamlit.secrets just in case utils.auth accesses it before patch?
+        # But patching the imported module 'utils.auth.st' should handle usages in that module.
+        # We can keep the global patch for extra safety if needed, but the stauth mock is the key.
+        # Let's keep the global patch too to be safe.
         with patch('streamlit.secrets', new=mock_secrets):
-            mock_st.secrets = mock_secrets
-            mock_st.session_state = {}
-            yield mock_st
+             yield mock_st
 
 @pytest.fixture
 def auth_manager(mock_streamlit):
