@@ -610,20 +610,24 @@ def render_visual_ticker_selector(ticker_category):
                     icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                     
                     with col:
-                        # Card UI
+                        # Card UI with HTML Link
                         safe_name = html.escape(meta.get('name', ticker))
-                        st.markdown(f"""
-                            <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
-                                <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
-                                <div style="line-height: 1.1;">
-                                    <div style="font-weight: bold; font-size: 13px; color: #333;">{tick_short}</div>
-                                    <div style="font-size: 10px; color: #666;">{safe_name}</div>
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
                         
-                        if st.button(f"{tick_short}", key=f"vis_{ticker}_{ticker_category}", use_container_width=True):
-                            selected_ticker = ticker
+                        # Construct URL for reload with params
+                        # We use ?ticker=TICKER&category=CATEGORY to persist state
+                        target_url = f"./?ticker={ticker}&category={ticker_category}"
+                        
+                        st.markdown(f"""
+                            <a href="{target_url}" target="_self" style="text-decoration: none; color: inherit;">
+                                <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px; transition: transform 0.1s; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                    <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
+                                    <div style="line-height: 1.1;">
+                                        <div style="font-weight: bold; font-size: 13px; color: #333;">{tick_short}</div>
+                                        <div style="font-size: 10px; color: #666;">{safe_name}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        """, unsafe_allow_html=True)
     else:
         # Fallback for undefined maps (e.g. strict All or unknown)
         if len(category_tickers) <= 100:
@@ -686,7 +690,10 @@ def show_market_analysis_tab():
             
             with f_col1:
                 # 1. Index Filter (Universe)
-                target_default = "Nifty 50"
+                # Check for query param 'category'
+                qp_category = st.query_params.get("category", None)
+                target_default = qp_category if qp_category in ["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"] else "Nifty 50"
+                
                 ticker_category = st.pills(
                     "1. Select Universe",
                     options=["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"],
@@ -701,9 +708,16 @@ def show_market_analysis_tab():
                 stars_5y = "⭐⭐⭐⭐⭐ Top 5 Stars"
                 stars_5y_plus = "🌟 Top 5Y+ Stars"
                 
+                # Check for query param 'ticker' to auto-select Sector Browser mode if coming from link
+                qp_ticker = st.query_params.get("ticker", None)
+                default_strategy_index = 4 if qp_ticker and qp_category else 4 # Default to Sector Browser for better UX
+                
+                strategy_options = [stars_1y, stars_3y, stars_5y, stars_5y_plus, "📂 Sector Browser"]
+                
                 strategy_mode = st.radio(
                     "2. Filter Strategy",
-                    options=[stars_1y, stars_3y, stars_5y, stars_5y_plus, "📂 Sector Browser"],
+                    options=strategy_options,
+                    index=default_strategy_index, # Default to Sector Browser
                     horizontal=True,
                     key="heatmap_strategy_radio"
                 )
