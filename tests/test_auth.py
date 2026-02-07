@@ -4,8 +4,9 @@ from utils.auth import AuthManager
 
 @pytest.fixture
 def mock_streamlit():
-    with patch('utils.auth.st') as mock:
-        mock.secrets = {
+    with patch('utils.auth.st') as mock_st:
+        # Mock secrets dict
+        mock_secrets = {
             'credentials': {
                 'usernames': ['user1'],
                 'names': ['User One'],
@@ -18,8 +19,15 @@ def mock_streamlit():
             },
             'oauth': {}
         }
-        mock.session_state = {}
-        yield mock
+        # Apply secrets to both the mock object and the actual streamlit module if needed,
+        # but primarily we need to intercept where it's accessed.
+        # Since utils.auth imports streamlit as st, modifying mock_st.secrets should work 
+        # IF the code uses st.secrets. However, streamlit-authenticator might access streamlit.secrets directly.
+        # So we also patch streamlit.secrets globally for safety within this context.
+        with patch('streamlit.secrets', new=mock_secrets):
+            mock_st.secrets = mock_secrets
+            mock_st.session_state = {}
+            yield mock_st
 
 @pytest.fixture
 def auth_manager(mock_streamlit):
