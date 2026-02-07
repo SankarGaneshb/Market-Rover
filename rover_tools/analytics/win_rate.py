@@ -111,3 +111,113 @@ def calculate_seasonality_win_rate(category="Nifty 50", target_month=None, perio
         })
         
     return final_list
+
+# @st.cache_data(ttl=3600*24)
+def get_performance_stars(category="Nifty 50", period="1y", top_n=5):
+    """
+    Calculates top performing stocks (Stars) based on absolute return over a period.
+    
+    Args:
+        category (str): Index category.
+        period (str): '1y', '3y', '5y', '5y+'.
+        top_n (int): Number of stars to return.
+        
+    Returns:
+        list: Top N tickers with performance stats.
+    """
+    # Map friendly period to yfinance period
+    yf_period_map = {
+        "1y": "1y",
+        "3y": "5y", # Fetch 5y to be safe for 3y calc
+        "5y": "5y",
+        "5y+": "max"
+    }
+    
+    yf_period = yf_period_map.get(period, "1y")
+    
+    # Get tickers
+    tickers = get_common_tickers(category=category)
+    yf_tickers = [t.split(' - ')[0].strip() for t in tickers]
+    
+    try:
+        data = yf.download(yf_tickers, period=yf_period, interval="1wk", progress=False)['Close']
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return []
+
+    results = []
+    
+    # Calculate cutoff date based on period
+    end_date = data.index[-1]
+    
+    if period == "1y":
+        start_date = end_date - pd.DateOffset(years=1)
+    elif period == "3y":
+        start_date = end_date - pd.DateOffset(years=3)
+    elif period == "5y":
+        start_date = end_date - pd.DateOffset(years=5)
+    elif period == "5y+":
+        start_date = end_date - pd.DateOffset(years=5) # Minimum 5 years for "5y+" check? 
+        # Actually 5y+ usually means long term winners. Let's stick to 5Y for consistency or max available?
+        # Requirement says "Top Last 5+ Years Stars". Let's treat it as 10Y or Max.
+        # Let's use 10Y for 5y+ to show long term compounders
+        start_date = end_date - pd.DateOffset(years=10)
+    else:
+        start_date = end_date - pd.DateOffset(years=1)
+
+    for ticker in yf_tickers:
+        if ticker not in data.columns:
+            continue
+            
+        series = data[ticker].dropna()
+        if series.empty:
+            continue
+            
+        # Get price at start and end
+        # Find nearest date to start_date
+        
+        # Ensure we have enough data
+        if series.index[0] > start_date + pd.Timedelta(days=30):
+             # Listed AFTER the start date, so not a valid candidate for this timeframe
+             continue
+             
+        # Get start/end prices
+        # searching for index closest to start_date
+        try:
+            start_price = series.asof(start_date)
+            current_price = series.iloc[-1]
+            
+            if pd.isna(start_price) or start_price == 0:
+                continue
+                
+            total_return = ((current_price - start_price) / start_price) * 100
+            
+            # Filter: Must be positive to be a "Star"
+            if total_return > 0:
+                results.append({
+                    'ticker': ticker,
+                    'total_return': total_return,
+                    'current_price': current_price,
+                    'start_price': start_price
+                })
+        except Exception:
+            continue
+            
+    # Sort
+    df_results = pd.DataFrame(results)
+    if df_results.empty:
+        return []
+        
+    df_results = df_results.sort_values(by='total_return', ascending=False).head(top_n)
+    
+    final_list = []
+    for _, row in df_results.iterrows():
+         full_str = next((t for t in tickers if row['ticker'] in t), row['ticker'])
+         final_list.append({
+            'full_name': full_str, # e.g. "RELIANCE.NS - Reliance Industries"
+            'ticker': row['ticker'],
+            'total_return': row['total_return'],
+            'label': f"{row['ticker']} (+{row['total_return']:.0f}%)"
+        })
+        
+    return final_list

@@ -192,20 +192,25 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                 st.pyplot(fig_cal)
                 
                 # Table
+                # Table
                 with st.expander("📝 View Detailed Table"):
                     # Format for display
                     display_df = cal_df.copy()
-                    display_df['Avg Intra-Month Gain'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
-                    display_df['Avg Annual Gain'] = display_df['Avg_Annual_Gain'].apply(lambda x: f"+{x:.2f}%")
+                    display_df['Avg Intra-Month Gain Forecast'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
+                    # display_df['Avg Annual Gain'] = display_df['Avg_Annual_Gain'].apply(lambda x: f"+{x:.2f}%") # Moved to summary
                     
                     display_df['Buy Date (2026)'] = display_df.apply(lambda x: f"{x['Buy_Date_2026']} ({x['Buy_Weekday']})", axis=1)
                     display_df['Sell Date (2027)'] = display_df.apply(lambda x: f"{x['Sell_Date_2026']} ({x['Sell_Weekday']})", axis=1)
                     
                     st.dataframe(
-                        display_df[['Month', 'Avg Annual Gain', 'Avg Intra-Month Gain', 'Buy Date (2026)', 'Sell Date (2027)']],
+                        display_df[['Month', 'Avg Intra-Month Gain Forecast', 'Buy Date (2026)', 'Sell Date (2027)']],
                         use_container_width=True,
                         hide_index=True
                     )
+                    
+                    # Summary Row for Annual Gain
+                    avg_annual = cal_df['Avg_Annual_Gain'].mean() if not cal_df.empty else 0.0
+                    st.metric("2027 Avg Annual Gain Forecast", f"+{avg_annual:.2f}%")
             
             st.markdown("---")
 
@@ -642,12 +647,14 @@ def show_market_analysis_tab():
             
             with f_col2:
                  # 2. Strategy Filter
-                seasonality_label_curr = f"🔥 Top 5 {current_month_name} Stars"
-                seasonality_label_next = f"🔮 Top 5 {next_month_name} Stars"
+                stars_1y = "⭐ Top 1Y Stars"
+                stars_3y = "⭐⭐ Top 3Y Stars"
+                stars_5y = "⭐⭐⭐ Top 5Y Stars"
+                stars_5y_plus = "🌟 Top 5Y+ Stars"
                 
                 strategy_mode = st.radio(
                     "2. Filter Strategy",
-                    options=["Standard View", seasonality_label_curr, seasonality_label_next, "✏️ Custom Ticker", "📂 Sector Browser"],
+                    options=[stars_1y, stars_3y, stars_5y, stars_5y_plus, "📂 Sector Browser"],
                     horizontal=True,
                     key="heatmap_strategy_radio"
                 )
@@ -661,39 +668,29 @@ def show_market_analysis_tab():
         with col_input:
             
             # Logic Branching
-            if strategy_mode == "Standard View":
-                common_tickers = get_common_tickers(category=ticker_category)
-            
-            elif strategy_mode == "📂 Sector Browser":
+            if strategy_mode == "📂 Sector Browser":
                 common_tickers = [] # Visual browser handles this
             
-            elif strategy_mode == "✏️ Custom Ticker":
-                common_tickers = []
-                
             else:
-                # Seasonality Logic
-                from rover_tools.analytics.win_rate import calculate_seasonality_win_rate
+                # Stars Logic
+                from rover_tools.analytics.win_rate import get_performance_stars
                 
-                # Determine target month
-                if strategy_mode == seasonality_label_curr:
-                    target_m = current_month_idx
-                    target_name = current_month_name
-                else:
-                    target_m = next_month_idx
-                    target_name = next_month_name
+                # Determine period based on selection
+                period = "1y"
+                if "3Y" in strategy_mode: period = "3y"
+                elif "5Y+" in strategy_mode: period = "5y+"
+                elif "5Y" in strategy_mode: period = "5y"
                 
-                with st.spinner(f"Identifying historical {target_name} winners in {ticker_category}..."):
+                with st.spinner(f"Identifying {period} winners in {ticker_category}..."):
                    # Use GLOBAL setting
+                   top_stars = get_performance_stars(category=ticker_category, period=period, top_n=5)
                    
-                   # Pass the selected category to the win rate calculator
-                   top_season_stocks = calculate_seasonality_win_rate(category=ticker_category, target_month=target_m, exclude_outliers=exclude_outliers_global)
-                   
-                if top_season_stocks:
-                     # Format: "TICKER - XX% Win Rate"
-                     common_tickers = [f"{s['ticker']} - {s['win_rate']:.0f}% Historic Win Rate ({s['avg_return']:.1f}% Avg)" for s in top_season_stocks]
+                if top_stars:
+                     # Format: "TICKER (+XX%)"
+                     common_tickers = [s['label'] for s in top_stars]
                 else:
                      common_tickers = []
-                     st.warning(f"No seasonality data found for {ticker_category} in {target_name}.")
+                     st.warning(f"No data found for {ticker_category} (Period: {period}).")
 
             
 
@@ -856,14 +853,9 @@ def show_market_analysis_tab():
         
 
         st.markdown("##### ⚡ Quick Select Index")
-        selected_index = st.pills("Choose an Index:", index_names + ["✏️ Custom"], selection_mode="single", default="Nifty 50", key="bench_pills")
+        selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
         
-        if selected_index == "✏️ Custom":
-             ticker_raw = st.text_input("Enter Index Symbol (e.g. ^GSPC)", value="^NSEI", key="bench_custom_input")
-             if ticker_raw:
-                 st.markdown(f"### Analyzing: **Custom Index** (`{ticker_raw}`)")
-                 run_analysis_ui(ticker_raw, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
-        elif selected_index:
+        if selected_index:
             ticker = major_indices[selected_index]
             st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
             run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
