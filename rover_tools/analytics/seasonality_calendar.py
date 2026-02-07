@@ -100,6 +100,53 @@ class SeasonalityCalendar:
                     
         return best_buy, best_sell, best_gain
 
+    def _calculate_annual_return(self, month, buy_day, sell_day):
+        """
+        Calculates the average return for a strategy of:
+        Buy on Month/Day in Year T
+        Sell on Month/Day in Year T+1
+        """
+        try:
+            # Get all unique years in history
+            years = sorted(self.history.index.year.unique())
+            returns = []
+            
+            for y in years[:-1]: # Can't sell in T+1 if T is last year
+                try:
+                    # Buy Date
+                    b_date = pd.Timestamp(year=y, month=month, day=buy_day)
+                    # Sell Date (Next Year)
+                    s_date = pd.Timestamp(year=y+1, month=month, day=sell_day)
+                    
+                    # Get nearest trading days if exact dates missing
+                    # We use 'asof' or searchsorted-like logic, but simple way is to limit to history
+                    
+                    # Filter history for dates (ensure checking valid range)
+                    if b_date >= self.history.index[0] and s_date <= self.history.index[-1]:
+                         # Get exact or next available price
+                        buy_row = self.history.loc[self.history.index >= b_date]
+                        sell_row = self.history.loc[self.history.index >= s_date]
+                        
+                        if not buy_row.empty and not sell_row.empty:
+                            b_price = buy_row.iloc[0]['Close']
+                            s_price = sell_row.iloc[0]['Close']
+                            
+                            # Valid trade
+                            ret = ((s_price - b_price) / b_price) * 100
+                            returns.append(ret)
+                            
+                except ValueError:
+                    # Handle Feb 29 etc
+                    continue
+            
+            if not returns:
+                return 0.0
+                
+            return np.mean(returns)
+            
+        except Exception as e:
+            return 0.0
+
     def _adjust_date_for_holidays(self, year, month, day, action):
         """
         Adjusts a date to avoid Weekends (Sat/Sun) and NSE Holidays.
@@ -161,8 +208,11 @@ class SeasonalityCalendar:
         results = []
         for m in range(1, 13):
             month_name = calendar.month_name[m]
-            b_day, s_day, gain = self._get_best_days_for_month(m)
+            b_day, s_day, intra_month_gain = self._get_best_days_for_month(m)
             
+            # Calculate 1-Year Hold Return
+            annual_gain = self._calculate_annual_return(m, b_day, s_day)
+
             # Adjust
             b_dt, b_wd, b_adj = self._adjust_date_for_holidays(self.buy_year, m, b_day, 'buy')
             s_dt, s_wd, s_adj = self._adjust_date_for_holidays(self.sell_year, m, s_day, 'sell')
@@ -172,7 +222,8 @@ class SeasonalityCalendar:
                 "Month": month_name,
                 "Best_Buy_Day_Raw": b_day,
                 "Best_Sell_Day_Raw": s_day,
-                "Avg_Gain_Pct": gain,
+                "Avg_Gain_Pct": intra_month_gain,
+                "Avg_Annual_Gain": annual_gain,
                 "Buy_Date_2026": b_dt,
                 "Buy_Weekday": b_wd,
                 "Buy_Adjusted": b_adj,

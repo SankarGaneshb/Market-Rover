@@ -195,12 +195,14 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                 with st.expander("📝 View Detailed Table"):
                     # Format for display
                     display_df = cal_df.copy()
-                    display_df['Avg Gain'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
+                    display_df['Avg Intra-Month Gain'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
+                    display_df['Avg Annual Gain'] = display_df['Avg_Annual_Gain'].apply(lambda x: f"+{x:.2f}%")
+                    
                     display_df['Buy Date (2026)'] = display_df.apply(lambda x: f"{x['Buy_Date_2026']} ({x['Buy_Weekday']})", axis=1)
                     display_df['Sell Date (2027)'] = display_df.apply(lambda x: f"{x['Sell_Date_2026']} ({x['Sell_Weekday']})", axis=1)
                     
                     st.dataframe(
-                        display_df[['Month', 'Avg Gain', 'Buy Date (2026)', 'Sell Date (2027)']],
+                        display_df[['Month', 'Avg Annual Gain', 'Avg Intra-Month Gain', 'Buy Date (2026)', 'Sell Date (2027)']],
                         use_container_width=True,
                         hide_index=True
                     )

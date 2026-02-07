@@ -1,14 +1,22 @@
 # 🚀 Market-Rover v4.3 - Release Notes
 
 **Release Date:** Feb 07, 2026
-**Version:** v4.3.0
+**Version:** v4.3.1
 **Status:** **Stable / Production Release**
 
 ---
 
 ## 🌟 Highlights
 
-**Market-Rover v4.3** introduces a **Strategic 2-Year Trading Calendar** (2026-2027) to help users visualize long-term holding strategies.
+**Market-Rover v4.3** introduces a **Strategic 2-Year Trading Calendar** and now includes **Average Annual Gain %** metrics.
+
+### 📅 **Strategic Trading Calendar (New)**
+- **Dual-Year Strategy**: Buying opportunities are now mapped to **2026**, with corresponding Selling targets in **2027**.
+- **Metrics**: Added **Avg Annual Gain %** to the detailed table for better return expectations.
+- **Holiday-Aware**: Dates are automatically adjusted for **NSE Holidays** and weekends for both 2026 and 2027.
+
+---
+
 
 ### 📅 **Strategic Trading Calendar (New)**
 - **Dual-Year Strategy**: Buying opportunities are now mapped to **2026**, with corresponding Selling targets in **2027**.
