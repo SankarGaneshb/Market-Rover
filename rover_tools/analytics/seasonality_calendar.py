@@ -54,7 +54,7 @@ class SeasonalityCalendar:
     and maps them to a specific strategy: Buy in 2026, Sell in 2027.
     """
     
-    def __init__(self, history, buy_year=2026, sell_year=2027):
+    def __init__(self, history, buy_year=2026, sell_year=2027, exclude_outliers=False):
         self.history = history
         self.buy_year = buy_year
         self.sell_year = sell_year
@@ -62,6 +62,17 @@ class SeasonalityCalendar:
             2026: HOLIDAYS_2026,
             2027: HOLIDAYS_2027
         }
+        self.exclude_outliers = exclude_outliers
+
+    def _remove_outliers(self, series):
+        """Standard IQR method for outlier removal"""
+        if len(series) < 4: return series
+        Q1 = series.quantile(0.25)
+        Q3 = series.quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        return series[(series >= lower_bound) & (series <= upper_bound)]
 
     def _get_best_days_for_month(self, month):
         """Finds best buy/sell days for a given month index (1-12)"""
@@ -77,6 +88,11 @@ class SeasonalityCalendar:
         # We need relative change from month START
         m_data['Month_Start_Price'] = m_data.groupby('Year')['Close'].transform('first')
         m_data['Rel_Change'] = ((m_data['Close'] - m_data['Month_Start_Price']) / m_data['Month_Start_Price']) * 100
+        
+        # Apply outlier removal if requested
+        if self.exclude_outliers:
+            clean_idx = self._remove_outliers(m_data['Rel_Change']).index
+            m_data = m_data.loc[clean_idx]
         
         # Group by Day of Month
         daily_seasonality = m_data.groupby(m_data.index.day)['Rel_Change'].mean()

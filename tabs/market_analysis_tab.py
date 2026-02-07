@@ -190,7 +190,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             from rover_tools.analytics.seasonality_calendar import SeasonalityCalendar
             
             with st.spinner("Calculating Holiday-Safe schedule..."):
-                calendar_tool = SeasonalityCalendar(history)
+                calendar_tool = SeasonalityCalendar(history, exclude_outliers=exclude_outliers)
                 cal_df = calendar_tool.generate_analysis()
                 
                 # Plot
@@ -216,7 +216,16 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                     
                     # Summary Row for Annual Gain
                     avg_annual = cal_df['Avg_Annual_Gain'].mean() if not cal_df.empty else 0.0
-                    st.metric("2027 Avg Annual Gain Forecast", f"+{avg_annual:.2f}%")
+                    annual_delta = None
+                    annual_label = f"+{avg_annual:.2f}%"
+                    if avg_annual == 0.0 and len(history) < 365*2:
+                         annual_label = "N/A (Need >2Y Data)"
+                         
+                    st.metric(
+                        "2027 Avg Annual Gain Forecast", 
+                        annual_label, 
+                        help="Average historical return of holding for 1 year (Buy in Month M, Sell in Month M next year). Needs >2 years of data."
+                    )
             
             st.markdown("---")
 
@@ -686,10 +695,10 @@ def show_market_analysis_tab():
                 )
             
             with f_col2:
-                 # 2. Strategy Filter
-                stars_1y = "* Top 1Y Stars"
-                stars_3y = "*** Top 3 Stars"
-                stars_5y = "***** Top 5 Stars"
+                # 2. Strategy Filter
+                stars_1y = "⭐ Top 1Y Stars"
+                stars_3y = "⭐⭐⭐ Top 3 Stars"
+                stars_5y = "⭐⭐⭐⭐⭐ Top 5 Stars"
                 stars_5y_plus = "🌟 Top 5Y+ Stars"
                 
                 strategy_mode = st.radio(
