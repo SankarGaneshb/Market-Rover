@@ -8,10 +8,47 @@ from market_data import MarketDataFetcher
 from market_analytics import MarketAnalyzer
 from ticker_resources import get_common_tickers
 
+
+from utils.notifications import EmailManager
+
 # Configuration
 OUTPUT_FILE = "data/backtest_registry.json"
 SUMMARY_FILE = "backtest_summary.md"
 DELAY_SECONDS = 2 # To avoid rate limits
+
+def generate_email_summary(results_map, updated_count, failed_count):
+    """
+    Generates an HTML summary for email.
+    """
+    if updated_count == 0 and failed_count == 0:
+        return None
+        
+    report_date = datetime.now().strftime("%d %b %Y")
+    
+    # Sort results
+    results_list = []
+    for ticker, data in results_map.items():
+        if data.get("last_updated") == datetime.now().strftime("%Y-%m-%d"):
+            data["ticker"] = ticker
+            data["error_score"] = min(data["median_error"], data["sd_error"])
+            results_list.append(data)
+            
+    results_list.sort(key=lambda x: x["error_score"])
+    
+    # Simple HTML Table
+    html = f"<h2>Weekly Strategy Backtest Report ({report_date})</h2>"
+    html += f"<p><b>Strategies Tested:</b> {updated_count}<br><b>Failures:</b> {failed_count}</p>"
+    
+    if results_list:
+        html += "<h3>🏆 Top Performers</h3>"
+        html += "<table border='1' cellspacing='0' cellpadding='5' style='border-collapse: collapse;'>"
+        html += "<tr style='background-color: #f2f2f2;'><th>Ticker</th><th>Strategy</th><th>Error %</th><th>Tested (Years)</th></tr>"
+        
+        for item in results_list[:10]: # Top 10
+            html += f"<tr><td>{item['ticker']}</td><td>{item['winner'].upper()}</td><td>{item['error_score']}%</td><td>{item['years_tested']}</td></tr>"
+        html += "</table>"
+        
+    return html
 
 def generate_markdown_report(results_map, updated_count, failed_count):
     """
@@ -134,6 +171,17 @@ def run_batch_backtest():
     print(f"Results saved to {OUTPUT_FILE}")
     
     generate_markdown_report(results_map, updated_count, failed_count)
+    
+    # Send Email Notification
+    email_body = generate_email_summary(results_map, updated_count, failed_count)
+    if email_body:
+        emailer = EmailManager()
+        if emailer.is_configured():
+            print("📧 Sending Email Report...")
+            subject = f"Market-Rover Strategy Report: {datetime.now().strftime('%d %b %Y')}"
+            emailer.send_email(subject, email_body, is_html=True)
+        else:
+            print("⚠️ Email not configured. Skipping notification.")
 
 if __name__ == "__main__":
     run_batch_backtest()

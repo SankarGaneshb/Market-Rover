@@ -101,7 +101,17 @@ Welcome to **Market-Rover**, your AI-powered stock intelligence system. This gui
 Market-Rover works for you even when you're sleeping. Check the [GitHub Discussions](https://github.com/SankarGaneshb/Market-Rover/discussions) tab for:
 
 1.  **Daily Market Reports**: Posted every day at 00:00 UTC. Covers Nifty trends, Sector Rotation, and Key Insights.
-2.  **Weekly Strategy Backtest**: Posted every Sunday. Creates a "League Table" of AI strategies (Median vs StdDev) showing which is winning in the current market regime.
+2.  **Weekly Strategy Backtest**: Runs every Sunday.
+    *   **Email Reports**: Receive a top-performers summary directly to your inbox.
+    *   **Setup**: Add your SMTP details (Gmail, Outlook, etc.) to `.streamlit/secrets.toml`:
+        ```toml
+        [email]
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = "your-email@gmail.com"
+        sender_password = "your-app-password"
+        recipient_email = "recipient@example.com"
+        ```
 
 ---
 

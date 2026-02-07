@@ -14,7 +14,7 @@ from utils.visualizer_interface import generate_market_snapshot
 from rover_tools.visualizer_tool import run_snapshot_logic
 
 # Shared function to run analysis and render UI
-def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False):
+def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=False, lookback_period="5y+ (Max)"):
     """Shared function to run analysis and render UI"""
 
     # Sanitize input
@@ -79,6 +79,33 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             
             # Use global setting passed from parent
             exclude_outliers = global_outlier
+
+            # Apply Time Filter
+            if lookback_period != "5y+ (Max)":
+                 try:
+                     # Parse logic: 1y -> 365 days, etc.
+                     years_map = {"1y": 1, "3y": 3, "5y": 5}
+                     years = years_map.get(lookback_period, 5) # Default to 5 if unknown
+                     
+                     cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
+                     
+                     # Ensure timezone awareness compatibility
+                     if history.index.tz is not None:
+                          if cutoff_date.tz is None:
+                               cutoff_date = cutoff_date.tz_localize(history.index.tz)
+                     else:
+                          if cutoff_date.tz is not None:
+                               cutoff_date = cutoff_date.tz_localize(None)
+
+                     history = history[history.index >= cutoff_date]
+                     
+                     if history.empty:
+                          st.warning(f"⚠️ No data found for the last {lookback_period}.")
+                          return
+                     
+                     st.caption(f"⏳ Analysis filtered to last **{lookback_period}**")
+                 except Exception as ex:
+                     st.error(f"Error applying time filter: {ex}")
 
             if exclude_outliers:
                 st.info("ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, and Forecast Trends.")
@@ -647,6 +674,14 @@ def show_market_analysis_tab():
     with setting_col:
         # Global Outlier Toggle
         exclude_outliers_global = st.checkbox("🚫 Exclude Outliers (Robust Mode)", value=False, help="Removes extreme volatility events from all analysis (Heatmap, Win Rate, Seasonality, Forecasts).")
+        
+        # Time Filter
+        lookback_period = st.selectbox(
+            "Filter History:",
+            ["1y", "3y", "5y", "5y+ (Max)"],
+            index=3, # Default to Max
+            help="Limit analysis to specific time window. '5y+ (Max)' uses all available data."
+        )
 
     st.markdown("---")
 
@@ -732,7 +767,7 @@ def show_market_analysis_tab():
             if active_ticker:
                  st.markdown("---")
                  st.subheader(f"📊 Analysis: {active_ticker}")
-                 run_analysis_ui(active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
+                 run_analysis_ui(active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global, lookback_period=lookback_period)
             else:
                  st.info("👆 Select a stock from the Sector Browser above to view detailed analysis.")
 
@@ -831,7 +866,7 @@ def show_market_analysis_tab():
             
             # Run analysis if a ticker is active
             if st.session_state.heatmap_active_ticker:
-                 run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
+                 run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global, lookback_period=lookback_period)
 
 
 
@@ -869,4 +904,4 @@ def show_market_analysis_tab():
         if selected_index:
             ticker = major_indices[selected_index]
             st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")
-            run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global)
+            run_analysis_ui(ticker, st.session_state.heatmap_limiter, key_prefix="benchmark", global_outlier=exclude_outliers_global, lookback_period=lookback_period)

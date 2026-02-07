@@ -30,13 +30,13 @@ class AnalyticsForecast:
             "used_iv": False
         }
 
-    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None):
-         return self._calculate_iterative_forecast(history_df, target_date, 'sd', reference_date)
+    def calculate_sd_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None, exclude_outliers=True):
+         return self._calculate_iterative_forecast(history_df, target_date, 'sd', reference_date, exclude_outliers)
 
-    def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None):
-        return self._calculate_iterative_forecast(history_df, target_date, 'median', reference_date)
+    def calculate_median_strategy_forecast(self, history_df, target_date="2026-12-31", reference_date=None, exclude_outliers=True):
+        return self._calculate_iterative_forecast(history_df, target_date, 'median', reference_date, exclude_outliers)
 
-    def _calculate_iterative_forecast(self, history_df, target_date, strategy_type, reference_date=None):
+    def _calculate_iterative_forecast(self, history_df, target_date, strategy_type, reference_date=None, exclude_outliers=True):
         """
         Project price month-by-month using the specified strategy logic for EACH month.
         """
@@ -69,7 +69,7 @@ class AnalyticsForecast:
         for d in dates:
             month_idx = d.month
             # Calculate rate for THIS specific month
-            rate = self._get_strategy_monthly_rate(monthly_returns, month_idx, strategy_type)
+            rate = self._get_strategy_monthly_rate(monthly_returns, month_idx, strategy_type, exclude_outliers)
             
             # Apply rate
             running_price = running_price * (1 + rate)
@@ -96,7 +96,7 @@ class AnalyticsForecast:
             "projection_path": projection_path
         }
 
-    def _get_strategy_monthly_rate(self, monthly_returns, target_month_idx, strategy_type='median'):
+    def _get_strategy_monthly_rate(self, monthly_returns, target_month_idx, strategy_type='median', exclude_outliers=True):
         """
         Calculates the projected return for a specific month (1-12) based on the strategy logic.
         """
@@ -109,8 +109,12 @@ class AnalyticsForecast:
         if len(month_hist) < 2: return 0.0 # Not enough history
         
         # Remove outliers (relies on self._remove_outliers from Core)
-        last_1_clean = self._remove_outliers(last_1_year)
-        hist_clean = self._remove_outliers(month_hist)
+        if exclude_outliers:
+            last_1_clean = self._remove_outliers(last_1_year)
+            hist_clean = self._remove_outliers(month_hist)
+        else:
+            last_1_clean = last_1_year
+            hist_clean = month_hist
         
         if len(last_1_clean) == 0 or len(hist_clean) == 0: return 0.0
 
@@ -154,7 +158,7 @@ class AnalyticsForecast:
                  
         return rate
 
-    def backtest_strategies(self, history_df, lookback_years=3, reference_date=None):
+    def backtest_strategies(self, history_df, lookback_years=3, reference_date=None, exclude_outliers=True):
         """
         Backtests Median vs SD strategies on recent years to pick the winner.
         """
@@ -194,8 +198,8 @@ class AnalyticsForecast:
             if len(train_df) < 126 or test_df.empty: 
                 continue
                 
-            res_med = self.calculate_median_strategy_forecast(train_df, target_date=f"{test_year}-12-31")
-            res_sd = self.calculate_sd_strategy_forecast(train_df, target_date=f"{test_year}-12-31")
+            res_med = self.calculate_median_strategy_forecast(train_df, target_date=f"{test_year}-12-31", exclude_outliers=exclude_outliers)
+            res_sd = self.calculate_sd_strategy_forecast(train_df, target_date=f"{test_year}-12-31", exclude_outliers=exclude_outliers)
             
             if not res_med or not res_sd:
                 continue
