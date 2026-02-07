@@ -622,11 +622,11 @@ def render_visual_ticker_selector(ticker_category):
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        if st.button(f"Analyze {tick_short}", key=f"vis_{ticker}_{ticker_category}", use_container_width=True):
+                        if st.button(f"{tick_short}", key=f"vis_{ticker}_{ticker_category}", use_container_width=True):
                             selected_ticker = ticker
     else:
         # Fallback for undefined maps (e.g. strict All or unknown)
-        if len(category_tickers) <= 50:
+        if len(category_tickers) <= 100:
             st.markdown(f"##### 🏢 {ticker_category} Stocks")
             cols = st.columns(5)
             for i, ticker in enumerate(category_tickers):
@@ -710,19 +710,30 @@ def show_market_analysis_tab():
         
         st.markdown("---")
 
-        col_input, col_button, col_info = st.columns([2, 1, 3])
-        
-        # Remove old col_filter usage
-        
-        with col_input:
+        if strategy_mode == "📂 Sector Browser":
+            # === SECTOR BROWSER LOGIC (Visual First) ===
+            visual_selection = render_visual_ticker_selector(ticker_category)
             
-            # Logic Branching
-            if strategy_mode == "📂 Sector Browser":
-                 # Populate with ALL tickers so the dropdown works if a visual selection is made
-                 # This fixes the issue where "Enter Symbol" shows up erroneously
-                 common_tickers = get_common_tickers(category=ticker_category)
+            # Handle selection update
+            if visual_selection:
+                st.session_state.heatmap_active_ticker = visual_selection
+                st.rerun()
+                
+            # Display Analysis Logic
+            active_ticker = st.session_state.get('heatmap_active_ticker')
             
+            if active_ticker:
+                 st.markdown("---")
+                 st.subheader(f"📊 Analysis: {active_ticker}")
+                 run_analysis_ui(active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
             else:
+                 st.info("👆 Select a stock from the Sector Browser above to view detailed analysis.")
+
+        else:
+            # === STANDARD LIST / STARS LOGIC ===
+            col_input, col_button, col_info = st.columns([2, 1, 3])
+            
+            with col_input:
                 # Stars Logic
                 from rover_tools.analytics.win_rate import get_performance_stars
                 
@@ -743,103 +754,77 @@ def show_market_analysis_tab():
                      common_tickers = []
                      st.warning(f"No data found for {ticker_category} (Period: {period}).")
 
-            
+                # Check for query param ticker
+                qp_ticker = st.query_params.get("ticker", None)
+                default_ix = 0
 
-            # Check for query param ticker
-            qp_ticker = st.query_params.get("ticker", None)
-            default_ix = 0
+                # If query param exists, try to find it
+                if qp_ticker:
+                    qp_ticker = f"{qp_ticker}.NS" if not qp_ticker.endswith(".NS") else qp_ticker
+                    # Try to find in list
+                    matches = [i for i, t in enumerate(common_tickers) if qp_ticker in t]
+                    if matches:
+                        default_ix = matches[0]
+                else:
+                    # Default to SBIN if available, else 0
+                    for i, t in enumerate(common_tickers):
+                        if "SBIN.NS" in t:
+                            default_ix = i 
+                            break
+                    
+                    # Auto-select first stock if no specific default found (and list has items)
+                    if len(common_tickers) > 0 and default_ix >= len(common_tickers):
+                         default_ix = 0
 
-            # If query param exists, try to find it
-            if qp_ticker:
-                qp_ticker = f"{qp_ticker}.NS" if not qp_ticker.endswith(".NS") else qp_ticker
-                # Try to find in list
-                matches = [i for i, t in enumerate(common_tickers) if qp_ticker in t]
-                if matches:
-                    default_ix = matches[0]
-            else:
-                # Default to SBIN if available, else 0
-                for i, t in enumerate(common_tickers):
-                    if "SBIN.NS" in t:
-                        default_ix = i 
-                        break
+                ticker_options = common_tickers
                 
-                # Auto-select first stock if no specific default found (and list has items)
-                if len(common_tickers) > 0 and default_ix >= len(common_tickers):
-                     default_ix = 0
+                if not ticker_options:
+                     st.warning("No stocks found for this criteria.")
+                     ticker_options = ["No Data"]
+                
+                selected_opt = st.selectbox(
+                    "Stock Selection", 
+                    options=ticker_options, 
+                    index=default_ix if default_ix < len(ticker_options) else 0,
+                    key="heatmap_ticker_select",
+                    help=f"Listing {ticker_category} stocks."
+                )
+                
+                if selected_opt and selected_opt != "No Data":
+                     # Handle "TICKER - Name" AND "TICKER (+XX%)"
+                     # Split by ' - ' first, then space to isolate ticker
+                     ticker_raw = selected_opt.split(' - ')[0].split(' ')[0]
+                else:
+                     ticker_raw = None
 
-            ticker_options = common_tickers
+            with col_button:
+                st.write("") 
+                analyze_button = st.button("📊 Analyze", type="primary", width='stretch', key="btn_heatmap")
+
+            with col_info:
+                 pass
+                
+            # Initialize session state for this tab
+            if 'heatmap_active_ticker' not in st.session_state:
+                # Auto-init with the default selection
+                final_default = ticker_options[default_ix] if default_ix < len(ticker_options) else None
+                # Extract ticker part
+                if final_default:
+                     final_default = final_default.split(' - ')[0].split(' ')[0]
+
+                st.session_state.heatmap_active_ticker = qp_ticker if qp_ticker else final_default
+
+            if analyze_button:
+                 # Sanitize before setting active state
+                 clean_input = sanitize_ticker(ticker_raw)
+                 if clean_input:
+                     st.session_state.heatmap_active_ticker = clean_input
+                 else:
+                     st.error("Invalid ticker format. Please check your input.")
             
-            if not ticker_options:
-                 st.warning("No stocks found for this criteria.")
-                 ticker_options = ["No Data"]
-            
-            selected_opt = st.selectbox(
-                "Stock Selection", 
-                options=ticker_options, 
-                index=default_ix if default_ix < len(ticker_options) else 0,
-                key="heatmap_ticker_select",
-                help=f"Listing {ticker_category} stocks."
-            )
-            
-            if selected_opt and selected_opt != "No Data":
-                 # Handle "TICKER - Name" AND "TICKER (+XX%)"
-                 # Split by ' - ' first, then space to isolate ticker
-                 ticker_raw = selected_opt.split(' - ')[0].split(' ')[0]
-            else:
-                 ticker_raw = None
-
-        # === Visual Selector Interface ===
-        if strategy_mode == "📂 Sector Browser":
-            st.markdown("---")
-            visual_selection = render_visual_ticker_selector(ticker_category)
-            if visual_selection:
-                st.session_state.heatmap_active_ticker = visual_selection
-                st.rerun()
-
-        
-
-        with col_button:
-
-            st.write("") 
-
-            analyze_button = st.button("📊 Analyze", type="primary", width='stretch', key="btn_heatmap")
-
-
-
-        with col_info:
-
-             pass
-
-            
-
-        # Initialize session state for this tab
-
-        if 'heatmap_active_ticker' not in st.session_state:
-            # Auto-init with the default selection
-            final_default = ticker_options[default_ix] if default_ix < len(ticker_options) else None
-            # Extract ticker part
-            if final_default:
-                 final_default = final_default.split(' - ')[0].split(' ')[0]
-
-            st.session_state.heatmap_active_ticker = qp_ticker if qp_ticker else final_default
-
-            
-
-        if analyze_button:
-             # Sanitize before setting active state
-             clean_input = sanitize_ticker(ticker_raw)
-             if clean_input:
-                 st.session_state.heatmap_active_ticker = clean_input
-             else:
-                 st.error("Invalid ticker format. Please check your input.")
-
-        
-
-        # Run analysis if a ticker is active
-
-        if st.session_state.heatmap_active_ticker:
-
-             run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
+            # Run analysis if a ticker is active
+            if st.session_state.heatmap_active_ticker:
+                 run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global)
 
 
 
