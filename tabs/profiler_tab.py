@@ -113,6 +113,8 @@ def show_profiler_tab():
                     brands=[] 
                 )
                 
+                from utils.celebration import trigger_celebration
+                trigger_celebration("Persona_Quiz_Complete", f"Determined persona as {new_persona.value}", {"persona": new_persona.value})
                 st.success(f"Profile Saved: {new_persona.value}")
                 st.rerun()
 
@@ -449,6 +451,8 @@ def show_profiler_tab():
                   success, msg = pm.save_portfolio(f"Smart {p.value} Portfolio", save_df)
                   
                   if success:
+                      from utils.celebration import trigger_celebration
+                      trigger_celebration("Smart_Portfolio_Init", f"Initialized smart {p.value} portfolio", {"persona": p.value})
                       st.success("✅ Saved Successfully!")
                       
                       # USER REQUEST: Move to Market Analysis after completion

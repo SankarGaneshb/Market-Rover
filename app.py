@@ -264,6 +264,11 @@ def main():
 
     # Main content area - Render based on selection
     
+    # Global Balloon Trigger
+    if st.session_state.get('show_balloons'):
+        st.balloons()
+        st.session_state.show_balloons = False
+
     if selection.startswith("👤 Investor Profile"):
         show_profiler_tab()
 

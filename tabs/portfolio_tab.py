@@ -840,8 +840,12 @@ def render_upload_section_logic(max_parallel):
         if st.button("💾 Save Portfolio Changes", type="primary", use_container_width=True):
              success, msg = pm.save_portfolio(current_pf_name, edited_pf)
              if success:
+                 from utils.celebration import trigger_celebration
+                 trigger_celebration("Portfolio_Save", f"Saved portfolio: {current_pf_name}", {"portfolio_name": current_pf_name})
                  st.success("✅ Portfolio saved successfully!")
              else:
+                 from utils.celebration import report_failure
+                 report_failure("Portfolio_Save_Failed", msg, {"portfolio_name": current_pf_name})
                  st.error(f"Save failed: {msg}")
     else:
         st.info("Your shopping cart is empty. Select brands above to build your portfolio.")

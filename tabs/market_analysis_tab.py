@@ -115,6 +115,8 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             returns_matrix = analyzer.calculate_monthly_returns_matrix(history, exclude_outliers=exclude_outliers)
             seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
             
+            from utils.celebration import trigger_celebration
+            trigger_celebration("Analysis_Complete", f"Completed analysis for {ticker}", {"ticker": ticker})
             st.success(f"✅ Analysis complete! ({len(history)} days)")
             
             # === VISUALIZATION 1: Monthly Returns Heatmap ===
@@ -488,6 +490,8 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                         # Get current user
                         curr_user = st.session_state.get('username', 'guest')
                         if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', []), username=curr_user):
+                            from utils.celebration import trigger_celebration
+                            trigger_celebration("Forecast_Saved", f"Saved forecast for {ticker}", {"ticker": ticker, "strategy": active_name})
                             st.success(f"✅ Saved for {curr_user}!")
 
 
@@ -530,6 +534,8 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                         key=f"dl_pdf_{ticker}"
                                     )
                                     
+                                    from utils.celebration import trigger_celebration
+                                    trigger_celebration("PDF_Generated", f"Generated report for {ticker}", {"ticker": ticker})
                                     st.success("✅ PDF Generated!")
                                     
                                     # Social Intent Links

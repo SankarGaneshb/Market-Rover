@@ -99,6 +99,8 @@ def show_forecast_tracker_tab():
                                          )
                                          
                                          if save_success:
+                                             from utils.celebration import trigger_celebration
+                                             trigger_celebration("Portfolio_Stock_Tracked", f"Tracked portfolio stock {ticker}", {"ticker": ticker})
                                              st.success(f"✅ Tracked {ticker}!")
                                              time.sleep(1)
                                              st.rerun()

@@ -8,11 +8,10 @@ from datetime import datetime
 # Define metrics directory
 METRICS_DIR = Path("metrics")
 
-def load_data():
-    """Load workflow events and session logs"""
+def load_data(prefix="workflow_events"):
+    """Load jsonl metrics from METRICS_DIR based on prefix"""
     data = []
-    # Load all workflow_events jsonl files
-    files = list(METRICS_DIR.glob("workflow_events_*.jsonl"))
+    files = list(METRICS_DIR.glob(f"{prefix}_*.jsonl"))
     if not files:
         return pd.DataFrame()
         
@@ -30,134 +29,105 @@ def load_data():
     return pd.DataFrame(data)
 
 def show_system_health_tab():
-    st.header("⚙️ System Health & Process Metrics")
-    st.markdown("Monitor the efficiency, stability, and speed of your development workflows.")
+    st.header("⚙️ System Health & Performance")
+    st.markdown("Monitor system stability, development workflows, and user engagement metrics.")
     
     # 1. Load Data
-    df = load_data()
+    df_workflow = load_data("workflow_events")
+    df_engagement = load_data("engagement")
     
-    if df.empty:
-        st.info("No process metrics found yet. Start using the new workflows to populate this dashboard!")
-        return
+    # Define Tabs
+    tab_overview, tab_workflows, tab_engagement = st.tabs([
+        "🏠 Overview", 
+        "🔄 Workflows", 
+        "🎯 User Engagement"
+    ])
 
-    # 2. Process Data
-    # Convert timestamp
-    df['ts'] = pd.to_datetime(df['ts'])
-    
-    # Separate types
-    df_starts = df[df['type'] == 'start'].set_index('session_id')
-    df_ends = df[df['type'] == 'end'].set_index('session_id')
-    df_events = df[df['type'] == 'event']
-    
-    # Calculate Cycle Times
-    cycle_times = []
-    if not df_starts.empty and not df_ends.empty:
-        df_sessions = df_starts.join(df_ends, lsuffix='_start', rsuffix='_end')
-        df_completed = df_sessions.dropna(subset=['ts_end'])
-        
-        if not df_completed.empty:
-            df_completed['duration_minutes'] = (df_completed['ts_end'] - df_completed['ts_start']).dt.total_seconds() / 60
-            # Fix column renaming from join
-            if 'status_end' in df_completed.columns:
-                df_completed['status'] = df_completed['status_end']
-            elif 'status_start' in df_completed.columns:
-                 df_completed['status'] = df_completed['status_start']
-            else:
-                 df_completed['status'] = 'Unknown'
-            
-            cycle_times = df_completed
-            
-    # KPI Calculations
-    total_sessions = len(df_starts)
-    completed_sessions = len(df_ends)
-    success_rate = (completed_sessions / total_sessions * 100) if total_sessions > 0 else 0
-    
-    avg_cycle_time = 0
-    if isinstance(cycle_times, pd.DataFrame) and not cycle_times.empty:
-        avg_cycle_time = cycle_times['duration_minutes'].mean()
-        
-    # Count Emergency Overrides
-    overrides = 0
-    if not df_events.empty:
-        overrides = len(df_events[df_events['event_name'] == 'emergency_override'])
-        
-    stability_score = max(0, 100 - (overrides * 10)) # Simple penalty logic
-    
-    # --- UI Layout ---
-    
-    # 3. KPI Row
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Success Rate", f"{success_rate:.1f}%", help="Completed Sessions / Started Sessions")
-    with col2:
-        st.metric("Avg Cycle Time", f"{avg_cycle_time:.2f} min", help="Average duration of completed workflows")
-    with col3:
-        st.metric("Stability Score", f"{stability_score}%", delta=f"-{overrides} Overrides" if overrides > 0 else "Stable", delta_color="inverse")
-    with col4:
-        st.metric("Total Activities", total_sessions)
-        
-    # st.markdown("---") # Removed redundant divider to save space
-    
-    # 4. Charts
-    col_left, col_right = st.columns(2)
-    
-    with col_left:
-        st.subheader("⏱️ Speed Trend")
-        if isinstance(cycle_times, pd.DataFrame) and not cycle_times.empty:
-            # Sort by start time
-            viz_df = cycle_times.sort_values('ts_start')
-            fig = px.bar(
-                viz_df, 
-                x='ts_start', 
-                y='duration_minutes',
-                color='workflow_start',
-                title="Workflow Duration History",
-                labels={'duration_minutes': 'Duration (min)', 'ts_start': 'Date', 'workflow_start': 'Workflow'}
-            )
-            st.plotly_chart(fig, use_container_width=True)
+    with tab_overview:
+        if df_workflow.empty:
+            st.info("No workflow metrics found yet.")
         else:
-            st.caption("No cycle time data available.")
-
-    with col_right:
-        st.subheader("🛡️ Protocol Usage")
-        if not df_events.empty:
-            event_counts = df_events['event_name'].value_counts().reset_index()
-            event_counts.columns = ['Event Type', 'Count']
+            # KPI Row for System
+            df_workflow['ts'] = pd.to_datetime(df_workflow['ts'])
+            df_starts = df_workflow[df_workflow['type'] == 'start']
+            df_ends = df_workflow[df_workflow['type'] == 'end']
             
-            fig2 = px.pie(
-                event_counts, 
-                names='Event Type', 
-                values='Count', 
-                title="Event Distribution",
-                hole=0.4
-            )
-            st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.caption("No protocol events (exceptions/overrides) logged.")
+            total_sessions = len(df_starts)
+            completed_sessions = len(df_ends)
+            success_rate = (completed_sessions / total_sessions * 100) if total_sessions > 0 else 0
+            
+            col1, col2, col3 = st.columns(3)
+            col1.metric("System Success Rate", f"{success_rate:.1f}%")
+            col2.metric("Total Workflow Activities", total_sessions)
+            
+            if not df_engagement.empty:
+                df_engagement['ts'] = pd.to_datetime(df_engagement['ts'])
+                successes = len(df_engagement[df_engagement.get('status') != 'failed'])
+                failures = len(df_engagement[df_engagement.get('status') == 'failed'])
+                col3.metric("Engagement Success", successes, delta=f"-{failures} Failures" if failures > 0 else "0 Errors", delta_color="inverse")
 
-    # 5. Detailed Tables
-    st.markdown("### 📝 Recent Event Log")
-    
-    tab1, tab2 = st.tabs(["Exceptions & Overrides", "Session History"])
-    
-    with tab1:
-        if not df_events.empty:
-            display_cols = ['ts', 'event_name', 'description']
+        st.divider()
+        st.subheader("🛡️ Recent Error Log (Last 10)")
+        df_errors = load_data("errors")
+        if not df_errors.empty:
+            df_errors['timestamp'] = pd.to_datetime(df_errors['timestamp'])
+            st.dataframe(df_errors.sort_values('timestamp', ascending=False).head(10), use_container_width=True)
+        else:
+            st.success("No system errors recorded today! 🎉")
+
+    with tab_workflows:
+        if df_workflow.empty:
+            st.info("No workflow data.")
+        else:
+            # (Previously existing workflow logic moved here)
+            df_workflow['ts'] = pd.to_datetime(df_workflow['ts'])
+            df_starts = df_workflow[df_workflow['type'] == 'start'].set_index('session_id')
+            df_ends = df_workflow[df_workflow['type'] == 'end'].set_index('session_id')
+            df_events = df_workflow[df_workflow['type'] == 'event']
+            
+            # Use columns logic
+            col_left, col_right = st.columns(2)
+            with col_left:
+                st.subheader("⏱️ Speed Trend")
+                if not df_starts.empty and not df_ends.empty:
+                    df_sessions = df_starts.join(df_ends, lsuffix='_start', rsuffix='_end')
+                    df_completed = df_sessions.dropna(subset=['ts_end'])
+                    if not df_completed.empty:
+                        df_completed['duration_minutes'] = (df_completed['ts_end'] - df_completed['ts_start']).dt.total_seconds() / 60
+                        viz_df = df_completed.sort_values('ts_start')
+                        fig = px.bar(viz_df, x='ts_start', y='duration_minutes', color='workflow_start', title="Cycle Time")
+                        st.plotly_chart(fig, use_container_width=True)
+            
+            with col_right:
+                st.subheader("📊 Event Distribution")
+                if not df_events.empty:
+                    event_counts = df_events['event_name'].value_counts().reset_index()
+                    event_counts.columns = ['Event', 'Count']
+                    fig2 = px.pie(event_counts, names='Event', values='Count', hole=0.4)
+                    st.plotly_chart(fig2, use_container_width=True)
+
+    with tab_engagement:
+        st.subheader("🎯 High-Value User Actions")
+        if df_engagement.empty:
+            st.info("No engagement metrics recorded yet. Perform actions like saving a portfolio to see data!")
+        else:
+            df_engagement['ts'] = pd.to_datetime(df_engagement['ts'])
+            
+            # Action Distribution
+            action_counts = df_engagement['event'].value_counts().reset_index()
+            action_counts.columns = ['Action', 'Count']
+            
+            c1, c2 = st.columns([1, 2])
+            with c1:
+                st.dataframe(action_counts, hide_index=True, use_container_width=True)
+            with c2:
+                fig3 = px.bar(action_counts, x='Count', y='Action', orientation='h', title="Top Engagements", color='Action')
+                st.plotly_chart(fig3, use_container_width=True)
+            
+            st.divider()
+            st.subheader("📝 Engagement History")
             st.dataframe(
-                df_events[display_cols].sort_values('ts', ascending=False),
+                df_engagement[['ts', 'user', 'event', 'desc', 'status']].sort_values('ts', ascending=False),
                 use_container_width=True,
                 hide_index=True
             )
-        else:
-            st.info("No exceptions logged.")
-            
-    with tab2:
-        if isinstance(cycle_times, pd.DataFrame) and not cycle_times.empty:
-            session_cols = ['ts_start', 'workflow_start', 'status', 'duration_minutes']
-            st.dataframe(
-                cycle_times[session_cols].sort_values('ts_start', ascending=False),
-                use_container_width=True,
-                hide_index=True
-            )
-        else:
-            st.info("No sessions completed.")

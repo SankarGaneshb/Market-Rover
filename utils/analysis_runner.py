@@ -507,14 +507,32 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
              
              col_strategies = st.columns(2)
              
+             # Helper for color-coded actions
+             def color_action(val):
+                 color = '#28a745' if val == 'Buy' else ('#dc3545' if val == 'Sell' else '#6c757d')
+                 return f'color: {color}; font-weight: bold'
+
              # Risk Parity
              with col_strategies[0]:
                  st.markdown("**🛡️ Risk Parity**")
                  try:
                     res_safe, _ = ma_risk.analyze_rebalance(rebal_input, mode='safety')
                     if not res_safe.empty:
-                        # Show top 3 actions
-                        st.dataframe(res_safe[['action', 'target_weight']].head(3), hide_index=True)
+                        st.dataframe(
+                            res_safe.style.applymap(color_action, subset=['action']),
+                            width='stretch',
+                            column_order=("symbol", "name", "current_weight", "target_weight", "action", "volatility", "return", "comment"),
+                            column_config={
+                                "symbol": "Ticker",
+                                "name": "Company Name",
+                                "current_weight": st.column_config.NumberColumn("Current %", format="%.1f%%"),
+                                "target_weight": st.column_config.NumberColumn("Target %", format="%.1f%%"),
+                                "volatility": st.column_config.NumberColumn("Volatility (Risk)", format="%.1f%%"),
+                                "return": st.column_config.NumberColumn("Return (Annual)", format="%.1f%%"),
+                                "action": "Action",
+                                "comment": "Reasoning"
+                            }
+                        )
                  except:
                     st.caption("Not enough data")
 
@@ -524,7 +542,21 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                  try:
                     res_growth, _ = ma_risk.analyze_rebalance(rebal_input, mode='growth')
                     if not res_growth.empty:
-                         st.dataframe(res_growth[['action', 'target_weight']].head(3), hide_index=True)
+                         st.dataframe(
+                            res_growth.style.applymap(color_action, subset=['action']),
+                            width='stretch',
+                            column_order=("symbol", "name", "current_weight", "target_weight", "action", "volatility", "return", "comment"),
+                            column_config={
+                                "symbol": "Ticker",
+                                "name": "Company Name",
+                                "current_weight": st.column_config.NumberColumn("Current %", format="%.1f%%"),
+                                "target_weight": st.column_config.NumberColumn("Target %", format="%.1f%%"),
+                                "volatility": st.column_config.NumberColumn("Volatility (Risk)", format="%.1f%%"),
+                                "return": st.column_config.NumberColumn("Return (Annual)", format="%.1f%%"),
+                                "action": "Action",
+                                "comment": "Reasoning"
+                            }
+                        )
                  except:
                     st.caption("Not enough data")
 

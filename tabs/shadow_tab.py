@@ -137,6 +137,8 @@ def show_shadow_tracker_tab():
                     st.progress(score / 100)
                 
                 if score > 60:
+                    from utils.celebration import trigger_celebration
+                    trigger_celebration("Shadow_Accumulation_Detected", f"Detected accumulation in {acc_ticker} (Score: {score})", {"ticker": acc_ticker, "score": score})
                     st.success("✅ **Accumulation Detected!**")
                 elif score < 30:
                     st.error("❌ **No Signs of Accumulation**")

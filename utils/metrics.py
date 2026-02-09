@@ -157,6 +157,33 @@ def track_error(error_type: str, message: str = "Unspecified error", context: Op
     """Alias/Compatibility wrapper for track_error_detail"""
     track_error_detail(error_type, message, context)
 
+def track_engagement(username: str, event_type: str, description: str, metadata: Optional[Dict[str, Any]] = None):
+    """
+    Log user engagement events (high-value actions).
+    """
+    data = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "user": username,
+        "event": event_type,
+        "desc": description,
+        "metadata": metadata or {}
+    }
+    _append_to_jsonl(_get_metric_file("engagement"), data)
+
+def track_engagement_failure(username: str, event_type: str, error_msg: str, metadata: Optional[Dict[str, Any]] = None):
+    """
+    Log failed engagement attempts.
+    """
+    data = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "user": username,
+        "event": event_type,
+        "status": "failed",
+        "error": error_msg,
+        "metadata": metadata or {}
+    }
+    _append_to_jsonl(_get_metric_file("engagement"), data)
+
 # --- Reporting Functions (Added to fix ImportError) ---
 
 def get_api_usage() -> Dict[str, Any]:
