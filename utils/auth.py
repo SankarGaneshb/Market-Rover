@@ -82,6 +82,12 @@ class AuthManager:
         # 2. Render Traditional Login (if configured)
         if self.authenticator:
             try:
+                # Logo for Login Screen
+                try:
+                    st.image("assets/login_logo.png", width=300)
+                except:
+                    pass # Fail silently if image missing
+                
                 result = self.authenticator.login(location='main')
                 if st.session_state.get('authentication_status'):
                     return True

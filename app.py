@@ -170,6 +170,12 @@ def main():
     
     # Sidebar
     with st.sidebar:
+        # App Logo
+        try:
+             st.image("assets/login_logo.png", use_container_width=True)
+        except:
+             pass
+             
         st.header("🚀 About")
         st.markdown("""
         **AI Stock Intelligence**        
