@@ -82,14 +82,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             exclude_outliers = global_outlier
 
             # Apply Time Filter
-            if lookback_period != "🌟 Top 5Y+ Stars":
+            if lookback_period != "5y+ (Max)":
                  try:
-                     # Parse logic: Mapping labels to years
-                     years_map = {
-                         "⭐Top 1Y Stars": 1, 
-                         "⭐⭐⭐ Top 3Y Stars": 3, 
-                         "⭐⭐⭐⭐⭐ Top 5Y Stars": 5
-                     }
+                     # Parse logic: 1y -> 365 days, etc.
+                     years_map = {"1y": 1, "3y": 3, "5y": 5}
                      years = years_map.get(lookback_period, 5)
                      
                      cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
@@ -686,7 +682,7 @@ def show_market_analysis_tab():
         # Time Filter
         lookback_period = st.selectbox(
             "",
-            ["⭐Top 1Y Stars", "⭐⭐⭐ Top 3Y Stars", "⭐⭐⭐⭐⭐ Top 5Y Stars", "🌟 Top 5Y+ Stars"],
+            ["1y", "3y", "5y", "5y+ (Max)"],
             index=3, # Default to Max
             help="Limit analysis to specific time window. '5y+ (Max)' uses all available data.",
             label_visibility="collapsed"
@@ -747,9 +743,9 @@ def show_market_analysis_tab():
             
             with f_col2:
                 # 2. Strategy Filter
-                stars_1y = "⭐ Top 1Y Stars"
-                stars_3y = "⭐⭐⭐ Top 3 Stars"
-                stars_5y = "⭐⭐⭐⭐⭐ Top 5 Stars"
+                stars_1y = "⭐Top 1Y Stars"
+                stars_3y = "⭐⭐⭐ Top 3Y Stars"
+                stars_5y = "⭐⭐⭐⭐⭐ Top 5Y Stars"
                 stars_5y_plus = "🌟 Top 5Y+ Stars"
                 
                 # Check for query param 'ticker' to auto-select Sector Browser mode if coming from link
@@ -806,9 +802,9 @@ def show_market_analysis_tab():
                 
                 # Determine period based on selection
                 period = "1y"
-                if "3 Stars" in strategy_mode: period = "3y"
-                elif "5Y+" in strategy_mode: period = "5y+"
-                elif "5 Stars" in strategy_mode: period = "5y"
+                if "3Y Stars" in strategy_mode: period = "3y"
+                elif "5Y+ Stars" in strategy_mode: period = "5y+"
+                elif "5Y Stars" in strategy_mode: period = "5y"
                 
                 with st.spinner(f"Identifying {period} winners in {ticker_category}..."):
                    # Use GLOBAL setting
