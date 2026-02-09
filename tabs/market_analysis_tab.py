@@ -103,12 +103,12 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                           st.warning(f"⚠️ No data found for the last {lookback_period}.")
                           return
                      
-                     st.caption(f"⏳ Analysis filtered to last **{lookback_period}**")
+
                  except Exception as ex:
                      st.error(f"Error applying time filter: {ex}")
 
             if exclude_outliers:
-                st.info(f"ℹ️ **Robust Analysis Enabled**: Outliers removed. Analysis filtered to last {lookback_period}.")
+                st.info(f"ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, Forecast Trends, and Filter Strategy. Analysis filtered to last {lookback_period}.")
 
             # Calculate monthly returns matrix
             returns_matrix = analyzer.calculate_monthly_returns_matrix(history, exclude_outliers=exclude_outliers)
@@ -676,9 +676,8 @@ def show_market_analysis_tab():
         exclude_outliers_global = st.checkbox("🚫 Exclude Outliers (Robust Mode)", value=False, help="Removes extreme volatility events from all analysis (Heatmap, Win Rate, Seasonality, Forecasts).")
         
         # Time Filter
-        # Time Filter
         lookback_period = st.selectbox(
-            "Filter History:",
+            "",
             ["1y", "3y", "5y", "5y+ (Max)"],
             index=3, # Default to Max
             help="Limit analysis to specific time window. '5y+ (Max)' uses all available data.",
