@@ -165,6 +165,7 @@ def track_engagement(username: str, event_type: str, description: str, metadata:
         "ts": datetime.now(timezone.utc).isoformat(),
         "user": username,
         "event": event_type,
+        "status": "success",
         "desc": description,
         "metadata": metadata or {}
     }

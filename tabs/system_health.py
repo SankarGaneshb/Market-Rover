@@ -62,8 +62,15 @@ def show_system_health_tab():
             
             if not df_engagement.empty:
                 df_engagement['ts'] = pd.to_datetime(df_engagement['ts'])
-                successes = len(df_engagement[df_engagement.get('status') != 'failed'])
-                failures = len(df_engagement[df_engagement.get('status') == 'failed'])
+                
+                # Robust status handling for backward compatibility
+                if 'status' not in df_engagement.columns:
+                    successes = len(df_engagement)
+                    failures = 0
+                else:
+                    successes = len(df_engagement[df_engagement['status'] != 'failed'])
+                    failures = len(df_engagement[df_engagement['status'] == 'failed'])
+                    
                 col3.metric("Engagement Success", successes, delta=f"-{failures} Failures" if failures > 0 else "0 Errors", delta_color="inverse")
 
         st.divider()
@@ -126,8 +133,15 @@ def show_system_health_tab():
             
             st.divider()
             st.subheader("📝 Engagement History")
+            # Ensure status column exists for display
+            history_cols = ['ts', 'user', 'event', 'desc']
+            if 'status' in df_engagement.columns: 
+                history_cols.append('status')
+            elif 'error' in df_engagement.columns:
+                 history_cols.append('error')
+            
             st.dataframe(
-                df_engagement[['ts', 'user', 'event', 'desc', 'status']].sort_values('ts', ascending=False),
+                df_engagement[history_cols].sort_values('ts', ascending=False),
                 use_container_width=True,
                 hide_index=True
             )
