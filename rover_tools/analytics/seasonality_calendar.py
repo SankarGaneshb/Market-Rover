@@ -48,21 +48,51 @@ HOLIDAYS_2027 = [
     datetime(2027, 12, 25).date()
 ]
 
+# Shubh Muhurat Trading Dates (Auspicious for Investment)
+# Data source: Traditional Hindu Panchang & Market Traditions for 2026
+MUHURTA_DATA = {
+    2026: {
+        1: [1, 7, 8, 14, 21, 23],
+        2: [2, 5, 23],
+        3: [4, 13, 23],
+        4: [9, 15, 20, 23, 30],
+        5: [7, 14],
+        6: [19, 21],
+        7: [10, 16, 23],
+        8: [14, 19, 29],
+        9: [11, 16, 17, 18, 19, 21, 24],
+        10: [17, 18, 21, 28],
+        11: [8, 14, 19], # Nov 8 is Diwali Muhurat Trading
+        12: [11]
+    }
+}
+
 class SeasonalityCalendar:
     """
     Analyzes historical data to find optimal monthly Buy/Sell days 
     and maps them to a specific strategy: Buy in 2026, Sell in 2027.
     """
     
-    def __init__(self, history, buy_year=2026, sell_year=2027, exclude_outliers=False):
+    def __init__(self, history, buy_year=None, sell_year=None, exclude_outliers=False, calendar_type="Strategic"):
         self.history = history
-        self.buy_year = buy_year
-        self.sell_year = sell_year
+        # Default to Current and Next Year
+        now = datetime.now()
+        self.buy_year = buy_year if buy_year else now.year
+        self.sell_year = sell_year if sell_year else self.buy_year + 1
+        
+        # Populate holiday map dynamically
         self.holidays_map = {
             2026: HOLIDAYS_2026,
             2027: HOLIDAYS_2027
         }
+        # Fallback if year not in defined holidays
+        if self.buy_year not in self.holidays_map:
+            self.holidays_map[self.buy_year] = []
+        if self.sell_year not in self.holidays_map:
+            self.holidays_map[self.sell_year] = []
+            
         self.exclude_outliers = exclude_outliers
+        self.calendar_type = calendar_type # "Strategic" or "Subha Muhurta"
 
     def _remove_outliers(self, series):
         """Standard IQR method for outlier removal"""
@@ -226,10 +256,30 @@ class SeasonalityCalendar:
             month_name = calendar.month_name[m]
             b_day, s_day, intra_month_gain = self._get_best_days_for_month(m)
             
+            # --- SUBHA MUHURTA LOGIC ---
+            muhurta_dates = []
+            if self.calendar_type == "Subha Muhurta":
+                muhurta_dates = MUHURTA_DATA.get(self.buy_year, {}).get(m, [])
+                if muhurta_dates:
+                    # Use the first available muhurta date as the entry
+                    b_day = muhurta_dates[0]
+                    
+                    # Exit Plan Logic:
+                    # let the exit plan keep as-is if the date of entry is lesser, 
+                    # if not last date of the month (excluding holidays) for the exit plan!
+                    if b_day > s_day:
+                        # Find last trading day of the month
+                        # We'll use 28, 29, 30, or 31 depending on month/year
+                        ultimo = calendar.monthrange(self.sell_year, m)[1]
+                        s_day = ultimo
+                else:
+                    # Fallback to Strategic if no Muhurta data for this year
+                    pass
+
             # Calculate 1-Year Hold Return
             annual_gain = self._calculate_annual_return(m, b_day, s_day)
 
-            # Adjust
+            # Adjust for Holidays
             b_dt, b_wd, b_adj = self._adjust_date_for_holidays(self.buy_year, m, b_day, 'buy')
             s_dt, s_wd, s_adj = self._adjust_date_for_holidays(self.sell_year, m, s_day, 'sell')
             
@@ -240,15 +290,16 @@ class SeasonalityCalendar:
                 "Best_Sell_Day_Raw": s_day,
                 "Avg_Gain_Pct": intra_month_gain,
                 "Avg_Annual_Gain": annual_gain,
-                "Buy_Date_2026": b_dt,
+                "Buy_Date_2026": b_dt, # Kept name for UI compatibility
                 "Buy_Weekday": b_wd,
                 "Buy_Adjusted": b_adj,
-                "Sell_Date_2026": s_dt, # Variable name kept for compatibility, but is actually sell_year
+                "Sell_Date_2026": s_dt, # Kept name for UI compatibility
                 "Sell_Weekday": s_wd,
                 "Sell_Adjusted": s_adj,
+                "Muhurta_Dates": ", ".join(map(str, muhurta_dates)) if muhurta_dates else "N/A",
                 # For plotting original "Ghost" dots
-                "Buy_Date_Orig": datetime(self.buy_year, m, b_day).date() if not (m==2 and b_day>28) else datetime(self.buy_year, 2, 28).date(),
-                "Sell_Date_Orig": datetime(self.sell_year, m, s_day).date() if not (m==2 and s_day>28) else datetime(self.sell_year, 2, 28).date()
+                "Buy_Date_Orig": datetime(self.buy_year, m, b_day).date() if not (m==2 and b_day>28 and not calendar.isleap(self.buy_year)) else datetime(self.buy_year, 2, 28).date(),
+                "Sell_Date_Orig": datetime(self.sell_year, m, s_day).date() if not (m==2 and s_day>28 and not calendar.isleap(self.sell_year)) else datetime(self.sell_year, 2, 28).date()
             })
             
         return pd.DataFrame(results)
@@ -328,6 +379,6 @@ class SeasonalityCalendar:
         # Plot Right (2027 Sell)
         plot_year_column(axes[1], df, f"Exit Plan ({self.sell_year})", 'sell')
 
-        fig.suptitle(f"Strategic Trading Calendar {self.buy_year}-{self.sell_year}", fontsize=18, fontweight='bold', color='black')
+        fig.suptitle(f"{self.calendar_type} Trading Calendar {self.buy_year}-{self.sell_year}", fontsize=18, fontweight='bold', color='black')
         plt.tight_layout()
         return fig

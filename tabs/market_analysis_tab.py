@@ -214,13 +214,33 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             
 
             # === VISUALIZATION 2.5: Annual Calendar (2026-2027 Strategy) ===
-            st.markdown("### 📅 2026-2027 Strategic Trading Calendar")
-            st.caption("Auto-generated trading plan: **Buy in 2026, Sell in 2027** (1-Year Hold). Adjusted for Holidays.")
+            calendar_label = "2026-2027 Strategic Trading Calendar"
+            
+            # Entry/Exit Year Calculation
+            import datetime
+            buy_year = datetime.datetime.now().year
+            sell_year = buy_year + 1
+            
+            st.markdown(f"### 📅 {buy_year}-{sell_year} Trading Calendar")
+            
+            # Calendar Type Selection
+            cal_type = st.radio(
+                "Select Calendar Type:",
+                ["Strategic", "Subha Muhurta"],
+                index=0,
+                horizontal=True,
+                help="Strategic: Data-driven best monthly days. Subha Muhurta: Auspicious trading dates."
+            )
+            
+            if cal_type == "Strategic":
+                st.caption(f"Auto-generated trading plan: **Buy in {buy_year}, Sell in {sell_year}** (1-Year Hold). Adjusted for Holidays.")
+            else:
+                st.caption(f"Auto-generated trading plan: **Buy in {buy_year} (Subha Muhurta Dates)**, Sell in {sell_year} (1-Year Hold). Adjusted for Holidays and Exit-Pivot logic.")
             
             from rover_tools.analytics.seasonality_calendar import SeasonalityCalendar
             
             with st.spinner("Calculating Holiday-Safe schedule..."):
-                calendar_tool = SeasonalityCalendar(history, exclude_outliers=exclude_outliers)
+                calendar_tool = SeasonalityCalendar(history, exclude_outliers=exclude_outliers, calendar_type=cal_type)
                 cal_df = calendar_tool.generate_analysis()
                 
                 # Plot
@@ -235,11 +255,16 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                     display_df['Avg Intra-Month Gain Forecast'] = display_df['Avg_Gain_Pct'].apply(lambda x: f"+{x:.2f}%")
                     # display_df['Avg Annual Gain'] = display_df['Avg_Annual_Gain'].apply(lambda x: f"+{x:.2f}%") # Moved to summary
                     
-                    display_df['Buy Date (2026)'] = display_df.apply(lambda x: f"{x['Buy_Date_2026']} ({x['Buy_Weekday']})", axis=1)
-                    display_df['Sell Date (2027)'] = display_df.apply(lambda x: f"{x['Sell_Date_2026']} ({x['Sell_Weekday']})", axis=1)
+                    display_df['Buy Date (Entry)'] = display_df.apply(lambda x: f"{x['Buy_Date_2026']} ({x['Buy_Weekday']})", axis=1)
+                    display_df['Sell Date (Exit)'] = display_df.apply(lambda x: f"{x['Sell_Date_2026']} ({x['Sell_Weekday']})", axis=1)
                     
+                    cols_to_show = ['Month', 'Avg Intra-Month Gain Forecast', 'Buy Date (Entry)', 'Sell Date (Exit)']
+                    if cal_type == "Subha Muhurta":
+                        display_df['Shubh Muhurta Dates'] = display_df['Muhurta_Dates']
+                        cols_to_show.append('Shubh Muhurta Dates')
+
                     st.dataframe(
-                        display_df[['Month', 'Avg Intra-Month Gain Forecast', 'Buy Date (2026)', 'Sell Date (2027)']],
+                        display_df[cols_to_show],
                         use_container_width=True,
                         hide_index=True
                     )
