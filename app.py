@@ -232,7 +232,13 @@ def main():
         
         # 1. Initialize logic
         if "nav_selection" not in st.session_state:
-             st.session_state.nav_selection = valid_options[0]
+             # Check for deep links
+             qp_ticker = st.query_params.get("ticker")
+             qp_category = st.query_params.get("category")
+             if qp_ticker or qp_category:
+                 st.session_state.nav_selection = "🔍 Market Analysis"
+             else:
+                 st.session_state.nav_selection = valid_options[0]
 
         # 2. Re-validate
         if st.session_state.nav_selection not in valid_options:

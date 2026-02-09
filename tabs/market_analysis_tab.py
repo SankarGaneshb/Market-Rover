@@ -10,6 +10,7 @@ from rover_tools.ticker_resources import (
 from utils.security import sanitize_ticker
 import base64
 import html
+import urllib.parse
 from utils.visualizer_interface import generate_market_snapshot
 from rover_tools.visualizer_tool import run_snapshot_logic
 
@@ -635,7 +636,10 @@ def render_visual_ticker_selector(ticker_category):
                         
                         # Construct URL for reload with params
                         # We use ?ticker=TICKER&category=CATEGORY to persist state
-                        target_url = f"./?ticker={ticker}&category={ticker_category}"
+                        # Use urllib.parse.quote for safe URLs
+                        encoded_ticker = urllib.parse.quote(ticker)
+                        encoded_category = urllib.parse.quote(ticker_category)
+                        target_url = f"./?ticker={encoded_ticker}&category={encoded_category}"
                         
                         st.markdown(f"""
                             <a href="{target_url}" target="_self" style="text-decoration: none; color: inherit;">
@@ -688,6 +692,17 @@ def show_market_analysis_tab():
             label_visibility="collapsed"
         )
 
+    # SECURE QPARAM SYNC: If URL changes, force session state to follow
+    qp_ticker = st.query_params.get("ticker")
+    current_active = st.session_state.get('heatmap_active_ticker')
+    if qp_ticker and qp_ticker != current_active:
+        st.session_state.heatmap_active_ticker = qp_ticker
+        # If we have a category in QParams too, update navigations
+        qp_cat = st.query_params.get("category")
+        if qp_cat:
+            st.session_state.heatmap_category_pills = qp_cat
+            st.session_state.heatmap_strategy_radio = "📂 Sector Browser"
+
     st.markdown("---")
 
     if analysis_mode == "Stock Analysis 🏢":
@@ -739,14 +754,19 @@ def show_market_analysis_tab():
                 
                 # Check for query param 'ticker' to auto-select Sector Browser mode if coming from link
                 qp_ticker = st.query_params.get("ticker", None)
-                default_strategy_index = 4 if qp_ticker and qp_category else 4 # Default to Sector Browser for better UX
                 
+                # Explicitly manage strategy selection based on state/params
+                if qp_ticker:
+                    default_strat = "📂 Sector Browser"
+                else:
+                    default_strat = stars_5y_plus
+
                 strategy_options = [stars_1y, stars_3y, stars_5y, stars_5y_plus, "📂 Sector Browser"]
                 
                 strategy_mode = st.radio(
                     "2. Filter Strategy",
                     options=strategy_options,
-                    index=default_strategy_index, # Default to Sector Browser
+                    index=strategy_options.index(default_strat),
                     horizontal=True,
                     key="heatmap_strategy_radio"
                 )
