@@ -81,11 +81,15 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             exclude_outliers = global_outlier
 
             # Apply Time Filter
-            if lookback_period != "5y+ (Max)":
+            if lookback_period != "🌟 Top 5Y+ Stars":
                  try:
-                     # Parse logic: 1y -> 365 days, etc.
-                     years_map = {"1y": 1, "3y": 3, "5y": 5}
-                     years = years_map.get(lookback_period, 5) # Default to 5 if unknown
+                     # Parse logic: Mapping labels to years
+                     years_map = {
+                         "⭐Top 1Y Stars": 1, 
+                         "⭐⭐⭐ Top 3Y Stars": 3, 
+                         "⭐⭐⭐⭐⭐ Top 5Y Stars": 5
+                     }
+                     years = years_map.get(lookback_period, 5)
                      
                      cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
                      
@@ -678,7 +682,7 @@ def show_market_analysis_tab():
         # Time Filter
         lookback_period = st.selectbox(
             "",
-            ["1y", "3y", "5y", "5y+ (Max)"],
+            ["⭐Top 1Y Stars", "⭐⭐⭐ Top 3Y Stars", "⭐⭐⭐⭐⭐ Top 5Y Stars", "🌟 Top 5Y+ Stars"],
             index=3, # Default to Max
             help="Limit analysis to specific time window. '5y+ (Max)' uses all available data.",
             label_visibility="collapsed"
