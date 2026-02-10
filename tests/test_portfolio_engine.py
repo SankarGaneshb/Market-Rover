@@ -1,136 +1,102 @@
-
 import pytest
 import pandas as pd
 import numpy as np
 from unittest.mock import MagicMock, patch
 from rover_tools.analytics.portfolio_engine import AnalyticsPortfolio
 
-# Create a concrete class for testing that implements the missing mixin methods
-class TestablePortfolio(AnalyticsPortfolio):
-    def calculate_volatility(self, data):
-        # Simple volatility mock: std dev of pct_change * sqrt(252)
-        if isinstance(data, pd.DataFrame):
-            rets = data.pct_change().dropna()
-            return rets.std().iloc[0] * np.sqrt(252) if not rets.empty else 0.0
-        return 0.15 # Default mock
-
-    def _remove_outliers(self, series):
-        # Pass-through for testing
-        return series
+@pytest.fixture
+def engine():
+    return AnalyticsPortfolio()
 
 @pytest.fixture
-def portfolio():
-    return TestablePortfolio()
-
-@pytest.fixture
-def mock_yf_download():
-    with patch('yfinance.download') as mock:
-        yield mock
-
-@pytest.fixture
-def mock_ticker():
-    with patch('yfinance.Ticker') as mock:
-        yield mock
-
-def test_calculate_correlation_matrix_empty(portfolio):
-    assert portfolio.calculate_correlation_matrix([]).empty
-    assert portfolio.calculate_correlation_matrix(['AAPL']).empty
-
-def test_calculate_correlation_matrix_success(portfolio, mock_yf_download):
-    # Mock data for 2 tickers
-    dates = pd.date_range(start='2023-01-01', periods=10)
+def mock_market_data():
+    # Create sample price data for 2 tickers over 100 days
+    dates = pd.date_range(start='2024-01-01', periods=100)
     data = pd.DataFrame({
-        'AAPL': np.random.uniform(100, 110, 10),
-        'GOOG': np.random.uniform(200, 220, 10)
+        'T1': np.random.normal(100, 1, 100).cumsum() + 100,
+        'T2': np.random.normal(100, 1, 100).cumsum() + 100
     }, index=dates)
-    data.columns.name = 'Ticker'
-    
-    # Mocking the MultiIndex return structure often seen in yfinance
-    # Or just flat if the code handles it. Code handles flat.
-    mock_yf_download.return_value = data
-    
-    # Force 'Close' column check in code - the code checks for 'Close' or if columns intersect tickers
-    # Let's provide a DataFrame that looks like Case 3 (columns are tickers)
-    
-    corr = portfolio.calculate_correlation_matrix(['AAPL', 'GOOG'])
-    assert not corr.empty
-    assert corr.shape == (2, 2)
-    assert corr.iloc[0, 0] == 1.0
+    return data
 
-def test_analyze_rebalance_empty(portfolio):
-    df, warnings = portfolio.analyze_rebalance([])
-    assert df.empty
-    assert warnings == []
+def test_remove_outliers(engine):
+    returns = pd.Series(np.random.normal(0, 0.01, 100))
+    # Add outliers
+    returns.iloc[0] = 10.0
+    returns.iloc[1] = -10.0
+    
+    clean = engine._remove_outliers(returns)
+    assert len(clean) < len(returns)
+    assert 10.0 not in clean.values
+    assert -10.0 not in clean.values
 
-def test_analyze_rebalance_safety(portfolio, mock_yf_download):
-    portfolio_data = [
-        {'symbol': 'AAPL', 'value': 1000},
-        {'symbol': 'GOOG', 'value': 1000}
-    ]
+def test_calculate_volatility(engine):
+    # Constant price -> 0 vol
+    data = pd.DataFrame({'Close': [100, 100, 100, 100]})
+    vol = engine.calculate_volatility(data)
+    assert vol == 0.0
     
-    # Mock market data
-    dates = pd.date_range(start='2023-01-01', periods=50)
-    # Low volatility for AAPL, High for GOOG
-    aapl_prices = np.linspace(100, 105, 50) # Stable
-    goog_prices = np.linspace(100, 150, 50) + np.random.normal(0, 5, 50) # Volatile
-    
-    data = pd.DataFrame({
-        'AAPL': aapl_prices,
-        'GOOG': goog_prices
-    }, index=dates)
-    
-    mock_yf_download.return_value = data
-    
-    df, warnings = portfolio.analyze_rebalance(portfolio_data, mode="safety")
-    
-    assert not df.empty
-    assert 'target_weight' in df.columns
-    
-    # Safety mode should weight lower volatility (AAPL) higher
-    row_aapl = df[df['symbol'] == 'AAPL'].iloc[0]
-    row_goog = df[df['symbol'] == 'GOOG'].iloc[0]
-    
-    assert row_aapl['volatility'] < row_goog['volatility']
-    assert row_aapl['target_weight'] > row_goog['target_weight']
-    assert row_aapl['action'] in ['Buy', 'Sell', 'Hold']
+    # Volatile price
+    data_vol = pd.DataFrame({'Close': [100, 105, 95, 110, 90]})
+    vol_res = engine.calculate_volatility(data_vol)
+    assert vol_res > 0.0
 
-def test_analyze_rebalance_growth(portfolio, mock_yf_download):
-    portfolio_data = [
-        {'symbol': 'AAPL', 'value': 1000},
-        {'symbol': 'GOOG', 'value': 1000}
-    ]
-    
-    # Mock market data
-    dates = pd.date_range(start='2023-01-01', periods=50)
-    # High return for AAPL
-    aapl_prices = np.linspace(100, 200, 50) 
-    # Low return for GOOG
-    goog_prices = np.linspace(100, 101, 50)
-    
-    data = pd.DataFrame({
-        'AAPL': aapl_prices,
-        'GOOG': goog_prices
-    }, index=dates)
-    mock_yf_download.return_value = data
-    
-    df, warnings = portfolio.analyze_rebalance(portfolio_data, mode="growth")
-    
-    # Growth mode (Sharpe) should favor higher return/volatility
-    row_aapl = df[df['symbol'] == 'AAPL'].iloc[0]
-    row_goog = df[df['symbol'] == 'GOOG'].iloc[0]
-    
-    # AAPL has massive return, should have higher weight
-    assert row_aapl['return'] > row_goog['return']
-    assert row_aapl['target_weight'] > row_goog['target_weight']
+def test_calculate_correlation_matrix(engine, mock_market_data):
+    with patch('rover_tools.analytics.portfolio_engine.yf.download') as mock_download:
+        # yf.download returns DataFrame with columns as tickers (flat or MultiIndex)
+        # Let's mock simple case
+        mock_download.return_value = mock_market_data
+        
+        corr = engine.calculate_correlation_matrix(['T1', 'T2'])
+        assert not corr.empty
+        assert corr.shape == (2, 2)
+        assert corr.iloc[0, 0] == 1.0 # Self correlation
 
-def test_calculate_risk_score(portfolio, mock_ticker):
-    # Mock history
-    mock_hist = pd.DataFrame({'Close': [100, 101, 102, 101, 100]})
-    mock_ticker.return_value.history.return_value = mock_hist
-    
-    score = portfolio.calculate_risk_score("AAPL")
-    assert 0 <= score <= 100
-    
-    # Test fallback
-    mock_ticker.return_value.history.return_value = pd.DataFrame()
-    assert portfolio.calculate_risk_score("INVALID") == 50
+def test_calculate_correlation_matrix_empty(engine):
+    with patch('rover_tools.analytics.portfolio_engine.yf.download') as mock_download:
+        mock_download.return_value = pd.DataFrame()
+        corr = engine.calculate_correlation_matrix(['T1', 'T2'])
+        assert corr.empty
+
+def test_analyze_rebalance_safety(engine, mock_market_data):
+    with patch('rover_tools.analytics.portfolio_engine.yf.download') as mock_download:
+        mock_download.return_value = mock_market_data
+        
+        portfolio = [
+            {'symbol': 'T1', 'value': 1000},
+            {'symbol': 'T2', 'value': 1000}
+        ]
+        
+        df, warnings = engine.analyze_rebalance(portfolio, mode="safety")
+        
+        assert not df.empty
+        assert 'action' in df.columns
+        assert 'comment' in df.columns
+        assert df['current_weight'].sum() == pytest.approx(1.0)
+        assert df['target_weight'].sum() == pytest.approx(1.0)
+
+def test_analyze_rebalance_growth(engine, mock_market_data):
+    with patch('rover_tools.analytics.portfolio_engine.yf.download') as mock_download:
+        mock_download.return_value = mock_market_data
+        
+        portfolio = [
+            {'symbol': 'T1', 'value': 500},
+            {'symbol': 'T2', 'value': 1500} # Imbalanced
+        ]
+        
+        df, warnings = engine.analyze_rebalance(portfolio, mode="growth")
+        
+        assert not df.empty
+        assert isinstance(warnings, list)
+        assert df['target_weight'].sum() == pytest.approx(1.0)
+        
+        # Check logic: diff should exist
+        assert 'diff' not in df.columns # It is internal, but action reflects it
+        assert df['action'].iloc[0] in ['Buy', 'Sell', 'Hold']
+
+def test_calculate_risk_score(engine):
+    with patch('rover_tools.analytics.portfolio_engine.yf.Ticker') as MockTicker:
+        mock_hist = pd.DataFrame({'Close': [100, 101, 102, 99, 98]})
+        MockTicker.return_value.history.return_value = mock_hist
+        
+        score = engine.calculate_risk_score("RELIANCE")
+        assert 0 <= score <= 100

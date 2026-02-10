@@ -163,6 +163,90 @@
           "2025"
         ],
         "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T15:58:50.641958",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T17:42:20.401183",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T17:54:21.738096",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T17:58:43.498596",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T18:07:12.071676",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T18:09:17.376664",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
       }
     ]
   }
