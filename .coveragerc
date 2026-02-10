@@ -6,3 +6,10 @@ omit =
     .venv/*
     site-packages/*
     *__init__.py
+    # Internal tools and debug scripts
+    debug_*.py
+    verify_*.py
+    list_models.py
+    analyze_coverage.py
+    scripts/*
+    train_brain.py
