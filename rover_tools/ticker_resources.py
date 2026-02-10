@@ -411,6 +411,7 @@ NIFTY_50_BRAND_META = {
     "KOTAKBANK.NS": {"name": "Kotak Mahindra Bank", "color": "#ED1C24"},
     "LT.NS": {"name": "Larsen & Toubro", "color": "#F6821F"},
     "LTIM.NS": {"name": "LTIMindtree", "color": "#E83E8C"},
+    "MOTHERSON.NS": {"name": "Samvardhana Motherson International Ltd", "color": "#0054A6"},
     "M&M.NS": {"name": "Mahindra & Mahindra", "color": "#E31837"},
     "MARUTI.NS": {"name": "Maruti Suzuki", "color": "#00428A"},
     "NTPC.NS": {"name": "NTPC Ltd", "color": "#0072BC"},

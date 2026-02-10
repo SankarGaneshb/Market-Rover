@@ -170,7 +170,7 @@ def show_trading_calendar_tab():
             st.error(f"Could not fetch data for {ticker}")
             return
 
-        st.markdown(f"### 📈 Analysis for **{ticker}**")
+        st.markdown(f"### 📈 Analysis for **{get_ticker_name(ticker)}** ({ticker})")
         
         calendar_tool = SeasonalityCalendar(history, exclude_outliers=exclude_outliers, calendar_type=cal_type)
         cal_df = calendar_tool.generate_analysis()

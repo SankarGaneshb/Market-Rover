@@ -768,7 +768,7 @@ def show_market_analysis_tab():
             
             if active_ticker:
                  st.markdown("---")
-                 st.subheader(f"📊 Analysis: {active_ticker}")
+                 st.subheader(f"📊 Analysis: {get_ticker_name(active_ticker)} ({active_ticker})")
                  run_analysis_ui(active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global, lookback_period=lookback_period)
             else:
                  st.info("👆 Select a stock from the Sector Browser above to view detailed analysis.")
