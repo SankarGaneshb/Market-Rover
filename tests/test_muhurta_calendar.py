@@ -41,16 +41,18 @@ def test_muhurta_calendar_logic():
     nov = df[df['Month_Num'] == 11].iloc[0]
     print(f"✅ Nov 2026 Muhurta Check: Entry={nov['Best_Buy_Day_Raw']}, Exit={nov['Best_Sell_Day_Raw']}")
     
-    # 4. Verification of Exit-Pivot Logic
-    # We can force a best sell day by modifying _get_best_days_for_month mock-style if needed
-    # But we can also just check if the logic in generate_analysis is hit
+    # 4. Test 2027 Data Presence
+    cal_2027 = SeasonalityCalendar(mock_history, buy_year=2027, sell_year=2028, calendar_type="Subha Muhurta")
+    df_2027 = cal_2027.generate_analysis()
     
-    for _, row in df.iterrows():
-        # If entry > sell (raw), it should have pivoted
-        # In our mock, best sell is likely day 30/31, so entry (muhurta) is likely < best sell
-        # Let's check a month where Muhurta is late, e.g. Sep (24 is late)
-        if row['Month_Num'] == 9:
-             print(f"✅ Sep 2026 Logic Check: Entry={row['Best_Buy_Day_Raw']}, Exit={row['Best_Sell_Day_Raw']}")
+    oct_2027 = df_2027[df_2027['Month_Num'] == 10].iloc[0]
+    print(f"✅ Oct 2027 Muhurta Check: Dates={oct_2027['Muhurta_Dates']}")
+    assert "29" in oct_2027['Muhurta_Dates']
+    
+    jan_2027 = df_2027[df_2027['Month_Num'] == 1].iloc[0]
+    print(f"✅ Jan 2027 Muhurta Check: Avg Gain={jan_2027['Avg_Gain_Pct']:.2f}%")
+    # In mock history (linspace 100-200), later entry means lower gain. 
+    # The average should be between the gain of day 1 and day 15.
     
     print("🎉 Verification Complete!")
 

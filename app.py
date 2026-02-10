@@ -44,6 +44,7 @@ from tabs.shadow_tab import show_shadow_tracker_tab
 from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
 from tabs.brain_tab import show_brain_tab
+from tabs.trading_calendar_tab import show_trading_calendar_tab
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -196,6 +197,7 @@ def main():
             "🎯 Forecast Tracker",
             "---",
             "🔍 Market Analysis",
+            "📅 Trading Calendar",
             "🕵️ Shadow Tracker",
             "---",
             "🧠 Agent Brain",
@@ -283,6 +285,9 @@ def main():
     
     elif selection.startswith("🔍 Market Analysis"):
         show_market_analysis_tab()
+
+    elif selection.startswith("📅 Trading Calendar"):
+        show_trading_calendar_tab()
 
     elif selection.startswith("🎯 Forecast Tracker"):
         show_forecast_tracker_tab()

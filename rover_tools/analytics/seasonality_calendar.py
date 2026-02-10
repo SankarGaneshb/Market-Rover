@@ -64,6 +64,20 @@ MUHURTA_DATA = {
         10: [17, 18, 21, 28],
         11: [8, 14, 19], # Nov 8 is Diwali Muhurat Trading
         12: [11]
+    },
+    2027: {
+        1: [1, 4, 8, 11, 14, 15],
+        2: [4, 8, 11],
+        3: [11, 18, 25],
+        4: [15, 22],
+        5: [13, 20],
+        6: [17, 24],
+        7: [15, 22],
+        8: [12, 19],
+        9: [9, 16],
+        10: [29], # Diwali Muhurat Trading
+        11: [11, 18],
+        12: [5, 12, 19]
     }
 }
 
@@ -261,22 +275,49 @@ class SeasonalityCalendar:
             if self.calendar_type == "Subha Muhurta":
                 muhurta_dates = MUHURTA_DATA.get(self.buy_year, {}).get(m, [])
                 if muhurta_dates:
-                    # Use the first available muhurta date as the entry
+                    # Use the first available muhurta date as the entry for UI plotting
                     b_day = muhurta_dates[0]
                     
                     # Exit Plan Logic:
                     # let the exit plan keep as-is if the date of entry is lesser, 
                     # if not last date of the month (excluding holidays) for the exit plan!
                     if b_day > s_day:
-                        # Find last trading day of the month
-                        # We'll use 28, 29, 30, or 31 depending on month/year
                         ultimo = calendar.monthrange(self.sell_year, m)[1]
                         s_day = ultimo
+                    
+                    # --- REFINED GAIN PREDICTION ---
+                    # Calculate average intra-month gain across ALL muhurta dates in this month
+                    m_gains = []
+                    for md in muhurta_dates:
+                        # Helper to get relative change from day md to s_day
+                        m_data = self.history[self.history.index.month == m].copy()
+                        if not m_data.empty:
+                            m_data['Year'] = m_data.index.year
+                            # Relative change from md to s_day across all years
+                            batch_returns = []
+                            for yr in m_data['Year'].unique():
+                                yr_data = m_data[m_data['Year'] == yr]
+                                try:
+                                    # Find price at md or nearest next
+                                    b_price_row = yr_data[yr_data.index.day >= md]
+                                    s_price_row = yr_data[yr_data.index.day >= s_day]
+                                    if not b_price_row.empty and not s_price_row.empty:
+                                        bp = b_price_row.iloc[0]['Close']
+                                        sp = s_price_row.iloc[0]['Close']
+                                        batch_returns.append(((sp - bp) / bp) * 100)
+                                except:
+                                    continue
+                            if batch_returns:
+                                m_gains.append(np.mean(batch_returns))
+                    
+                    if m_gains:
+                        intra_month_gain = np.mean(m_gains)
                 else:
                     # Fallback to Strategic if no Muhurta data for this year
                     pass
 
             # Calculate 1-Year Hold Return
+            # For Subha Muhurta, we base this on the first Muhurta date to the strategic/pivot exit
             annual_gain = self._calculate_annual_return(m, b_day, s_day)
 
             # Adjust for Holidays
