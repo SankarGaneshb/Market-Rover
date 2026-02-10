@@ -239,6 +239,7 @@ def main():
         # Note: We must ensure nav_selection exists before checking "not in valid_options"
         
         # 1. Initialize logic
+        if "nav_selection" not in st.session_state:
              # Check for deep links
              qp_ticker = st.query_params.get("ticker")
              qp_category = st.query_params.get("category")

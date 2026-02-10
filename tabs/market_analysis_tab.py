@@ -600,27 +600,25 @@ def render_visual_ticker_selector(ticker_category):
                     icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                     
                     with col:
-                        # Card UI with HTML Link
+                        # Card UI (Visual Only)
                         safe_name = html.escape(meta.get('name', ticker))
-                        
-                        # Construct URL for reload with params
-                        # We use ?ticker=TICKER&category=CATEGORY to persist state
-                        # Use urllib.parse.quote for safe URLs
-                        encoded_ticker = urllib.parse.quote(ticker)
-                        encoded_category = urllib.parse.quote(ticker_category)
-                        target_url = f"./?ticker={encoded_ticker}&category={encoded_category}"
-                        
                         st.markdown(f"""
-                            <a href="{target_url}" target="_self" style="text-decoration: none; color: inherit;">
-                                <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px; transition: transform 0.1s; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
-                                    <div style="line-height: 1.1;">
-                                        <div style="font-weight: bold; font-size: 13px; color: #333;">{tick_short}</div>
-                                        <div style="font-size: 10px; color: #666;">{safe_name}</div>
-                                    </div>
+                            <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
+                                <img src="{icon_src}" style="width: 25px; height: 25px; margin-right: 8px; border-radius: 4px;">
+                                <div style="line-height: 1.1;">
+                                    <div style="font-weight: bold; font-size: 11px; color: #333;">{tick_short}</div>
+                                    <div style="font-size: 9px; color: #666;">{safe_name[:15]}</div>
                                 </div>
-                            </a>
+                            </div>
                         """, unsafe_allow_html=True)
+                        
+                        # Use a native button for selection to preserve session state
+                        if st.button(f"Analyze", key=f"vis_sel_{ticker}", use_container_width=True):
+                            st.session_state.heatmap_active_ticker = ticker
+                            st.query_params["ticker"] = ticker
+                            st.query_params["category"] = ticker_category
+                            # Note: No 'tab' param here as it defaults back to Market Analysis
+                            st.rerun()
     else:
         # Fallback for undefined maps (e.g. strict All or unknown)
         if len(category_tickers) <= 100:

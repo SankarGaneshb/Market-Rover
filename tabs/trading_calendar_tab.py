@@ -19,7 +19,7 @@ from utils.security import sanitize_ticker
 def render_visual_ticker_selector(ticker_category):
     """
     Renders a visual, card-based selector for tickers, grouped by sector.
-    Returns the selected ticker if one was clicked, else None.
+    Uses Streamlit buttons to prevent session loss on selection.
     """
     selected_ticker = None
     
@@ -28,7 +28,7 @@ def render_visual_ticker_selector(ticker_category):
     if ticker_category == "Nifty 50":
         sector_map = NIFTY_50_SECTOR_MAP
     elif ticker_category == "Sensex":
-        sector_map = NIFTY_50_SECTOR_MAP # 90% Overlap
+        sector_map = NIFTY_50_SECTOR_MAP
     elif ticker_category == "Nifty Next 50":
         sector_map = NIFTY_NEXT_50_SECTOR_MAP
     elif ticker_category == "Midcap":
@@ -36,10 +36,8 @@ def render_visual_ticker_selector(ticker_category):
         
     # Get tickers for this category
     category_tickers_full = get_common_tickers(category=ticker_category)
-    # Extract clean tickers
     category_tickers = [t.split(' - ')[0].strip() for t in category_tickers_full]
     
-    # If we have a map, use it
     if sector_map:
         mapped_data = {}
         for ticker in category_tickers:
@@ -50,7 +48,6 @@ def render_visual_ticker_selector(ticker_category):
             else:
                  mapped_data[ticker] = "Others"
                  
-        # Group by Sector
         sectors = sorted(list(set(mapped_data.values())))
         if "Others" in sectors:
             sectors.remove("Others")
@@ -78,22 +75,24 @@ def render_visual_ticker_selector(ticker_category):
                     
                     with col:
                         safe_name = html.escape(meta.get('name', ticker))
-                        encoded_ticker = urllib.parse.quote(ticker)
-                        encoded_category = urllib.parse.quote(ticker_category)
-                        # Target this specific tab back
-                        target_url = f"./?ticker={encoded_ticker}&category={encoded_category}&tab=calendar"
-                        
+                        # Card UI (Visual Only)
                         st.markdown(f"""
-                            <a href="{target_url}" target="_self" style="text-decoration: none; color: inherit;">
-                                <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px; transition: transform 0.1s; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <img src="{icon_src}" style="width: 30px; height: 30px; margin-right: 8px; border-radius: 4px;">
-                                    <div style="line-height: 1.1;">
-                                        <div style="font-weight: bold; font-size: 13px; color: #333;">{tick_short}</div>
-                                        <div style="font-size: 10px; color: #666;">{safe_name}</div>
-                                    </div>
+                            <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
+                                <img src="{icon_src}" style="width: 25px; height: 25px; margin-right: 8px; border-radius: 4px;">
+                                <div style="line-height: 1.1;">
+                                    <div style="font-weight: bold; font-size: 11px; color: #333;">{tick_short}</div>
+                                    <div style="font-size: 9px; color: #666;">{safe_name[:15]}</div>
                                 </div>
-                            </a>
+                            </div>
                         """, unsafe_allow_html=True)
+                        
+                        # Use a native button for selection to preserve session state
+                        if st.button(f"Analyze", key=f"cal_sel_{ticker}", use_container_width=True):
+                            st.session_state.calendar_active_ticker = ticker
+                            st.query_params["ticker"] = ticker
+                            st.query_params["category"] = ticker_category
+                            st.query_params["tab"] = "calendar"
+                            st.rerun()
     else:
         if len(category_tickers) <= 100:
             st.markdown(f"##### 🏢 {ticker_category} Stocks")
@@ -101,20 +100,22 @@ def render_visual_ticker_selector(ticker_category):
             for i, ticker in enumerate(category_tickers):
                 tick_short = ticker.replace('.NS', '')
                 with cols[i % 5]:
-                    if st.button(tick_short, key=f"cal_vis_{ticker}", use_container_width=True):
-                        selected_ticker = ticker
+                    if st.button(tick_short, key=f"cal_fallback_vis_{ticker}", use_container_width=True):
+                         st.session_state.calendar_active_ticker = ticker
+                         st.query_params["ticker"] = ticker
+                         st.rerun()
                         
     return selected_ticker
 
 def show_trading_calendar_tab():
     st.header("📅 Strategic & Subha Muhurta Trading Calendar")
-    st.markdown("Generate a high-probability trading schedule for **2026-2027** based on historical seasonal patterns and auspicious trading dates.")
+    st.markdown("Generate high-probability trading schedules based on historical patterns and auspicious dates.")
 
     # 1. Handle Query Params for Ticker Selection
+    # If we have query params, they should populate session state ONCE or when changed
     qp_ticker = st.query_params.get("ticker")
     if qp_ticker:
         st.session_state.calendar_active_ticker = qp_ticker
-        # Also sync category if present
         qp_cat = st.query_params.get("category")
         if qp_cat:
             st.session_state.calendar_universe_choice = qp_cat
@@ -141,21 +142,13 @@ def show_trading_calendar_tab():
         exclude_outliers = st.checkbox("🚫 Robust Mode", value=False, help="Exclude outliers.")
 
     with col_t:
-        cal_type = st.radio(
-            "Mode:",
-            ["Strategic", "Subha Muhurta"],
-            index=1,
-            horizontal=True
-        )
+        cal_type = st.radio("Mode:", ["Strategic", "Subha Muhurta"], index=1, horizontal=True)
 
-    # 2. Visual Browser (The "Sector Browser" requested)
+    # 2. Visual Browser
     st.markdown("---")
-    res_ticker = render_visual_ticker_selector(universe)
-    if res_ticker:
-        st.session_state.calendar_active_ticker = res_ticker
+    render_visual_ticker_selector(universe)
 
     ticker = sanitize_ticker(st.session_state.calendar_active_ticker)
-
     if not ticker:
         st.error("Invalid Ticker")
         return
@@ -169,16 +162,8 @@ def show_trading_calendar_tab():
             st.error(f"Could not fetch data for {ticker}")
             return
 
-        buy_year = datetime.datetime.now().year
-        sell_year = buy_year + 1
-        
         st.markdown(f"### 📈 Analysis for **{ticker}**")
         
-        if cal_type == "Strategic":
-            st.info(f"💡 **Strategic Plan**: Identifies the historical 'Natural Bottom' and 'Natural Peak'.")
-        else:
-            st.info(f"🏮 **Subha Muhurta Plan**: Uses traditional auspicious dates. Returns are averaged over all Muhurta windows.")
-
         calendar_tool = SeasonalityCalendar(history, exclude_outliers=exclude_outliers, calendar_type=cal_type)
         cal_df = calendar_tool.generate_analysis()
         
@@ -197,4 +182,3 @@ def show_trading_calendar_tab():
                 cols_to_show.append('Auspicious Dates')
 
             st.dataframe(display_df[cols_to_show], use_container_width=True, hide_index=True)
-            st.caption(f"Note: Dates adjusted for NSE holidays.")
