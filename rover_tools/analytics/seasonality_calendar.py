@@ -109,14 +109,25 @@ class SeasonalityCalendar:
         self.calendar_type = calendar_type # "Strategic" or "Subha Muhurta"
 
     def _remove_outliers(self, series):
-        """Standard IQR method for outlier removal"""
+        """Standard IQR + 1 SD method for outlier removal"""
         if len(series) < 4: return series
+        
+        # 1. 1.5 IQR filter
         Q1 = series.quantile(0.25)
         Q3 = series.quantile(0.75)
         IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        return series[(series >= lower_bound) & (series <= upper_bound)]
+        iqr_lower = Q1 - 1.5 * IQR
+        iqr_upper = Q3 + 1.5 * IQR
+        
+        # 2. 1.0 SD filter
+        mu = series.mean()
+        sigma = series.std()
+        sd_lower = mu - 1.0 * sigma
+        sd_upper = mu + 1.0 * sigma
+        
+        # Combined mask (Intersection of both rules)
+        mask = (series >= iqr_lower) & (series <= iqr_upper) & (series >= sd_lower) & (series <= sd_upper)
+        return series[mask]
 
     def _get_best_days_for_month(self, month):
         """Finds best buy/sell days for a given month index (1-12)"""
@@ -308,7 +319,12 @@ class SeasonalityCalendar:
                                 except:
                                     continue
                             if batch_returns:
-                                m_gains.append(np.mean(batch_returns))
+                                batch_series = pd.Series(batch_returns)
+                                # Apply outlier removal if requested
+                                if self.exclude_outliers:
+                                    batch_series = self._remove_outliers(batch_series)
+                                if not batch_series.empty:
+                                    m_gains.append(batch_series.mean())
                     
                     if m_gains:
                         intra_month_gain = np.mean(m_gains)

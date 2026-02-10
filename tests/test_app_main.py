@@ -56,6 +56,7 @@ def mock_modules():
         'tabs.profiler_tab': MagicMock(),
         'tabs.system_health': MagicMock(),
         'tabs.brain_tab': MagicMock(),
+        'tabs.trading_calendar_tab': MagicMock(),
     }
     
     # Apply patches

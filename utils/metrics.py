@@ -51,15 +51,14 @@ class PerformanceMonitor:
 
     def log_metric(self, name: str, duration_sec: float, metadata: Optional[Dict[str, Any]] = None):
         """
-        Log a specific performance metric.
-        
-        Args:
-            name: The name of the operation being measured (e.g., 'news_fetch')
-            duration_sec: Duration in seconds
-            metadata: Optional dictionary of extra context (e.g., {'stock_count': 5})
+        Log a specific performance metric and calculate OPS.
         """
+        # Calculate Operations Per Second (OPS = 1.0 / Mean duration)
+        # Handle zero duration safety
+        ops = 1.0 / duration_sec if duration_sec > 0 else 0
+        
         meta_str = f" | {metadata}" if metadata else ""
-        log_msg = f"METRIC: {name} completed in {duration_sec:.4f}s{meta_str}"
+        log_msg = f"METRIC: {name} completed in {duration_sec:.4f}s (OPS: {ops:.2f}){meta_str}"
         logger.info(log_msg)
         # We could also push to a dashboard or DB here in the future
     
