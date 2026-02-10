@@ -239,11 +239,14 @@ def main():
         # Note: We must ensure nav_selection exists before checking "not in valid_options"
         
         # 1. Initialize logic
-        if "nav_selection" not in st.session_state:
              # Check for deep links
              qp_ticker = st.query_params.get("ticker")
              qp_category = st.query_params.get("category")
-             if qp_ticker or qp_category:
+             qp_tab = st.query_params.get("tab")
+             
+             if qp_tab == "calendar":
+                 st.session_state.nav_selection = "📅 Trading Calendar"
+             elif qp_ticker or qp_category:
                  st.session_state.nav_selection = "🔍 Market Analysis"
              else:
                  st.session_state.nav_selection = valid_options[0]
