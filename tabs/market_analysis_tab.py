@@ -592,11 +592,15 @@ def render_visual_ticker_selector(ticker_category):
                     meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
                     
                     # Generate SVG Logo (consistent with Brand Shop)
-                    tick_short = ticker.replace('.NS', '')[:4]
+                    # Clean ticker for display (strip .NS but keep full code)
+                    tick_short = ticker.split('.')[0]
                     color = meta.get('color', "#333333")
                     text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                     
-                    svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                    # Use a slightly larger font size for the full ticker code if it fits better
+                    font_size = "9" if len(tick_short) <= 5 else "7"
+                    
+                    svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                     b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                     icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                     
@@ -631,7 +635,7 @@ def render_visual_ticker_selector(ticker_category):
             st.markdown(f"##### 🏢 {ticker_category} Stocks")
             cols = st.columns(5)
             for i, ticker in enumerate(category_tickers):
-                tick_short = ticker.replace('.NS', '')
+                tick_short = ticker.split('.')[0]
                 with cols[i % 5]:
                     if st.button(tick_short, key=f"vis_{ticker}", use_container_width=True):
                         selected_ticker = ticker

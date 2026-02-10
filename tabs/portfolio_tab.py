@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from config import REPORT_DIR
 from utils.portfolio_manager import PortfolioManager
-from rover_tools.ticker_resources import get_common_tickers
+from rover_tools.ticker_resources import get_common_tickers, get_ticker_name
 from utils.security import sanitize_ticker
 
 # Global helper needed for portfolio tab
@@ -737,17 +737,25 @@ def render_upload_section_logic(max_parallel):
                     col = cols[j % 4]
                     with col:
                         # Meta
-                        meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#333"})
+                        meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333"})
+                        
+                        # Robust Name Fetching
+                        company_name = get_ticker_name(ticker)
                         
                         # SVG Icon
-                        tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                        # Clean ticker for display (strip .NS but keep full code)
+                        tick_short = ticker.split('.')[0]
                         color = meta['color']
                         text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
-                        svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                        
+                        # Font size optimization for tickers
+                        font_size = "9" if len(tick_short) <= 5 else "7"
+                        
+                        svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                         b64 = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
                         
-                        # Card HTML
-                        safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
+                        # Card HTML (Handling "M&M" etc via html.escape)
+                        safe_name = html.escape(company_name)
                         
                         st.markdown(f'''
                         <div style="border:1px solid #eee; border-radius:6px; padding:5px; margin-bottom:5px; display:flex; align-items:center;">
@@ -804,10 +812,10 @@ def render_upload_section_logic(max_parallel):
             new_rows = []
             for t in to_add:
                 # Try to find name in meta
-                meta = NIFTY_50_BRAND_META.get(t, {"name": t})
+                company_name = get_ticker_name(t)
                 new_rows.append({
                     "Symbol": t,
-                    "Company Name": meta['name'],
+                    "Company Name": company_name,
                     "Quantity": 10,  # Default
                     "Average Price": 0.0
                 })
@@ -821,10 +829,16 @@ def render_upload_section_logic(max_parallel):
     st.markdown("### 📝 Allocation Details")
     
     if not st.session_state.manual_portfolio_df.empty:
-        edited_pf = st.data_editor(
-            st.session_state.manual_portfolio_df,
+        # Prepare display DF for editor (hide .NS)
+        display_df = st.session_state.manual_portfolio_df.copy()
+        display_df['Display Symbol'] = display_df['Symbol'].apply(lambda x: x.split('.')[0])
+        
+        cols_to_show = ["Display Symbol", "Company Name", "Quantity", "Average Price"]
+        
+        edited_display = st.data_editor(
+            display_df[cols_to_show],
             column_config={
-                "Symbol": st.column_config.TextColumn("Symbol", disabled=True), # Read Only, use Grid to add/remove
+                "Display Symbol": st.column_config.TextColumn("Symbol", disabled=True), 
                 "Company Name": st.column_config.TextColumn("Company Name", disabled=True),
                 "Quantity": st.column_config.NumberColumn("Quantity", min_value=1, step=1, required=True),
                 "Average Price": st.column_config.NumberColumn("Avg Price", min_value=0.0, format="₹ %.2f")
@@ -832,9 +846,13 @@ def render_upload_section_logic(max_parallel):
             hide_index=True,
             use_container_width=True,
             key="qty_editor_pf",
-            num_rows="fixed" # Disable add/delete rows here
+            num_rows="fixed" 
         )
-        st.session_state.manual_portfolio_df = edited_pf
+        
+        # Merge changes back to master DF (keeping full symbols)
+        for idx, row in edited_display.iterrows():
+            st.session_state.manual_portfolio_df.at[idx, 'Quantity'] = row['Quantity']
+            st.session_state.manual_portfolio_df.at[idx, 'Average Price'] = row['Average Price']
         
         # Save Button
         if st.button("💾 Save Portfolio Changes", type="primary", use_container_width=True):

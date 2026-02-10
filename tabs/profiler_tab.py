@@ -3,7 +3,11 @@ import pandas as pd
 import base64
 import html
 from rover_tools.analytics.investor_profiler import InvestorProfiler, InvestorPersona
-from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP, NIFTY_50_BRAND_META
+from rover_tools.ticker_resources import (
+    NIFTY_50_SECTOR_MAP, 
+    NIFTY_50_BRAND_META,
+    get_ticker_name
+)
 from utils.user_manager import UserProfileManager
 from utils.security import sanitize_ticker
 
@@ -180,13 +184,18 @@ def show_profiler_tab():
                              # Get Metadata
                              meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
                              
-                             # Generate SVG Logo
-                             import html
-                             tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                             # Robust Name Fetching
+                             company_name = get_ticker_name(ticker)
+                             
+                             # Clean ticker for display (strip .NS but keep full code)
+                             tick_short = ticker.split('.')[0]
                              color = meta['color']
                              text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
                              
-                             svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                             # Font size optimization for tickers
+                             font_size = "9" if len(tick_short) <= 5 else "7"
+                             
+                             svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                              b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                              icon_src = f"data:image/svg+xml;base64,{b64_svg}"
                              
@@ -194,7 +203,7 @@ def show_profiler_tab():
                              with col:
                                  # Visual Card
                                  # Ensure HTML safety for text
-                                 safe_name = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(meta['name'])
+                                 safe_name = html.escape(company_name)
                                  
                                  st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
                                  
@@ -249,10 +258,11 @@ def show_profiler_tab():
                         g_cols = st.columns(3)
                         for j, ticker in enumerate(g_tickers):
                             col = g_cols[j % 3]
-                            meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#5b21b6"})
+                            # Robust Name Fetching
+                            company_name = get_ticker_name(ticker)
                             
-                            import html
-                            tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                            # Clean ticker for display (strip .NS but keep full code)
+                            tick_short = ticker.split('.')[0]
                             color = meta['color']
                             # Quick color Fixes
                             if ticker == "ZOMATO.NS": color = "#E23744"
@@ -261,12 +271,16 @@ def show_profiler_tab():
                             if ticker == "DLF.NS": color = "#0054A6"
                             text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
 
-                            svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                            # Font size optimization for tickers
+                            font_size = "9" if len(tick_short) <= 5 else "7"
+
+                            svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                             b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                             icon_src = f"data:image/svg+xml;base64,{b64_svg}"
 
                             with col:
-                                st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{ticker.replace(".NS", "")}</div></div></div>', unsafe_allow_html=True)
+                                safe_name = html.escape(company_name)
+                                st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
                                 
                                 is_checked = ticker in growth_selected
                                 if st.checkbox("Select", value=is_checked, key=f"btn_g_{ticker}", label_visibility="collapsed"):
@@ -307,17 +321,24 @@ def show_profiler_tab():
                                 col = a_cols[j % 3]
                                 meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker.replace('.NS',''), "color": "#0e7490"}) # Cyan default
                                 
-                                import html
-                                tick_short = getattr(html, 'escape', lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))(ticker.replace('.NS', '')[:4])
+                                # Robust Name Fetching
+                                company_name = get_ticker_name(ticker)
+                                
+                                # Clean ticker for display (strip .NS but keep full code)
+                                tick_short = ticker.split('.')[0]
                                 color = meta['color']
                                 text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
 
-                                svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="9">{tick_short}</text></svg>'
+                                # Font size optimization for tickers
+                                font_size = "9" if len(tick_short) <= 5 else "7"
+
+                                svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                                 b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                                 icon_src = f"data:image/svg+xml;base64,{b64_svg}"
 
                                 with col:
-                                    st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{ticker.replace(".NS", "")}</div></div></div>', unsafe_allow_html=True)
+                                    safe_name = html.escape(company_name)
+                                    st.markdown(f'<div style="background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;"><img src="{icon_src}" style="width: 35px; height: 35px; margin-right: 10px; border-radius: 6px;"><div style="line-height: 1.2;"><div style="font-weight: bold; font-size: 14px; color: #333;">{tick_short}</div><div style="font-size: 11px; color: #666;">{safe_name}</div></div></div>', unsafe_allow_html=True)
                                     
                                     is_checked = ticker in alpha_selected
                                     if st.checkbox("Select", value=is_checked, key=f"btn_a_{ticker}", label_visibility="collapsed"):

@@ -225,7 +225,7 @@ def get_ticker_name(symbol):
             if t in candidates:
                 return n
                 
-    return symbol # Fallback to symbol if not found
+    return symbol.split('.')[0] # Fallback to clean symbol if not found
 
 # --- NIFTY NEXT 50 (Junior Nifty) ---
 NIFTY_NEXT_50 = [
