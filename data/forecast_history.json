@@ -247,6 +247,20 @@
           "2025"
         ],
         "status": "active"
+      },
+      {
+        "timestamp": "2026-02-10T18:59:35.192541",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
       }
     ]
   }

@@ -856,7 +856,7 @@ def render_upload_section_logic(max_parallel):
         
         # Save Button
         if st.button("💾 Save Portfolio Changes", type="primary", use_container_width=True):
-             success, msg = pm.save_portfolio(current_pf_name, edited_pf)
+             success, msg = pm.save_portfolio(current_pf_name, st.session_state.manual_portfolio_df)
              if success:
                  from utils.celebration import trigger_celebration
                  trigger_celebration("Portfolio_Save", f"Saved portfolio: {current_pf_name}", {"portfolio_name": current_pf_name})
