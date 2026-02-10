@@ -5,7 +5,8 @@ from rover_tools.ticker_resources import (
     NIFTY_50_SECTOR_MAP, 
     NIFTY_50_BRAND_META,
     NIFTY_MIDCAP_SECTOR_MAP,
-    NIFTY_NEXT_50_SECTOR_MAP
+    NIFTY_NEXT_50_SECTOR_MAP,
+    get_ticker_name
 )
 from utils.security import sanitize_ticker
 import base64
@@ -601,13 +602,18 @@ def render_visual_ticker_selector(ticker_category):
                     
                     with col:
                         # Card UI (Visual Only)
-                        safe_name = html.escape(meta.get('name', ticker))
+                        meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
+                        
+                        # Robust Name Fetching
+                        company_name = get_ticker_name(ticker)
+                        safe_name = html.escape(company_name)
+                        
                         st.markdown(f"""
                             <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
                                 <img src="{icon_src}" style="width: 25px; height: 25px; margin-right: 8px; border-radius: 4px;">
                                 <div style="line-height: 1.1;">
                                     <div style="font-weight: bold; font-size: 11px; color: #333;">{tick_short}</div>
-                                    <div style="font-size: 9px; color: #666;">{safe_name[:15]}</div>
+                                    <div style="font-size: 9px; color: #666;">{safe_name}</div>
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
