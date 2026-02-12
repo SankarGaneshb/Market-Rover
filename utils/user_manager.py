@@ -1,6 +1,8 @@
 import json
 import os
 from datetime import datetime
+from utils.db_manager import DatabaseManager
+from utils.logger import logger
 
 DATA_FILE = "data/user_profiles.json"
 
@@ -8,36 +10,45 @@ class UserProfileManager:
     """
     Manages user profile metadata to enforce flow.
     Tracks if a user has completed the Investor Profile and when.
+    Uses SQLite for persistent storage with a fallback migration from JSON.
     """
     def __init__(self):
-        self._ensure_data_dir()
+        self.db = DatabaseManager()
+        self._migrate_from_json()
         
-    def _ensure_data_dir(self):
-        os.makedirs("data", exist_ok=True)
-        if not os.path.exists(DATA_FILE):
-            with open(DATA_FILE, 'w') as f:
-                json.dump({"profiles": {}}, f)
+    def _migrate_from_json(self):
+        """
+        Migrates data from legacy JSON file to SQLite if it exists.
+        Runs only once (as long as JSON file exists).
+        """
+        if os.path.exists(DATA_FILE):
+            try:
+                with open(DATA_FILE, 'r') as f:
+                    db_json = json.load(f)
                 
-    def _load_db(self):
-        try:
-            with open(DATA_FILE, 'r') as f:
-                return json.load(f)
-        except:
-            return {"profiles": {}}
-            
-    def _save_db(self, db):
-        with open(DATA_FILE, 'w') as f:
-            json.dump(db, f, indent=4)
+                profiles = db_json.get("profiles", {})
+                for username, data in profiles.items():
+                    # Check if profile already exists in DB to avoid duplicates/overwrite
+                    if not self.db.get_user_profile(username):
+                        persona = data.get('persona', "Unknown")
+                        scores = data.get('scores', {})
+                        brands = data.get('brands', [])
+                        self.db.save_user_profile(username, persona, scores, brands)
+                
+                # Optional: Rename or delete JSON file after successful migration
+                # For safety, we just rename it for now
+                os.rename(DATA_FILE, DATA_FILE + ".bak")
+            except Exception as e:
+                logger.error(f"Migration error for User Profiles: {e}")
 
     def get_profile_status(self, username: str) -> dict:
         """
         Check if profile exists and is valid (recent).
         Returns: {'exists': bool, 'last_updated': datetime_obj, 'days_old': int, 'needs_update': bool}
         """
-        db = self._load_db()
-        profiles = db.get("profiles", {})
+        profile = self.db.get_user_profile(username)
         
-        if username not in profiles:
+        if not profile:
             return {
                 'exists': False,
                 'last_updated': None,
@@ -45,17 +56,8 @@ class UserProfileManager:
                 'needs_update': True
             }
             
-        data = profiles[username]
-        last_updated_str = data.get('last_updated')
+        last_updated_str = profile.get('last_updated')
         
-        if not last_updated_str:
-             return {
-                'exists': False, 
-                'last_updated': None, 
-                'days_old': 9999,
-                'needs_update': True
-            }
-            
         try:
             last_updated = datetime.fromisoformat(last_updated_str)
             days_old = (datetime.now() - last_updated).days
@@ -66,11 +68,11 @@ class UserProfileManager:
                 'last_updated': last_updated,
                 'days_old': days_old,
                 'needs_update': needs_update,
-                'persona': data.get('persona')
+                'persona': profile.get('persona')
             }
-        except:
+        except Exception:
              return {
-                'exists': True, # It exists but maybe corrupted, force update
+                'exists': True, 
                 'last_updated': None,
                 'days_old': 9999,
                 'needs_update': True
@@ -79,55 +81,27 @@ class UserProfileManager:
     def update_profile_timestamp(self, username: str):
         """
         Updates the last_updated timestamp for a user.
-        DEPRECATED: Use save_user_profile instead for full data.
-        Kept for backward compatibility or simple timestamp updates.
         """
-        db = self._load_db()
-        profiles = db.get("profiles", {})
-        
-        # Preserve existing data if any, just update timestamp
-        if username in profiles:
-            profiles[username]['last_updated'] = datetime.now().isoformat()
+        profile = self.db.get_user_profile(username)
+        if profile:
+            self.db.save_user_profile(
+                username, 
+                profile['persona'], 
+                profile['scores'], 
+                profile['brands']
+            )
         else:
-            profiles[username] = {
-                'last_updated': datetime.now().isoformat()
-            }
-        
-        db["profiles"] = profiles
-        self._save_db(db)
+            self.db.save_user_profile(username, "New User", {}, [])
 
     def save_user_profile(self, username: str, persona_val: str, scores: dict, brands: list = None):
         """
-        Saves the full Investor Profile.
-        
-        Args:
-            username: User ID
-            persona_val: String value of InvestorPersona (e.g., "The Compounder")
-            scores: Dict of quiz scores {'q1': 1, 'q2': 2, 'q3': 3}
-            brands: List of selected brand tickers [Optional]
+        Saves the full Investor Profile to SQLite.
         """
-        db = self._load_db()
-        profiles = db.get("profiles", {})
-        
-        # Get existing or init new
-        user_data = profiles.get(username, {})
-        
-        # Update fields
-        user_data['last_updated'] = datetime.now().isoformat()
-        user_data['persona'] = persona_val
-        user_data['scores'] = scores
-        if brands is not None:
-             user_data['brands'] = brands
-             
-        profiles[username] = user_data
-        db["profiles"] = profiles
-        self._save_db(db)
+        self.db.save_user_profile(username, persona_val, scores, brands)
 
     def get_user_profile(self, username: str) -> dict:
         """
-        Retrieves the full profile data.
-        Returns dict or None if not found/incomplete.
+        Retrieves the full profile data from SQLite.
         """
-        db = self._load_db()
-        profiles = db.get("profiles", {})
-        return profiles.get(username, None)
+        return self.db.get_user_profile(username)
+

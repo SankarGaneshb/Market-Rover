@@ -1,83 +1,61 @@
 import json
 import os
 import pandas as pd
-
+from utils.db_manager import DatabaseManager
+from utils.logger import logger
 import config
 
 DATA_FILE = "data/saved_portfolios.json"
 
 class PortfolioManager:
     """
-    Manages saving and loading of user portfolios to a local JSON file.
+    Manages saving and loading of user portfolios to SQLite.
     Enforces constraints and ISOLATES data by username.
+    Includes fallback migration from legacy JSON file.
     """
     def __init__(self, username=None):
         self.username = username or "guest"
-        self._ensure_data_dir()
+        self.db = DatabaseManager()
+        self._migrate_from_json()
         
-    def _ensure_data_dir(self):
-        os.makedirs("data", exist_ok=True)
-        if not os.path.exists(DATA_FILE):
-            # New Schema: { "users": {} }
-            with open(DATA_FILE, 'w') as f:
-                json.dump({"users": {}}, f)
-        else:
-            # MIGRATION CHECK: If file exists but is old format (key "portfolios" at root)
+    def _migrate_from_json(self):
+        """
+        Migrates data from legacy JSON file to SQLite if it exists.
+        Handles both old schema and new schema in the JSON file.
+        """
+        if os.path.exists(DATA_FILE):
             try:
                 with open(DATA_FILE, 'r') as f:
-                    db = json.load(f)
+                    db_json = json.load(f)
                 
-                if "portfolios" in db and "users" not in db:
-                    print("Migrating legacy portfolios to admin user...")
-                    # Default migration: Assign all existing to 'admin' (or a specific legacy account)
-                    # We assume 'bsankarganesh' or common admin name, but let's use 'admin'
-                    new_db = {
-                        "users": {
-                            "admin": {
-                                "portfolios": db["portfolios"]
-                            }
-                        }
-                    }
-                    with open(DATA_FILE, 'w') as f:
-                        json.dump(new_db, f, indent=4)
+                # Handle Migration from "users" schema or legacy "portfolios" schema
+                if "users" in db_json:
+                    for username, user_data in db_json["users"].items():
+                        portfolios = user_data.get("portfolios", {})
+                        for name, records in portfolios.items():
+                            if not self.db.get_portfolio(username, name):
+                                self.db.save_portfolio(username, name, records)
+                elif "portfolios" in db_json:
+                    # Legacy schema: Assign to 'admin' as per previous code's intent
+                    portfolios = db_json["portfolios"]
+                    for name, records in portfolios.items():
+                        if not self.db.get_portfolio("admin", name):
+                            self.db.save_portfolio("admin", name, records)
+                
+                # Legacy schema: Assign to 'admin' as per previous code's intent
+                os.rename(DATA_FILE, DATA_FILE + ".bak")
             except Exception as e:
-                print(f"Error checking DB migration: {e}")
-
-    def _load_db(self):
-        try:
-            with open(DATA_FILE, 'r') as f:
-                return json.load(f)
-        except:
-            return {"users": {}}
-            
-    def _save_db(self, db):
-        with open(DATA_FILE, 'w') as f:
-            json.dump(db, f, indent=4)
-    
-    def _get_user_data(self, db):
-        """Helper to get safe reference to user's data block"""
-        if "users" not in db:
-            db["users"] = {}
-        
-        if self.username not in db["users"]:
-            db["users"][self.username] = {"portfolios": {}}
-            
-        return db["users"][self.username]
+                logger.error(f"Migration error for Portfolios: {e}")
 
     def get_portfolio_names(self):
         """Returns list of saved portfolio names for CURRENT USER ONLY"""
-        db = self._load_db()
-        user_data = self._get_user_data(db)
-        return list(user_data["portfolios"].keys())
+        return self.db.get_portfolio_names(self.username)
         
     def get_portfolio(self, name):
         """Returns dataframe for a given portfolio name for CURRENT USER ONLY"""
-        db = self._load_db()
-        user_data = self._get_user_data(db)
-        
-        if name in user_data["portfolios"]:
-            data = user_data["portfolios"][name]
-            return pd.DataFrame(data)
+        records = self.db.get_portfolio(self.username, name)
+        if records:
+            return pd.DataFrame(records)
         return None
         
     def save_portfolio(self, name, df):
@@ -94,33 +72,19 @@ class PortfolioManager:
         if len(df) > config.MAX_STOCKS_PER_PORTFOLIO:
              return False, f"Max {config.MAX_STOCKS_PER_PORTFOLIO} stocks allowed per portfolio."
              
-        db = self._load_db()
-        
-        # Ensure user structure exists
-        if "users" not in db: db["users"] = {}
-        if self.username not in db["users"]: db["users"][self.username] = {"portfolios": {}}
-        
-        user_portfolios = db["users"][self.username]["portfolios"]
-        
         # Check constraints
-        current_names = user_portfolios.keys()
+        current_names = self.get_portfolio_names()
         if name not in current_names and len(current_names) >= config.MAX_PORTFOLIOS_PER_USER:
             return False, f"Storage limit reached (Max {config.MAX_PORTFOLIOS_PER_USER} portfolios). Delete one to save new."
             
         # Convert to records for storage
-        db["users"][self.username]["portfolios"][name] = df.to_dict('records')
-        self._save_db(db)
+        self.db.save_portfolio(self.username, name, df.to_dict('records'))
         
         return True, f"Portfolio '{name}' saved successfully!"
         
     def delete_portfolio(self, name):
         """Deletes a portfolio by name for CURRENT USER"""
-        db = self._load_db()
-        
-        if "users" in db and self.username in db["users"]:
-            if name in db["users"][self.username]["portfolios"]:
-                del db["users"][self.username]["portfolios"][name]
-                self._save_db(db)
-                return True, f"Deleted '{name}'"
-        
+        if self.db.delete_portfolio(self.username, name):
+            return True, f"Deleted '{name}'"
         return False, "Portfolio not found"
+
