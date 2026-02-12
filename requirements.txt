@@ -215,9 +215,9 @@ pybase64==1.4.3
 pyclipper==1.4.0
 pycodestyle==2.14.0
 pycparser==2.23
-pydantic==2.12.5
-pydantic-settings==2.10.1
-pydantic_core==2.41.5
+pydantic~=2.11.9
+pydantic-settings
+pydantic_core
 pydeck==0.9.1
 pyflakes==3.4.0
 Pygments==2.19.2
