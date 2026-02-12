@@ -33,11 +33,8 @@ def clean_data_env(tmp_path):
 def test_portfolio_manager_init(clean_data_env):
     pm = PortfolioManager("test_user")
     assert pm.username == "test_user"
-    assert os.path.exists(str(clean_data_env / "saved_portfolios.json"))
-    
-    with open(str(clean_data_env / "saved_portfolios.json"), 'r') as f:
-        data = json.load(f)
-        assert data == {"users": {}}
+    # File is not created until data is saved, so we check internal state
+    assert pm.data == {"users": {}}
 
 def test_portfolio_save_validation(clean_data_env):
     pm = PortfolioManager("test_user")
@@ -66,6 +63,9 @@ def test_portfolio_crud_operations(clean_data_env):
     success, msg = pm.save_portfolio("Tech", df)
     assert success
     assert "saved successfully" in msg
+    
+    # NOW the file should exist
+    assert os.path.exists(str(clean_data_env / "saved_portfolios.json"))
     
     # READ
     saved_df = pm.get_portfolio("Tech")
@@ -154,6 +154,8 @@ def test_user_profile_expiry(clean_user_env):
             }
         }, f)
         
+    # Re-initialize to load the file we just wrote
+    um = UserProfileManager()
     status = um.get_profile_status(username)
     assert status['exists']
     assert status['days_old'] >= 400
