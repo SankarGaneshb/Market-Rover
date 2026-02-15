@@ -153,58 +153,60 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             # === VISUALIZATION 2: Seasonality Profile ===
             st.markdown("### 📊 Seasonality Profile")
             
-            col1, col2 = st.columns(2)
-            
             if not seasonality_stats.empty:
-                # 1. Win Rate Chart
-
-                fig_win = px.bar(
-
-                    seasonality_stats, 
-
-                    x='Month_Name', 
-
-                    y='Win_Rate',
-
-                    title='Win Rate % (Positive Months)',
-
-                    color='Win_Rate',
-
-                    color_continuous_scale='Greens',
-
-                    range_y=[0, 100]
-
-                )
-
-                st.plotly_chart(fig_win, width="stretch")
-
+                from plotly.subplots import make_subplots
                 
+                # Create figure with secondary y-axis
+                fig_seasonality = make_subplots(specs=[[{"secondary_y": True}]])
 
-                # 2. Avg Return Chart
-
+                # 1. Avg Return (Bars) - Primary Y
                 colors = ['green' if x > 0 else 'red' for x in seasonality_stats['Avg_Return']]
-
-                fig_seasonality = go.Figure(data=[
+                fig_seasonality.add_trace(
                     go.Bar(
                         x=seasonality_stats['Month_Name'],
                         y=seasonality_stats['Avg_Return'],
+                        name="Avg Return %",
                         marker_color=colors,
                         text=seasonality_stats['Avg_Return'],
                         texttemplate='%{y:.1f}%',
-                        textposition='auto'
-                    )
-                ])
-
-                fig_seasonality.update_layout(
-                    title="Average Monthly Return %",
-                    yaxis_title="Return %",
-                    xaxis_title="Month",
-                    height=450
+                        textposition='auto',
+                        opacity=0.7
+                    ),
+                    secondary_y=False
                 )
 
-                st.plotly_chart(fig_seasonality, width="stretch")
+                # 2. Win Rate (Line) - Secondary Y
+                fig_seasonality.add_trace(
+                    go.Scatter(
+                        x=seasonality_stats['Month_Name'],
+                        y=seasonality_stats['Win_Rate'],
+                        name="Win Rate %",
+                        mode='lines+markers+text',
+                        line=dict(color='gold', width=3),
+                        marker=dict(size=8, color='gold'),
+                        text=seasonality_stats['Win_Rate'],
+                        texttemplate='%{y:.0f}%',
+                        textposition='top center'
+                    ),
+                    secondary_y=True
+                )
+
+                # Layout
+                fig_seasonality.update_layout(
+                    title="Seasonality: Return vs. Probability",
+                    height=500,
+                    showlegend=True,
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    hovermode="x unified"
+                )
+
+                # Axis Titles
+                fig_seasonality.update_yaxes(title_text="Avg Return %", secondary_y=False)
+                fig_seasonality.update_yaxes(title_text="Win Rate %", range=[0, 110], secondary_y=True, showgrid=False)
+
+                st.plotly_chart(fig_seasonality, use_container_width=True)
                 
-                st.caption("📊 **Avg Return %**: Displays the historical average percentage return for each month. Green bars indicate months with positive average returns, while red bars indicate negative averages.")
+                st.caption("📊 **Combined Profile**: Bars represent the average return (Magnitude), while the Gold Line shows the % of positive months (consistency/probability).")
 
             
 
