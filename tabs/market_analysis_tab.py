@@ -169,6 +169,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                         marker_color=colors,
                         text=seasonality_stats['Avg_Return'],
                         texttemplate='%{y:.1f}%',
+                        hovertemplate='%{y:.1f}%',
                         textposition='auto',
                         opacity=0.7
                     ),
@@ -186,6 +187,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                         marker=dict(size=8, color='gold'),
                         text=seasonality_stats['Win_Rate'],
                         texttemplate='%{y:.0f}%',
+                        hovertemplate='%{y:.1f}%',
                         textposition='top center'
                     ),
                     secondary_y=True
