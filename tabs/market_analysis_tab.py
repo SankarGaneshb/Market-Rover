@@ -185,32 +185,26 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                 colors = ['green' if x > 0 else 'red' for x in seasonality_stats['Avg_Return']]
 
                 fig_seasonality = go.Figure(data=[
-
                     go.Bar(
-
                         x=seasonality_stats['Month_Name'],
-
                         y=seasonality_stats['Avg_Return'],
-
-                        marker_color=colors
-
+                        marker_color=colors,
+                        text=seasonality_stats['Avg_Return'],
+                        texttemplate='%{y:.1f}%',
+                        textposition='auto'
                     )
-
                 ])
 
                 fig_seasonality.update_layout(
-
                     title="Average Monthly Return %",
-
                     yaxis_title="Return %",
-
                     xaxis_title="Month",
-
                     height=450
-
                 )
 
                 st.plotly_chart(fig_seasonality, width="stretch")
+                
+                st.caption("📊 **Avg Return %**: Displays the historical average percentage return for each month. Green bars indicate months with positive average returns, while red bars indicate negative averages.")
 
             
 
