@@ -368,8 +368,8 @@ class SeasonalityCalendar:
         # Force white style
         plt.style.use('default') 
         
-        # Taller Layout to fit 12 months: 16x10 inches
-        fig, axes = plt.subplots(1, 2, figsize=(16, 12), sharey=True)
+        # Taller Layout to fit 12 months: A4 Landscape
+        fig, axes = plt.subplots(1, 2, figsize=(11.69, 8.27), sharey=True)
         fig.patch.set_facecolor('white')
         
         # Both plots show all 12 months

@@ -126,7 +126,8 @@ def test_generate_pdf_report(renderer, sample_data):
             sample_data['forecast_2026'],
             seasonality_stats,
             mock_calendar_tool,
-            calendar_df
+            calendar_df,
+            calendar_df # reusing for muhurta for test
         )
         
         # Verify

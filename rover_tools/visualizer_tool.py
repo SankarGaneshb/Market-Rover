@@ -45,8 +45,11 @@ def run_snapshot_logic(ticker: str):
     
     # 2026 Calendar Analysis
     calendar_tool = SeasonalityCalendar(history)
-    calendar_df = calendar_tool.generate_analysis()
-    # We will pass the tool or df to renderer to generate the plot
+    calendar_df_strategic = calendar_tool.generate_analysis()
+    
+    # Subha Muhurta Calendar
+    calendar_tool_muhurta = SeasonalityCalendar(history, calendar_type="Subha Muhurta")
+    calendar_df_muhurta = calendar_tool_muhurta.generate_analysis()
         
     # 2026 Forecast
     forecast_2026 = analyzer.calculate_2026_forecast(history)
@@ -63,7 +66,8 @@ def run_snapshot_logic(ticker: str):
             forecast_2026=forecast_2026,
             seasonality_stats=seasonality_stats,
             calendar_tool=calendar_tool,
-            calendar_df=calendar_df
+            calendar_df_strategic=calendar_df_strategic,
+            calendar_df_muhurta=calendar_df_muhurta
         )
         
         return {
