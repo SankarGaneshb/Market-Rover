@@ -66,10 +66,7 @@ MOCK_MODULES = [
     'tensorflow',
     'torch',
     'keras',
-    'cv2',
-    'cv2',
-    'cv2',
-    'matplotlib.pyplot'
+    'cv2'
 ]
 
 # BLIND MOCKING: Do not import these modules as they cause hangs
