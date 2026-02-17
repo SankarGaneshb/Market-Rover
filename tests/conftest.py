@@ -2,6 +2,11 @@ import sys
 import os
 from pathlib import Path
 
+# Force Matplotlib to use non-interactive backend 'Agg' for CI/Headless environments
+# This must be done BEFORE importing matplotlib.pyplot or seaborn elsewhere
+import matplotlib
+matplotlib.use('Agg')
+
 # Add the project root directory to sys.path
 # This ensures that 'rover_tools', 'utils', 'crew_engine', etc. can be imported by tests
 project_root = str(Path(__file__).parent.parent)
