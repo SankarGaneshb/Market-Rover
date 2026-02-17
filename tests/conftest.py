@@ -1,11 +1,28 @@
 import sys
 import os
 from pathlib import Path
+from unittest.mock import MagicMock
 
 # Force Matplotlib to use non-interactive backend 'Agg' for CI/Headless environments
-# This must be done BEFORE importing matplotlib.pyplot or seaborn elsewhere
 import matplotlib
 matplotlib.use('Agg')
+
+# Mock CrewAI if it fails to import (fixes CI collection errors due to missing system deps for chromadb etc)
+try:
+    import crewai
+    from crewai.tools import tool
+except ImportError:
+    print("⚠️ CrewAI not found/broken. Mocking for test collection.")
+    mock_crewai = MagicMock()
+    sys.modules["crewai"] = mock_crewai
+    sys.modules["crewai.tools"] = MagicMock()
+    sys.modules["crewai.process"] = MagicMock()
+    sys.modules["crewai.agent"] = MagicMock()
+    sys.modules["crewai.task"] = MagicMock()
+    sys.modules["crewai.project"] = MagicMock() # Often imported
+    
+    # Ensure 'tool' decorator can be imported from crewai.tools
+    sys.modules["crewai.tools"].tool = lambda x: x
 
 # Add the project root directory to sys.path
 # This ensures that 'rover_tools', 'utils', 'crew_engine', etc. can be imported by tests
