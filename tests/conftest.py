@@ -19,7 +19,7 @@ MOCK_MODULES = [
 for mod_name in MOCK_MODULES:
     try:
         __import__(mod_name)
-    except ImportError:
+    except Exception: # Catch ImportError, RuntimeError, TypeError, etc.
         if mod_name not in sys.modules:
             mock_mod = MagicMock()
             # Shotgun Mocking: Set all common version attributes to prevent "MagicMock >= tuple" errors
