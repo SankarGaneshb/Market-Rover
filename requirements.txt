@@ -10,6 +10,7 @@ nselib
 nsepython
 numpy
 pandas
+lxml[html_clean]
 pillow
 plotly
 pydantic
