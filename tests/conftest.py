@@ -97,6 +97,13 @@ for mod_name in MOCK_MODULES:
     
     if mod_name == 'google.generativeai':
         mock_mod.GenerativeModel = MagicMock
+
+    if mod_name == 'prophet':
+        mock_mod.Prophet = MagicMock
+        
+    if mod_name == 'sklearn':
+        mock_mod.base = MagicMock()
+        mock_mod.base.BaseEstimator = MagicMock
         
     # Inject into sys.modules
     sys.modules[mod_name] = mock_mod
@@ -106,13 +113,10 @@ for mod_name in MOCK_MODULES:
 import sqlite3
 if sqlite3.sqlite_version_info < (3, 35, 0):
     # Monkey patch the version info if it's too old or missing
-    # But checking 'sqlite_version_info' might be what's failing if it's a MagicMock?
-    # No, if it's a MagicMock, we need to set it.
     pass
 
 # Patch sqlite3 globally to ensure it passes checks
 # Chroma does: if sqlite3.sqlite_version_info < (3, 35, 0): raise...
-# We define a dummy sqlite3 shim if strictly needed, or just patch the existing one.
 try:
     sqlite3.sqlite_version_info = (3, 35, 0)
     sqlite3.sqlite_version = "3.35.0"
@@ -128,8 +132,15 @@ except Exception: # Catch ImportError AND runtime errors (like missing sqlite bi
     print("⚠️ CrewAI broken/missing. Mocking for test collection.")
     mock_crewai = MagicMock()
     mock_crewai.__version__ = "0.1.0"
+    # Key Classes must be Types
+    mock_crewai.Agent = MagicMock
+    mock_crewai.Task = MagicMock
+    mock_crewai.Crew = MagicMock
+    mock_crewai.Process = MagicMock
+    
     sys.modules["crewai"] = mock_crewai
     sys.modules["crewai.tools"] = MagicMock()
+    sys.modules["crewai.tools"].BaseTool = MagicMock # Class type
     sys.modules["crewai.process"] = MagicMock()
     sys.modules["crewai.agent"] = MagicMock()
     sys.modules["crewai.task"] = MagicMock()
