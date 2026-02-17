@@ -223,19 +223,20 @@ class DashboardRenderer:
                         plt.close(fig4)
 
                     # === PAGE 5: DETAILED DATA TABLE ===
-                    fig5 = plt.figure(figsize=(11.69, 8.27))
-                    fig5.patch.set_facecolor('white')
-                    
-                    ax_table = fig5.add_subplot(111)
-                    ax_table.axis('off')
-                    
-                    self._plot_calendar_table(ax_table, calendar_df_strategic)
-                    
-                    fig5.text(0.98, 0.02, "Market-Rover Report", color='black', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
-                    fig5.suptitle(f"{ticker} - Detailed Seasonality Data", fontsize=18, color='black', fontweight='bold', y=0.95)
-                    
-                    pdf.savefig(fig5)
-                    plt.close(fig5)
+                    if not calendar_df_strategic.empty:
+                        fig5 = plt.figure(figsize=(11.69, 8.27))
+                        fig5.patch.set_facecolor('white')
+                        
+                        ax_table = fig5.add_subplot(111)
+                        ax_table.axis('off')
+                        
+                        self._plot_calendar_table(ax_table, calendar_df_strategic)
+                        
+                        fig5.text(0.98, 0.02, "Market-Rover Report", color='black', fontsize=12, fontweight='bold', ha='right', alpha=0.5)
+                        fig5.suptitle(f"{ticker} - Detailed Seasonality Data", fontsize=18, color='black', fontweight='bold', y=0.95)
+                        
+                        pdf.savefig(fig5)
+                        plt.close(fig5)
 
                     # === PAGE 6: DETAILED FORECAST NOTES ===
                     fig6 = plt.figure(figsize=(11.69, 8.27))
