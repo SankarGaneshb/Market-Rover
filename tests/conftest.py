@@ -89,6 +89,14 @@ for mod_name in MOCK_MODULES:
         mock_mod.dbapi2.sqlite_version_info = (3, 35, 0)
         mock_mod.dbapi2.sqlite_version = "3.35.0"
         mock_mod.dbapi2.version_info = (3, 35, 0)
+
+    # FIX: Ensure classes are TYPES, not instances, for issubclass() checks
+    if mod_name == 'langchain_google_genai':
+        mock_mod.ChatGoogleGenerativeAI = MagicMock
+        mock_mod.GoogleGenerativeAI = MagicMock
+    
+    if mod_name == 'google.generativeai':
+        mock_mod.GenerativeModel = MagicMock
         
     # Inject into sys.modules
     sys.modules[mod_name] = mock_mod
