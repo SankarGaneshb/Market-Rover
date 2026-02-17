@@ -22,9 +22,10 @@ for mod_name in MOCK_MODULES:
     except ImportError:
         if mod_name not in sys.modules:
             mock_mod = MagicMock()
+            # Shotgun Mocking: Set all common version attributes to prevent "MagicMock >= tuple" errors
             mock_mod.__version__ = "3.35.0"
-            # CRITICAL: Fix for ChromaDB checking sqlite3 version
-            # It compares sqlite_version_info >= (3, 35, 0), so this MUST be a tuple, not a MagicMock
+            mock_mod.version_info = (3, 35, 0)
+            mock_mod.VERSION = (3, 35, 0)
             mock_mod.sqlite_version_info = (3, 35, 0)
             mock_mod.sqlite_version = "3.35.0"
             
@@ -33,6 +34,7 @@ for mod_name in MOCK_MODULES:
                 mock_mod.dbapi2 = MagicMock()
                 mock_mod.dbapi2.sqlite_version_info = (3, 35, 0)
                 mock_mod.dbapi2.sqlite_version = "3.35.0"
+                mock_mod.dbapi2.version_info = (3, 35, 0)
                 
             sys.modules[mod_name] = mock_mod
 
