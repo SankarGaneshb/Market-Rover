@@ -76,6 +76,10 @@ def mock_market_analyzer():
 def mock_shadow_tools():
     with patch('utils.analysis_runner.detect_silent_accumulation') as mock:
         mock.return_value = {'score': 50, 'signals': ['Test Signal']}
+        # Also mock batch_detect_accumulation if it exists being called
+        # But wait, where is batch_detect_accumulation coming from?
+        # It might be in shadow_tools module. 
+        # Better to patch the whole module or the specific function if used.
         yield mock
 
 @pytest.fixture

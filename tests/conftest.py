@@ -37,27 +37,61 @@ MOCK_MODULES = [
     'en_core_web_sm'
 ]
 
+MOCK_MODULES = [
+    'chromadb',
+    'chromadb.config', 
+    'pysqlite3',
+    'docling',
+    'langchain_community.vectorstores',
+    'embedchain',
+    'newspaper',
+    'newspaper.article',
+    'duckduckgo_search',
+    'lxml_html_clean',
+    'spacy',
+    'en_core_web_sm',
+    'yfinance',
+    'nselib',
+    'nsepython',
+    'langchain_google_genai',
+    'google.generativeai',
+    'google.ai.generativelanguage',
+    # 'google',  # DO NOT MOCK TOP-LEVEL GOOGLE - IT BREAKS PROTOBUF
+    'scikit-learn',
+    'sklearn',
+    'statsmodels',
+    'prophet',
+    'fbprophet',
+    'pmdarima',
+    'tensorflow',
+    'torch',
+    'keras',
+    'cv2',
+    'cv2',
+    'PIL',
+    'matplotlib.pyplot'
+]
+
+# BLIND MOCKING: Do not import these modules as they cause hangs
 for mod_name in MOCK_MODULES:
-    try:
-        __import__(mod_name)
-    except Exception: # Catch ImportError, RuntimeError, TypeError, etc.
-        if mod_name not in sys.modules:
-            mock_mod = MagicMock()
-            # Shotgun Mocking: Set all common version attributes to prevent "MagicMock >= tuple" errors
-            mock_mod.__version__ = "3.35.0"
-            mock_mod.version_info = (3, 35, 0)
-            mock_mod.VERSION = (3, 35, 0)
-            mock_mod.sqlite_version_info = (3, 35, 0)
-            mock_mod.sqlite_version = "3.35.0"
-            
-            # Handle pysqlite3.dbapi2.sqlite_version_info
-            if mod_name == "pysqlite3":
-                mock_mod.dbapi2 = MagicMock()
-                mock_mod.dbapi2.sqlite_version_info = (3, 35, 0)
-                mock_mod.dbapi2.sqlite_version = "3.35.0"
-                mock_mod.dbapi2.version_info = (3, 35, 0)
-                
-            sys.modules[mod_name] = mock_mod
+    # Create a fresh mock
+    mock_mod = MagicMock()
+    # Shotgun Mocking: Set all common version attributes
+    mock_mod.__version__ = "3.35.0"
+    mock_mod.version_info = (3, 35, 0)
+    mock_mod.VERSION = (3, 35, 0)
+    mock_mod.sqlite_version_info = (3, 35, 0)
+    mock_mod.sqlite_version = "3.35.0"
+    
+    # Handle pysqlite3.dbapi2.sqlite_version_info
+    if mod_name == "pysqlite3":
+        mock_mod.dbapi2 = MagicMock()
+        mock_mod.dbapi2.sqlite_version_info = (3, 35, 0)
+        mock_mod.dbapi2.sqlite_version = "3.35.0"
+        mock_mod.dbapi2.version_info = (3, 35, 0)
+        
+    # Inject into sys.modules
+    sys.modules[mod_name] = mock_mod
 
 # Specific fix for ChromaDB checking sqlite3 version
 # We must ensure sqlite3 has a compatible version string, even if it's the system one
@@ -94,26 +128,15 @@ except Exception: # Catch ImportError AND runtime errors (like missing sqlite bi
     sys.modules["crewai.project"] = MagicMock()
     
     # Ensure 'tool' decorator works
-    sys.modules["crewai.tools"].tool = lambda x: x
-
-# Mock CrewAI specifically if it's broken (e.g. checks for chromadb at runtime)
-# We wrap this in a generally broad try/except to catch ANY initialization error
-try:
-    import crewai
-    from crewai.tools import tool
-except Exception: # Catch ImportError AND runtime errors (like missing sqlite binary)
-    print("⚠️ CrewAI broken/missing. Mocking for test collection.")
-    mock_crewai = MagicMock()
-    mock_crewai.__version__ = "0.1.0"
-    sys.modules["crewai"] = mock_crewai
-    sys.modules["crewai.tools"] = MagicMock()
-    sys.modules["crewai.process"] = MagicMock()
-    sys.modules["crewai.agent"] = MagicMock()
-    sys.modules["crewai.task"] = MagicMock()
-    sys.modules["crewai.project"] = MagicMock()
-    
-    # Ensure 'tool' decorator works
-    sys.modules["crewai.tools"].tool = lambda x: x
+    def mock_tool(*args, **kwargs):
+        def decorator(func):
+            return func
+        # Handle case where it's used as @tool (no args, just func)
+        if len(args) == 1 and callable(args[0]) and not kwargs:
+            return args[0]
+        return decorator
+        
+    sys.modules["crewai.tools"].tool = mock_tool
 
 # Add the project root directory to sys.path
 # This ensures that 'rover_tools', 'utils', 'crew_engine', etc. can be imported by tests
