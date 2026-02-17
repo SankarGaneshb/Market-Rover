@@ -68,7 +68,7 @@ MOCK_MODULES = [
     'keras',
     'cv2',
     'cv2',
-    'PIL',
+    'cv2',
     'matplotlib.pyplot'
 ]
 
