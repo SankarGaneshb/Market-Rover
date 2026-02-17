@@ -7,13 +7,34 @@ from unittest.mock import MagicMock
 import matplotlib
 matplotlib.use('Agg')
 
+# Monkeypatch platform module to prevent slow WMI calls on Windows
+# CONSTANTLY checking WMI on every import causes massive hangs
+import platform
+import sys
+
+if sys.platform == 'win32':
+    platform.system = lambda: "Windows"
+    platform.release = lambda: "10"
+    platform.version = lambda: "10.0.19045"
+    platform.machine = lambda: "AMD64"
+    platform.processor = lambda: "Intel64 Family 6 Model 142 Stepping 9, GenuineIntel"
+    platform.node = lambda: "DESKTOP-CI"
+    platform.platform = lambda: "Windows-10-10.0.19045-SP0"
+    platform.win32_ver = lambda: ("10", "10.0.19045", "SP0", "Multiprocessor Free")
+
 MOCK_MODULES = [
     'chromadb',
     'chromadb.config', 
     'pysqlite3',
     'docling',
     'langchain_community.vectorstores',
-    'embedchain'
+    'embedchain',
+    'newspaper',
+    'newspaper.article',
+    'duckduckgo_search',
+    'lxml_html_clean',
+    'spacy',
+    'en_core_web_sm'
 ]
 
 for mod_name in MOCK_MODULES:
