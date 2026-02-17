@@ -1,0 +1,49 @@
+name: Deploy InvestCraft
+
+on:
+  push:
+    branches: [investcraft]
+    paths: ['investcraft/**']
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  BACKEND_SERVICE: investcraft-api
+  FRONTEND_BUCKET: gs://market-rover-investcraft
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: investcraft/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+      - run: |
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} --platform managed --allow-unauthenticated \
+            --set-secrets JWT_SECRET=investcraft-jwt-secret:latest
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    defaults:
+      run:
+        working-directory: investcraft/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm ci && npm run build
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: gsutil -m rsync -r build ${{ env.FRONTEND_BUCKET }}
