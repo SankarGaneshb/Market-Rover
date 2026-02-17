@@ -23,6 +23,17 @@ for mod_name in MOCK_MODULES:
         if mod_name not in sys.modules:
             mock_mod = MagicMock()
             mock_mod.__version__ = "3.35.0"
+            # CRITICAL: Fix for ChromaDB checking sqlite3 version
+            # It compares sqlite_version_info >= (3, 35, 0), so this MUST be a tuple, not a MagicMock
+            mock_mod.sqlite_version_info = (3, 35, 0)
+            mock_mod.sqlite_version = "3.35.0"
+            
+            # Handle pysqlite3.dbapi2.sqlite_version_info
+            if mod_name == "pysqlite3":
+                mock_mod.dbapi2 = MagicMock()
+                mock_mod.dbapi2.sqlite_version_info = (3, 35, 0)
+                mock_mod.dbapi2.sqlite_version = "3.35.0"
+                
             sys.modules[mod_name] = mock_mod
 
 # Specific fix for ChromaDB checking sqlite3 version
