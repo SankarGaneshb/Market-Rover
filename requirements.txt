@@ -1,4 +1,4 @@
-﻿aiohttp
+aiohttp
 beautifulsoup4
 crewai
 duckduckgo-search
@@ -21,6 +21,7 @@ pyyaml
 requests
 scipy
 seaborn
+protobuf>=3.20,<4.0
 streamlit
 streamlit-authenticator
 streamlit-oauth
