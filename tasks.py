@@ -1,7 +1,13 @@
 """
 Task definitions for Market Rover system.
 """
-from crewai import Task
+try:
+    from crewai import Task
+except Exception:
+    # Fallback stub so tests can import and patch this module without crewai installed
+    class Task:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            pass
 from textwrap import dedent
 
 
