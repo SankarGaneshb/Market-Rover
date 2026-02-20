@@ -14,6 +14,7 @@ function PrivateRoute({ children }) {
 }
 
 export default function App() {
+  console.log("CLIENT ID IN APP:", process.env.REACT_APP_GOOGLE_CLIENT_ID);
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <AuthProvider>

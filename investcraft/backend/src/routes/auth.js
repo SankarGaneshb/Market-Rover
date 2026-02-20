@@ -1,5 +1,5 @@
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 const { getPool } = require('../config/database');
@@ -17,12 +17,12 @@ function signToken(user) {
 
 function formatUser(user) {
   return {
-    id:     user.id,
-    name:   user.name,
-    email:  user.email,
+    id: user.id,
+    name: user.name,
+    email: user.email,
     avatar: user.avatar_url,
     streak: user.streak,
-    score:  user.total_score,
+    score: user.total_score,
   };
 }
 
@@ -33,7 +33,7 @@ router.post('/google', async (req, res) => {
 
   try {
     const ticket = await googleClient.verifyIdToken({
-      idToken:  token,
+      idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const { sub: googleId, email, name, picture } = ticket.getPayload();
@@ -51,8 +51,9 @@ router.post('/google', async (req, res) => {
     const user = result.rows[0];
     res.json({ token: signToken(user), user: formatUser(user) });
   } catch (err) {
-    logger.error('Google auth error', { message: err.message });
-    res.status(401).json({ error: 'Authentication failed' });
+    console.error('GOOGLE AUTH FULL ERROR:', err);
+    logger.error('Google auth error', { message: err.message, stack: err.stack, name: err.name });
+    res.status(401).json({ error: 'Authentication failed', details: err.message });
   }
 });
 

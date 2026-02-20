@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('ic_token', data.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     setUser(data.user);
+    return data; // includes is_new_user flag from backend
   };
 
   const logout = () => {

@@ -201,7 +201,7 @@ def main():
             "🕵️ Shadow Tracker",
             "---",
             "🧠 Agent Brain",
-             "---",
+            "---",
             "👤 Investor Profile",
             "⚙️ System Health"
         ]
