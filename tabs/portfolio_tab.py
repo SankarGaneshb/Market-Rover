@@ -776,6 +776,15 @@ def render_upload_section_logic(max_parallel):
     # 4. RENDER GRIDS
     new_selection = []
     
+    st.divider()
+    # Dynamic Limit Instructions based on Persona
+    if "Hunter" in p_str:
+        st.info("💡 **Tip**: For your adventurous Hunter persona, we recommend selecting **up to 2 brands** each from Nifty 50, Nifty Next 50, and Midcap indexes to build a diversified, high-growth portfolio.")
+    elif "Compounder" in p_str:
+        st.info("💡 **Tip**: For your balanced Compounder persona, we recommend selecting **up to 2 brands** from Nifty 50, and **up to 2 brands** from Nifty Next 50 to balance stability and growth.")
+    else:
+        st.info("💡 **Tip**: For your conservative Defender/Preserver persona, we recommend selecting **up to 3 brands** from the Nifty 50 index to focus on stability and wealth preservation.")
+    
     # Group 1: Nifty 50 (Always)
     sel_n50 = render_brand_grid(NIFTY_50_SECTOR_MAP, "🛒 Nifty 50 (Core)", "pf_n50")
     new_selection.extend(sel_n50)
