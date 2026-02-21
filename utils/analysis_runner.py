@@ -467,6 +467,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 fig_heatmap = visualizer.create_portfolio_heatmap(stock_risk_data)
                 fig_heatmap.update_layout(height=400) # Ensure fixed height matches sentiment
                 st.plotly_chart(fig_heatmap, width="stretch", use_container_width=True)
+                st.caption("🔍 **What does this mean?** Visualizes risk concentration across your stocks. Larger or darker blocks indicate areas where your portfolio might be heavily exposed or taking on more risk compared to others.")
 
         # Row 2: Correlation & Individual Risk
         col3, col4 = st.columns(2)
@@ -475,6 +476,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                  # Use the new masked heatmap function
                  fig_corr = visualizer.create_correlation_heatmap(corr_matrix)
                  st.plotly_chart(fig_corr, width="stretch", use_container_width=True)
+                 st.caption("🔍 **What does this mean?** Shows how your stocks move together. High numbers (red) mean they move in the same direction, reducing diversification. Low or negative numbers (blue) mean they move independently, helping to spread risk. (The lower triangle simply avoids repeating data).")
                  
         with col4:
              # Individual stock risk gauges (Top 3 Riskiest)
