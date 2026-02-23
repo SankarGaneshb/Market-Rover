@@ -2,9 +2,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies first (better layer caching)
+# Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copy source
 COPY src/ ./src/
