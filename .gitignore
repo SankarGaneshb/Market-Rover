@@ -67,4 +67,5 @@ htmlcov/
 !Portfolio.csv.example
 
 # Data Storage
-data/
+/data/
+!investcraft/frontend/src/data/
