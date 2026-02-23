@@ -1,0 +1,59 @@
+name: Deploy InvestCraft
+
+on:
+  push:
+    branches: [investcraft]
+    paths: ['investcraft/**']
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  BACKEND_SERVICE: investcraft-api
+  FRONTEND_SERVICE: investcraft-ui
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: investcraft/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+      - run: |
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} --platform managed --allow-unauthenticated \
+            --set-secrets "JWT_SECRET=investcraft-jwt-secret:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,DB_PASSWORD=investcraft-db-password:latest" \
+            --set-env-vars "NODE_ENV=production,DB_NAME=investcraft,DB_USER=postgres,CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
+            --add-cloudsql-instances market-rover:us-central1:investcraft-db
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    defaults:
+      run:
+        working-directory: investcraft/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Prep Nginx Proxy & Env
+        run: |
+          BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
+          sed -i "s|http://backend:8080|$BACKEND_URL|g" nginx.conf
+          echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+          cat nginx.conf
+
+      - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+      - run: |
+          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} --platform managed --allow-unauthenticated
