@@ -41,25 +41,30 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-async function startServer() {
+// Health check endpoint (can be checked by Cloud Run)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+const server = app.listen(PORT, async () => {
+  logger.info(`InvestCraft API starting on port ${PORT}`, {
+    node_env: process.env.NODE_ENV,
+    port: PORT,
+    has_db_conn: !!process.env.CLOUD_SQL_CONNECTION_NAME
+  });
+
   try {
     await initializePool();
-    logger.info('Database pool initialized');
-    app.listen(PORT, () => {
-      logger.info(`InvestCraft API running on port ${PORT}`, {
-        environment: process.env.NODE_ENV,
-        port: PORT
-      });
-    });
+    logger.info('Database pool initialized and connected');
   } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
+    logger.error('Database initialization failed in background:', error);
+    // We don't exit here, so we can see the logs in Cloud Run
   }
-}
+});
 
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received: closing server');
-  process.exit(0);
+  server.close(() => {
+    process.exit(0);
+  });
 });
-
-startServer();
