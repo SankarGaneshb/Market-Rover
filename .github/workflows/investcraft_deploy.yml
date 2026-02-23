@@ -19,14 +19,6 @@ jobs:
         working-directory: investcraft/backend
     steps:
       - uses: actions/checkout@v4
-      - name: 'Debug Secret (Backend)'
-        run: |
-          echo "Value of GCP_SA_KEY secret exists: ${{ secrets.GCP_SA_KEY != '' }}"
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "::error::SECRET 'GCP_SA_KEY' IS TOTALLY EMPTY OR MISSING IN GITHUB SETTINGS"
-            exit 1
-          fi
-          echo "SUCCESS: Secret detected."
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -48,14 +40,6 @@ jobs:
         working-directory: investcraft/frontend
     steps:
       - uses: actions/checkout@v4
-      - name: 'Debug Secret (Frontend)'
-        run: |
-          echo "Value of GCP_SA_KEY secret exists: ${{ secrets.GCP_SA_KEY != '' }}"
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "::error::SECRET 'GCP_SA_KEY' IS TOTALLY EMPTY OR MISSING IN GITHUB SETTINGS"
-            exit 1
-          fi
-          echo "SUCCESS: Secret detected."
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
