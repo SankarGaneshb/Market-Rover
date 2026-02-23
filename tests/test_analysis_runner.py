@@ -1,8 +1,14 @@
+import streamlit as st
 import pytest
 from unittest.mock import MagicMock, patch, call
 import pandas as pd
 import threading
 from utils.analysis_runner import run_analysis
+
+@pytest.fixture(autouse=True)
+def mock_sleep():
+    with patch('utils.analysis_runner.time.sleep'):
+        yield
 
 @pytest.fixture
 def mock_streamlit():
@@ -32,11 +38,20 @@ def mock_crew():
 @pytest.fixture
 def mock_thread():
     with patch('utils.analysis_runner.threading.Thread') as mock:
-        # Execute the target function immediately in the main thread for testing
-        def side_effect(target=None, **kwargs):
-            target()
-            return MagicMock()
-        mock.side_effect = side_effect
+        # Create a mock thread instance
+        thread_instance = MagicMock()
+        mock.return_value = thread_instance
+        
+        # Define side effect for start(): run the target function
+        def start_side_effect():
+            # Retrieve target from constructor call
+            if mock.call_args:
+                args, kwargs = mock.call_args
+                target = kwargs.get('target')
+                if target:
+                    target()
+        
+        thread_instance.start.side_effect = start_side_effect
         yield mock
 
 @pytest.fixture
@@ -61,6 +76,10 @@ def mock_market_analyzer():
 def mock_shadow_tools():
     with patch('utils.analysis_runner.detect_silent_accumulation') as mock:
         mock.return_value = {'score': 50, 'signals': ['Test Signal']}
+        # Also mock batch_detect_accumulation if it exists being called
+        # But wait, where is batch_detect_accumulation coming from?
+        # It might be in shadow_tools module. 
+        # Better to patch the whole module or the specific function if used.
         yield mock
 
 @pytest.fixture

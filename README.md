@@ -54,7 +54,8 @@ Market-Rover is an AI-powered platform with a **comprehensive suite of intellige
 |---------|-------------|-----------------|
 | **📤 Portfolio Analysis** | AI-driven multi-stock analysis with news & sentiment | CrewAI, Gemini, Parallel Processing |
 | **📈 Market Visualizer** | High-fidelity dashboards & Monthly Heatmaps | Plotly, PNG export, IQR Filtering |
-| **🔍 Market Analysis** | Benchmark Deep-dives (Nifty, Sensex, Bank Nifty) | Shared Analysis Pipe, st.pills |
+| **📊 Benchmark Analysis** | Benchmark Deep-dives (Nifty, Sensex, Bank Nifty) | Shared Analysis pipe, st.pills |
+| **🧩 InvestCraft** | **Brand Lore Puzzle Game** with Nostalgic Trivia | React, Node.js, Wikipedia Logo API |
 | **⚖️ Smart Rebalancer** | Growth vs Safety modes with Corporate Action Auto-Fix | Sharpe Ratio, Risk Parity |
 | **🕵️ Shadow Tracker** | **Real Institutional Data** (Block Deals, FII Traps) | nselib, Real-time NSE Data |
 | **🎯 Forecast Tracker** | Real-time tracking & management of AI results | yfinance, Interactive st.data_editor |
@@ -354,6 +355,10 @@ Market-Rover/
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Environment template
 │
+├── investcraft/                # Brand Lore Puzzle Game (React + Node.js)
+│   ├── frontend/                  # React UI with 4-Tier Selection
+│   └── backend/                   # Node.js API with Cloud SQL
+│
 ├── tools/                      # Analysis tools
 │   ├── market_data.py             # Stock & Option data fetcher
 │   ├── news_scraper.py            # Moneycontrol web scraper
@@ -561,7 +566,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: January 25, 2026*
+*Last Updated: February 23, 2026*
 
 ---
 

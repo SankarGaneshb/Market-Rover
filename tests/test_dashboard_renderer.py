@@ -115,7 +115,13 @@ def test_generate_pdf_report(renderer, sample_data):
         mock_calendar_tool = MagicMock()
         mock_calendar_tool.plot_calendar.return_value = MagicMock() # The figure
         
-        calendar_df = pd.DataFrame()
+        calendar_df = pd.DataFrame({
+            'Month': ['January', 'February'],
+            'Best_Buy_Day_Raw': [1, 5],
+            'Best_Sell_Day_Raw': [10, 15],
+            'Avg_Gain_Pct': [5.5, 2.3],
+            'Avg_Annual_Gain': [10.2, 8.5]
+        })
         
         # Run
         buf = renderer.generate_pdf_report(
@@ -126,7 +132,8 @@ def test_generate_pdf_report(renderer, sample_data):
             sample_data['forecast_2026'],
             seasonality_stats,
             mock_calendar_tool,
-            calendar_df
+            calendar_df,
+            calendar_df # reusing for muhurta for test
         )
         
         # Verify

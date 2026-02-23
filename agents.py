@@ -4,7 +4,17 @@ Agent definitions for Market Rover system.
 .. note::
     If you modify any agent roles or goals, please update `AI_AGENTS.md`.
 """
-from crewai import Agent, LLM
+try:
+    from crewai import Agent, LLM
+except Exception:
+    # Fallback stubs so tests can import and patch this module without crewai installed
+    class Agent:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class LLM:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs):
+            pass
 
 from rover_tools.batch_tools import batch_scrape_news, batch_get_stock_data, batch_detect_accumulation
 from rover_tools.portfolio_tool import read_portfolio

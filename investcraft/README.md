@@ -8,13 +8,13 @@ Learn about Nifty 50 companies through engaging brand logo puzzles. InvestCraft 
 
 ## ✨ Features
 
-- 🧩 **Brand Puzzles** - Solve jigsaw puzzles of famous Indian brand logos
-- 📈 **Nifty 50 Learning** - Discover companies behind everyday brands
-- 🔥 **Daily Streak** - Build habits with daily challenges
-- 🏆 **Global Leaderboard** - Compete with investors worldwide
-- 🎯 **Daily Challenges** - New puzzle every day
-- 📱 **PWA Support** - Install and play offline
-- 🔐 **Google OAuth** - Secure authentication
+- 🧩 **Brand Lore Puzzles** - Solve jigsaw puzzles of authentic Indian brand logos.
+- 📜 **Nostalgic Insights** - Discover "Founder Moments" and historic milestones for major companies like TCS and Reliance.
+- 🚀 **4-Tier Selection flow** - Navigate 151+ brands across Nifty 50, Next 50, and Midcap with zero horizontal scrolling.
+- 📉 **Nifty Learning** - Deep-dive into the companies behind everyday household brands.
+- 🔥 **Daily Streak** - Build habbits with daily challenges and global leaderboards.
+- 📱 **Zero-Scroll Master UI** - High-density completion screens optimized for 100vh viewport.
+- 🛡️ **Trademark Compliance** - Authentic sourcing via Wikipedia & gstatic domain validation.
 
 ---
 
