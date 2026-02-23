@@ -13,6 +13,7 @@ export default function PuzzleGame() {
   const [difficulty, setDifficulty] = useState(null);
   const [currentBrand, setCurrentBrand] = useState(null);
   const [dbPuzzleId, setDbPuzzleId] = useState(null);
+  const [completedToday, setCompletedToday] = useState(false);
 
   const [pieces, setPieces] = useState([]);
   const [solvedPositions, setSolvedPositions] = useState({});
@@ -89,8 +90,19 @@ export default function PuzzleGame() {
 
       // Also get user stats if we have endpoints, or default to context info
       if (user) {
-        setStreak(user.streak || 0); // Assuming AuthContext provides streak
+        setStreak(user.streak || 0);
         setScore(user.total_score || 0);
+
+        // Check if today's puzzle is already completed by this user
+        if (data && data.id) {
+          try {
+            const sessions = await axios.get('/api/users/me/sessions');
+            const done = sessions.data.some(s => s.puzzle_id === data.id && s.completed);
+            setCompletedToday(done);
+          } catch (e) {
+            console.error('Failed to check session status', e);
+          }
+        }
       }
 
       setGameState('menu');
@@ -207,6 +219,7 @@ export default function PuzzleGame() {
 
     const gameScore = calculateScore(finalMoves);
     setGameState('completed');
+    setCompletedToday(true);
     await saveGameData(gameScore, finalMoves, timer);
   };
 
@@ -259,9 +272,16 @@ export default function PuzzleGame() {
           </div>
 
           <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <Calendar className="text-blue-600" />
-              Today's Challenge
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Calendar className="text-blue-600" />
+                Today's Challenge
+              </span>
+              {completedToday && (
+                <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                  <Award size={14} /> Completed
+                </span>
+              )}
             </h2>
 
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
@@ -366,6 +386,25 @@ export default function PuzzleGame() {
                       <Zap size={18} /> {streak}d
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Level Selection Section - Allowed after completion */}
+              <div className="bg-slate-50 rounded-2xl p-4 mb-4 border border-slate-200">
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Try Another Level?</h4>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {Object.entries(difficultyLevels).map(([key, value]) => (
+                    <button
+                      key={key}
+                      onClick={() => startGame(key)}
+                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm ${difficulty === key
+                          ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400'
+                          : 'bg-white text-slate-700 hover:bg-white/80 border border-slate-200'
+                        }`}
+                    >
+                      {value.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
