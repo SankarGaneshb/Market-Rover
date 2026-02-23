@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Play, User, LogOut, TrendingUp } from 'lucide-react';
+import { Trophy, Play, User, LogOut, TrendingUp, Calendar } from 'lucide-react';
 
 export default function Navbar() {
   const { user, login, logout } = useAuth();
@@ -13,6 +13,7 @@ export default function Navbar() {
       <div className="flex items-center gap-5">
         <Link to="/play" className="text-slate-300 hover:text-white"><Play size={15} />Play</Link>
         <Link to="/leaderboard" className="text-slate-300 hover:text-white"><Trophy size={15} />Leaderboard</Link>
+        <Link to="/vote" className="text-slate-300 hover:text-white flex items-center gap-1"><Calendar size={15} />Vote</Link>
         {user ? (
           <><Link to="/profile" className="text-slate-300 hover:text-white"><User size={15} />{user.name}</Link><button onClick={logout} className="text-slate-400 hover:text-red-400"><LogOut size={16} /></button></>
         ) : (
