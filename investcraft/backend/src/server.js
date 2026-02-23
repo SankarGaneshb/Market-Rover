@@ -1,3 +1,4 @@
+console.log('--- BACKEND STARTING UP ---');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -5,10 +6,17 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+console.log('--- ENV CHECK ---');
+console.log('PORT:', process.env.PORT);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DB_NAME:', process.env.IC_DB_NAME || process.env.DB_NAME);
+
 const { initializePool } = require('./config/database');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+
+console.log('--- MODULES LOADED ---');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -52,20 +60,18 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const server = app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`InvestCraft API explicitly listening on 0.0.0.0:${PORT}`);
   logger.info(`InvestCraft API starting on port ${PORT}`, {
     node_env: process.env.NODE_ENV,
     port: PORT,
-    host: '0.0.0.0',
-    has_db_conn: !!process.env.CLOUD_SQL_CONNECTION_NAME
+    host: '0.0.0.0'
   });
 
-  try {
-    await initializePool();
-    logger.info('Database pool initialized and connected');
-  } catch (error) {
-    logger.error('Database initialization failed in background:', error);
-  }
+  // Database initialization happens in the background
+  initializePool()
+    .then(() => logger.info('Database pool and migrations initialized successfully'))
+    .catch(err => logger.error('LATE DATABASE FAILURE:', { error: err.message, stack: err.stack }));
 });
 
 process.on('SIGTERM', () => {
