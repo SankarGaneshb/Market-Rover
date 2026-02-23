@@ -77,9 +77,19 @@ async function runMigrations() {
         UNIQUE(user_id, puzzle_id)
       );
 
+      CREATE TABLE IF NOT EXISTS puzzle_votes (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        ticker VARCHAR(50) NOT NULL,
+        vote_date DATE NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, vote_date)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_game_sessions_user   ON game_sessions(user_id);
       CREATE INDEX IF NOT EXISTS idx_game_sessions_puzzle ON game_sessions(puzzle_id);
       CREATE INDEX IF NOT EXISTS idx_puzzles_date         ON puzzles(scheduled_date);
+      CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date    ON puzzle_votes(vote_date);
     `);
     logger.info('Database migrations completed');
   } catch (err) {
