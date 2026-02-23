@@ -4,6 +4,7 @@ on:
   push:
     branches: [investcraft]
     paths: ['investcraft/**']
+  workflow_dispatch:
 
 env:
   PROJECT_ID: market-rover
