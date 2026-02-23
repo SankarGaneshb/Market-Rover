@@ -37,8 +37,14 @@ app.use((req, res, next) => {
 
 app.use('/api', routes);
 app.use(errorHandler);
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// Global error handlers to catch startup crashes
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', { promise, reason });
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', { error: error.message, stack: error.stack });
+  process.exit(1);
 });
 
 // Health check endpoint (can be checked by Cloud Run)
@@ -46,10 +52,11 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const server = app.listen(PORT, async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
   logger.info(`InvestCraft API starting on port ${PORT}`, {
     node_env: process.env.NODE_ENV,
     port: PORT,
+    host: '0.0.0.0',
     has_db_conn: !!process.env.CLOUD_SQL_CONNECTION_NAME
   });
 
@@ -58,7 +65,6 @@ const server = app.listen(PORT, async () => {
     logger.info('Database pool initialized and connected');
   } catch (error) {
     logger.error('Database initialization failed in background:', error);
-    // We don't exit here, so we can see the logs in Cloud Run
   }
 });
 
