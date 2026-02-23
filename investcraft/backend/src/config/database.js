@@ -9,8 +9,8 @@ async function initializePool() {
   const config = isProduction
     ? {
       host: `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
+      database: process.env.IC_DB_NAME || process.env.DB_NAME,
+      user: process.env.IC_DB_USER || process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       max: 20,
       idleTimeoutMillis: 30000,
