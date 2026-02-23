@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const { getPool } = require('../config/database');
 const logger = require('../utils/logger');
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClientId = process.env.IC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+const googleClient = new OAuth2Client(googleClientId);
 
 function signToken(user) {
   return jwt.sign(
@@ -34,7 +35,7 @@ router.post('/google', async (req, res) => {
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: googleClientId,
     });
     const { sub: googleId, email, name, picture } = ticket.getPayload();
 

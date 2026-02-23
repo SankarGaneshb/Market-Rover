@@ -29,7 +29,7 @@ jobs:
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated \
             --set-secrets "JWT_SECRET=investcraft-jwt-secret:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,DB_PASSWORD=investcraft-db-password:latest" \
-            --set-env-vars "NODE_ENV=production,IC_DB_NAME=investcraft,IC_DB_USER=postgres,CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
+            --set-env-vars "NODE_ENV=production,IC_DB_NAME=investcraft,IC_DB_USER=postgres,CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
             --add-cloudsql-instances market-rover:us-central1:investcraft-db
 
   deploy-frontend:
