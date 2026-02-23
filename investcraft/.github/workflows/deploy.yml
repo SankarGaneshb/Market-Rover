@@ -45,10 +45,11 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
       
-      - name: Prep Nginx Proxy
+      - name: Prep Nginx Proxy & Env
         run: |
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
           sed -i "s|http://backend:8080|$BACKEND_URL|g" nginx.conf
+          echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
           cat nginx.conf
 
       - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
