@@ -19,8 +19,15 @@ export default function Navbar() {
         ) : (
           <div className="pt-1">
             <GoogleLogin
-              onSuccess={async (r) => { await login(r.credential); navigate('/play'); }}
-              onError={() => console.error('Login Failed')}
+              onSuccess={async (r) => {
+                try {
+                  await login(r.credential);
+                  navigate('/play');
+                } catch (err) {
+                  alert(`Login Failed: ${err.message}`);
+                }
+              }}
+              onError={() => alert('Google Script Loading Failed')}
               shape="pill"
               text="signin"
               size="medium"

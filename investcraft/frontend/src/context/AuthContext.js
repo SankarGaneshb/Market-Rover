@@ -26,11 +26,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (googleToken) => {
-    const { data } = await axios.post('/api/auth/google', { token: googleToken });
-    localStorage.setItem('ic_token', data.token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data.user);
-    return data; // includes is_new_user flag from backend
+    try {
+      const { data } = await axios.post('/api/auth/google', { token: googleToken });
+      localStorage.setItem('ic_token', data.token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      setUser(data.user);
+      return data; // includes is_new_user flag from backend
+    } catch (error) {
+      console.error('Google Login POST failed:', error.response?.data || error.message);
+      // Throw the error so the UI can catch it and show an alert
+      throw new Error(error.response?.data?.details || error.response?.data?.error || 'Network/Server Error');
+    }
   };
 
   const logout = () => {
