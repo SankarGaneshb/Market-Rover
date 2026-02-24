@@ -110,8 +110,10 @@ export default function PuzzleGame() {
     } catch (err) {
       console.error('Failed to fetch daily puzzle', err);
       // Fallback
-      const todayIndex = Math.floor(Date.now() / 86400000) % NIFTY50_BRANDS.length;
-      setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
+      if (NIFTY50_BRANDS && NIFTY50_BRANDS.length > 0) {
+        const todayIndex = Math.floor(Date.now() / 86400000) % NIFTY50_BRANDS.length;
+        setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
+      }
       setGameState('menu');
     }
   };
@@ -398,8 +400,8 @@ export default function PuzzleGame() {
                       key={key}
                       onClick={() => startGame(key)}
                       className={`px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm ${difficulty === key
-                          ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400'
-                          : 'bg-white text-slate-700 hover:bg-white/80 border border-slate-200'
+                        ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400'
+                        : 'bg-white text-slate-700 hover:bg-white/80 border border-slate-200'
                         }`}
                     >
                       {value.label}
