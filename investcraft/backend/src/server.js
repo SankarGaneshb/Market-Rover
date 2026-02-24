@@ -48,7 +48,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use((req, res, next) => {
-  logger.info('Request', { method: req.method, path: req.path, ip: req.ip });
+  logger.info('Incoming Request', {
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+    hasAuth: !!req.headers.authorization,
+    origin: req.headers.origin
+  });
   next();
 });
 

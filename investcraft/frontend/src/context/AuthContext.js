@@ -13,8 +13,14 @@ export function AuthProvider({ children }) {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       axios.get('/api/auth/me')
-        .then(r => setUser(r.data.user))
-        .catch(() => localStorage.removeItem('ic_token'))
+        .then(r => {
+          console.log('Auth Check Success:', r.data.user?.email);
+          setUser(r.data.user);
+        })
+        .catch((err) => {
+          console.error('Auth Check Failed:', err.response?.status, err.response?.data);
+          localStorage.removeItem('ic_token');
+        })
         .finally(() => setLoading(false));
     } else setLoading(false);
   }, []);
