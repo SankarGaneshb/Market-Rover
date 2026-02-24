@@ -44,13 +44,16 @@ async function runMigrations() {
         id           SERIAL PRIMARY KEY,
         google_id    VARCHAR(255) UNIQUE NOT NULL,
         email        VARCHAR(255) UNIQUE NOT NULL,
-        name         VARCHAR(255) NOT NULL,
+        name         VARCHAR(255) DEFAULT 'Player',
         avatar_url   TEXT,
         streak       INTEGER DEFAULT 0,
         last_played  DATE,
         total_score  INTEGER DEFAULT 0,
         created_at   TIMESTAMPTZ DEFAULT NOW()
       );
+
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT 'Player';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
       CREATE TABLE IF NOT EXISTS puzzles (
         id             SERIAL PRIMARY KEY,
