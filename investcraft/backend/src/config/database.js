@@ -11,7 +11,7 @@ async function initializePool() {
       host: `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`,
       database: process.env.IC_DB_NAME || process.env.DB_NAME,
       user: process.env.IC_DB_USER || process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
+      password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
