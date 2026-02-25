@@ -22,6 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 let isDbReady = false;
+let dbError = null;
 
 app.use(helmet());
 app.use(compression());
@@ -51,6 +52,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use((req, res, next) => {
   if (!isDbReady && req.path.startsWith('/api') && req.path !== '/api/health') {
+    if (dbError) {
+      return res.status(503).json({ error: `Database Startup/Migration Failed: ${dbError}` });
+    }
     return res.status(503).json({ error: 'Server starting up, database migrating. Please try again in 5 seconds.' });
   }
   next();
@@ -98,7 +102,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info('Database pool and migrations initialized successfully');
       isDbReady = true;
     })
-    .catch(err => logger.error('LATE DATABASE FAILURE:', { error: err.message, stack: err.stack }));
+    .catch(err => {
+      logger.error('LATE DATABASE FAILURE:', { error: err.message, stack: err.stack });
+      dbError = err.message;
+    });
 });
 
 process.on('SIGTERM', () => {
