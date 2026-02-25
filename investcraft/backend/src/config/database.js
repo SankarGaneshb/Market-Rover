@@ -14,7 +14,8 @@ async function initializePool() {
       password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
       max: 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 30000,
+      statement_timeout: 30000,
     }
     : {
       host: process.env.DB_HOST || 'localhost',
