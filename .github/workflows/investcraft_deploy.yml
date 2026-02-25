@@ -2,7 +2,9 @@ name: Deploy InvestCraft
 
 on:
   push:
-    branches: [investcraft]
+    branches: [ main ]
+    paths:
+      - 'investcraft/**'
   workflow_dispatch:
 
 env:

@@ -3,8 +3,12 @@ name: CI - Market-Rover
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - 'investcraft/**'
   pull_request:
     branches: [ main, develop ]
+    paths-ignore:
+      - 'investcraft/**'
   workflow_dispatch:
 
 jobs:
