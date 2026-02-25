@@ -21,6 +21,8 @@ console.log('--- MODULES LOADED ---');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+let isDbReady = false;
+
 app.use(helmet());
 app.use(compression());
 app.use(cors({
@@ -46,6 +48,13 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use((req, res, next) => {
+  if (!isDbReady && req.path.startsWith('/api') && req.path !== '/api/health') {
+    return res.status(503).json({ error: 'Server starting up, database migrating. Please try again in 5 seconds.' });
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   logger.info('Incoming Request', {
@@ -85,7 +94,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   // Database initialization happens in the background
   initializePool()
-    .then(() => logger.info('Database pool and migrations initialized successfully'))
+    .then(() => {
+      logger.info('Database pool and migrations initialized successfully');
+      isDbReady = true;
+    })
     .catch(err => logger.error('LATE DATABASE FAILURE:', { error: err.message, stack: err.stack }));
 });
 
