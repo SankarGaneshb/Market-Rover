@@ -41,7 +41,12 @@ async function runMigrations() {
   const client = await pool.connect();
   try {
     await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      DROP TABLE IF EXISTS puzzle_votes CASCADE;
+      DROP TABLE IF EXISTS game_sessions CASCADE;
+      DROP TABLE IF EXISTS puzzles CASCADE;
+      DROP TABLE IF EXISTS users CASCADE;
+
+      CREATE TABLE users (
         id           SERIAL PRIMARY KEY,
         google_id    VARCHAR(255) UNIQUE NOT NULL,
         email        VARCHAR(255) UNIQUE NOT NULL,
@@ -56,7 +61,7 @@ async function runMigrations() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT 'Player';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
-      CREATE TABLE IF NOT EXISTS puzzles (
+      CREATE TABLE puzzles (
         id             SERIAL PRIMARY KEY,
         company_name   VARCHAR(255) NOT NULL,
         ticker         VARCHAR(50)  NOT NULL,
@@ -69,7 +74,7 @@ async function runMigrations() {
         created_at     TIMESTAMPTZ  DEFAULT NOW()
       );
 
-      CREATE TABLE IF NOT EXISTS game_sessions (
+      CREATE TABLE game_sessions (
         id          SERIAL PRIMARY KEY,
         user_id     INTEGER REFERENCES users(id) ON DELETE CASCADE,
         puzzle_id   INTEGER REFERENCES puzzles(id) ON DELETE CASCADE,
@@ -81,7 +86,7 @@ async function runMigrations() {
         UNIQUE(user_id, puzzle_id)
       );
 
-      CREATE TABLE IF NOT EXISTS puzzle_votes (
+      CREATE TABLE puzzle_votes (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         ticker VARCHAR(50) NOT NULL,
