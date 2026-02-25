@@ -11,6 +11,11 @@
     "react-router-dom": "^6.21.0",
     "react-scripts": "^5.0.1"
   },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -25,5 +30,15 @@
       "last 1 chrome version"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:8080",
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  }
 }

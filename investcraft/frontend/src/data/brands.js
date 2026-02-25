@@ -6,8 +6,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "RELIANCE",
     "brand": "Jio",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
-    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
+    "insight": "Remember when you first got a 4G connection and YouTube stopped buffering? Jio didn't just give us the internet; it completely revolutionized how India consumes entertainment overnight!"
   },
   {
     "id": 2,
@@ -26,8 +25,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "TCS",
     "brand": "TCS",
     "sector": "IT",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA%20Consultancy%20Services%20Logo%20blue.svg",
-    "insight": "Founded in 1968, TCS pioneered India's IT sector and was the first in India to reach a $100B valuation."
+    "insight": "Ever wonder who runs the massive biometric system behind your passport? TCS engineers silently power the complex digital infrastructure that keeps our country running seamlessly!"
   },
   {
     "id": 4,
@@ -36,8 +34,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "HDFCBANK",
     "brand": "HDFC Bank",
     "sector": "Financials",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/HDFC%20Bank%20Logo.svg",
-    "insight": "Starting with a single branch in 1995, HDFC Bank recently completed a historic mega-merger with its parent."
+    "insight": "From stepping into a physical branch years ago to instantly approving instant loans via texts today. HDFC Bank truly moved the entire banking system right into our pockets."
   },
   {
     "id": 5,
@@ -76,8 +73,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "SBIN",
     "brand": "SBI",
     "sector": "Financials",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/State%20Bank%20of%20India%20logo.svg",
-    "insight": "SBI is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50."
+    "insight": "Every Indian family has that iconic faded blue SBI passbook somewhere! From rural villages to global capitals, SBI is the trusted pulse of India's banking."
   },
   {
     "id": 9,
@@ -156,8 +152,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ITC",
     "brand": "Aashirvaad",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Aashirvaad is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Whether it's a Sunday morning breakfast or a festive feast, Aashirvaad Atta has been the silent ingredient binding Indian families together across dinner tables."
   },
   {
     "id": 17,
@@ -236,8 +231,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "MARUTI",
     "brand": "Maruti Suzuki",
     "sector": "Automobile",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
-    "insight": "Maruti Suzuki is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50."
+    "insight": "The sheer joy of piling your whole family into your first Maruti 800! Maruti Suzuki isn't just a car company; it's the brand that put a billion Indians on the road."
   },
   {
     "id": 25,
@@ -286,8 +280,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "TATAMOTORS",
     "brand": "Tata Motors",
     "sector": "Automobile",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
-    "insight": "Tata Motors is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
+    "insight": "From the legendary Tata Sumo to the modern Nexon, Tata Motors has defined Indian resilience. Who doesn't feel a surge of pride knowing an Indian company owns Jaguar Land Rover?"
   },
   {
     "id": 30,
@@ -366,8 +359,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ASIANPAINT",
     "brand": "Asian Paints",
     "sector": "Consumer",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Asian%20Paints%20Logo.svg",
-    "insight": "Asian Paints is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50."
+    "insight": "That irresistible jingle 'Har Ghar Kuch Kehta Hai' is etched into our memories. Asian Paints doesn't just sell colors; they've been an integral part of making our homes beautiful for decades."
   },
   {
     "id": 38,
@@ -496,8 +488,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "NESTLEIND",
     "brand": "Maggi",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Campea%20na%20vida%2C%20Hist%C3%B3ria%20no%20Museu%20da%20Pessoa%20(95737).pdf",
-    "insight": "Maggi is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
+    "insight": "Midnight cravings, hostel memories, or a quick rain-day snack—Maggi defines nostalgia! It's not just 2-minute noodles; it's the ultimate comfort food for generations of Indians."
   },
   {
     "id": 51,

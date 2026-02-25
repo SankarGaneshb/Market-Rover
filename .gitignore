@@ -69,3 +69,15 @@ htmlcov/
 # Data Storage
 /data/
 !investcraft/frontend/src/data/
+
+# Node & Jest Testing Artifacts
+node_modules/
+coverage/
+package-lock.json
+investcraft/frontend/yarn.lock
+*test_output*.txt
+*test_log*.txt
+*test_failure*.txt
+*test_results*.txt
+*test_errors*.txt
+*loc.txt

@@ -140,9 +140,20 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     await pool.query(
       `INSERT INTO game_sessions (user_id, puzzle_id, score, moves_used, completed, time_taken)
        VALUES ($1, $2, $3, $4, true, $5)
-       ON CONFLICT (user_id, puzzle_id) DO NOTHING`,
+       ON CONFLICT (user_id, puzzle_id) 
+       DO UPDATE SET 
+         score = GREATEST(game_sessions.score, EXCLUDED.score),
+         moves_used = LEAST(game_sessions.moves_used, EXCLUDED.moves_used),
+         time_taken = LEAST(game_sessions.time_taken, EXCLUDED.time_taken)`,
       [userId, puzzleId, score, movesUsed, timeTaken]
     );
+
+    // Compute absolute total score from high-scores to prevent infinite farming
+    const aggResult = await pool.query(
+      `SELECT SUM(score) as real_total FROM game_sessions WHERE user_id = $1`,
+      [userId]
+    );
+    const realTotal = parseInt(aggResult.rows[0].real_total) || 0;
 
     // Streak logic
     const userRes = await pool.query(
@@ -158,11 +169,11 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     else if (last_played === today) newStreak = streak;
 
     await pool.query(
-      'UPDATE users SET total_score = total_score + $1, streak = $2, last_played = $3 WHERE id = $4',
-      [score, newStreak, today, userId]
+      'UPDATE users SET total_score = $1, streak = $2, last_played = $3 WHERE id = $4',
+      [realTotal, newStreak, today, userId]
     );
 
-    res.json({ success: true, score, streak: newStreak });
+    res.json({ success: true, score, streak: newStreak, realTotal });
   } catch (err) {
     logger.error('Error completing puzzle', { error: err.message });
     res.status(500).json({ error: 'Failed to save result' });

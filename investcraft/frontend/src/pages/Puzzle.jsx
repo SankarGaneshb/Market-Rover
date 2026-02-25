@@ -128,7 +128,11 @@ export default function PuzzleGame() {
       });
       if (response.data.success) {
         setStreak(response.data.streak);
-        setScore(prev => prev + gameScore);
+        if (response.data.realTotal !== undefined) {
+          setScore(response.data.realTotal);
+        } else {
+          setScore(prev => prev + gameScore);
+        }
       }
     } catch (error) {
       console.error('Failed to save puzzle result', error);
