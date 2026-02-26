@@ -21,6 +21,11 @@ jobs:
         working-directory: investcraft/backend
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -42,16 +47,18 @@ jobs:
         working-directory: investcraft/frontend
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - uses: google-github-actions/setup-gcloud@v2
-      
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: investcraft/frontend/package-lock.json
+
       - name: Install Frontend Dependencies
         run: npm ci
 
       - name: Run Frontend Tests
-        run: npm test -- --coverage
+        run: npm test -- --coverage --watchAll=false
         env:
           CI: true
 
@@ -61,6 +68,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: investcraft-frontend
           directory: investcraft/frontend/coverage/
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
       
       - name: Prep Nginx Proxy & Env
         run: |
@@ -74,3 +86,4 @@ jobs:
           gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated
+
