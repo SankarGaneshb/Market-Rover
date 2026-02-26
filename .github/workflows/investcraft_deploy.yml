@@ -47,6 +47,21 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
       
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Run Frontend Tests
+        run: npm test -- --coverage
+        env:
+          CI: true
+
+      - name: Upload frontend coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: investcraft-frontend
+          directory: investcraft/frontend/coverage/
+      
       - name: Prep Nginx Proxy & Env
         run: |
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
