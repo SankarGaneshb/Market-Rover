@@ -6,8 +6,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "RELIANCE",
     "brand": "Jio",
     "sector": "Energy",
-    "insight": "Remember when you first got a 4G connection and YouTube stopped buffering? Jio didn't just give us the internet; it completely revolutionized how India consumes entertainment overnight!",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <defs>\n        <linearGradient id=\"jioGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n          <stop offset=\"0%\" style=\"stop-color:#0057FF;stop-opacity:1\" />\n          <stop offset=\"100%\" style=\"stop-color:#00D4FF;stop-opacity:1\" />\n        </linearGradient>\n      </defs>\n      <rect fill=\"url(#jioGrad)\" width=\"400\" height=\"400\"/>\n      <circle cx=\"200\" cy=\"150\" r=\"40\" fill=\"white\"/>\n      <text x=\"200\" y=\"280\" font-size=\"120\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jio</text>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
+    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
   },
   {
     "id": 2,
@@ -17,8 +17,7 @@ export const NIFTY50_BRANDS = [
     "brand": "Reliance Retail",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
-    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"jioGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" style=\"stop-color:#0057FF;stop-opacity:1\" /><stop offset=\"100%\" style=\"stop-color:#00D4FF;stop-opacity:1\" /></linearGradient></defs><rect fill=\"url(#jioGrad)\" width=\"400\" height=\"400\"/><circle cx=\"200\" cy=\"150\" r=\"40\" fill=\"white\"/><text x=\"200\" y=\"280\" font-size=\"120\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jio</text></svg>"
+    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
   },
   {
     "id": 3,
@@ -27,8 +26,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "TCS",
     "brand": "TCS",
     "sector": "IT",
-    "insight": "Ever wonder who runs the massive biometric system behind your passport? TCS engineers silently power the complex digital infrastructure that keeps our country running seamlessly!",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#002D72\" width=\"400\" height=\"400\"/>\n      <text x=\"200\" y=\"240\" font-size=\"140\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">TCS</text>\n      <rect x=\"50\" y=\"300\" width=\"300\" height=\"8\" fill=\"#00A1DE\"/>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA%20Consultancy%20Services%20Logo%20blue.svg",
+    "insight": "Founded in 1968, TCS pioneered India's IT sector and was the first in India to reach a $100B valuation."
   },
   {
     "id": 4,
@@ -37,8 +36,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "HDFCBANK",
     "brand": "HDFC Bank",
     "sector": "Financials",
-    "insight": "From stepping into a physical branch years ago to instantly approving instant loans via texts today. HDFC Bank truly moved the entire banking system right into our pockets.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#004C8F\" width=\"400\" height=\"400\"/>\n      <rect x=\"30\" y=\"30\" width=\"340\" height=\"340\" fill=\"none\" stroke=\"#FFD700\" stroke-width=\"8\"/>\n      <text x=\"200\" y=\"180\" font-size=\"80\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">HDFC</text>\n      <text x=\"200\" y=\"250\" font-size=\"60\" font-weight=\"700\" fill=\"#FFD700\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">BANK</text>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/HDFC%20Bank%20Logo.svg",
+    "insight": "Starting with a single branch in 1995, HDFC Bank recently completed a historic mega-merger with its parent."
   },
   {
     "id": 5,
@@ -68,8 +67,7 @@ export const NIFTY50_BRANDS = [
     "brand": "Infosys",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Infosys%20Consulting%20logo.svg",
-    "insight": "Infosys is a trusted brand owned by Infosys (INFY) listed in the Nifty 50.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#007CC3\" width=\"400\" height=\"400\"/>\n      <rect x=\"60\" y=\"100\" width=\"280\" height=\"40\" fill=\"#00C8FF\" transform=\"skewX(-10)\"/>\n      <text x=\"200\" y=\"250\" font-size=\"90\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Infosys</text>\n    </svg>"
+    "insight": "Infosys is a trusted brand owned by Infosys (INFY) listed in the Nifty 50."
   },
   {
     "id": 8,
@@ -78,8 +76,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "SBIN",
     "brand": "SBI",
     "sector": "Financials",
-    "insight": "Every Indian family has that iconic faded blue SBI passbook somewhere! From rural villages to global capitals, SBI is the trusted pulse of India's banking.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#1F4788\" width=\"400\" height=\"400\"/>\n      <circle cx=\"200\" cy=\"140\" r=\"60\" fill=\"#00A8E1\" stroke=\"white\" stroke-width=\"6\"/>\n      <path d=\"M 200 110 L 200 170 M 170 140 L 230 140\" stroke=\"white\" stroke-width=\"8\"/>\n      <text x=\"200\" y=\"280\" font-size=\"110\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">SBI</text>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/State%20Bank%20of%20India%20logo.svg",
+    "insight": "SBI is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50."
   },
   {
     "id": 9,
@@ -99,8 +97,7 @@ export const NIFTY50_BRANDS = [
     "brand": "Airtel",
     "sector": "Telecom",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharti%20Airtel%20logo.svg",
-    "insight": "Airtel is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#E60000\" width=\"400\" height=\"400\"/>\n      <path d=\"M 100 150 Q 200 80 300 150\" fill=\"none\" stroke=\"white\" stroke-width=\"20\"/>\n      <circle cx=\"200\" cy=\"150\" r=\"30\" fill=\"white\"/>\n      <text x=\"200\" y=\"280\" font-size=\"90\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">airtel</text>\n    </svg>"
+    "insight": "Airtel is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50."
   },
   {
     "id": 11,
@@ -120,8 +117,7 @@ export const NIFTY50_BRANDS = [
     "brand": "Dove",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Unilever%20Logo.svg",
-    "insight": "Dove is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <defs>\n        <linearGradient id=\"doveGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n          <stop offset=\"0%\" style=\"stop-color:#1E3A8A;stop-opacity:1\" />\n          <stop offset=\"100%\" style=\"stop-color:#3B82F6;stop-opacity:1\" />\n        </linearGradient>\n      </defs>\n      <rect fill=\"url(#doveGrad)\" width=\"400\" height=\"400\"/>\n      <ellipse cx=\"200\" cy=\"120\" rx=\"60\" ry=\"40\" fill=\"white\"/>\n      <path d=\"M 200 140 Q 220 160 240 190 Q 220 220 200 240 Q 180 220 160 190 Q 180 160 200 140\" fill=\"white\"/>\n      <text x=\"200\" y=\"310\" font-size=\"100\" font-weight=\"600\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" style=\"font-style:italic\">Dove</text>\n    </svg>"
+    "insight": "Dove is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50."
   },
   {
     "id": 13,
@@ -160,7 +156,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "ITC",
     "brand": "Aashirvaad",
     "sector": "FMCG",
-    "insight": "Whether it's a Sunday morning breakfast or a festive feast, Aashirvaad Atta has been the silent ingredient binding Indian families together across dinner tables."
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
+    "insight": "Aashirvaad is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
   },
   {
     "id": 17,
@@ -239,8 +236,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "MARUTI",
     "brand": "Maruti Suzuki",
     "sector": "Automobile",
-    "insight": "The sheer joy of piling your whole family into your first Maruti 800! Maruti Suzuki isn't just a car company; it's the brand that put a billion Indians on the road.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#003DA5\" width=\"400\" height=\"400\"/>\n      <path d=\"M 120 140 L 160 100 L 240 100 L 280 140 L 280 180 L 240 220 L 160 220 L 120 180 Z\" fill=\"#E30613\" stroke=\"white\" stroke-width=\"4\"/>\n      <text x=\"200\" y=\"180\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">M</text>\n      <text x=\"200\" y=\"280\" font-size=\"60\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">MARUTI</text>\n      <text x=\"200\" y=\"330\" font-size=\"45\" font-weight=\"600\" fill=\"#E30613\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">SUZUKI</text>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
+    "insight": "Maruti Suzuki is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50."
   },
   {
     "id": 25,
@@ -289,7 +286,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "TATAMOTORS",
     "brand": "Tata Motors",
     "sector": "Automobile",
-    "insight": "From the legendary Tata Sumo to the modern Nexon, Tata Motors has defined Indian resilience. Who doesn't feel a surge of pride knowing an Indian company owns Jaguar Land Rover?"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
+    "insight": "Tata Motors is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
   },
   {
     "id": 30,
@@ -368,8 +366,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "ASIANPAINT",
     "brand": "Asian Paints",
     "sector": "Consumer",
-    "insight": "That irresistible jingle 'Har Ghar Kuch Kehta Hai' is etched into our memories. Asian Paints doesn't just sell colors; they've been an integral part of making our homes beautiful for decades.",
-    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#E31E24\" width=\"400\" height=\"400\"/>\n      <circle cx=\"100\" cy=\"100\" r=\"40\" fill=\"#FFD700\"/>\n      <circle cx=\"200\" cy=\"100\" r=\"40\" fill=\"#00A651\"/>\n      <circle cx=\"300\" cy=\"100\" r=\"40\" fill=\"#0066CC\"/>\n      <text x=\"200\" y=\"230\" font-size=\"70\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Asian</text>\n      <text x=\"200\" y=\"300\" font-size=\"70\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Paints</text>\n    </svg>"
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Asian%20Paints%20Logo.svg",
+    "insight": "Asian Paints is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50."
   },
   {
     "id": 38,
@@ -498,7 +496,8 @@ export const NIFTY50_BRANDS = [
     "ticker": "NESTLEIND",
     "brand": "Maggi",
     "sector": "FMCG",
-    "insight": "Midnight cravings, hostel memories, or a quick rain-day snack—Maggi defines nostalgia! It's not just 2-minute noodles; it's the ultimate comfort food for generations of Indians."
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Campea%20na%20vida%2C%20Hist%C3%B3ria%20no%20Museu%20da%20Pessoa%20(95737).pdf",
+    "insight": "Maggi is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
   },
   {
     "id": 51,
