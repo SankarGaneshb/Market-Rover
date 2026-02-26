@@ -355,7 +355,13 @@ export default function PuzzleGame() {
                 {/* Brand Info Card */}
                 <div className="flex-1 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-indigo-100">
                   <div className="w-24 h-24 mb-3 rounded-xl shadow-md bg-white p-2 flex items-center justify-center shrink-0">
-                    <img src={currentBrand?.logoUrl} alt={currentBrand?.brand} className="max-w-full max-h-full object-contain" />
+                    {currentBrand?.logoSvg ? (
+                      <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded text-gray-400 font-bold text-lg text-center p-1">
+                        {currentBrand?.brand}
+                      </div>
+                    )}
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 mb-0.5">{currentBrand?.brand}</h3>
                   <div className="text-sm text-gray-600 mb-1">{currentBrand?.company}</div>
@@ -482,11 +488,16 @@ export default function PuzzleGame() {
 
         {showHint && (
           <div className="bg-white rounded-xl p-1.5 mb-2 shadow-sm border border-gray-100 flex items-center justify-center shrink-0">
-            <img
-              src={currentBrand?.logoUrl}
-              alt="Hint"
-              className="w-full max-w-[200px] h-10 object-contain mx-auto opacity-60 grayscale"
-            />
+            {currentBrand?.logoSvg ? (
+              <div
+                className="w-full max-w-[200px] h-10 mx-auto opacity-60 grayscale overflow-hidden"
+                dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }}
+              />
+            ) : (
+              <div className="w-full h-10 bg-gray-100 rounded text-gray-400 font-bold text-sm flex items-center justify-center">
+                {currentBrand?.brand}
+              </div>
+            )}
           </div>
         )}
 
@@ -518,23 +529,68 @@ export default function PuzzleGame() {
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, position)}
                     >
-                      <img
-                        src={currentBrand?.logoUrl}
-                        alt="puzzle piece"
-                        style={{
-                          position: 'absolute',
-                          width: `${gridSize * 100}%`,
-                          height: `${gridSize * 100}%`,
-                          maxWidth: 'none',
-                          maxHeight: 'none',
-                          left: `${-col * 100}%`,
-                          top: `${-row * 100}%`,
-                          objectFit: 'fill',
-                          backgroundColor: '#ffffff',
-                          pointerEvents: 'none',
-                          userSelect: 'none'
-                        }}
-                      />
+                      {currentBrand?.logoSvg ? (
+                        <>
+                          <div
+                            className="absolute pointer-events-none select-none"
+                            style={{
+                              width: `${gridSize * 100}%`,
+                              height: `${gridSize * 100}%`,
+                              left: `${-col * 100}%`,
+                              top: `${-row * 100}%`,
+                            }}
+                            dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }}
+                          />
+                          <div
+                            className="absolute pointer-events-none select-none flex items-center justify-center opacity-10"
+                            style={{
+                              width: `${gridSize * 100}%`,
+                              height: `${gridSize * 100}%`,
+                              left: `${-col * 100}%`,
+                              top: `${-row * 100}%`,
+                              zIndex: 10
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: `${Math.max(boardSize / 8, 20)}px`,
+                                fontWeight: '900',
+                                color: '#000000',
+                                transform: 'rotate(-35deg)',
+                                whiteSpace: 'pre',
+                                textAlign: 'center',
+                                lineHeight: '1.4',
+                                letterSpacing: '0.1em'
+                              }}
+                            >
+                              {currentBrand.brand}<br />{currentBrand.ticker}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            width: `${gridSize * 100}%`,
+                            height: `${gridSize * 100}%`,
+                            left: `${-col * 100}%`,
+                            top: `${-row * 100}%`,
+                            backgroundColor: '#f3f4f6',
+                            pointerEvents: 'none',
+                            userSelect: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: `${boardSize / gridSize / 3}px`,
+                            fontWeight: 'bold',
+                            color: '#9ca3af',
+                            textAlign: 'center',
+                            padding: '10%'
+                          }}
+                        >
+                          {currentBrand?.brand}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
