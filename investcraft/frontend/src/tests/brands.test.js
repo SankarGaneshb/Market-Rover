@@ -6,16 +6,15 @@ describe('Authentic Brand Integrity Constraints', () => {
         expect(NIFTY50_BRANDS.length).toBeGreaterThanOrEqual(151);
     });
 
-    it('must strictly enforce that every logo securely sources from the authentic high-res Wikipedia Special:FilePath', () => {
+    it('must strictly enforce that every brand uses the official Wikipedia SVG logo source', () => {
         NIFTY50_BRANDS.forEach(brandObj => {
-            if (brandObj.logoUrl) {
-                // 1. Must use the exact Wikipedia protocol
-                expect(brandObj.logoUrl).toContain('https://en.wikipedia.org/wiki/Special:FilePath');
+            // 1. MUST HAVE A LOGO
+            expect(brandObj.logoUrl).toBeDefined();
+            expect(brandObj.logoUrl).toBeTruthy();
 
-                // Secondary check to ensure no raw synthetic Clearbit APIs or tiny gstatic API fallbacks snuck through
-                expect(brandObj.logoUrl).not.toContain('logo.clearbit.com');
-                expect(brandObj.logoUrl).not.toContain('t2.gstatic.com');
-            }
+            // 2. Must use the exact Wikipedia FilePath protocol
+            const validProtocol = brandObj.logoUrl.includes('https://en.wikipedia.org/wiki/Special:FilePath/');
+            expect(validProtocol).toBe(true);
         });
     });
 

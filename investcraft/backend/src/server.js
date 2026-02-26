@@ -19,6 +19,9 @@ const logger = require('./utils/logger');
 console.log('--- MODULES LOADED ---');
 
 const app = express();
+// Trust proxy is required for express-rate-limit when running behind a reverse proxy (like Cloud Run or a local dev proxy)
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 8080;
 
 let isDbReady = false;
