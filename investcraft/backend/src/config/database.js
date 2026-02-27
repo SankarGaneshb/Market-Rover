@@ -41,12 +41,7 @@ async function runMigrations() {
   const client = await pool.connect();
   try {
     await client.query(`
-      DROP TABLE IF EXISTS puzzle_votes CASCADE;
-      DROP TABLE IF EXISTS game_sessions CASCADE;
-      DROP TABLE IF EXISTS puzzles CASCADE;
-      DROP TABLE IF EXISTS users CASCADE;
-
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id           SERIAL PRIMARY KEY,
         google_id    VARCHAR(255) UNIQUE NOT NULL,
         email        VARCHAR(255) UNIQUE NOT NULL,
@@ -61,7 +56,7 @@ async function runMigrations() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT 'Player';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
-      CREATE TABLE puzzles (
+      CREATE TABLE IF NOT EXISTS puzzles (
         id             SERIAL PRIMARY KEY,
         company_name   VARCHAR(255) NOT NULL,
         ticker         VARCHAR(50)  NOT NULL,
@@ -74,7 +69,7 @@ async function runMigrations() {
         created_at     TIMESTAMPTZ  DEFAULT NOW()
       );
 
-      CREATE TABLE game_sessions (
+      CREATE TABLE IF NOT EXISTS game_sessions (
         id          SERIAL PRIMARY KEY,
         user_id     INTEGER REFERENCES users(id) ON DELETE CASCADE,
         puzzle_id   INTEGER REFERENCES puzzles(id) ON DELETE CASCADE,
@@ -86,7 +81,7 @@ async function runMigrations() {
         UNIQUE(user_id, puzzle_id)
       );
 
-      CREATE TABLE puzzle_votes (
+      CREATE TABLE IF NOT EXISTS puzzle_votes (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         ticker VARCHAR(50) NOT NULL,
@@ -100,22 +95,6 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_puzzles_date         ON puzzles(scheduled_date);
       CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date    ON puzzle_votes(vote_date);
     `);
-
-    const countRes = await client.query('SELECT COUNT(*) FROM puzzles');
-    if (parseInt(countRes.rows[0].count) === 0) {
-      logger.info('Puzzles table is empty. Auto-seeding initial week of puzzles...');
-      await client.query(`
-        INSERT INTO puzzles (company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) VALUES 
-        ('Reliance Industries', 'RELIANCE', 'https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg', 1, 'Energy', 'Largest conglomerate', CURRENT_DATE),
-        ('Tata Consultancy Services', 'TCS', 'https://en.wikipedia.org/wiki/Special:FilePath/TATA%20Consultancy%20Services%20Logo%20blue.svg', 2, 'IT', 'Largest IT company', CURRENT_DATE + 1),
-        ('HDFC Bank', 'HDFCBANK', 'https://en.wikipedia.org/wiki/Special:FilePath/HDFC%20Bank%20Logo.svg', 2, 'Financials', 'Largest private bank', CURRENT_DATE + 2),
-        ('State Bank of India', 'SBIN', 'https://en.wikipedia.org/wiki/Special:FilePath/State%20Bank%20of%20India%20logo.svg', 1, 'Financials', 'Largest public sector bank', CURRENT_DATE + 3),
-        ('ITC Limited', 'ITC', 'https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg', 1, 'FMCG', 'FMCG and Hotels giant', CURRENT_DATE + 4),
-        ('Maruti Suzuki', 'MARUTI', 'https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg', 1, 'Automobile', 'Largest car manufacturer', CURRENT_DATE + 5),
-        ('Asian Paints', 'ASIANPAINT', 'https://en.wikipedia.org/wiki/Special:FilePath/Asian%20Paints%20Logo.svg', 1, 'Consumer', 'Leading paints company', CURRENT_DATE + 6)
-      `);
-      logger.info('Auto-seeding completed successfully.');
-    }
 
     logger.info('Database migrations completed');
   } catch (err) {
