@@ -16,9 +16,6 @@ env:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: investcraft/backend
     steps:
       - uses: actions/checkout@v4
       - name: Sync Brand Data to Backend
@@ -30,7 +27,9 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
-      - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+      - name: Build & Push Backend
+        run: gcloud builds submit investcraft/backend --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+
 
       - run: |
           gcloud run deploy ${{ env.BACKEND_SERVICE }} \
