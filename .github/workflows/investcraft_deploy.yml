@@ -26,7 +26,7 @@ jobs:
           mkdir -p investcraft/backend/src/data
           cp investcraft/frontend/src/data/brands.js investcraft/backend/src/data/brands.js
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
@@ -83,7 +83,7 @@ jobs:
           flags: investcraft-frontend
           directory: investcraft/frontend/coverage/
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
