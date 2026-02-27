@@ -21,11 +21,17 @@ jobs:
         working-directory: investcraft/backend
     steps:
       - uses: actions/checkout@v4
+      - name: Sync Brand Data to Backend
+        run: |
+          mkdir -p investcraft/backend/src/data
+          cp investcraft/frontend/src/data/brands.js investcraft/backend/src/data/brands.js
+
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
       - run: gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+
       - run: |
           gcloud run deploy ${{ env.BACKEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
@@ -33,6 +39,19 @@ jobs:
             --set-secrets "JWT_SECRET=investcraft-jwt-secret:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest" \
             --set-env-vars "NODE_ENV=production,IC_DB_NAME=postgres,IC_DB_USER=postgres,IC_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
             --add-cloudsql-instances market-rover:us-central1:investcraft-db
+
+      - name: Force DB Sync (Seeding)
+        run: |
+          gcloud run jobs delete investcraft-seeder --region ${{ env.REGION }} --quiet || true
+          gcloud run jobs create investcraft-seeder \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --command "npm" --args "run,seed" \
+            --region ${{ env.REGION }} \
+            --set-env-vars "NODE_ENV=production,DB_NAME=postgres,DB_USER=postgres,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},DB_HOST=/cloudsql/market-rover:us-central1:investcraft-db" \
+            --add-cloudsql-instances market-rover:us-central1:investcraft-db \
+            --quiet
+          gcloud run jobs execute investcraft-seeder --region ${{ env.REGION }} --wait
+
 
   deploy-frontend:
     runs-on: ubuntu-latest

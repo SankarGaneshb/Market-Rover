@@ -13,7 +13,12 @@ const pool = new Pool({
 
 // Helper to load brands from frontend data
 function loadBrands() {
-  const brandsFilePath = path.join(__dirname, '../../frontend/src/data/brands.js');
+  const localPath = path.join(__dirname, '../src/data/brands.js');
+  const fallbackPath = path.join(__dirname, '../../frontend/src/data/brands.js');
+
+  const brandsFilePath = fs.existsSync(localPath) ? localPath : fallbackPath;
+  console.log(`Loading brands from: ${brandsFilePath}`);
+
   const content = fs.readFileSync(brandsFilePath, 'utf8');
   const jsonMatch = content.match(/export const NIFTY50_BRANDS = (\[[\s\S]*\]);/);
   if (!jsonMatch) throw new Error('Could not parse brands.js');
