@@ -41,13 +41,13 @@ jobs:
 
       - name: Force DB Sync (Seeding)
         run: |
-          gcloud run jobs delete investcraft-seeder --region ${{ env.REGION }} --quiet || true
+          gcloud run jobs delete investcraft-seeder --region ${{ env.REGION }} --quiet || echo "Job not found, skipping delete."
           gcloud run jobs create investcraft-seeder \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
             --command "npm" --args "run,seed" \
             --region ${{ env.REGION }} \
             --set-env-vars "NODE_ENV=production,DB_NAME=postgres,DB_USER=postgres,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},DB_HOST=/cloudsql/market-rover:us-central1:investcraft-db" \
-            --add-cloudsql-instances market-rover:us-central1:investcraft-db \
+            --set-cloudsql-instances market-rover:us-central1:investcraft-db \
             --quiet
           gcloud run jobs execute investcraft-seeder --region ${{ env.REGION }} --wait
 
