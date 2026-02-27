@@ -6,7 +6,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "RELIANCE",
     "brand": "Jio",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries%20Logo.svg",
     "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
   },
   {
@@ -16,7 +16,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "RELIANCE",
     "brand": "Reliance Retail",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries%20Logo.svg",
     "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
   },
   {
@@ -266,7 +266,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "SUNPHARMA",
     "brand": "Volini",
     "sector": "Healthcare",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Logo%20Sun%20Pharmaceutical.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Sun%20Pharmaceutical%20logo.svg",
     "insight": "Volini is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50."
   },
   {
@@ -276,7 +276,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "SUNPHARMA",
     "brand": "Revital",
     "sector": "Healthcare",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Logo%20Sun%20Pharmaceutical.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Sun%20Pharmaceutical%20logo.svg",
     "insight": "Revital is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50."
   },
   {
@@ -496,7 +496,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "NESTLEIND",
     "brand": "Maggi",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Campea%20na%20vida%2C%20Hist%C3%B3ria%20no%20Museu%20da%20Pessoa%20(95737).pdf",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
     "insight": "Maggi is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
   },
   {
@@ -506,7 +506,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "NESTLEIND",
     "brand": "Nescafe",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Campea%20na%20vida%2C%20Hist%C3%B3ria%20no%20Museu%20da%20Pessoa%20(95737).pdf",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
     "insight": "Nescafe is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
   },
   {
@@ -516,7 +516,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "NESTLEIND",
     "brand": "KitKat",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Campea%20na%20vida%2C%20Hist%C3%B3ria%20no%20Museu%20da%20Pessoa%20(95737).pdf",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
     "insight": "KitKat is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
   },
   {
@@ -576,7 +576,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ADANIENT",
     "brand": "Adani Airports",
     "sector": "Industrial",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/The%20Union%20Minister%20for%20Road%20Transport%20%26%20Highways%2C%20Shipping%2C%20Rural%20Development%2C%20Drinking%20Water%20%26%20Sanitation%20and%20Panchayati%20Raj%2C%20Shri%20Nitin%20Gadkari%20laying%20the%20foundation%20stone%20for%20the%20ADANI%20Ennore%20Container%20Terminal%20Pvt.%20Ltd.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Adani%20Group%20logo.svg",
     "insight": "Adani Airports is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50."
   },
   {
@@ -586,7 +586,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ADANIENT",
     "brand": "Adani Wilmar",
     "sector": "Industrial",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/The%20Union%20Minister%20for%20Road%20Transport%20%26%20Highways%2C%20Shipping%2C%20Rural%20Development%2C%20Drinking%20Water%20%26%20Sanitation%20and%20Panchayati%20Raj%2C%20Shri%20Nitin%20Gadkari%20laying%20the%20foundation%20stone%20for%20the%20ADANI%20Ennore%20Container%20Terminal%20Pvt.%20Ltd.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Adani%20Group%20logo.svg",
     "insight": "Adani Wilmar is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50."
   },
   {
@@ -736,7 +736,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "TATACONSUM",
     "brand": "Tata Tea",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA-CONSUMER-PRODUCTS%20BLUE%20LOGO%20Feb%2013.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
     "insight": "Tata Tea is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
   },
   {
@@ -746,7 +746,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "TATACONSUM",
     "brand": "Tata Salt",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA-CONSUMER-PRODUCTS%20BLUE%20LOGO%20Feb%2013.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
     "insight": "Tata Salt is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
   },
   {
@@ -756,7 +756,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "TATACONSUM",
     "brand": "Starbucks India",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA-CONSUMER-PRODUCTS%20BLUE%20LOGO%20Feb%2013.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
     "insight": "Starbucks India is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
   },
   {
@@ -836,7 +836,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "DIVISLAB",
     "brand": "Divis Labs",
     "sector": "Healthcare",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/RIT%20NandE%20Vol14Num33%201982%20Nov4%20Complete.pdf",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Divis%20Laboratories%20logo.svg",
     "insight": "Divis Labs is a trusted brand owned by Divi's Lab (DIVISLAB) listed in the Nifty 50."
   },
   {
@@ -906,7 +906,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "BPCL",
     "brand": "BPCL",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/New%20Logo%20BPCL.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
     "insight": "BPCL is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
   },
   {
@@ -916,7 +916,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "BPCL",
     "brand": "Speed",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/New%20Logo%20BPCL.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
     "insight": "Speed is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
   },
   {
@@ -926,7 +926,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "BPCL",
     "brand": "Mak Lubricants",
     "sector": "Energy",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/New%20Logo%20BPCL.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
     "insight": "Mak Lubricants is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
   },
   {
@@ -936,7 +936,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ZOMATO",
     "brand": "Zomato",
     "sector": "Consumer",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20company%20logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20logo.svg",
     "insight": "Zomato is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50."
   },
   {
@@ -946,7 +946,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "ZOMATO",
     "brand": "Blinkit",
     "sector": "Consumer",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20company%20logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20logo.svg",
     "insight": "Blinkit is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50."
   },
   {
@@ -1016,7 +1016,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "DLF",
     "brand": "DLF",
     "sector": "Real Estate",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Disneyland%20Forever%20(logo).jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/DLF%20logo.svg",
     "insight": "DLF is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50."
   },
   {
@@ -1026,7 +1026,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "DLF",
     "brand": "CyberHub",
     "sector": "Real Estate",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Disneyland%20Forever%20(logo).jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/DLF%20logo.svg",
     "insight": "CyberHub is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50."
   },
   {
@@ -1186,7 +1186,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "GODREJCP",
     "brand": "Good Knight",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Consumer%20Products%20New%20Logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
     "insight": "Good Knight is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
   },
   {
@@ -1196,7 +1196,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "GODREJCP",
     "brand": "Hit",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Consumer%20Products%20New%20Logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
     "insight": "Hit is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
   },
   {
@@ -1206,7 +1206,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "GODREJCP",
     "brand": "Cinthol",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Consumer%20Products%20New%20Logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
     "insight": "Cinthol is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
   },
   {
@@ -1216,7 +1216,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "GODREJCP",
     "brand": "Godrej Expert",
     "sector": "FMCG",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Consumer%20Products%20New%20Logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
     "insight": "Godrej Expert is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
   },
   {
@@ -1296,7 +1296,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "INDIGO",
     "brand": "IndiGo",
     "sector": "Aviation",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Name.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/IndiGo%20logo.svg",
     "insight": "IndiGo is a trusted brand owned by IndiGo (INDIGO) listed in the Nifty Next 50."
   },
   {
@@ -1356,7 +1356,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "POLYCAB",
     "brand": "Polycab",
     "sector": "Industrial",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/POLYCAB%20LOGO%20UPLOAD.jpg",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Polycab%20logo.svg",
     "insight": "Polycab is a trusted brand owned by Polycab India (POLYCAB) listed in the Nifty Midcap."
   },
   {
@@ -1386,7 +1386,7 @@ export const NIFTY50_BRANDS = [
     "ticker": "PAGEIND",
     "brand": "Jockey",
     "sector": "Textiles",
-    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Page%20Industries%20logo.png",
+    "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Jockey%20International%20logo.svg",
     "insight": "Jockey is a trusted brand owned by Page Industries (PAGEIND) listed in the Nifty Midcap."
   },
   {
