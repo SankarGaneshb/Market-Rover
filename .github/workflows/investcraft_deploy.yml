@@ -26,7 +26,7 @@ jobs:
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
       - name: Build & Push Backend
         run: gcloud builds submit investcraft/backend --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
 
@@ -85,7 +85,7 @@ jobs:
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
       
       - name: Prep Nginx Proxy & Env
         run: |
