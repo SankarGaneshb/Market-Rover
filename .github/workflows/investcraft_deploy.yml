@@ -21,11 +21,6 @@ jobs:
         working-directory: investcraft/backend
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
@@ -52,7 +47,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: investcraft/frontend/package-lock.json
+          cache-dependency-path: 'investcraft/frontend/package-lock.json'
 
       - name: Install Frontend Dependencies
         run: npm ci
