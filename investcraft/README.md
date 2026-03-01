@@ -1,8 +1,8 @@
-# 🎨 InvestCraft
+# 🎨 InvestBrand
 
 > **"Craft your wealth, one move at a time."**
 
-Learn about Nifty 50 companies through engaging brand logo puzzles. InvestCraft transforms investment education into an interactive daily gaming experience.
+Learn about Nifty 50 companies through engaging brand logo puzzles. InvestBrand transforms investment education into an interactive daily gaming experience.
 
 ---
 
@@ -145,4 +145,4 @@ Part of the **Market-Rover** investment platform.
 
 ---
 
-*InvestCraft - Where every puzzle brings you closer to financial wisdom* 🚀
+*InvestBrand - Where every puzzle brings you closer to financial wisdom* 🚀

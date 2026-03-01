@@ -92,8 +92,8 @@ app.get('/api/health', (req, res) => {
 });
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`InvestCraft API explicitly listening on 0.0.0.0:${PORT}`);
-  logger.info(`InvestCraft API starting on port ${PORT}`, {
+  console.log(`InvestBrand API explicitly listening on 0.0.0.0:${PORT}`);
+  logger.info(`InvestBrand API starting on port ${PORT}`, {
     node_env: process.env.NODE_ENV,
     port: PORT,
     host: '0.0.0.0'

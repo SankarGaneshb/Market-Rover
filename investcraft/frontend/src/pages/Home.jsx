@@ -22,7 +22,7 @@ export default function Home() {
       <div className="text-center max-w-2xl">
         <div className="flex items-center justify-center gap-3 mb-4">
           <TrendingUp size={44} className="text-indigo-400" />
-          <h1 className="text-5xl font-black text-white px-2">InvestCraft</h1>
+          <h1 className="text-5xl font-black text-white px-2">InvestBrand</h1>
         </div>
         <p className="text-xl text-indigo-300 mb-2">Craft your wealth, one move at a time.</p>
         <p className="text-slate-400 mb-8 px-4">Solve Nifty 50 brand puzzles. Learn about stocks. Compete for streaks.</p>

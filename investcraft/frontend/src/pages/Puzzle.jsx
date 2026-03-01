@@ -245,7 +245,7 @@ export default function PuzzleGame() {
       : `${baseMessage}\n\nJoin me at: ${url}`;
 
     if (navigator.share) {
-      navigator.share({ title: 'InvestCraft - Brand to Stock', text: text, url: url });
+      navigator.share({ title: 'InvestBrand - Brand to Stock', text: text, url: url });
     } else {
       navigator.clipboard.writeText(text);
       alert('Invite link copied to clipboard!');
@@ -256,7 +256,7 @@ export default function PuzzleGame() {
     const url = `${window.location.origin}/leaderboard?promoter=${user?.id || ''}&ref=leaderboard`;
     const text = `🎯 Brand to Stock!\nCheck out the Nifty stocks leaderboard. I'm on a ${streak} day streak!\n\nSee it here: ${url}`;
     if (navigator.share) {
-      navigator.share({ title: 'InvestCraft Leaderboard', text: text, url: url });
+      navigator.share({ title: 'InvestBrand Leaderboard', text: text, url: url });
     } else {
       navigator.clipboard.writeText(text);
       alert('Leaderboard link copied!');

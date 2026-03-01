@@ -35,7 +35,7 @@ export default function Leaderboard() {
     const text = `🎯 Brand to Stock!\nCheck out the Nifty stocks leaderboard. See who's leading the pack!\n\nView here: ${url}`;
 
     if (navigator.share) {
-      navigator.share({ title: 'InvestCraft Leaderboard', text: text, url: url });
+      navigator.share({ title: 'InvestBrand Leaderboard', text: text, url: url });
     } else {
       navigator.clipboard.writeText(text);
       alert('Leaderboard link copied to clipboard!');
