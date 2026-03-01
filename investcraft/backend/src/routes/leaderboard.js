@@ -1,5 +1,5 @@
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 const { getPool } = require('../config/database');
 const logger = require('../utils/logger');
 
@@ -37,11 +37,42 @@ router.get('/', async (req, res) => {
          LIMIT 50`
       );
     } else {
+      const level = req.query.level;
+      let streakFilter = '';
+      const params = [];
+
+      if (level) {
+        const levels = {
+          'Copper': { min: 28, max: 55 },
+          'Bronze': { min: 56, max: 83 },
+          'Silver': { min: 84, max: 167 },
+          'Gold': { min: 168, max: 364 },
+          'Platinum': { min: 365, max: 729 },
+          'Diamond': { min: 730, max: 1094 },
+          'Rhodium': { min: 1095, max: 1459 },
+          'Obsidian': { min: 1460, max: 1824 },
+          'Palladium': { min: 1825, max: 3649 },
+          'Astral': { min: 3650, max: 9124 }, // 10 years
+          'Galactic': { min: 3650, max: 9124 }, // Assuming 10+
+          'Universal': { min: 9125, max: 18249 }, // 25+
+          'Apex': { min: 18250, max: 27374 }, // 50+
+          'Mythical': { min: 27375, max: 999999 } // 75+
+        };
+
+        const range = levels[level];
+        if (range) {
+          streakFilter = 'WHERE streak >= $1 AND streak <= $2';
+          params.push(range.min, range.max);
+        }
+      }
+
       result = await pool.query(
         `SELECT id, name, avatar_url, streak, total_score AS score
          FROM users
+         ${streakFilter}
          ORDER BY total_score DESC
-         LIMIT 50`
+         LIMIT 50`,
+        params
       );
     }
 

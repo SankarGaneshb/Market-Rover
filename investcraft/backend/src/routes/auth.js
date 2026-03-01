@@ -24,6 +24,7 @@ function formatUser(user) {
     avatar: user.avatar_url,
     streak: user.streak,
     score: user.total_score,
+    bestScore: user.best_score,
   };
 }
 

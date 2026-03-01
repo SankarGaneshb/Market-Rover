@@ -50,11 +50,13 @@ async function runMigrations() {
         streak       INTEGER DEFAULT 0,
         last_played  DATE,
         total_score  INTEGER DEFAULT 0,
+        best_score   INTEGER DEFAULT 0,
         created_at   TIMESTAMPTZ DEFAULT NOW()
       );
 
       ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT 'Player';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS best_score INTEGER DEFAULT 0;
 
       CREATE TABLE IF NOT EXISTS puzzles (
         id             SERIAL PRIMARY KEY,
@@ -90,10 +92,18 @@ async function runMigrations() {
         UNIQUE(user_id, vote_date)
       );
 
+      CREATE TABLE IF NOT EXISTS share_clicks (
+        id SERIAL PRIMARY KEY,
+        promoter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        ref_page VARCHAR(50),
+        clicked_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       CREATE INDEX IF NOT EXISTS idx_game_sessions_user   ON game_sessions(user_id);
       CREATE INDEX IF NOT EXISTS idx_game_sessions_puzzle ON game_sessions(puzzle_id);
       CREATE INDEX IF NOT EXISTS idx_puzzles_date         ON puzzles(scheduled_date);
       CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date    ON puzzle_votes(vote_date);
+      CREATE INDEX IF NOT EXISTS idx_share_clicks_promoter ON share_clicks(promoter_id);
     `);
 
     logger.info('Database migrations completed');

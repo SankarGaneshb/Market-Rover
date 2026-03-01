@@ -20,11 +20,11 @@ router.get('/daily', async (req, res) => {
     if (!result.rows[0]) {
       // Find the most voted ticker for TODAY
       const voteResult = await pool.query(
-        `SELECT ticker, COUNT(*) as vote_count
+        `SELECT ticker, COUNT(*) as vote_count, MIN(created_at) as first_vote
          FROM puzzle_votes
          WHERE vote_date = $1
          GROUP BY ticker
-         ORDER BY vote_count DESC
+         ORDER BY vote_count DESC, first_vote ASC
          LIMIT 1`,
         [today]
       );
@@ -107,6 +107,24 @@ router.post('/vote', authenticate, async (req, res) => {
   }
 });
 
+// POST /api/puzzles/track-click - Track shared links
+router.post('/track-click', async (req, res) => {
+  const pool = getPool();
+  const { promoterId, ref } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO share_clicks (promoter_id, ref_page)
+       VALUES ($1, $2)`,
+      [promoterId || null, ref || 'direct']
+    );
+    res.json({ success: true });
+  } catch (err) {
+    logger.error('Error tracking share click', { error: err.message });
+    res.status(500).json({ error: 'Failed to track click' });
+  }
+});
+
 // GET /api/puzzles — paginated list
 router.get('/', async (req, res) => {
   const pool = getPool();
@@ -169,8 +187,8 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     else if (last_played === today) newStreak = streak;
 
     await pool.query(
-      'UPDATE users SET total_score = $1, streak = $2, last_played = $3 WHERE id = $4',
-      [realTotal, newStreak, today, userId]
+      'UPDATE users SET total_score = $1, best_score = GREATEST(best_score, $2), streak = $3, last_played = $4 WHERE id = $5',
+      [realTotal, score, newStreak, today, userId]
     );
 
     res.json({ success: true, score, streak: newStreak, realTotal });

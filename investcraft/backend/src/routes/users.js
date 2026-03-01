@@ -24,6 +24,7 @@ router.get('/me', authenticate, async (req, res) => {
       avatar: u.avatar_url,
       streak: u.streak,
       score: u.total_score,
+      bestScore: u.best_score,
       puzzlesCompleted: parseInt(u.puzzles_completed) || 0,
       joinedAt: u.created_at,
     });

@@ -1,0 +1,9 @@
+{
+    "short_name": "InvestCraft",
+    "name": "InvestCraft",
+    "icons": [],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#6366f1",
+    "background_color": "#ffffff"
+}
