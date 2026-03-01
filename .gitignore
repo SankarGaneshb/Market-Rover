@@ -73,8 +73,6 @@ htmlcov/
 # Node & Jest Testing Artifacts
 node_modules/
 coverage/
-package-lock.json
-investcraft/frontend/yarn.lock
 *test_output*.txt
 *test_log*.txt
 *test_failure*.txt
