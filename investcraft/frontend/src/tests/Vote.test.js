@@ -83,6 +83,7 @@ describe('Vote Component', () => {
     });
 
     it('handles submission errors', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
         axios.post.mockRejectedValue(new Error('Failed'));
         renderWithContext(<Vote />);
 
@@ -95,5 +96,7 @@ describe('Vote Component', () => {
         fireEvent.click(screen.getByText(/Confirm Vote/i));
 
         await waitFor(() => expect(screen.getByText(/Failed to submit your vote/i)).toBeInTheDocument());
+
+        consoleSpy.mockRestore();
     });
 });
