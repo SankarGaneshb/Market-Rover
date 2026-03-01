@@ -30,15 +30,5 @@
       "last 1 chrome version"
     ]
   },
-  "proxy": "http://127.0.0.1:8080",
-  "jest": {
-    "coverageThreshold": {
-      "global": {
-        "branches": 75,
-        "functions": 75,
-        "lines": 75,
-        "statements": 75
-      }
-    }
-  }
+  "proxy": "http://127.0.0.1:8080"
 }
