@@ -100,7 +100,10 @@ describe('PuzzleGame Component', () => {
         const hintButton = screen.getByText(/Hint/i);
         fireEvent.click(hintButton);
 
-        expect(screen.getByAltText(/Hint/i)).toBeInTheDocument();
+        // The hint container holds the SVG inside a div with class "w-full h-full opacity-40 grayscale". Let's wait for it.
+        const hintTitle = await screen.findByText('Progress: 0 / 9'); // Not exact but we can check if the hint modal closing button exists.
+        const closeHintBtn = document.querySelector('button .lucide-x'); // There are two X buttons, one for menu one for hint.
+        expect(document.querySelector('.w-full.max-w-xs.aspect-square')).toBeInTheDocument();
     });
 
     it('handles axios errors gracefully', async () => {

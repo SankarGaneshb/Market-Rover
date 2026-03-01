@@ -7,7 +7,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Jio",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries%20Logo.svg",
-    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
+    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <defs>\n        <linearGradient id=\"jioGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n          <stop offset=\"0%\" style=\"stop-color:#0057FF;stop-opacity:1\" />\n          <stop offset=\"100%\" style=\"stop-color:#00D4FF;stop-opacity:1\" />\n        </linearGradient>\n      </defs>\n      <rect fill=\"url(#jioGrad)\" width=\"400\" height=\"400\"/>\n      <circle cx=\"200\" cy=\"150\" r=\"40\" fill=\"white\"/>\n      <text x=\"200\" y=\"280\" font-size=\"120\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jio</text>\n    </svg>"
   },
   {
     "id": 2,
@@ -17,7 +18,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Reliance Retail",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries%20Logo.svg",
-    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution."
+    "insight": "From textiles in 1958 to a digital powerhouse today, Reliance's Jio led India's 4G revolution.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"jioGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" style=\"stop-color:#0057FF;stop-opacity:1\" /><stop offset=\"100%\" style=\"stop-color:#00D4FF;stop-opacity:1\" /></linearGradient></defs><rect fill=\"url(#jioGrad)\" width=\"400\" height=\"400\"/><circle cx=\"200\" cy=\"150\" r=\"40\" fill=\"white\"/><text x=\"200\" y=\"280\" font-size=\"120\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jio</text></svg>"
   },
   {
     "id": 3,
@@ -27,7 +29,8 @@ export const NIFTY50_BRANDS = [
     "brand": "TCS",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TATA%20Consultancy%20Services%20Logo%20blue.svg",
-    "insight": "Founded in 1968, TCS pioneered India's IT sector and was the first in India to reach a $100B valuation."
+    "insight": "Founded in 1968, TCS pioneered India's IT sector and was the first in India to reach a $100B valuation.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#002D72\" width=\"400\" height=\"400\"/>\n      <text x=\"200\" y=\"240\" font-size=\"140\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">TCS</text>\n      <rect x=\"50\" y=\"300\" width=\"300\" height=\"8\" fill=\"#00A1DE\"/>\n    </svg>"
   },
   {
     "id": 4,
@@ -37,7 +40,8 @@ export const NIFTY50_BRANDS = [
     "brand": "HDFC Bank",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/HDFC%20Bank%20Logo.svg",
-    "insight": "Starting with a single branch in 1995, HDFC Bank recently completed a historic mega-merger with its parent."
+    "insight": "Starting with a single branch in 1995, HDFC Bank recently completed a historic mega-merger with its parent.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#004C8F\" width=\"400\" height=\"400\"/>\n      <rect x=\"30\" y=\"30\" width=\"340\" height=\"340\" fill=\"none\" stroke=\"#FFD700\" stroke-width=\"8\"/>\n      <text x=\"200\" y=\"180\" font-size=\"80\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">HDFC</text>\n      <text x=\"200\" y=\"250\" font-size=\"60\" font-weight=\"700\" fill=\"#FFD700\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">BANK</text>\n    </svg>"
   },
   {
     "id": 5,
@@ -47,7 +51,8 @@ export const NIFTY50_BRANDS = [
     "brand": "ICICI Bank",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ICICI%20Bank%20Logo.svg",
-    "insight": "ICICI Bank is a trusted brand owned by ICICI Bank (ICICIBANK) listed in the Nifty 50."
+    "insight": "ICICI Bank is a trusted brand owned by ICICI Bank (ICICIBANK) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_5\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_5)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">ICICI Bank</text>\n</svg>"
   },
   {
     "id": 6,
@@ -57,7 +62,8 @@ export const NIFTY50_BRANDS = [
     "brand": "iMobile",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ICICI%20Bank%20Logo.svg",
-    "insight": "iMobile is a trusted brand owned by ICICI Bank (ICICIBANK) listed in the Nifty 50."
+    "insight": "iMobile is a trusted brand owned by ICICI Bank (ICICIBANK) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_6\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_6)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">iMobile</text>\n</svg>"
   },
   {
     "id": 7,
@@ -67,7 +73,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Infosys",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Infosys%20Consulting%20logo.svg",
-    "insight": "Infosys is a trusted brand owned by Infosys (INFY) listed in the Nifty 50."
+    "insight": "Infosys is a trusted brand owned by Infosys (INFY) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#007CC3\" width=\"400\" height=\"400\"/>\n      <rect x=\"60\" y=\"100\" width=\"280\" height=\"40\" fill=\"#00C8FF\" transform=\"skewX(-10)\"/>\n      <text x=\"200\" y=\"250\" font-size=\"90\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Infosys</text>\n    </svg>"
   },
   {
     "id": 8,
@@ -77,7 +84,8 @@ export const NIFTY50_BRANDS = [
     "brand": "SBI",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/State%20Bank%20of%20India%20logo.svg",
-    "insight": "SBI is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50."
+    "insight": "SBI is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#1F4788\" width=\"400\" height=\"400\"/>\n      <circle cx=\"200\" cy=\"140\" r=\"60\" fill=\"#00A8E1\" stroke=\"white\" stroke-width=\"6\"/>\n      <path d=\"M 200 110 L 200 170 M 170 140 L 230 140\" stroke=\"white\" stroke-width=\"8\"/>\n      <text x=\"200\" y=\"280\" font-size=\"110\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">SBI</text>\n    </svg>"
   },
   {
     "id": 9,
@@ -87,7 +95,8 @@ export const NIFTY50_BRANDS = [
     "brand": "YONO",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/State%20Bank%20of%20India%20logo.svg",
-    "insight": "YONO is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50."
+    "insight": "YONO is a trusted brand owned by State Bank of India (SBIN) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_9\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_9)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">YONO</text>\n</svg>"
   },
   {
     "id": 10,
@@ -97,7 +106,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Airtel",
     "sector": "Telecom",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharti%20Airtel%20logo.svg",
-    "insight": "Airtel is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50."
+    "insight": "Airtel is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#E60000\" width=\"400\" height=\"400\"/>\n      <path d=\"M 100 150 Q 200 80 300 150\" fill=\"none\" stroke=\"white\" stroke-width=\"20\"/>\n      <circle cx=\"200\" cy=\"150\" r=\"30\" fill=\"white\"/>\n      <text x=\"200\" y=\"280\" font-size=\"90\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">airtel</text>\n    </svg>"
   },
   {
     "id": 11,
@@ -107,7 +117,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Wynk Music",
     "sector": "Telecom",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharti%20Airtel%20logo.svg",
-    "insight": "Wynk Music is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50."
+    "insight": "Wynk Music is a trusted brand owned by Bharti Airtel (BHARTIARTL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_11\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f43f5e;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#881337;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_11)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Wynk Music</text>\n</svg>"
   },
   {
     "id": 12,
@@ -117,7 +128,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Dove",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Unilever%20Logo.svg",
-    "insight": "Dove is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50."
+    "insight": "Dove is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <defs>\n        <linearGradient id=\"doveGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n          <stop offset=\"0%\" style=\"stop-color:#1E3A8A;stop-opacity:1\" />\n          <stop offset=\"100%\" style=\"stop-color:#3B82F6;stop-opacity:1\" />\n        </linearGradient>\n      </defs>\n      <rect fill=\"url(#doveGrad)\" width=\"400\" height=\"400\"/>\n      <ellipse cx=\"200\" cy=\"120\" rx=\"60\" ry=\"40\" fill=\"white\"/>\n      <path d=\"M 200 140 Q 220 160 240 190 Q 220 220 200 240 Q 180 220 160 190 Q 180 160 200 140\" fill=\"white\"/>\n      <text x=\"200\" y=\"310\" font-size=\"100\" font-weight=\"600\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" style=\"font-style:italic\">Dove</text>\n    </svg>"
   },
   {
     "id": 13,
@@ -127,7 +139,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Surf Excel",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Unilever%20Logo.svg",
-    "insight": "Surf Excel is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50."
+    "insight": "Surf Excel is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_13\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_13)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Surf Excel</text>\n</svg>"
   },
   {
     "id": 14,
@@ -137,7 +150,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Lifebuoy",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Unilever%20Logo.svg",
-    "insight": "Lifebuoy is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50."
+    "insight": "Lifebuoy is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_14\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_14)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Lifebuoy</text>\n</svg>"
   },
   {
     "id": 15,
@@ -147,7 +161,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Lux",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Unilever%20Logo.svg",
-    "insight": "Lux is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50."
+    "insight": "Lux is a trusted brand owned by Hindustan Unilever (HINDUNILVR) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_15\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_15)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Lux</text>\n</svg>"
   },
   {
     "id": 16,
@@ -157,7 +172,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Aashirvaad",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Aashirvaad is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Aashirvaad is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_16\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_16)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Aashirvaad</text>\n</svg>"
   },
   {
     "id": 17,
@@ -167,7 +183,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Sunfeast",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Sunfeast is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Sunfeast is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_17\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_17)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Sunfeast</text>\n</svg>"
   },
   {
     "id": 18,
@@ -177,7 +194,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Bingo!",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Bingo! is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Bingo! is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_18\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_18)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Bingo!</text>\n</svg>"
   },
   {
     "id": 19,
@@ -187,7 +205,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Classmate",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Classmate is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Classmate is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_19\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_19)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Classmate</text>\n</svg>"
   },
   {
     "id": 20,
@@ -197,7 +216,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Savlon",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ITC%20Limited%20Logo.svg",
-    "insight": "Savlon is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50."
+    "insight": "Savlon is a trusted brand owned by ITC Limited (ITC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_20\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_20)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Savlon</text>\n</svg>"
   },
   {
     "id": 21,
@@ -207,7 +227,8 @@ export const NIFTY50_BRANDS = [
     "brand": "L&T",
     "sector": "Industrial",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Larsen-%26-Toubro-Logo.svg",
-    "insight": "L&T is a trusted brand owned by Larsen & Toubro (LT) listed in the Nifty 50."
+    "insight": "L&T is a trusted brand owned by Larsen & Toubro (LT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_21\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_21)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">L&amp;T</text>\n</svg>"
   },
   {
     "id": 22,
@@ -217,7 +238,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Bajaj Finserv",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bajaj%20Finance%20Logo.svg",
-    "insight": "Bajaj Finserv is a trusted brand owned by Bajaj Finance (BAJFINANCE) listed in the Nifty 50."
+    "insight": "Bajaj Finserv is a trusted brand owned by Bajaj Finance (BAJFINANCE) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_22\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_22)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Bajaj Fins..</text>\n</svg>"
   },
   {
     "id": 23,
@@ -227,7 +249,8 @@ export const NIFTY50_BRANDS = [
     "brand": "HCLTech",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/HCL%20Technologies%20logo.svg",
-    "insight": "HCLTech is a trusted brand owned by HCL Technologies (HCLTECH) listed in the Nifty 50."
+    "insight": "HCLTech is a trusted brand owned by HCL Technologies (HCLTECH) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_23\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#0ea5e9;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0369a1;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_23)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">HCLTech</text>\n</svg>"
   },
   {
     "id": 24,
@@ -237,7 +260,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Maruti Suzuki",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
-    "insight": "Maruti Suzuki is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50."
+    "insight": "Maruti Suzuki is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#003DA5\" width=\"400\" height=\"400\"/>\n      <path d=\"M 120 140 L 160 100 L 240 100 L 280 140 L 280 180 L 240 220 L 160 220 L 120 180 Z\" fill=\"#E30613\" stroke=\"white\" stroke-width=\"4\"/>\n      <text x=\"200\" y=\"180\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">M</text>\n      <text x=\"200\" y=\"280\" font-size=\"60\" font-weight=\"700\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">MARUTI</text>\n      <text x=\"200\" y=\"330\" font-size=\"45\" font-weight=\"600\" fill=\"#E30613\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">SUZUKI</text>\n    </svg>"
   },
   {
     "id": 25,
@@ -247,7 +271,8 @@ export const NIFTY50_BRANDS = [
     "brand": "NEXA",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
-    "insight": "NEXA is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50."
+    "insight": "NEXA is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_25\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_25)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">NEXA</text>\n</svg>"
   },
   {
     "id": 26,
@@ -257,7 +282,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Arena",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
-    "insight": "Arena is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50."
+    "insight": "Arena is a trusted brand owned by Maruti Suzuki (MARUTI) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_26\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_26)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Arena</text>\n</svg>"
   },
   {
     "id": 27,
@@ -267,7 +293,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Volini",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Sun%20Pharmaceutical%20logo.svg",
-    "insight": "Volini is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50."
+    "insight": "Volini is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_27\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_27)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Volini</text>\n</svg>"
   },
   {
     "id": 28,
@@ -277,7 +304,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Revital",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Sun%20Pharmaceutical%20logo.svg",
-    "insight": "Revital is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50."
+    "insight": "Revital is a trusted brand owned by Sun Pharmaceutical (SUNPHARMA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_28\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_28)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Revital</text>\n</svg>"
   },
   {
     "id": 29,
@@ -287,7 +315,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tata Motors",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
-    "insight": "Tata Motors is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
+    "insight": "Tata Motors is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_29\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_29)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tata Motors</text>\n</svg>"
   },
   {
     "id": 30,
@@ -297,7 +326,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Jaguar",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
-    "insight": "Jaguar is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
+    "insight": "Jaguar is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_30\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_30)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jaguar</text>\n</svg>"
   },
   {
     "id": 31,
@@ -307,7 +337,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Land Rover",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
-    "insight": "Land Rover is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
+    "insight": "Land Rover is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_31\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_31)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Land Rover</text>\n</svg>"
   },
   {
     "id": 32,
@@ -317,7 +348,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nexon",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Motors%20Logo.svg",
-    "insight": "Nexon is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50."
+    "insight": "Nexon is a trusted brand owned by Tata Motors (TATAMOTORS) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_32\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_32)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nexon</text>\n</svg>"
   },
   {
     "id": 33,
@@ -327,7 +359,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Mahindra",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Mahindra%20Rise%20New%20Logo.svg",
-    "insight": "Mahindra is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50."
+    "insight": "Mahindra is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_33\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_33)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Mahindra</text>\n</svg>"
   },
   {
     "id": 34,
@@ -337,7 +370,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Scorpio",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Mahindra%20Rise%20New%20Logo.svg",
-    "insight": "Scorpio is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50."
+    "insight": "Scorpio is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_34\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_34)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Scorpio</text>\n</svg>"
   },
   {
     "id": 35,
@@ -347,7 +381,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Thar",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Mahindra%20Rise%20New%20Logo.svg",
-    "insight": "Thar is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50."
+    "insight": "Thar is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_35\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_35)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Thar</text>\n</svg>"
   },
   {
     "id": 36,
@@ -357,7 +392,8 @@ export const NIFTY50_BRANDS = [
     "brand": "XUV700",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Mahindra%20Rise%20New%20Logo.svg",
-    "insight": "XUV700 is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50."
+    "insight": "XUV700 is a trusted brand owned by Mahindra & Mahindra (M&M) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_36\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_36)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">XUV700</text>\n</svg>"
   },
   {
     "id": 37,
@@ -367,7 +403,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Asian Paints",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Asian%20Paints%20Logo.svg",
-    "insight": "Asian Paints is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50."
+    "insight": "Asian Paints is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect fill=\"#E31E24\" width=\"400\" height=\"400\"/>\n      <circle cx=\"100\" cy=\"100\" r=\"40\" fill=\"#FFD700\"/>\n      <circle cx=\"200\" cy=\"100\" r=\"40\" fill=\"#00A651\"/>\n      <circle cx=\"300\" cy=\"100\" r=\"40\" fill=\"#0066CC\"/>\n      <text x=\"200\" y=\"230\" font-size=\"70\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Asian</text>\n      <text x=\"200\" y=\"300\" font-size=\"70\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Paints</text>\n    </svg>"
   },
   {
     "id": 38,
@@ -377,7 +414,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Royale",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Asian%20Paints%20Logo.svg",
-    "insight": "Royale is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50."
+    "insight": "Royale is a trusted brand owned by Asian Paints (ASIANPAINT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_38\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_38)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Royale</text>\n</svg>"
   },
   {
     "id": 39,
@@ -387,7 +425,8 @@ export const NIFTY50_BRANDS = [
     "brand": "NTPC",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/National%20Thermal%20Power%20logo.svg",
-    "insight": "NTPC is a trusted brand owned by NTPC (NTPC) listed in the Nifty 50."
+    "insight": "NTPC is a trusted brand owned by NTPC (NTPC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_39\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_39)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">NTPC</text>\n</svg>"
   },
   {
     "id": 40,
@@ -397,7 +436,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tata Tiscon",
     "sector": "Metals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Steel%20Logo.svg",
-    "insight": "Tata Tiscon is a trusted brand owned by Tata Steel (TATASTEEL) listed in the Nifty 50."
+    "insight": "Tata Tiscon is a trusted brand owned by Tata Steel (TATASTEEL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_40\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#94a3b8;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#334155;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_40)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tata Tiscon</text>\n</svg>"
   },
   {
     "id": 41,
@@ -407,7 +447,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Kotak Bank",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Kotak%20Mahindra%20Bank%20logo.svg",
-    "insight": "Kotak Bank is a trusted brand owned by Kotak Mahindra Bank (KOTAKBANK) listed in the Nifty 50."
+    "insight": "Kotak Bank is a trusted brand owned by Kotak Mahindra Bank (KOTAKBANK) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_41\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_41)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Kotak Bank</text>\n</svg>"
   },
   {
     "id": 42,
@@ -417,7 +458,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Kotak 811",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Kotak%20Mahindra%20Bank%20logo.svg",
-    "insight": "Kotak 811 is a trusted brand owned by Kotak Mahindra Bank (KOTAKBANK) listed in the Nifty 50."
+    "insight": "Kotak 811 is a trusted brand owned by Kotak Mahindra Bank (KOTAKBANK) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_42\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_42)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Kotak 811</text>\n</svg>"
   },
   {
     "id": 43,
@@ -427,7 +469,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Axis Bank",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Axis%20Bank%20logo.svg",
-    "insight": "Axis Bank is a trusted brand owned by Axis Bank (AXISBANK) listed in the Nifty 50."
+    "insight": "Axis Bank is a trusted brand owned by Axis Bank (AXISBANK) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_43\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_43)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Axis Bank</text>\n</svg>"
   },
   {
     "id": 44,
@@ -437,7 +480,8 @@ export const NIFTY50_BRANDS = [
     "brand": "UltraTech",
     "sector": "Materials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Ultratech%20Cement%20Logo.svg",
-    "insight": "UltraTech is a trusted brand owned by UltraTech Cement (ULTRACEMCO) listed in the Nifty 50."
+    "insight": "UltraTech is a trusted brand owned by UltraTech Cement (ULTRACEMCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_44\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#64748b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f172a;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_44)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">UltraTech</text>\n</svg>"
   },
   {
     "id": 45,
@@ -447,7 +491,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Titan",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Logo%20of%20Titan%20Company%2C%20May%202018.svg",
-    "insight": "Titan is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50."
+    "insight": "Titan is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_45\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_45)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Titan</text>\n</svg>"
   },
   {
     "id": 46,
@@ -457,7 +502,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tanishq",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Logo%20of%20Titan%20Company%2C%20May%202018.svg",
-    "insight": "Tanishq is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50."
+    "insight": "Tanishq is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_46\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_46)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tanishq</text>\n</svg>"
   },
   {
     "id": 47,
@@ -467,7 +513,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Fastrack",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Logo%20of%20Titan%20Company%2C%20May%202018.svg",
-    "insight": "Fastrack is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50."
+    "insight": "Fastrack is a trusted brand owned by Titan Company (TITAN) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_47\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_47)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Fastrack</text>\n</svg>"
   },
   {
     "id": 48,
@@ -477,7 +524,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Wipro",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Wipro%20Primary%20Logo%20Color%20RGB.svg",
-    "insight": "Wipro is a trusted brand owned by Wipro (WIPRO) listed in the Nifty 50."
+    "insight": "Wipro is a trusted brand owned by Wipro (WIPRO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_48\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#0ea5e9;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0369a1;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_48)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Wipro</text>\n</svg>"
   },
   {
     "id": 49,
@@ -487,7 +535,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Santoore",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Wipro%20Primary%20Logo%20Color%20RGB.svg",
-    "insight": "Santoore is a trusted brand owned by Wipro (WIPRO) listed in the Nifty 50."
+    "insight": "Santoore is a trusted brand owned by Wipro (WIPRO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_49\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#0ea5e9;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0369a1;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_49)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Santoore</text>\n</svg>"
   },
   {
     "id": 50,
@@ -497,7 +546,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Maggi",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
-    "insight": "Maggi is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
+    "insight": "Maggi is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_50\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_50)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Maggi</text>\n</svg>"
   },
   {
     "id": 51,
@@ -507,7 +557,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nescafe",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
-    "insight": "Nescafe is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
+    "insight": "Nescafe is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_51\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_51)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nescafe</text>\n</svg>"
   },
   {
     "id": 52,
@@ -517,7 +568,8 @@ export const NIFTY50_BRANDS = [
     "brand": "KitKat",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nestl%C3%A9%20logo.svg",
-    "insight": "KitKat is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50."
+    "insight": "KitKat is a trusted brand owned by Nestle India (NESTLEIND) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_52\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_52)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">KitKat</text>\n</svg>"
   },
   {
     "id": 53,
@@ -527,7 +579,8 @@ export const NIFTY50_BRANDS = [
     "brand": "PowerGrid",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Power%20Grid%20Corporation%20of%20India%20Logo.svg",
-    "insight": "PowerGrid is a trusted brand owned by Power Grid (POWERGRID) listed in the Nifty 50."
+    "insight": "PowerGrid is a trusted brand owned by Power Grid (POWERGRID) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_53\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_53)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">PowerGrid</text>\n</svg>"
   },
   {
     "id": 54,
@@ -537,7 +590,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Pulsar",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bajaj%20auto%20logo.svg",
-    "insight": "Pulsar is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50."
+    "insight": "Pulsar is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_54\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_54)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Pulsar</text>\n</svg>"
   },
   {
     "id": 55,
@@ -547,7 +601,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Dominar",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bajaj%20auto%20logo.svg",
-    "insight": "Dominar is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50."
+    "insight": "Dominar is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_55\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_55)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Dominar</text>\n</svg>"
   },
   {
     "id": 56,
@@ -557,7 +612,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Chetak",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bajaj%20auto%20logo.svg",
-    "insight": "Chetak is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50."
+    "insight": "Chetak is a trusted brand owned by Bajaj Auto (BAJAJ-AUTO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_56\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_56)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Chetak</text>\n</svg>"
   },
   {
     "id": 57,
@@ -567,7 +623,8 @@ export const NIFTY50_BRANDS = [
     "brand": "ONGC",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/ONGC%20Logo.svg",
-    "insight": "ONGC is a trusted brand owned by ONGC (ONGC) listed in the Nifty 50."
+    "insight": "ONGC is a trusted brand owned by ONGC (ONGC) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_57\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_57)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">ONGC</text>\n</svg>"
   },
   {
     "id": 58,
@@ -577,7 +634,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Adani Airports",
     "sector": "Industrial",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Adani%20Group%20logo.svg",
-    "insight": "Adani Airports is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50."
+    "insight": "Adani Airports is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_58\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_58)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Adani Airp..</text>\n</svg>"
   },
   {
     "id": 59,
@@ -587,7 +645,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Adani Wilmar",
     "sector": "Industrial",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Adani%20Group%20logo.svg",
-    "insight": "Adani Wilmar is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50."
+    "insight": "Adani Wilmar is a trusted brand owned by Adani Enterprises (ADANIENT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_59\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_59)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Adani Wilmar</text>\n</svg>"
   },
   {
     "id": 60,
@@ -597,7 +656,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Adani Ports",
     "sector": "Infrastructure",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Adani%20Ports%20Logo.svg",
-    "insight": "Adani Ports is a trusted brand owned by Adani Ports (ADANIPORTS) listed in the Nifty 50."
+    "insight": "Adani Ports is a trusted brand owned by Adani Ports (ADANIPORTS) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_60\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f97316;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#9a3412;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_60)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Adani Ports</text>\n</svg>"
   },
   {
     "id": 61,
@@ -607,7 +667,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Hindalco",
     "sector": "Metals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindalco%20Logo.svg",
-    "insight": "Hindalco is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50."
+    "insight": "Hindalco is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_61\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#94a3b8;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#334155;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_61)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Hindalco</text>\n</svg>"
   },
   {
     "id": 62,
@@ -617,7 +678,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Novelis",
     "sector": "Metals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindalco%20Logo.svg",
-    "insight": "Novelis is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50."
+    "insight": "Novelis is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_62\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#94a3b8;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#334155;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_62)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Novelis</text>\n</svg>"
   },
   {
     "id": 63,
@@ -627,7 +689,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Freshwrapp",
     "sector": "Metals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindalco%20Logo.svg",
-    "insight": "Freshwrapp is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50."
+    "insight": "Freshwrapp is a trusted brand owned by Hindalco (HINDALCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_63\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#94a3b8;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#334155;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_63)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Freshwrapp</text>\n</svg>"
   },
   {
     "id": 64,
@@ -637,7 +700,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Grasim",
     "sector": "Materials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Aditya%20Birla%20Grasim%20Logo.svg",
-    "insight": "Grasim is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50."
+    "insight": "Grasim is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_64\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#64748b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f172a;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_64)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Grasim</text>\n</svg>"
   },
   {
     "id": 65,
@@ -647,7 +711,8 @@ export const NIFTY50_BRANDS = [
     "brand": "UltraTech",
     "sector": "Materials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Aditya%20Birla%20Grasim%20Logo.svg",
-    "insight": "UltraTech is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50."
+    "insight": "UltraTech is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_65\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#64748b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f172a;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_65)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">UltraTech</text>\n</svg>"
   },
   {
     "id": 66,
@@ -657,7 +722,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Liva",
     "sector": "Materials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Aditya%20Birla%20Grasim%20Logo.svg",
-    "insight": "Liva is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50."
+    "insight": "Liva is a trusted brand owned by Grasim Industries (GRASIM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_66\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#64748b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f172a;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_66)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Liva</text>\n</svg>"
   },
   {
     "id": 67,
@@ -667,7 +733,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tech Mahindra",
     "sector": "IT",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tech%20Mahindra%20New%20Logo.svg",
-    "insight": "Tech Mahindra is a trusted brand owned by Tech Mahindra (TECHM) listed in the Nifty 50."
+    "insight": "Tech Mahindra is a trusted brand owned by Tech Mahindra (TECHM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_67\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#0ea5e9;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0369a1;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_67)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tech Mahin..</text>\n</svg>"
   },
   {
     "id": 68,
@@ -677,7 +744,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Omez",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dr.%20Reddy's%20Laboratories%20logo.svg",
-    "insight": "Omez is a trusted brand owned by Dr. Reddy's (DRREDDY) listed in the Nifty 50."
+    "insight": "Omez is a trusted brand owned by Dr. Reddy's (DRREDDY) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_68\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_68)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Omez</text>\n</svg>"
   },
   {
     "id": 69,
@@ -687,7 +755,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nise",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dr.%20Reddy's%20Laboratories%20logo.svg",
-    "insight": "Nise is a trusted brand owned by Dr. Reddy's (DRREDDY) listed in the Nifty 50."
+    "insight": "Nise is a trusted brand owned by Dr. Reddy's (DRREDDY) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_69\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_69)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nise</text>\n</svg>"
   },
   {
     "id": 70,
@@ -697,7 +766,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Coal India",
     "sector": "Metals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Coal%20India%20Logo.svg",
-    "insight": "Coal India is a trusted brand owned by Coal India (COALINDIA) listed in the Nifty 50."
+    "insight": "Coal India is a trusted brand owned by Coal India (COALINDIA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_70\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#94a3b8;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#334155;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_70)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Coal India</text>\n</svg>"
   },
   {
     "id": 71,
@@ -707,7 +777,8 @@ export const NIFTY50_BRANDS = [
     "brand": "SBI Life",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/SBI%20Life%20Insurance%202022%20Logo.svg",
-    "insight": "SBI Life is a trusted brand owned by SBI Life (SBILIFE) listed in the Nifty 50."
+    "insight": "SBI Life is a trusted brand owned by SBI Life (SBILIFE) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_71\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_71)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">SBI Life</text>\n</svg>"
   },
   {
     "id": 72,
@@ -717,7 +788,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Apollo Hospitals",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Apollo%20Hospitals%20Logo.svg",
-    "insight": "Apollo Hospitals is a trusted brand owned by Apollo Hospitals (APOLLOHOSP) listed in the Nifty 50."
+    "insight": "Apollo Hospitals is a trusted brand owned by Apollo Hospitals (APOLLOHOSP) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_72\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_72)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Apollo Hos..</text>\n</svg>"
   },
   {
     "id": 73,
@@ -727,7 +799,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Apollo Pharmacy",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Apollo%20Hospitals%20Logo.svg",
-    "insight": "Apollo Pharmacy is a trusted brand owned by Apollo Hospitals (APOLLOHOSP) listed in the Nifty 50."
+    "insight": "Apollo Pharmacy is a trusted brand owned by Apollo Hospitals (APOLLOHOSP) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_73\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_73)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Apollo Pha..</text>\n</svg>"
   },
   {
     "id": 74,
@@ -737,7 +810,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tata Tea",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
-    "insight": "Tata Tea is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
+    "insight": "Tata Tea is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_74\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_74)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tata Tea</text>\n</svg>"
   },
   {
     "id": 75,
@@ -747,7 +821,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tata Salt",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
-    "insight": "Tata Salt is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
+    "insight": "Tata Salt is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_75\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_75)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tata Salt</text>\n</svg>"
   },
   {
     "id": 76,
@@ -757,7 +832,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Starbucks India",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Tata%20Consumer%20Products%20Logo.svg",
-    "insight": "Starbucks India is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50."
+    "insight": "Starbucks India is a trusted brand owned by Tata Consumer (TATACONSUM) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_76\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_76)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Starbucks ..</text>\n</svg>"
   },
   {
     "id": 77,
@@ -767,7 +843,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Good Day",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Britannia%20Industries%20logo%20with%20motto.svg",
-    "insight": "Good Day is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50."
+    "insight": "Good Day is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_77\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_77)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Good Day</text>\n</svg>"
   },
   {
     "id": 78,
@@ -777,7 +854,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Marie Gold",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Britannia%20Industries%20logo%20with%20motto.svg",
-    "insight": "Marie Gold is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50."
+    "insight": "Marie Gold is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_78\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_78)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Marie Gold</text>\n</svg>"
   },
   {
     "id": 79,
@@ -787,7 +865,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tiger",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Britannia%20Industries%20logo%20with%20motto.svg",
-    "insight": "Tiger is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50."
+    "insight": "Tiger is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_79\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_79)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tiger</text>\n</svg>"
   },
   {
     "id": 80,
@@ -797,7 +876,8 @@ export const NIFTY50_BRANDS = [
     "brand": "NutriChoice",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Britannia%20Industries%20logo%20with%20motto.svg",
-    "insight": "NutriChoice is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50."
+    "insight": "NutriChoice is a trusted brand owned by Britannia Industries (BRITANNIA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_80\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_80)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">NutriChoice</text>\n</svg>"
   },
   {
     "id": 81,
@@ -807,7 +887,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Royal Enfield",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Eicher%20Logo.svg",
-    "insight": "Royal Enfield is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50."
+    "insight": "Royal Enfield is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_81\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_81)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Royal Enfi..</text>\n</svg>"
   },
   {
     "id": 82,
@@ -817,7 +898,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Bullet",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Eicher%20Logo.svg",
-    "insight": "Bullet is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50."
+    "insight": "Bullet is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_82\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_82)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Bullet</text>\n</svg>"
   },
   {
     "id": 83,
@@ -827,7 +909,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Classic 350",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Eicher%20Logo.svg",
-    "insight": "Classic 350 is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50."
+    "insight": "Classic 350 is a trusted brand owned by Eicher Motors (EICHERMOT) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_83\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_83)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Classic 350</text>\n</svg>"
   },
   {
     "id": 84,
@@ -837,7 +920,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Divis Labs",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Divis%20Laboratories%20logo.svg",
-    "insight": "Divis Labs is a trusted brand owned by Divi's Lab (DIVISLAB) listed in the Nifty 50."
+    "insight": "Divis Labs is a trusted brand owned by Divi's Lab (DIVISLAB) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_84\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_84)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Divis Labs</text>\n</svg>"
   },
   {
     "id": 85,
@@ -847,7 +931,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Cipla",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Cipla%20logo.svg",
-    "insight": "Cipla is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50."
+    "insight": "Cipla is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_85\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_85)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Cipla</text>\n</svg>"
   },
   {
     "id": 86,
@@ -857,7 +942,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nicotex",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Cipla%20logo.svg",
-    "insight": "Nicotex is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50."
+    "insight": "Nicotex is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_86\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_86)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nicotex</text>\n</svg>"
   },
   {
     "id": 87,
@@ -867,7 +953,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Omnigel",
     "sector": "Healthcare",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Cipla%20logo.svg",
-    "insight": "Omnigel is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50."
+    "insight": "Omnigel is a trusted brand owned by Cipla (CIPLA) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_87\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#14b8a6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f766e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_87)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Omnigel</text>\n</svg>"
   },
   {
     "id": 88,
@@ -877,7 +964,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Splendor",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hero%20MotoCorp%20Logo.svg",
-    "insight": "Splendor is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50."
+    "insight": "Splendor is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_88\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_88)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Splendor</text>\n</svg>"
   },
   {
     "id": 89,
@@ -887,7 +975,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Passion",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hero%20MotoCorp%20Logo.svg",
-    "insight": "Passion is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50."
+    "insight": "Passion is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_89\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_89)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Passion</text>\n</svg>"
   },
   {
     "id": 90,
@@ -897,7 +986,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Xtreme",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hero%20MotoCorp%20Logo.svg",
-    "insight": "Xtreme is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50."
+    "insight": "Xtreme is a trusted brand owned by Hero MotoCorp (HEROMOTOCO) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_90\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_90)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Xtreme</text>\n</svg>"
   },
   {
     "id": 91,
@@ -907,7 +997,8 @@ export const NIFTY50_BRANDS = [
     "brand": "BPCL",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
-    "insight": "BPCL is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
+    "insight": "BPCL is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_91\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_91)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">BPCL</text>\n</svg>"
   },
   {
     "id": 92,
@@ -917,7 +1008,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Speed",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
-    "insight": "Speed is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
+    "insight": "Speed is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_92\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_92)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Speed</text>\n</svg>"
   },
   {
     "id": 93,
@@ -927,7 +1019,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Mak Lubricants",
     "sector": "Energy",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Petroleum%20logo.svg",
-    "insight": "Mak Lubricants is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50."
+    "insight": "Mak Lubricants is a trusted brand owned by BPCL (BPCL) listed in the Nifty 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_93\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#f59e0b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#92400e;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_93)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Mak Lubric..</text>\n</svg>"
   },
   {
     "id": 94,
@@ -937,7 +1030,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Zomato",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20logo.svg",
-    "insight": "Zomato is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50."
+    "insight": "Zomato is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_94\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_94)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Zomato</text>\n</svg>"
   },
   {
     "id": 95,
@@ -947,7 +1041,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Blinkit",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zomato%20logo.svg",
-    "insight": "Blinkit is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50."
+    "insight": "Blinkit is a trusted brand owned by Zomato (ZOMATO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_95\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_95)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Blinkit</text>\n</svg>"
   },
   {
     "id": 96,
@@ -957,7 +1052,8 @@ export const NIFTY50_BRANDS = [
     "brand": "BEL",
     "sector": "Defence",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Bharat%20Electronics%20logo.svg",
-    "insight": "BEL is a trusted brand owned by Bharat Electronics (BEL) listed in the Nifty Next 50."
+    "insight": "BEL is a trusted brand owned by Bharat Electronics (BEL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_96\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_96)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">BEL</text>\n</svg>"
   },
   {
     "id": 97,
@@ -967,7 +1063,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Westside",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Trent%20University%20Logo.svg",
-    "insight": "Westside is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50."
+    "insight": "Westside is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_97\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_97)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Westside</text>\n</svg>"
   },
   {
     "id": 98,
@@ -977,7 +1074,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Zudio",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Trent%20University%20Logo.svg",
-    "insight": "Zudio is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50."
+    "insight": "Zudio is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_98\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_98)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Zudio</text>\n</svg>"
   },
   {
     "id": 99,
@@ -987,7 +1085,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Star Bazaar",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Trent%20University%20Logo.svg",
-    "insight": "Star Bazaar is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50."
+    "insight": "Star Bazaar is a trusted brand owned by Trent (TRENT) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_99\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_99)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Star Bazaar</text>\n</svg>"
   },
   {
     "id": 100,
@@ -997,7 +1096,8 @@ export const NIFTY50_BRANDS = [
     "brand": "HAL",
     "sector": "Defence",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Aeronautics%20Limited%20Logo.svg",
-    "insight": "HAL is a trusted brand owned by Hindustan Aeronautics (HAL) listed in the Nifty Next 50."
+    "insight": "HAL is a trusted brand owned by Hindustan Aeronautics (HAL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_100\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_100)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">HAL</text>\n</svg>"
   },
   {
     "id": 101,
@@ -1007,7 +1107,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Tejas",
     "sector": "Defence",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Hindustan%20Aeronautics%20Limited%20Logo.svg",
-    "insight": "Tejas is a trusted brand owned by Hindustan Aeronautics (HAL) listed in the Nifty Next 50."
+    "insight": "Tejas is a trusted brand owned by Hindustan Aeronautics (HAL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_101\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_101)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Tejas</text>\n</svg>"
   },
   {
     "id": 102,
@@ -1017,7 +1118,8 @@ export const NIFTY50_BRANDS = [
     "brand": "DLF",
     "sector": "Real Estate",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/DLF%20logo.svg",
-    "insight": "DLF is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50."
+    "insight": "DLF is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_102\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_102)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">DLF</text>\n</svg>"
   },
   {
     "id": 103,
@@ -1027,7 +1129,8 @@ export const NIFTY50_BRANDS = [
     "brand": "CyberHub",
     "sector": "Real Estate",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/DLF%20logo.svg",
-    "insight": "CyberHub is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50."
+    "insight": "CyberHub is a trusted brand owned by DLF (DLF) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_103\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_103)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">CyberHub</text>\n</svg>"
   },
   {
     "id": 104,
@@ -1037,7 +1140,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Siemens",
     "sector": "Industrial",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Siemens%20AG%20logo.svg",
-    "insight": "Siemens is a trusted brand owned by Siemens (SIEMENS) listed in the Nifty Next 50."
+    "insight": "Siemens is a trusted brand owned by Siemens (SIEMENS) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_104\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_104)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Siemens</text>\n</svg>"
   },
   {
     "id": 105,
@@ -1047,7 +1151,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Pepsi India",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Varun%20Beverages.svg",
-    "insight": "Pepsi India is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50."
+    "insight": "Pepsi India is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_105\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_105)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Pepsi India</text>\n</svg>"
   },
   {
     "id": 106,
@@ -1057,7 +1162,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Sting",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Varun%20Beverages.svg",
-    "insight": "Sting is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50."
+    "insight": "Sting is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_106\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_106)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Sting</text>\n</svg>"
   },
   {
     "id": 107,
@@ -1067,7 +1173,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Seven-Up",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Varun%20Beverages.svg",
-    "insight": "Seven-Up is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50."
+    "insight": "Seven-Up is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_107\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_107)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Seven-Up</text>\n</svg>"
   },
   {
     "id": 108,
@@ -1077,7 +1184,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Mirinda",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Varun%20Beverages.svg",
-    "insight": "Mirinda is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50."
+    "insight": "Mirinda is a trusted brand owned by Varun Beverages (VBL) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_108\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_108)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Mirinda</text>\n</svg>"
   },
   {
     "id": 109,
@@ -1087,7 +1195,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Fevicol",
     "sector": "Chemicals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Pidilite%20logo.svg",
-    "insight": "Fevicol is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50."
+    "insight": "Fevicol is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_109\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_109)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Fevicol</text>\n</svg>"
   },
   {
     "id": 110,
@@ -1097,7 +1206,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Dr. Fixit",
     "sector": "Chemicals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Pidilite%20logo.svg",
-    "insight": "Dr. Fixit is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50."
+    "insight": "Dr. Fixit is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_110\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_110)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Dr. Fixit</text>\n</svg>"
   },
   {
     "id": 111,
@@ -1107,7 +1217,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Fevi Kwik",
     "sector": "Chemicals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Pidilite%20logo.svg",
-    "insight": "Fevi Kwik is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50."
+    "insight": "Fevi Kwik is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_111\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_111)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Fevi Kwik</text>\n</svg>"
   },
   {
     "id": 112,
@@ -1117,7 +1228,8 @@ export const NIFTY50_BRANDS = [
     "brand": "M-Seal",
     "sector": "Chemicals",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Pidilite%20logo.svg",
-    "insight": "M-Seal is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50."
+    "insight": "M-Seal is a trusted brand owned by Pidilite Industries (PIDILITIND) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_112\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_112)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">M-Seal</text>\n</svg>"
   },
   {
     "id": 113,
@@ -1127,7 +1239,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Ambuja Cement",
     "sector": "Materials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Ambuja%20Cements.svg",
-    "insight": "Ambuja Cement is a trusted brand owned by Ambuja Cements (AMBUJACEM) listed in the Nifty Next 50."
+    "insight": "Ambuja Cement is a trusted brand owned by Ambuja Cements (AMBUJACEM) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_113\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#64748b;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#0f172a;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_113)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Ambuja Cem..</text>\n</svg>"
   },
   {
     "id": 114,
@@ -1137,7 +1250,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Dabur Amla",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dabur_India_logo.svg",
-    "insight": "Dabur Amla is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50."
+    "insight": "Dabur Amla is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_114\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_114)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Dabur Amla</text>\n</svg>"
   },
   {
     "id": 115,
@@ -1147,7 +1261,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Real Juice",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dabur_India_logo.svg",
-    "insight": "Real Juice is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50."
+    "insight": "Real Juice is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_115\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_115)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Real Juice</text>\n</svg>"
   },
   {
     "id": 116,
@@ -1157,7 +1272,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Vatika",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dabur_India_logo.svg",
-    "insight": "Vatika is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50."
+    "insight": "Vatika is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_116\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_116)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Vatika</text>\n</svg>"
   },
   {
     "id": 117,
@@ -1167,7 +1283,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Hajmola",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dabur_India_logo.svg",
-    "insight": "Hajmola is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50."
+    "insight": "Hajmola is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_117\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_117)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Hajmola</text>\n</svg>"
   },
   {
     "id": 118,
@@ -1177,7 +1294,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Odonil",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Dabur_India_logo.svg",
-    "insight": "Odonil is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50."
+    "insight": "Odonil is a trusted brand owned by Dabur India (DABUR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_118\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_118)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Odonil</text>\n</svg>"
   },
   {
     "id": 119,
@@ -1187,7 +1305,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Good Knight",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
-    "insight": "Good Knight is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
+    "insight": "Good Knight is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_119\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_119)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Good Knight</text>\n</svg>"
   },
   {
     "id": 120,
@@ -1197,7 +1316,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Hit",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
-    "insight": "Hit is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
+    "insight": "Hit is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_120\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_120)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Hit</text>\n</svg>"
   },
   {
     "id": 121,
@@ -1207,7 +1327,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Cinthol",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
-    "insight": "Cinthol is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
+    "insight": "Cinthol is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_121\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_121)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Cinthol</text>\n</svg>"
   },
   {
     "id": 122,
@@ -1217,7 +1338,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Godrej Expert",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Godrej%20Group%20logo.svg",
-    "insight": "Godrej Expert is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50."
+    "insight": "Godrej Expert is a trusted brand owned by Godrej Consumer (GODREJCP) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_122\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_122)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Godrej Exp..</text>\n</svg>"
   },
   {
     "id": 123,
@@ -1227,7 +1349,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Parachute",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Marico%20Logo.svg",
-    "insight": "Parachute is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50."
+    "insight": "Parachute is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_123\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_123)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Parachute</text>\n</svg>"
   },
   {
     "id": 124,
@@ -1237,7 +1360,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Saffola",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Marico%20Logo.svg",
-    "insight": "Saffola is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50."
+    "insight": "Saffola is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_124\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_124)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Saffola</text>\n</svg>"
   },
   {
     "id": 125,
@@ -1247,7 +1371,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Set Wet",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Marico%20Logo.svg",
-    "insight": "Set Wet is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50."
+    "insight": "Set Wet is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_125\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_125)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Set Wet</text>\n</svg>"
   },
   {
     "id": 126,
@@ -1257,7 +1382,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Livon",
     "sector": "FMCG",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Marico%20Logo.svg",
-    "insight": "Livon is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50."
+    "insight": "Livon is a trusted brand owned by Marico (MARICO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_126\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#10b981;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#064e3b;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_126)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Livon</text>\n</svg>"
   },
   {
     "id": 127,
@@ -1267,7 +1393,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Havells",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Havells%20Logo.svg",
-    "insight": "Havells is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50."
+    "insight": "Havells is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_127\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_127)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Havells</text>\n</svg>"
   },
   {
     "id": 128,
@@ -1277,7 +1404,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Lloyd",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Havells%20Logo.svg",
-    "insight": "Lloyd is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50."
+    "insight": "Lloyd is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_128\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_128)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Lloyd</text>\n</svg>"
   },
   {
     "id": 129,
@@ -1287,7 +1415,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Crabtree",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Havells%20Logo.svg",
-    "insight": "Crabtree is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50."
+    "insight": "Crabtree is a trusted brand owned by Havells India (HAVELLS) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_129\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_129)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Crabtree</text>\n</svg>"
   },
   {
     "id": 130,
@@ -1297,7 +1426,8 @@ export const NIFTY50_BRANDS = [
     "brand": "IndiGo",
     "sector": "Aviation",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/IndiGo%20logo.svg",
-    "insight": "IndiGo is a trusted brand owned by IndiGo (INDIGO) listed in the Nifty Next 50."
+    "insight": "IndiGo is a trusted brand owned by IndiGo (INDIGO) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_130\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_130)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">IndiGo</text>\n</svg>"
   },
   {
     "id": 131,
@@ -1307,7 +1437,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Apache",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TVS%20Motor%20logo.svg",
-    "insight": "Apache is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50."
+    "insight": "Apache is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_131\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_131)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Apache</text>\n</svg>"
   },
   {
     "id": 132,
@@ -1317,7 +1448,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Jupiter",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TVS%20Motor%20logo.svg",
-    "insight": "Jupiter is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50."
+    "insight": "Jupiter is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_132\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_132)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jupiter</text>\n</svg>"
   },
   {
     "id": 133,
@@ -1327,7 +1459,8 @@ export const NIFTY50_BRANDS = [
     "brand": "NTORQ",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/TVS%20Motor%20logo.svg",
-    "insight": "NTORQ is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50."
+    "insight": "NTORQ is a trusted brand owned by TVS Motor (TVSMOTOR) listed in the Nifty Next 50.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_133\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_133)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">NTORQ</text>\n</svg>"
   },
   {
     "id": 134,
@@ -1337,7 +1470,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Voltas",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Voltas%20logo.svg",
-    "insight": "Voltas is a trusted brand owned by Voltas (VOLTAS) listed in the Nifty Midcap."
+    "insight": "Voltas is a trusted brand owned by Voltas (VOLTAS) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_134\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_134)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Voltas</text>\n</svg>"
   },
   {
     "id": 135,
@@ -1347,7 +1481,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Beko",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Voltas%20logo.svg",
-    "insight": "Beko is a trusted brand owned by Voltas (VOLTAS) listed in the Nifty Midcap."
+    "insight": "Beko is a trusted brand owned by Voltas (VOLTAS) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_135\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_135)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Beko</text>\n</svg>"
   },
   {
     "id": 136,
@@ -1357,7 +1492,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Polycab",
     "sector": "Industrial",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Polycab%20logo.svg",
-    "insight": "Polycab is a trusted brand owned by Polycab India (POLYCAB) listed in the Nifty Midcap."
+    "insight": "Polycab is a trusted brand owned by Polycab India (POLYCAB) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_136\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_136)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Polycab</text>\n</svg>"
   },
   {
     "id": 137,
@@ -1367,7 +1503,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Ashok Leyland",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Ashok%20Leyland%20logo.svg",
-    "insight": "Ashok Leyland is a trusted brand owned by Ashok Leyland (ASHOKLEY) listed in the Nifty Midcap."
+    "insight": "Ashok Leyland is a trusted brand owned by Ashok Leyland (ASHOKLEY) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_137\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_137)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Ashok Leyl..</text>\n</svg>"
   },
   {
     "id": 138,
@@ -1377,7 +1514,8 @@ export const NIFTY50_BRANDS = [
     "brand": "MRF Tyres",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Madras%20Rubber%20Factory%20Logo.svg",
-    "insight": "MRF Tyres is a trusted brand owned by MRF (MRF) listed in the Nifty Midcap."
+    "insight": "MRF Tyres is a trusted brand owned by MRF (MRF) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_138\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_138)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">MRF Tyres</text>\n</svg>"
   },
   {
     "id": 139,
@@ -1387,7 +1525,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Jockey",
     "sector": "Textiles",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Jockey%20International%20logo.svg",
-    "insight": "Jockey is a trusted brand owned by Page Industries (PAGEIND) listed in the Nifty Midcap."
+    "insight": "Jockey is a trusted brand owned by Page Industries (PAGEIND) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_139\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_139)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Jockey</text>\n</svg>"
   },
   {
     "id": 140,
@@ -1397,7 +1536,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Taj Hotels",
     "sector": "Hospitality",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Indian%20Hotels%20Company%20Limited%20logo.svg",
-    "insight": "Taj Hotels is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap."
+    "insight": "Taj Hotels is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_140\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_140)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Taj Hotels</text>\n</svg>"
   },
   {
     "id": 141,
@@ -1407,7 +1547,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Vivanta",
     "sector": "Hospitality",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Indian%20Hotels%20Company%20Limited%20logo.svg",
-    "insight": "Vivanta is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap."
+    "insight": "Vivanta is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_141\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_141)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Vivanta</text>\n</svg>"
   },
   {
     "id": 142,
@@ -1417,7 +1558,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Ginger",
     "sector": "Hospitality",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Indian%20Hotels%20Company%20Limited%20logo.svg",
-    "insight": "Ginger is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap."
+    "insight": "Ginger is a trusted brand owned by Indian Hotels (INDHOTEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_142\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_142)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Ginger</text>\n</svg>"
   },
   {
     "id": 143,
@@ -1427,7 +1569,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Zee TV",
     "sector": "Media",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zee%20entertainment%20enterprises%20logo.svg",
-    "insight": "Zee TV is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap."
+    "insight": "Zee TV is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_143\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_143)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Zee TV</text>\n</svg>"
   },
   {
     "id": 144,
@@ -1437,7 +1580,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Zee5",
     "sector": "Media",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zee%20entertainment%20enterprises%20logo.svg",
-    "insight": "Zee5 is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap."
+    "insight": "Zee5 is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_144\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_144)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Zee5</text>\n</svg>"
   },
   {
     "id": 145,
@@ -1447,7 +1591,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Zee Cinema",
     "sector": "Media",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Zee%20entertainment%20enterprises%20logo.svg",
-    "insight": "Zee Cinema is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap."
+    "insight": "Zee Cinema is a trusted brand owned by Zee Entertainment (ZEEL) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_145\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_145)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Zee Cinema</text>\n</svg>"
   },
   {
     "id": 146,
@@ -1457,7 +1602,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Paytm",
     "sector": "Financials",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Paytm%20Logo%20(standalone).svg",
-    "insight": "Paytm is a trusted brand owned by Paytm (PAYTM) listed in the Nifty Midcap."
+    "insight": "Paytm is a trusted brand owned by Paytm (PAYTM) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_146\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#a855f7;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#6b21a8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_146)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Paytm</text>\n</svg>"
   },
   {
     "id": 147,
@@ -1467,7 +1613,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nykaa",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nykaa%20New%20Logo.svg",
-    "insight": "Nykaa is a trusted brand owned by Nykaa (NYKAA) listed in the Nifty Midcap."
+    "insight": "Nykaa is a trusted brand owned by Nykaa (NYKAA) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_147\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_147)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nykaa</text>\n</svg>"
   },
   {
     "id": 148,
@@ -1477,7 +1624,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Nykaa Fashion",
     "sector": "Consumer",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Nykaa%20New%20Logo.svg",
-    "insight": "Nykaa Fashion is a trusted brand owned by Nykaa (NYKAA) listed in the Nifty Midcap."
+    "insight": "Nykaa Fashion is a trusted brand owned by Nykaa (NYKAA) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_148\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#8b5cf6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#4c1d95;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_148)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Nykaa Fash..</text>\n</svg>"
   },
   {
     "id": 149,
@@ -1487,7 +1635,8 @@ export const NIFTY50_BRANDS = [
     "brand": "IRCTC",
     "sector": "Services",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/IRCTC%20Logo.svg",
-    "insight": "IRCTC is a trusted brand owned by IRCTC (IRCTC) listed in the Nifty Midcap."
+    "insight": "IRCTC is a trusted brand owned by IRCTC (IRCTC) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_149\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_149)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">IRCTC</text>\n</svg>"
   },
   {
     "id": 150,
@@ -1497,7 +1646,8 @@ export const NIFTY50_BRANDS = [
     "brand": "Maharajas' Express",
     "sector": "Services",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/IRCTC%20Logo.svg",
-    "insight": "Maharajas' Express is a trusted brand owned by IRCTC (IRCTC) listed in the Nifty Midcap."
+    "insight": "Maharajas' Express is a trusted brand owned by IRCTC (IRCTC) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_150\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#1d4ed8;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_150)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">Maharajas&apos;..</text>\n</svg>"
   },
   {
     "id": 151,
@@ -1507,6 +1657,7 @@ export const NIFTY50_BRANDS = [
     "brand": "BKT Tyres",
     "sector": "Automobile",
     "logoUrl": "https://en.wikipedia.org/wiki/Special:FilePath/Balkrishna%20Tyres%20Logo.svg",
-    "insight": "BKT Tyres is a trusted brand owned by Balkrishna Industries (BALKRISIND) listed in the Nifty Midcap."
+    "insight": "BKT Tyres is a trusted brand owned by Balkrishna Industries (BALKRISIND) listed in the Nifty Midcap.",
+    "logoSvg": "<svg viewBox=\"0 0 400 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <linearGradient id=\"grad_151\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" style=\"stop-color:#6366f1;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#312e81;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  <rect fill=\"url(#grad_151)\" width=\"400\" height=\"400\" rx=\"40\" />\n  <text x=\"200\" y=\"220\" font-size=\"50\" font-weight=\"900\" fill=\"white\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\">BKT Tyres</text>\n</svg>"
   }
 ];

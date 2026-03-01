@@ -91,7 +91,10 @@ export default function PuzzleGame() {
       const { data } = await axios.get('/api/puzzles/daily');
       let matchedBrand = null;
       if (data) {
-        matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker);
+        matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker && b.insight === data.hint);
+        if (!matchedBrand) {
+          matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker);
+        }
         setDbPuzzleId(data.id);
       }
       if (matchedBrand) {
