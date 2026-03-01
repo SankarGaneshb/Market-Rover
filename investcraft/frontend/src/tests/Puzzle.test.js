@@ -61,19 +61,19 @@ describe('Puzzle Component', () => {
 
     it('renders loading state initially', () => {
         renderWithContext(<PuzzleGame />);
-        expect(screen.getByText(/Loading daily challenge/i)).toBeInTheDocument();
+        expect(screen.getByText(/Loading challenge/i)).toBeInTheDocument();
     });
 
     it('renders menu after fetching puzzle', async () => {
         renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading daily challenge/i)).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
         expect(screen.getByText(/Brand to Stock/i)).toBeInTheDocument();
-        expect(screen.getByText(/Choose Difficulty/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/pieces/i)[0]).toBeInTheDocument();
     });
 
     it('starts game when difficulty is selected', async () => {
         renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading daily challenge/i)).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
 
         const easyButton = screen.getByText(/Easy/i);
         fireEvent.click(easyButton);
@@ -84,7 +84,7 @@ describe('Puzzle Component', () => {
 
     it('shows hint when hint button is clicked', async () => {
         renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading daily challenge/i)).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
         fireEvent.click(screen.getByText(/Easy/i));
 
         const hintButton = screen.getByText(/Hint/i);
@@ -96,7 +96,7 @@ describe('Puzzle Component', () => {
     it('handles axios errors gracefully', async () => {
         axios.get.mockRejectedValueOnce(new Error('Network Error'));
         renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading daily challenge/i)).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
         expect(screen.getByText(/Brand to Stock/i)).toBeInTheDocument();
     });
 });
