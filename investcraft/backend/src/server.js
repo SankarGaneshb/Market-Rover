@@ -99,16 +99,29 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     host: '0.0.0.0'
   });
 
-  // Database initialization happens in the background
-  initializePool()
-    .then(() => {
-      logger.info('Database pool and migrations initialized successfully');
-      isDbReady = true;
-    })
-    .catch(err => {
-      logger.error('LATE DATABASE FAILURE:', { error: err.message, stack: err.stack });
-      dbError = err.message;
-    });
+  // Database initialization happens in the background with retry logic
+  const startDb = async (retries = 5) => {
+    while (retries > 0) {
+      try {
+        await initializePool();
+        logger.info('Database pool and migrations initialized successfully');
+        isDbReady = true;
+        dbError = null;
+        return;
+      } catch (err) {
+        retries -= 1;
+        logger.error(`DATABASE INIT FAILED (Retries left: ${retries}):`, { error: err.message });
+        dbError = err.message;
+        if (retries === 0) {
+          logger.error('FATAL: Could not connect to database after maximum retries. Exiting.');
+          process.exit(1); // Force Cloud Run to restart the container
+        }
+        await new Promise(res => setTimeout(res, 5000)); // wait 5 seconds before retrying
+      }
+    }
+  };
+
+  startDb();
 });
 
 process.on('SIGTERM', () => {
