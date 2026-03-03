@@ -95,8 +95,8 @@ router.post('/vote', authenticate, async (req, res) => {
     await pool.query(
       `INSERT INTO puzzle_votes (user_id, ticker, vote_date)
        VALUES ($1, $2, $3)
-       ON CONFLICT (user_id, vote_date)
-       DO UPDATE SET ticker = EXCLUDED.ticker, created_at = NOW()`,
+       ON CONFLICT (user_id, vote_date, ticker)
+       DO NOTHING`,
       [userId, ticker, tomorrowStr]
     );
 
@@ -104,6 +104,39 @@ router.post('/vote', authenticate, async (req, res) => {
   } catch (err) {
     logger.error('Error recording puzzle vote', { error: err.message });
     res.status(500).json({ error: 'Failed to record vote' });
+  }
+});
+
+// GET /api/puzzles/vote-status - Get played and voted tickers
+router.get('/vote-status', authenticate, async (req, res) => {
+  const pool = getPool();
+  const userId = req.user.id;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  try {
+    // Get tickers user has voted for tomorrow
+    const userVotes = await pool.query(
+      `SELECT ticker FROM puzzle_votes WHERE user_id = $1 AND vote_date = $2`,
+      [userId, tomorrowStr]
+    );
+    const votedTickers = userVotes.rows.map(row => row.ticker);
+
+    // Get tickers that have been played (in the past or today)
+    const playedPuzzles = await pool.query(
+      `SELECT ticker FROM puzzles WHERE scheduled_date <= $1 AND scheduled_date IS NOT NULL`,
+      [todayStr]
+    );
+    const playedTickers = playedPuzzles.rows.map(row => row.ticker);
+
+    res.json({ votedTickers, playedTickers });
+  } catch (err) {
+    logger.error('Error fetching vote status', { error: err.message });
+    res.status(500).json({ error: 'Failed to fetch vote status' });
   }
 });
 

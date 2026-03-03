@@ -454,17 +454,17 @@ export default function PuzzleGame() {
 
             {/* Bottom Actions Row */}
             <div className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2 lg:gap-3">
-              <button onClick={() => navigate('/vote')} className="bg-slate-100 text-slate-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+              <button onClick={() => navigate('/vote')} className="bg-indigo-600 text-white py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
                 <Calendar size={16} /> Vote Next
               </button>
               <button onClick={shareLeaderboard} className="bg-slate-100 text-slate-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
-                <Trophy size={16} /> Leaderboard
+                <Trophy size={16} /> Share Leaderboard
               </button>
               <button onClick={shareScore} className="bg-indigo-50 text-indigo-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2">
                 <Share2 size={16} /> Share Record
               </button>
-              <button onClick={() => setGameState('menu')} className="bg-indigo-600 text-white py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all active:scale-95">
-                Play Again
+              <button onClick={() => setGameState('menu')} className="bg-slate-100 text-slate-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+                <RotateCcw size={16} /> Play Again
               </button>
             </div>
           </div>

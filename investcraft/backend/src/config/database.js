@@ -88,9 +88,12 @@ async function runMigrations() {
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         ticker VARCHAR(50) NOT NULL,
         vote_date DATE NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(user_id, vote_date)
+        created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_id_vote_date_key;
+      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_ticker_key;
+      ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_ticker_key UNIQUE(user_id, vote_date, ticker);
 
       CREATE TABLE IF NOT EXISTS share_clicks (
         id SERIAL PRIMARY KEY,

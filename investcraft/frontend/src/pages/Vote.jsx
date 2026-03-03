@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { CheckCircle, BarChart3, Navigation, Building2, Store } from 'lucide-react';
 import { NIFTY50_BRANDS } from '../data/brands';
@@ -15,6 +15,8 @@ export default function Vote() {
 
     const [selectedVote, setSelectedVote] = useState(null);
     const [voteStatus, setVoteStatus] = useState(null);
+    const [votedTickers, setVotedTickers] = useState([]);
+    const [playedTickers, setPlayedTickers] = useState([]);
 
     // Derived 4-Tier Data Sets
     const indices = useMemo(() => Array.from(new Set(NIFTY50_BRANDS.map(b => b.index))).sort(), []);
@@ -44,12 +46,27 @@ export default function Vote() {
         return <Navigate to="/" />;
     }
 
+    // Fetch vote status on mount
+    useEffect(() => {
+        const fetchVoteStatus = async () => {
+            try {
+                const res = await axios.get('/api/puzzles/vote-status');
+                setVotedTickers(res.data.votedTickers || []);
+                setPlayedTickers(res.data.playedTickers || []);
+            } catch (err) {
+                console.error('Failed to fetch vote status', err);
+            }
+        };
+        fetchVoteStatus();
+    }, []);
+
     const handleVoteSubmit = async (ticker) => {
         if (!ticker) return;
         setVoteStatus('submitting');
         try {
             await axios.post('/api/puzzles/vote', { ticker: ticker });
             setVoteStatus('success');
+            setVotedTickers(prev => [...prev, ticker]);
         } catch (err) {
             console.error('Failed to submit vote', err);
             setVoteStatus('error');
@@ -87,11 +104,11 @@ export default function Vote() {
         if (activeIndex === "Nifty Midcap") indexType = "midcaps";
 
         if (activeCompany && activeSector) {
-            return `Select an active Indian ${indexType} brand from ${activeCompany} (${activeSector}) for tomorrow's puzzle challenge.`;
+            return `Vote for active Indian ${indexType} brands from ${activeCompany} (${activeSector}) for tomorrow's puzzle challenge. You can vote for multiple brands!`;
         } else if (activeSector) {
-            return `Select an active Indian ${indexType} brand from the ${activeSector} sector for tomorrow's puzzle challenge.`;
+            return `Vote for active Indian ${indexType} brands from the ${activeSector} sector for tomorrow's puzzle challenge. You can vote for multiple brands!`;
         } else {
-            return `Select an active Indian ${indexType} brand for tomorrow's puzzle challenge.`;
+            return `Vote for active Indian ${indexType} brands for tomorrow's puzzle challenge. You can vote for multiple brands!`;
         }
     };
 
@@ -193,18 +210,28 @@ export default function Vote() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                                     {availableBrands.map(b => {
                                         const isSelected = selectedVote?.id === b.id;
+                                        const isPlayed = playedTickers.includes(b.ticker);
+                                        const isVoted = votedTickers.includes(b.ticker);
                                         return (
                                             <button
                                                 key={b.id}
                                                 onClick={() => setSelectedVote(b)}
                                                 className={`
-                                                        flex items-center p-2.5 bg-white rounded-xl border text-left transition-all group
+                                                        flex items-center p-2.5 bg-white rounded-xl border text-left transition-all group relative overflow-hidden
                                                         ${isSelected
                                                         ? 'border-indigo-500 ring-2 ring-indigo-100 shadow-md scale-[1.02] z-10'
-                                                        : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
+                                                        : isPlayed
+                                                            ? 'border-emerald-200 hover:border-emerald-300 bg-emerald-50/20'
+                                                            : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
                                                     }
                                                     `}
                                             >
+                                                {(isPlayed || isVoted) && (
+                                                    <div className={`absolute top-0 right-0 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg z-10 
+                                                        ${isVoted ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                                        {isVoted ? 'Voted' : 'Played'}
+                                                    </div>
+                                                )}
                                                 {/* Uniform Scale Authentic Logo */}
                                                 <div className="w-[45px] h-[45px] shrink-0 bg-white border border-slate-100 rounded-lg p-1.5 shadow-sm mr-3 flex flex-col items-center justify-center">
                                                     <img
@@ -294,15 +321,15 @@ export default function Vote() {
                         <div className="w-full mt-auto pt-4 border-t border-slate-100">
                             <button
                                 onClick={() => handleVoteSubmit(selectedVote?.ticker)}
-                                disabled={!selectedVote || voteStatus === 'submitting'}
+                                disabled={!selectedVote || voteStatus === 'submitting' || votedTickers.includes(selectedVote?.ticker)}
                                 className={`w-full py-3.5 rounded-xl font-bold text-[15px] transition-all focus:outline-none mb-4
-                                        ${selectedVote && voteStatus !== 'submitting'
+                                        ${selectedVote && voteStatus !== 'submitting' && !votedTickers.includes(selectedVote?.ticker)
                                         ? 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700 active:scale-[0.98] flex items-center justify-center gap-2'
                                         : 'bg-slate-100 text-slate-400 cursor-not-allowed flex items-center justify-center'
                                     }
                                     `}
                             >
-                                {voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
+                                {votedTickers.includes(selectedVote?.ticker) ? 'Already Voted' : voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
                             </button>
 
                             {voteStatus === 'error' && (
