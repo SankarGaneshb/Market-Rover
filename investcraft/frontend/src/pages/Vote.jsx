@@ -321,15 +321,15 @@ export default function Vote() {
                         <div className="w-full mt-auto pt-4 border-t border-slate-100">
                             <button
                                 onClick={() => handleVoteSubmit(selectedVote?.ticker)}
-                                disabled={!selectedVote || voteStatus === 'submitting' || votedTickers.includes(selectedVote?.ticker)}
+                                disabled={!selectedVote || voteStatus === 'submitting' || votedTickers.includes(selectedVote?.ticker) || playedTickers.includes(selectedVote?.ticker)}
                                 className={`w-full py-3.5 rounded-xl font-bold text-[15px] transition-all focus:outline-none mb-4
-                                        ${selectedVote && voteStatus !== 'submitting' && !votedTickers.includes(selectedVote?.ticker)
+                                        ${selectedVote && voteStatus !== 'submitting' && !votedTickers.includes(selectedVote?.ticker) && !playedTickers.includes(selectedVote?.ticker)
                                         ? 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700 active:scale-[0.98] flex items-center justify-center gap-2'
                                         : 'bg-slate-100 text-slate-400 cursor-not-allowed flex items-center justify-center'
                                     }
                                     `}
                             >
-                                {votedTickers.includes(selectedVote?.ticker) ? 'Already Voted' : voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
+                                {playedTickers.includes(selectedVote?.ticker) ? 'Already Played' : votedTickers.includes(selectedVote?.ticker) ? 'Already Voted' : voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
                             </button>
 
                             {voteStatus === 'error' && (

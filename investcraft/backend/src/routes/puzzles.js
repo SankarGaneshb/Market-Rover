@@ -35,10 +35,10 @@ router.get('/daily', async (req, res) => {
       }
 
       if (chosenTicker) {
-        // Try to find a puzzle with that ticker that hasn't been played today (or ever, normally shouldn't reuse, but we'll accept any)
+        // Try to find a puzzle with that ticker that hasn't been played yet
         result = await pool.query(
           `SELECT id, company_name, ticker, logo_url, difficulty, sector, hint
-           FROM puzzles WHERE ticker = $1 ORDER BY RANDOM() LIMIT 1`,
+           FROM puzzles WHERE ticker = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
           [chosenTicker]
         );
       }

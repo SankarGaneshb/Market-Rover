@@ -44,13 +44,7 @@ async function seed() {
         `INSERT INTO puzzles (company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) 
          VALUES ($1, $2, $3, $4, $5, $6, $7) 
          ON CONFLICT (scheduled_date) 
-         DO UPDATE SET 
-            company_name = EXCLUDED.company_name,
-            ticker = EXCLUDED.ticker,
-            logo_url = EXCLUDED.logo_url,
-            difficulty = EXCLUDED.difficulty,
-            sector = EXCLUDED.sector,
-            hint = EXCLUDED.hint`,
+         DO NOTHING`,
         [
           brand.company,
           brand.ticker,
