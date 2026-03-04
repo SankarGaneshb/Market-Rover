@@ -29,34 +29,44 @@ async function seed() {
   const client = await pool.connect();
   try {
     const brands = loadBrands();
+    const PUZZLE_EPOCH = new Date('2026-02-01'); // Fixed starting point for brand rotation
     const base = new Date();
 
     console.log(`Found ${brands.length} brands. Seeding puzzles...`);
 
     // Seed puzzles for the next 30 days starting from today
-    for (let i = 0; i < 30; i++) {
-      const brand = brands[i % brands.length];
+    for (let i = 0; i < 45; i++) {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
       const scheduledDate = d.toISOString().split('T')[0];
+
+      // Calculate which brand this date SHOULD have based on its distance from the epoch
+      const diffTime = Math.abs(d - PUZZLE_EPOCH);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const brand = brands[diffDays % brands.length];
 
       await client.query(
         `INSERT INTO puzzles (company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) 
          VALUES ($1, $2, $3, $4, $5, $6, $7) 
          ON CONFLICT (scheduled_date) 
-         DO NOTHING`,
+         DO UPDATE SET 
+            company_name = EXCLUDED.company_name,
+            ticker = EXCLUDED.ticker,
+            logo_url = EXCLUDED.logo_url,
+            sector = EXCLUDED.sector,
+            hint = EXCLUDED.hint`,
         [
           brand.company,
           brand.ticker,
           brand.logoUrl,
-          (i % 3) + 1, // Cycle difficulty 1, 2, 3
+          (diffDays % 3) + 1, // Consistent difficulty
           brand.sector,
           brand.insight,
           scheduledDate
         ]
       );
 
-      if (i % 5 === 0) console.log(`Seeded date: ${scheduledDate}`);
+      if (i % 5 === 0) console.log(`Seeded date: ${scheduledDate} -> ${brand.brand}`);
     }
 
     console.log('Database seeding completed successfully.');
