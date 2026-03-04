@@ -68,6 +68,7 @@ htmlcov/
 
 # Data Storage
 /data/
+!/data/backtest_registry.json
 !investcraft/frontend/src/data/
 
 # Node & Jest Testing Artifacts
