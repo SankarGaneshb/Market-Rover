@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main, develop ]
     paths-ignore:
-      - 'investcraft/**'
+      - 'investbrand/**'
   pull_request:
     branches: [ main, develop ]
     paths-ignore:
-      - 'investcraft/**'
+      - 'investbrand/**'
   workflow_dispatch:
 
 jobs:

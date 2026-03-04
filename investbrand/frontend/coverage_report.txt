@@ -1,0 +1,4 @@
+﻿
+> investcraft-frontend@1.0.0 test
+> react-scripts test
+

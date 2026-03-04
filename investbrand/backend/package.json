@@ -1,7 +1,7 @@
 {
-  "name": "investcraft-backend",
+  "name": "investbrand-backend",
   "version": "1.0.0",
-  "description": "Backend API for InvestCraft - Craft your wealth, one move at a time",
+  "description": "Backend API for investbrand - Craft your wealth, one move at a time",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

@@ -1,0 +1,255 @@
+{
+  "today": "2026-03-04",
+  "scheduled_puzzles": [
+    {
+      "id": 1,
+      "ticker": "RELIANCE",
+      "company_name": "Reliance Industries",
+      "scheduled_date": "2026-02-26T18:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "ticker": "TCS",
+      "company_name": "Tata Consultancy Services",
+      "scheduled_date": "2026-02-27T18:30:00.000Z"
+    },
+    {
+      "id": 3,
+      "ticker": "HDFCBANK",
+      "company_name": "HDFC Bank",
+      "scheduled_date": "2026-02-28T18:30:00.000Z"
+    },
+    {
+      "id": 4,
+      "ticker": "SBIN",
+      "company_name": "State Bank of India",
+      "scheduled_date": "2026-03-01T18:30:00.000Z"
+    },
+    {
+      "id": 5,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-02T18:30:00.000Z"
+    },
+    {
+      "id": 6,
+      "ticker": "MARUTI",
+      "company_name": "Maruti Suzuki",
+      "scheduled_date": "2026-03-03T18:30:00.000Z"
+    },
+    {
+      "id": 7,
+      "ticker": "ASIANPAINT",
+      "company_name": "Asian Paints",
+      "scheduled_date": "2026-03-04T18:30:00.000Z"
+    },
+    {
+      "id": 10,
+      "ticker": "TCS",
+      "company_name": "Tata Consultancy Services",
+      "scheduled_date": "2026-03-05T18:30:00.000Z"
+    },
+    {
+      "id": 11,
+      "ticker": "HDFCBANK",
+      "company_name": "HDFC Bank",
+      "scheduled_date": "2026-03-06T18:30:00.000Z"
+    },
+    {
+      "id": 12,
+      "ticker": "ICICIBANK",
+      "company_name": "ICICI Bank",
+      "scheduled_date": "2026-03-07T18:30:00.000Z"
+    },
+    {
+      "id": 13,
+      "ticker": "ICICIBANK",
+      "company_name": "ICICI Bank",
+      "scheduled_date": "2026-03-08T18:30:00.000Z"
+    },
+    {
+      "id": 14,
+      "ticker": "INFY",
+      "company_name": "Infosys",
+      "scheduled_date": "2026-03-09T18:30:00.000Z"
+    },
+    {
+      "id": 15,
+      "ticker": "SBIN",
+      "company_name": "State Bank of India",
+      "scheduled_date": "2026-03-10T18:30:00.000Z"
+    },
+    {
+      "id": 16,
+      "ticker": "SBIN",
+      "company_name": "State Bank of India",
+      "scheduled_date": "2026-03-11T18:30:00.000Z"
+    },
+    {
+      "id": 17,
+      "ticker": "BHARTIARTL",
+      "company_name": "Bharti Airtel",
+      "scheduled_date": "2026-03-12T18:30:00.000Z"
+    },
+    {
+      "id": 18,
+      "ticker": "BHARTIARTL",
+      "company_name": "Bharti Airtel",
+      "scheduled_date": "2026-03-13T18:30:00.000Z"
+    },
+    {
+      "id": 19,
+      "ticker": "HINDUNILVR",
+      "company_name": "Hindustan Unilever",
+      "scheduled_date": "2026-03-14T18:30:00.000Z"
+    },
+    {
+      "id": 20,
+      "ticker": "HINDUNILVR",
+      "company_name": "Hindustan Unilever",
+      "scheduled_date": "2026-03-15T18:30:00.000Z"
+    },
+    {
+      "id": 21,
+      "ticker": "HINDUNILVR",
+      "company_name": "Hindustan Unilever",
+      "scheduled_date": "2026-03-16T18:30:00.000Z"
+    },
+    {
+      "id": 22,
+      "ticker": "HINDUNILVR",
+      "company_name": "Hindustan Unilever",
+      "scheduled_date": "2026-03-17T18:30:00.000Z"
+    },
+    {
+      "id": 23,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-18T18:30:00.000Z"
+    },
+    {
+      "id": 24,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-19T18:30:00.000Z"
+    },
+    {
+      "id": 25,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-20T18:30:00.000Z"
+    },
+    {
+      "id": 26,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-21T18:30:00.000Z"
+    },
+    {
+      "id": 27,
+      "ticker": "ITC",
+      "company_name": "ITC Limited",
+      "scheduled_date": "2026-03-22T18:30:00.000Z"
+    },
+    {
+      "id": 28,
+      "ticker": "LT",
+      "company_name": "Larsen & Toubro",
+      "scheduled_date": "2026-03-23T18:30:00.000Z"
+    },
+    {
+      "id": 29,
+      "ticker": "BAJFINANCE",
+      "company_name": "Bajaj Finance",
+      "scheduled_date": "2026-03-24T18:30:00.000Z"
+    },
+    {
+      "id": 30,
+      "ticker": "HCLTECH",
+      "company_name": "HCL Technologies",
+      "scheduled_date": "2026-03-25T18:30:00.000Z"
+    },
+    {
+      "id": 31,
+      "ticker": "MARUTI",
+      "company_name": "Maruti Suzuki",
+      "scheduled_date": "2026-03-26T18:30:00.000Z"
+    },
+    {
+      "id": 32,
+      "ticker": "MARUTI",
+      "company_name": "Maruti Suzuki",
+      "scheduled_date": "2026-03-27T18:30:00.000Z"
+    },
+    {
+      "id": 33,
+      "ticker": "MARUTI",
+      "company_name": "Maruti Suzuki",
+      "scheduled_date": "2026-03-28T18:30:00.000Z"
+    },
+    {
+      "id": 34,
+      "ticker": "SUNPHARMA",
+      "company_name": "Sun Pharmaceutical",
+      "scheduled_date": "2026-03-29T18:30:00.000Z"
+    },
+    {
+      "id": 35,
+      "ticker": "SUNPHARMA",
+      "company_name": "Sun Pharmaceutical",
+      "scheduled_date": "2026-03-30T18:30:00.000Z"
+    },
+    {
+      "id": 36,
+      "ticker": "TATAMOTORS",
+      "company_name": "Tata Motors",
+      "scheduled_date": "2026-03-31T18:30:00.000Z"
+    },
+    {
+      "id": 37,
+      "ticker": "TATAMOTORS",
+      "company_name": "Tata Motors",
+      "scheduled_date": "2026-04-01T18:30:00.000Z"
+    }
+  ],
+  "today_puzzles": [
+    {
+      "id": 6,
+      "company_name": "Maruti Suzuki",
+      "ticker": "MARUTI",
+      "logo_url": "https://en.wikipedia.org/wiki/Special:FilePath/Maruti%20Suzuki%20logo%20(2009).svg",
+      "difficulty": 1,
+      "sector": "Automobile",
+      "description": null,
+      "hint": "Largest car manufacturer",
+      "scheduled_date": "2026-03-03T18:30:00.000Z",
+      "created_at": "2026-02-27T09:17:26.596Z"
+    }
+  ],
+  "jio_puzzles": [
+    {
+      "id": 1,
+      "company_name": "Reliance Industries",
+      "ticker": "RELIANCE",
+      "logo_url": "https://en.wikipedia.org/wiki/Special:FilePath/Reliance%20Industries.svg",
+      "difficulty": 1,
+      "sector": "Energy",
+      "description": null,
+      "hint": "Largest conglomerate",
+      "scheduled_date": "2026-02-26T18:30:00.000Z",
+      "created_at": "2026-02-27T09:17:26.596Z"
+    }
+  ],
+  "user": {
+    "id": 1,
+    "google_id": "105166295817016081436",
+    "email": "b.sankarganesh@gmail.com",
+    "name": "Sankar Ganesh Bala Krishnan",
+    "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJxMjk3lTyotAOC0q3dJbQzy3zVAx9rhECebEx4i9LrUmfNgxV7=s96-c",
+    "streak": 1,
+    "last_played": "2026-03-02T18:30:00.000Z",
+    "total_score": 4102,
+    "created_at": "2026-02-27T09:18:39.331Z",
+    "best_score": 1371
+  }
+}

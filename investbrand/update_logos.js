@@ -1,0 +1,160 @@
+const fs = require('fs');
+
+const file = 'c:/Users/bsank/Market-Rover/investcraft/frontend/src/data/brands.js';
+let content = fs.readFileSync(file, 'utf8');
+
+const match = content.match(/export const NIFTY50_BRANDS = (\[[\s\S]*\]);/);
+let brands = eval(match[1]);
+
+// Basic domain map for NIFTY 50
+const domainMap = {
+    'Jio': 'jio.com',
+    'Reliance Retail': 'relianceretail.com',
+    'Reliance Industries': 'ril.com',
+    'TCS': 'tcs.com',
+    'HDFC Bank': 'hdfcbank.com',
+    'ICICI Bank': 'icicibank.com',
+    'Infosys': 'infosys.com',
+    'ITC Limited': 'itcportal.com',
+    'Aashirvaad': 'itcportal.com',
+    'SBI': 'sbi.co.in',
+    'Bharti Airtel': 'airtel.in',
+    'Hindustan Unilever': 'hul.co.in',
+    'Larsen & Toubro': 'larsentoubro.com',
+    'Bajaj Finance': 'bajajfinserv.in',
+    'HCL Technologies': 'hcltech.com',
+    'Axis Bank': 'axisbank.com',
+    'Kotak Mahindra Bank': 'kotak.com',
+    'Asian Paints': 'asianpaints.com',
+    'Maruti Suzuki': 'marutisuzuki.com',
+    'Sun Pharmaceutical': 'sunpharma.com',
+    'Volini': 'sunpharma.com',
+    'Revital': 'sunpharma.com',
+    'Tata Motors': 'tatamotors.com',
+    'Titan Company': 'titancompany.in',
+    'UltraTech Cement': 'ultratechcement.com',
+    'NTPC': 'ntpc.co.in',
+    'Tata Steel': 'tatasteel.com',
+    'Power Grid': 'powergrid.in',
+    'Nestle India': 'nestle.in',
+    'Maggi': 'nestle.in',
+    'Nescafe': 'nestle.in',
+    'KitKat': 'nestle.in',
+    'Bajaj Finserv': 'bajajfinserv.in',
+    'ONGC': 'ongcindia.com',
+    'Hindalco': 'hindalco.com',
+    'Mahindra & Mahindra': 'mahindra.com',
+    'Wipro': 'wipro.com',
+    'JSW Steel': 'jsw.in',
+    'Grasim Industries': 'grasim.com',
+    'Tata Consumer': 'tataconsumer.com',
+    'Tata Tea': 'tataconsumer.com',
+    'Tata Salt': 'tataconsumer.com',
+    'Starbucks India': 'starbucks.in',
+    'IndusInd Bank': 'indusind.com',
+    'Adani Enterprises': 'adanienterprises.com',
+    'Adani Airports': 'adaniairports.com',
+    'Adani Wilmar': 'adaniwilmar.com',
+    'Tech Mahindra': 'techmahindra.com',
+    'Cipla': 'cipla.com',
+    'Adani Ports': 'adaniports.com',
+    'SBI Life': 'sbilife.co.in',
+    'HDFC Life': 'hdfclife.com',
+    'Bajaj Auto': 'bajajauto.com',
+    'Hero MotoCorp': 'heromotocorp.com',
+    'Splendor': 'heromotocorp.com',
+    'Passion': 'heromotocorp.com',
+    'Xtreme': 'heromotocorp.com',
+    'Dr. Reddy\'s': 'drreddys.com',
+    'Eicher Motors': 'eichermotors.com',
+    'Apollo Hospitals': 'apollohospitals.com',
+    'Divi\'s Lab': 'divislabs.com',
+    'Divis Labs': 'divislabs.com',
+    'Britannia Industries': 'britannia.co.in',
+    'BPCL': 'bharatpetroleum.in',
+    'Speed': 'bharatpetroleum.in',
+    'Mak Lubricants': 'bharatpetroleum.in',
+    'Coal India': 'coalindia.in',
+    'UPL': 'upl-ltd.com',
+    'LTIMindtree': 'ltimindtree.com',
+    'Adani Green Energy': 'adanigreenenergy.com',
+    'Ambuja Cements': 'ambujacement.com',
+    'Avenue Supermarts': 'dmartindia.com',
+    'DMart': 'dmartindia.com',
+    'Bank of Baroda': 'bankofbaroda.in',
+    'Bharat Electronics': 'bel-india.in',
+    'BEL': 'bel-india.in',
+    'Cholamandalam Investment': 'cholamandalam.com',
+    'Godrej Consumer': 'godrejcp.com',
+    'Good Knight': 'godrejcp.com',
+    'Hit': 'godrejcp.com',
+    'Cinthol': 'godrejcp.com',
+    'Godrej Expert': 'godrejcp.com',
+    'Havells India': 'havells.com',
+    'Hindustan Aeronautics': 'hal-india.co.in',
+    'HAL': 'hal-india.co.in',
+    'Tejas': 'hal-india.co.in',
+    'ICICI Lombard': 'icicilombard.com',
+    'ICICI Prudential': 'iciciprulife.com',
+    'Indian Oil': 'iocl.com',
+    'Indian Railway Catering': 'irctc.co.in',
+    'IRCTC': 'irctc.co.in',
+    'InterGlobe Aviation': 'goindigo.in',
+    'IndiGo': 'goindigo.in',
+    'Jindal Steel': 'jindalsteelpower.com',
+    'Macrotech Developers': 'lodhagroup.in',
+    'Lodha': 'lodhagroup.in',
+    'Muthoot Finance': 'muthootfinance.com',
+    'One 97 Communications': 'paytm.com',
+    'Paytm': 'paytm.com',
+    'Page Industries': 'jockey.in',
+    'Jockey': 'jockey.in',
+    'PI Industries': 'piindustries.com',
+    'Pidilite Industries': 'pidilite.com',
+    'Fevicol': 'pidilite.com',
+    'Dr. Fixit': 'pidilite.com',
+    'Polycab India': 'polycab.com',
+    'Polycab': 'polycab.com',
+    'Power Finance': 'pfcindia.com',
+    'REC': 'recindia.nic.in',
+    'SBI Cards': 'sbicard.com',
+    'Shree Cement': 'shreecement.com',
+    'Siemens': 'siemens.com',
+    'SRF': 'srf.com',
+    'Tata Power': 'tatapower.com',
+    'Torrent Pharmaceuticals': 'torrentpharma.com',
+    'Trent': 'trentlimited.com',
+    'Westside': 'trentlimited.com',
+    'Zudio': 'trentlimited.com',
+    'Star Bazaar': 'trentlimited.com',
+    'TVS Motor': 'tvsmotor.com',
+    'United Spirits': 'diageoindia.com',
+    'Varun Beverages': 'varunpepsi.com',
+    'Pepsi India': 'pepsico.co.in',
+    'Sting': 'pepsico.co.in',
+    'Seven-Up': 'pepsico.co.in',
+    'Mirinda': 'pepsico.co.in',
+    'Zomato': 'zomato.com',
+    'Blinkit': 'blinkit.com',
+    'DLF': 'dlf.in',
+    'CyberHub': 'dlfcybercity.com'
+};
+
+brands = brands.map(b => {
+    // Determine the safest domain to query Clearbit against
+    let targetDomain = domainMap[b.brand] || domainMap[b.company];
+
+    if (targetDomain) {
+        // Build the clearbit URL (we add size 200 to get a good resolution square)
+        b.logoUrl = 'https://logo.clearbit.com/' + targetDomain + '?size=200';
+    } else {
+        // Fallback: search engine approach via Google's free favicon fetcher
+        b.logoUrl = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://' + encodeURIComponent(b.company.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com') + '&size=200';
+    }
+    return b;
+});
+
+let newExport = JSON.stringify(brands, null, 2);
+let newContent = content.replace(match[1], newExport);
+fs.writeFileSync(file, newContent);
+console.log('Successfully transitioned all URLs to pure Clearbit/gstatic domain API loops!');

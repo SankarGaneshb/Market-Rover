@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: investcraft
+      POSTGRES_DB: investbrand
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -25,7 +25,7 @@ services:
       NODE_ENV: development
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: investcraft
+      DB_NAME: investbrand
       DB_USER: postgres
       DB_PASSWORD: postgres
       JWT_SECRET: dev-secret-change-in-prod

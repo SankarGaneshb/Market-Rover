@@ -55,7 +55,7 @@ Cloud SQL PostgreSQL (market-rover project)
 ```bash
 # Clone the repo
 git clone https://github.com/SankarGaneshb/Market-Rover.git
-cd Market-Rover/investcraft
+cd Market-Rover/investbrand
 
 # Start all services
 docker-compose up
@@ -87,7 +87,7 @@ npm start
 ## 🌐 Deployment (Google Cloud - market-rover)
 
 ### Automatic via GitHub Actions
-Every push to `investcraft` branch auto-deploys:
+Every push to `investbrand` branch auto-deploys:
 - Backend → Cloud Run
 - Frontend → Cloud Storage
 
@@ -96,13 +96,13 @@ Every push to `investcraft` branch auto-deploys:
 ```bash
 # Backend
 cd backend
-gcloud builds submit --tag gcr.io/market-rover/investcraft-api
-gcloud run deploy investcraft-api --image gcr.io/market-rover/investcraft-api --region us-central1
+gcloud builds submit --tag gcr.io/market-rover/investbrand-api
+gcloud run deploy investbrand-api --image gcr.io/market-rover/investbrand-api --region us-central1
 
 # Frontend
 cd frontend
 npm run build
-gsutil -m rsync -r build gs://market-rover-investcraft
+gsutil -m rsync -r build gs://market-rover-investbrand
 ```
 
 ---
