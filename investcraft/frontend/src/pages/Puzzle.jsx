@@ -110,9 +110,10 @@ export default function PuzzleGame() {
         setCurrentBrand(matchedBrand);
       } else {
         // If API succeeded but brand still not found, or API returned empty
-        // Ensure index produces a consistent pseudo-random daily value based on day-of-year
-        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-        const todayIndex = dayOfYear % NIFTY50_BRANDS.length;
+        // Use a stable daily index based on date string (YYYYMMDD)
+        const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        const todayInt = parseInt(todayStr);
+        const todayIndex = todayInt % NIFTY50_BRANDS.length;
         setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
         setDbPuzzleId(data ? data.id : null);
       }
@@ -134,8 +135,10 @@ export default function PuzzleGame() {
       setGameState('menu');
     } catch (err) {
       console.error('Failed to fetch daily puzzle', err);
-      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-      const todayIndex = dayOfYear % NIFTY50_BRANDS.length;
+      // Fallback puzzle selection if API fails
+      const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const todayInt = parseInt(todayStr);
+      const todayIndex = todayInt % NIFTY50_BRANDS.length;
       setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
       setGameState('menu');
     }
