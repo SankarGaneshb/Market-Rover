@@ -93,14 +93,26 @@ export default function PuzzleGame() {
       if (data) {
         matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker && b.insight === data.hint);
         if (!matchedBrand) {
+          // Fallback 1: Try finding just by ticker
           matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker);
+        }
+        if (!matchedBrand && data.company_name) {
+          // Fallback 2: Try finding by company name or brand name (e.g. Jio vs Reliance)
+          matchedBrand = NIFTY50_BRANDS.find(b =>
+            b.company.toLowerCase().includes(data.company_name.toLowerCase()) ||
+            b.brand.toLowerCase().includes(data.company_name.toLowerCase())
+          );
         }
         setDbPuzzleId(data.id);
       }
+
       if (matchedBrand) {
         setCurrentBrand(matchedBrand);
       } else {
-        const todayIndex = Math.floor(Date.now() / 86400000) % NIFTY50_BRANDS.length;
+        // If API succeeded but brand still not found, or API returned empty
+        // Ensure index produces a consistent pseudo-random daily value based on day-of-year
+        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+        const todayIndex = dayOfYear % NIFTY50_BRANDS.length;
         setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
         setDbPuzzleId(data ? data.id : null);
       }
@@ -122,7 +134,8 @@ export default function PuzzleGame() {
       setGameState('menu');
     } catch (err) {
       console.error('Failed to fetch daily puzzle', err);
-      const todayIndex = Math.floor(Date.now() / 86400000) % NIFTY50_BRANDS.length;
+      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      const todayIndex = dayOfYear % NIFTY50_BRANDS.length;
       setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
       setGameState('menu');
     }
@@ -549,7 +562,7 @@ export default function PuzzleGame() {
                 return (
                   <div
                     key={position}
-                    className={`relative overflow-hidden cursor-grab active:cursor-grabbing transition-all duration-300 border border-slate-100/30 ${isSolved ? 'shadow-inner' : 'hover:scale-[1.02] hover:z-50 hover:shadow-2xl'}`}
+                    className={`relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing transition-all duration-300 border border-slate-100/30 ${isSolved ? 'shadow-inner' : 'hover:scale-[1.02] hover:z-50 hover:shadow-2xl'}`}
                     style={{ aspectRatio: '1', touchAction: 'none' }}
                     draggable
                     onDragStart={(e) => handleDragStart(e, piece)}
