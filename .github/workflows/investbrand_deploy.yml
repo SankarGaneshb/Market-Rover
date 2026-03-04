@@ -35,9 +35,9 @@ jobs:
           gcloud run deploy ${{ env.BACKEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated \
-            --set-secrets "JWT_SECRET=investbrand-jwt-secret:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest" \
-            --set-env-vars "NODE_ENV=production,IC_DB_NAME=postgres,IC_DB_USER=postgres,IC_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
-            --add-cloudsql-instances market-rover:us-central1:investbrand-db
+            --set-secrets "JWT_SECRET=investcraft-jwt-secret:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest" \
+            --set-env-vars "NODE_ENV=production,IC_DB_NAME=postgres,IC_DB_USER=postgres,IC_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
+            --add-cloudsql-instances market-rover:us-central1:investcraft-db
 
       - name: Force DB Sync (Seeding)
         run: |
@@ -46,8 +46,8 @@ jobs:
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
             --command "npm" --args "run,seed" \
             --region ${{ env.REGION }} \
-            --set-env-vars "NODE_ENV=production,DB_NAME=postgres,DB_USER=postgres,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},DB_HOST=/cloudsql/market-rover:us-central1:investbrand-db" \
-            --set-cloudsql-instances market-rover:us-central1:investbrand-db \
+            --set-env-vars "NODE_ENV=production,DB_NAME=postgres,DB_USER=postgres,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},DB_HOST=/cloudsql/market-rover:us-central1:investcraft-db" \
+            --set-cloudsql-instances market-rover:us-central1:investcraft-db \
             --quiet
           gcloud run jobs execute investbrand-seeder --region ${{ env.REGION }} --wait
 
