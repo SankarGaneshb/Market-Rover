@@ -60,6 +60,8 @@ async function runMigrations() {
 
       CREATE TABLE IF NOT EXISTS puzzles (
         id             SERIAL PRIMARY KEY,
+        brand_id       INTEGER NOT NULL,
+        brand_name     VARCHAR(255) NOT NULL,
         company_name   VARCHAR(255) NOT NULL,
         ticker         VARCHAR(50)  NOT NULL,
         logo_url       TEXT         NOT NULL,
@@ -86,14 +88,15 @@ async function runMigrations() {
       CREATE TABLE IF NOT EXISTS puzzle_votes (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        ticker VARCHAR(50) NOT NULL,
+        brand_id INTEGER NOT NULL,
         vote_date DATE NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
       ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_id_vote_date_key;
       ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_ticker_key;
-      ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_ticker_key UNIQUE(user_id, vote_date, ticker);
+      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_brand_key;
+      ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id);
 
       CREATE TABLE IF NOT EXISTS share_clicks (
         id SERIAL PRIMARY KEY,

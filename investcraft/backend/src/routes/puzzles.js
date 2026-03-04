@@ -11,42 +11,42 @@ router.get('/daily', async (req, res) => {
 
   try {
     let result = await pool.query(
-      `SELECT id, company_name, ticker, logo_url, difficulty, sector, hint
+      `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
        FROM puzzles WHERE scheduled_date = $1`,
       [today]
     );
 
     // If no puzzle is scheduled for TODAY, handle the logic to find one based on votes
     if (!result.rows[0]) {
-      // Find the most voted ticker for TODAY
+      // Find the most voted brand_id for TODAY
       const voteResult = await pool.query(
-        `SELECT ticker, COUNT(*) as vote_count, MIN(created_at) as first_vote
+        `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
          FROM puzzle_votes
          WHERE vote_date = $1
-         GROUP BY ticker
+         GROUP BY brand_id
          ORDER BY vote_count DESC, first_vote ASC
          LIMIT 1`,
         [today]
       );
 
-      let chosenTicker = null;
+      let chosenBrandId = null;
       if (voteResult.rows[0]) {
-        chosenTicker = voteResult.rows[0].ticker;
+        chosenBrandId = voteResult.rows[0].brand_id;
       }
 
-      if (chosenTicker) {
-        // Try to find a puzzle with that ticker that hasn't been played yet
+      if (chosenBrandId) {
+        // Try to find a puzzle with that brand_id that hasn't been played yet
         result = await pool.query(
-          `SELECT id, company_name, ticker, logo_url, difficulty, sector, hint
-           FROM puzzles WHERE ticker = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
-          [chosenTicker]
+          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
+           FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
+          [chosenBrandId]
         );
       }
 
-      // Fall back to a random puzzle if no votes or no puzzle found for the voted ticker
+      // Fall back to a random puzzle if no votes or no puzzle found for the voted brand_id
       if (!result.rows[0]) {
         result = await pool.query(
-          `SELECT id, company_name, ticker, logo_url, difficulty, sector, hint
+          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
            FROM puzzles 
            WHERE scheduled_date IS NULL
            ORDER BY RANDOM() LIMIT 1`
@@ -54,7 +54,7 @@ router.get('/daily', async (req, res) => {
         // If all puzzles have been scheduled, just pick a random one
         if (!result.rows[0]) {
           result = await pool.query(
-            `SELECT id, company_name, ticker, logo_url, difficulty, sector, hint
+            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
                FROM puzzles ORDER BY RANDOM() LIMIT 1`
           );
         }
@@ -76,14 +76,14 @@ router.get('/daily', async (req, res) => {
   }
 });
 
-// POST /api/puzzles/vote - Vote for tomorrow's puzzle ticker
+// POST /api/puzzles/vote - Vote for tomorrow's puzzle brand
 router.post('/vote', authenticate, async (req, res) => {
   const pool = getPool();
   const userId = req.user.id;
-  const { ticker } = req.body;
+  const { brandId } = req.body;
 
-  if (!ticker) {
-    return res.status(400).json({ error: 'Ticker is required' });
+  if (!brandId) {
+    return res.status(400).json({ error: 'brandId is required' });
   }
 
   // Calculate tomorrow's date
@@ -93,11 +93,11 @@ router.post('/vote', authenticate, async (req, res) => {
 
   try {
     await pool.query(
-      `INSERT INTO puzzle_votes (user_id, ticker, vote_date)
+      `INSERT INTO puzzle_votes (user_id, brand_id, vote_date)
        VALUES ($1, $2, $3)
-       ON CONFLICT (user_id, vote_date, ticker)
+       ON CONFLICT (user_id, vote_date, brand_id)
        DO NOTHING`,
-      [userId, ticker, tomorrowStr]
+      [userId, brandId, tomorrowStr]
     );
 
     res.json({ success: true, message: 'Vote recorded for tomorrow!' });
@@ -107,7 +107,7 @@ router.post('/vote', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/puzzles/vote-status - Get played and voted tickers
+// GET /api/puzzles/vote-status - Get played and voted brandIds
 router.get('/vote-status', authenticate, async (req, res) => {
   const pool = getPool();
   const userId = req.user.id;
@@ -119,21 +119,21 @@ router.get('/vote-status', authenticate, async (req, res) => {
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
   try {
-    // Get tickers user has voted for tomorrow
+    // Get brands user has voted for tomorrow
     const userVotes = await pool.query(
-      `SELECT ticker FROM puzzle_votes WHERE user_id = $1 AND vote_date = $2`,
+      `SELECT brand_id FROM puzzle_votes WHERE user_id = $1 AND vote_date = $2`,
       [userId, tomorrowStr]
     );
-    const votedTickers = userVotes.rows.map(row => row.ticker);
+    const votedBrandIds = userVotes.rows.map(row => row.brand_id);
 
-    // Get tickers that have been played (in the past or today)
+    // Get brands that have been played (in the past or today)
     const playedPuzzles = await pool.query(
-      `SELECT ticker FROM puzzles WHERE scheduled_date <= $1 AND scheduled_date IS NOT NULL`,
+      `SELECT brand_id FROM puzzles WHERE scheduled_date <= $1 AND scheduled_date IS NOT NULL`,
       [todayStr]
     );
-    const playedTickers = playedPuzzles.rows.map(row => row.ticker);
+    const playedBrandIds = playedPuzzles.rows.map(row => row.brand_id);
 
-    res.json({ votedTickers, playedTickers });
+    res.json({ votedBrandIds, playedBrandIds });
   } catch (err) {
     logger.error('Error fetching vote status', { error: err.message });
     res.status(500).json({ error: 'Failed to fetch vote status' });
@@ -167,7 +167,7 @@ router.get('/', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT id, company_name, ticker, difficulty, sector, scheduled_date
+      `SELECT id, brand_id, brand_name, company_name, ticker, difficulty, sector, scheduled_date
        FROM puzzles
        ORDER BY scheduled_date DESC
        LIMIT $1 OFFSET $2`,

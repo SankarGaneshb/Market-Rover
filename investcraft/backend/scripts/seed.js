@@ -46,16 +46,20 @@ async function seed() {
       const brand = brands[diffDays % brands.length];
 
       await client.query(
-        `INSERT INTO puzzles (company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        `INSERT INTO puzzles (brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
          ON CONFLICT (scheduled_date) 
          DO UPDATE SET 
+            brand_id = EXCLUDED.brand_id,
+            brand_name = EXCLUDED.brand_name,
             company_name = EXCLUDED.company_name,
             ticker = EXCLUDED.ticker,
             logo_url = EXCLUDED.logo_url,
             sector = EXCLUDED.sector,
             hint = EXCLUDED.hint`,
         [
+          brand.id,
+          brand.brand,
           brand.company,
           brand.ticker,
           brand.logoUrl,

@@ -15,8 +15,8 @@ export default function Vote() {
 
     const [selectedVote, setSelectedVote] = useState(null);
     const [voteStatus, setVoteStatus] = useState(null);
-    const [votedTickers, setVotedTickers] = useState([]);
-    const [playedTickers, setPlayedTickers] = useState([]);
+    const [votedBrandIds, setVotedBrandIds] = useState([]);
+    const [playedBrandIds, setPlayedBrandIds] = useState([]);
 
     // Derived 4-Tier Data Sets
     const indices = useMemo(() => Array.from(new Set(NIFTY50_BRANDS.map(b => b.index))).sort(), []);
@@ -51,8 +51,8 @@ export default function Vote() {
         const fetchVoteStatus = async () => {
             try {
                 const res = await axios.get('/api/puzzles/vote-status');
-                setVotedTickers(res.data.votedTickers || []);
-                setPlayedTickers(res.data.playedTickers || []);
+                setVotedBrandIds(res.data.votedBrandIds || []);
+                setPlayedBrandIds(res.data.playedBrandIds || []);
             } catch (err) {
                 console.error('Failed to fetch vote status', err);
             }
@@ -60,13 +60,13 @@ export default function Vote() {
         fetchVoteStatus();
     }, []);
 
-    const handleVoteSubmit = async (ticker) => {
-        if (!ticker) return;
+    const handleVoteSubmit = async (brandId) => {
+        if (!brandId) return;
         setVoteStatus('submitting');
         try {
-            await axios.post('/api/puzzles/vote', { ticker: ticker });
+            await axios.post('/api/puzzles/vote', { brandId });
             setVoteStatus('success');
-            setVotedTickers(prev => [...prev, ticker]);
+            setVotedBrandIds(prev => [...prev, brandId]);
         } catch (err) {
             console.error('Failed to submit vote', err);
             setVoteStatus('error');
@@ -210,8 +210,8 @@ export default function Vote() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                                     {availableBrands.map(b => {
                                         const isSelected = selectedVote?.id === b.id;
-                                        const isPlayed = playedTickers.includes(b.ticker);
-                                        const isVoted = votedTickers.includes(b.ticker);
+                                        const isPlayed = playedBrandIds.includes(b.id);
+                                        const isVoted = votedBrandIds.includes(b.id);
                                         return (
                                             <button
                                                 key={b.id}
@@ -320,16 +320,16 @@ export default function Vote() {
 
                         <div className="w-full mt-auto pt-4 border-t border-slate-100">
                             <button
-                                onClick={() => handleVoteSubmit(selectedVote?.ticker)}
-                                disabled={!selectedVote || voteStatus === 'submitting' || votedTickers.includes(selectedVote?.ticker) || playedTickers.includes(selectedVote?.ticker)}
+                                onClick={() => handleVoteSubmit(selectedVote?.id)}
+                                disabled={!selectedVote || voteStatus === 'submitting' || votedBrandIds.includes(selectedVote?.id) || playedBrandIds.includes(selectedVote?.id)}
                                 className={`w-full py-3.5 rounded-xl font-bold text-[15px] transition-all focus:outline-none mb-4
-                                        ${selectedVote && voteStatus !== 'submitting' && !votedTickers.includes(selectedVote?.ticker) && !playedTickers.includes(selectedVote?.ticker)
+                                        ${selectedVote && voteStatus !== 'submitting' && !votedBrandIds.includes(selectedVote?.id) && !playedBrandIds.includes(selectedVote?.id)
                                         ? 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700 active:scale-[0.98] flex items-center justify-center gap-2'
                                         : 'bg-slate-100 text-slate-400 cursor-not-allowed flex items-center justify-center'
                                     }
                                     `}
                             >
-                                {playedTickers.includes(selectedVote?.ticker) ? 'Already Played' : votedTickers.includes(selectedVote?.ticker) ? 'Already Voted' : voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
+                                {playedBrandIds.includes(selectedVote?.id) ? 'Already Played' : votedBrandIds.includes(selectedVote?.id) ? 'Already Voted' : voteStatus === 'submitting' ? 'Submitting...' : 'Confirm Vote'}
                             </button>
 
                             {voteStatus === 'error' && (
