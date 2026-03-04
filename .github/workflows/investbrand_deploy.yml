@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'investbrand/**'
+      - '.github/workflows/investbrand_deploy.yml'
   workflow_dispatch:
 
 env:
