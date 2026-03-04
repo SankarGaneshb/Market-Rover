@@ -13,6 +13,7 @@ const request = require('supertest');
 const express = require('express');
 const { getPool } = require('../config/database');
 const puzzleRoutes = require('../routes/puzzles');
+const { getIstDateString } = require('../utils/date');
 
 const app = express();
 app.use(express.json());
@@ -32,36 +33,36 @@ describe('Puzzle Routes', () => {
 
     describe('GET /daily', () => {
         it('should return scheduled puzzle for today', async () => {
-            const mockPuzzle = { id: 1, ticker: 'RELIANCE', scheduled_date: new Date().toISOString().split('T')[0] };
+            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString() };
             mockQuery.mockResolvedValueOnce({ rows: [mockPuzzle] });
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
-            expect(res.body.ticker).toBe('RELIANCE');
+            expect(res.body.brand_id).toBe(101);
         });
 
-        it('should fallback to voted ticker puzzle if no puzzle scheduled today', async () => {
+        it('should fallback to voted brand puzzle if no puzzle scheduled today', async () => {
             mockQuery
                 .mockResolvedValueOnce({ rows: [] }) // No scheduled puzzle
-                .mockResolvedValueOnce({ rows: [{ ticker: 'TCS', vote_count: 5 }] }) // Most voted ticker
-                .mockResolvedValueOnce({ rows: [{ id: 2, ticker: 'TCS' }] }) // Found puzzle for ticker
+                .mockResolvedValueOnce({ rows: [{ brand_id: 102, vote_count: 5 }] }) // Most voted brand
+                .mockResolvedValueOnce({ rows: [{ id: 2, brand_id: 102, ticker: 'TCS' }] }) // Found puzzle for brand
                 .mockResolvedValueOnce({ rows: [] }); // Update call
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
-            expect(res.body.ticker).toBe('TCS');
+            expect(res.body.brand_id).toBe(102);
         });
 
         it('should assign a random open puzzle if no votes exist', async () => {
             mockQuery
                 .mockResolvedValueOnce({ rows: [] }) // No scheduled puzzle
                 .mockResolvedValueOnce({ rows: [] }) // No votes
-                .mockResolvedValueOnce({ rows: [{ id: 3, ticker: 'HDFCBANK' }] }) // Random unscheduled puzzle
+                .mockResolvedValueOnce({ rows: [{ id: 3, brand_id: 103, ticker: 'HDFCBANK' }] }) // Random unscheduled puzzle
                 .mockResolvedValueOnce({ rows: [] }); // Update call
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
-            expect(res.body.ticker).toBe('HDFCBANK');
+            expect(res.body.brand_id).toBe(103);
         });
 
         it('should handle db errors on /daily', async () => {
@@ -77,12 +78,12 @@ describe('Puzzle Routes', () => {
         it('should post a vote successfully', async () => {
             mockQuery.mockResolvedValue({ rows: [] });
 
-            const res = await request(app).post('/api/puzzles/vote').send({ ticker: 'INFY' });
+            const res = await request(app).post('/api/puzzles/vote').send({ brandId: 104 });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
         });
 
-        it('should return 400 if ticker missing', async () => {
+        it('should return 400 if brandId missing', async () => {
             const res = await request(app).post('/api/puzzles/vote').send({});
             expect(res.statusCode).toBe(400);
         });
@@ -90,7 +91,7 @@ describe('Puzzle Routes', () => {
         it('should handle db error on /vote', async () => {
             mockQuery.mockRejectedValue(new Error('DB Error'));
 
-            const res = await request(app).post('/api/puzzles/vote').send({ ticker: 'INFY' });
+            const res = await request(app).post('/api/puzzles/vote').send({ brandId: 104 });
             expect(res.statusCode).toBe(500);
         });
     });
@@ -121,7 +122,9 @@ describe('Puzzle Routes', () => {
             // Second is aggregate score sum
             mockQuery.mockResolvedValueOnce({ rows: [{ real_total: 500 }] });
             // Third is getting last played
-            const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const yesterday = getIstDateString(yesterdayDate);
             mockQuery.mockResolvedValueOnce({ rows: [{ last_played: yesterday, streak: 5 }] });
             // Fourth is update users table
             mockQuery.mockResolvedValueOnce({ rows: [] });
@@ -137,7 +140,7 @@ describe('Puzzle Routes', () => {
         it('should maintain streak if already played today', async () => {
             mockQuery.mockResolvedValueOnce({ rows: [] });
             mockQuery.mockResolvedValueOnce({ rows: [{ real_total: 600 }] });
-            const today = new Date().toISOString().split('T')[0];
+            const today = getIstDateString();
             mockQuery.mockResolvedValueOnce({ rows: [{ last_played: today, streak: 6 }] });
             mockQuery.mockResolvedValueOnce({ rows: [] });
 

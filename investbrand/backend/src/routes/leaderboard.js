@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getPool } = require('../config/database');
 const logger = require('../utils/logger');
+const { getIstDateString } = require('../utils/date');
 
 // GET /api/leaderboard?type=all-time|weekly|daily
 router.get('/', async (req, res) => {
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
     let result;
 
     if (type === 'daily') {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getIstDateString();
       result = await pool.query(
         `SELECT u.id, u.name, u.avatar_url, u.streak,
                 gs.score, gs.moves_used, gs.time_taken

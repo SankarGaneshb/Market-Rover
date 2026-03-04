@@ -3,11 +3,12 @@ const router = express.Router();
 const { getPool } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const logger = require('../utils/logger');
+const { getIstDateString } = require('../utils/date');
 
 // GET /api/puzzles/daily
 router.get('/daily', async (req, res) => {
   const pool = getPool();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getIstDateString();
 
   try {
     let result = await pool.query(
@@ -86,10 +87,10 @@ router.post('/vote', authenticate, async (req, res) => {
     return res.status(400).json({ error: 'brandId is required' });
   }
 
-  // Calculate tomorrow's date
+  // Calculate tomorrow's date using IST base
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const tomorrowStr = getIstDateString(tomorrow);
 
   try {
     await pool.query(
@@ -112,11 +113,11 @@ router.get('/vote-status', authenticate, async (req, res) => {
   const pool = getPool();
   const userId = req.user.id;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getIstDateString();
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const tomorrowStr = getIstDateString(tomorrow);
 
   try {
     // Get brands user has voted for tomorrow
@@ -213,8 +214,8 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     );
     let { last_played, streak } = userRes.rows[0];
 
-    // Normalize to today's date string in the server's local time (or UTC)
-    const today = new Date().toISOString().split('T')[0];
+    // Normalize to today's date string in IST
+    const today = getIstDateString();
     let newStreak = 1;
 
     if (last_played) {
