@@ -206,18 +206,37 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     );
     const realTotal = parseInt(aggResult.rows[0].real_total) || 0;
 
-    // Streak logic
+    // Streak logic - calculate days difference
     const userRes = await pool.query(
       'SELECT last_played, streak FROM users WHERE id = $1',
       [userId]
     );
-    const { last_played, streak } = userRes.rows[0];
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+    let { last_played, streak } = userRes.rows[0];
 
+    // Normalize to today's date string in the server's local time (or UTC)
+    const today = new Date().toISOString().split('T')[0];
     let newStreak = 1;
-    if (last_played === yesterday) newStreak = streak + 1;
-    else if (last_played === today) newStreak = streak;
+
+    if (last_played) {
+      // Convert both dates to pure Date objects at midnight UTC to safely compare the calendar days
+      const lastPlayedDate = new Date(last_played + 'T00:00:00Z');
+      const todayDate = new Date(today + 'T00:00:00Z');
+
+      // Calculate difference in time then difference in days
+      const diffTime = todayDate - lastPlayedDate;
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        // Played again on the exact same day, keep the streak
+        newStreak = streak;
+      } else if (diffDays === 1) {
+        // Played exactly one day later, increment streak
+        newStreak = streak + 1;
+      } else {
+        // Played 2+ days later, streak resets to 1 (which is the default)
+        newStreak = 1;
+      }
+    }
 
     await pool.query(
       'UPDATE users SET total_score = $1, best_score = GREATEST(best_score, $2), streak = $3, last_played = $4 WHERE id = $5',
