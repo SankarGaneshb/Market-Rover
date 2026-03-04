@@ -1,0 +1,1072 @@
+{
+    "last_run": "2026-03-04 21:34:07",
+    "results": {
+        "ABB.NS": {
+            "winner": "sd",
+            "median_error": 27.33,
+            "sd_error": 26.43,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ADANIENT.NS": {
+            "winner": "median",
+            "median_error": 30.75,
+            "sd_error": 33.41,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ADANIPORTS.NS": {
+            "winner": "sd",
+            "median_error": 13.81,
+            "sd_error": 12.9,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "AMBUJACEM.NS": {
+            "winner": "sd",
+            "median_error": 16.93,
+            "sd_error": 14.7,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "APOLLOHOSP.NS": {
+            "winner": "median",
+            "median_error": 7.12,
+            "sd_error": 7.85,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ASHOKLEY.NS": {
+            "winner": "median",
+            "median_error": 7.6,
+            "sd_error": 8.06,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ASIANPAINT.NS": {
+            "winner": "median",
+            "median_error": 19.03,
+            "sd_error": 19.77,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ASTRAL.NS": {
+            "winner": "sd",
+            "median_error": 19.76,
+            "sd_error": 15.81,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "AXISBANK.NS": {
+            "winner": "median",
+            "median_error": 13.51,
+            "sd_error": 13.61,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BAJAJ-AUTO.NS": {
+            "winner": "sd",
+            "median_error": 14.82,
+            "sd_error": 12.81,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BAJAJFINSV.NS": {
+            "winner": "sd",
+            "median_error": 12.19,
+            "sd_error": 12.02,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BAJFINANCE.NS": {
+            "winner": "sd",
+            "median_error": 17.44,
+            "sd_error": 15.42,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BALKRISIND.NS": {
+            "winner": "median",
+            "median_error": 14.76,
+            "sd_error": 16.65,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BANKBARODA.NS": {
+            "winner": "median",
+            "median_error": 7.32,
+            "sd_error": 7.65,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BEL.NS": {
+            "winner": "sd",
+            "median_error": 13.38,
+            "sd_error": 11.13,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BERGEPAINT.NS": {
+            "winner": "median",
+            "median_error": 16.19,
+            "sd_error": 19.37,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BHARATFORG.NS": {
+            "winner": "median",
+            "median_error": 12.87,
+            "sd_error": 12.93,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BHARTIARTL.NS": {
+            "winner": "median",
+            "median_error": 8.81,
+            "sd_error": 8.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BPCL.NS": {
+            "winner": "sd",
+            "median_error": 10.29,
+            "sd_error": 8.68,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "BRITANNIA.NS": {
+            "winner": "median",
+            "median_error": 6.04,
+            "sd_error": 8.16,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "CANBK.NS": {
+            "winner": "sd",
+            "median_error": 14.12,
+            "sd_error": 12.56,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "CHOLAFIN.NS": {
+            "winner": "median",
+            "median_error": 11.93,
+            "sd_error": 13.03,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "CIPLA.NS": {
+            "winner": "median",
+            "median_error": 8.08,
+            "sd_error": 8.2,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "COALINDIA.NS": {
+            "winner": "sd",
+            "median_error": 11.37,
+            "sd_error": 8.99,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "CONCOR.NS": {
+            "winner": "sd",
+            "median_error": 27.78,
+            "sd_error": 20.29,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "CUMMINSIND.NS": {
+            "winner": "sd",
+            "median_error": 17.36,
+            "sd_error": 16.23,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "DABUR.NS": {
+            "winner": "sd",
+            "median_error": 14.5,
+            "sd_error": 12.93,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "DEEPAKNTR.NS": {
+            "winner": "sd",
+            "median_error": 29.28,
+            "sd_error": 22.24,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "DIVISLAB.NS": {
+            "winner": "sd",
+            "median_error": 12.11,
+            "sd_error": 12.09,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "DLF.NS": {
+            "winner": "sd",
+            "median_error": 17.07,
+            "sd_error": 16.77,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "DRREDDY.NS": {
+            "winner": "median",
+            "median_error": 11.0,
+            "sd_error": 13.07,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "EICHERMOT.NS": {
+            "winner": "sd",
+            "median_error": 7.07,
+            "sd_error": 6.96,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "GAIL.NS": {
+            "winner": "median",
+            "median_error": 12.3,
+            "sd_error": 12.35,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "GODREJCP.NS": {
+            "winner": "median",
+            "median_error": 6.39,
+            "sd_error": 7.1,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "GRASIM.NS": {
+            "winner": "median",
+            "median_error": 6.4,
+            "sd_error": 8.05,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HAL.NS": {
+            "winner": "median",
+            "median_error": 14.93,
+            "sd_error": 15.44,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HAVELLS.NS": {
+            "winner": "median",
+            "median_error": 13.12,
+            "sd_error": 17.01,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HCLTECH.NS": {
+            "winner": "median",
+            "median_error": 14.47,
+            "sd_error": 14.92,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HDFCBANK.NS": {
+            "winner": "median",
+            "median_error": 10.06,
+            "sd_error": 10.68,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HDFCLIFE.NS": {
+            "winner": "median",
+            "median_error": 8.52,
+            "sd_error": 14.42,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HEROMOTOCO.NS": {
+            "winner": "median",
+            "median_error": 9.76,
+            "sd_error": 11.18,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HINDALCO.NS": {
+            "winner": "sd",
+            "median_error": 8.74,
+            "sd_error": 7.91,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "HINDUNILVR.NS": {
+            "winner": "median",
+            "median_error": 7.61,
+            "sd_error": 9.26,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ICICIBANK.NS": {
+            "winner": "sd",
+            "median_error": 7.04,
+            "sd_error": 6.85,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ICICIGI.NS": {
+            "winner": "median",
+            "median_error": 9.02,
+            "sd_error": 10.16,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ICICIPRULI.NS": {
+            "winner": "median",
+            "median_error": 10.71,
+            "sd_error": 11.85,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "INDHOTEL.NS": {
+            "winner": "median",
+            "median_error": 19.47,
+            "sd_error": 21.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "INDIGO.NS": {
+            "winner": "median",
+            "median_error": 10.55,
+            "sd_error": 11.1,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "INDUSINDBK.NS": {
+            "winner": "median",
+            "median_error": 21.04,
+            "sd_error": 21.54,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "INFY.NS": {
+            "winner": "sd",
+            "median_error": 17.79,
+            "sd_error": 15.87,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "IOC.NS": {
+            "winner": "sd",
+            "median_error": 12.13,
+            "sd_error": 9.77,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ITC.NS": {
+            "winner": "median",
+            "median_error": 13.26,
+            "sd_error": 14.62,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "JSWSTEEL.NS": {
+            "winner": "median",
+            "median_error": 9.74,
+            "sd_error": 10.3,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "KOTAKBANK.NS": {
+            "winner": "median",
+            "median_error": 14.97,
+            "sd_error": 16.44,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "LICHSGFIN.NS": {
+            "winner": "sd",
+            "median_error": 12.18,
+            "sd_error": 9.18,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "LT.NS": {
+            "winner": "median",
+            "median_error": 9.42,
+            "sd_error": 10.43,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "LTIM.NS": {
+            "winner": "sd",
+            "median_error": 25.12,
+            "sd_error": 23.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "M&M.NS": {
+            "winner": "sd",
+            "median_error": 11.31,
+            "sd_error": 10.92,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "MARICO.NS": {
+            "winner": "median",
+            "median_error": 3.75,
+            "sd_error": 4.19,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "MARUTI.NS": {
+            "winner": "median",
+            "median_error": 7.78,
+            "sd_error": 7.8,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "MOTHERSON.NS": {
+            "winner": "median",
+            "median_error": 15.5,
+            "sd_error": 18.66,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "MRF.NS": {
+            "winner": "median",
+            "median_error": 7.45,
+            "sd_error": 7.54,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "NESTLEIND.NS": {
+            "winner": "median",
+            "median_error": 6.54,
+            "sd_error": 9.8,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "NTPC.NS": {
+            "winner": "median",
+            "median_error": 10.58,
+            "sd_error": 10.73,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "OBEROIRLTY.NS": {
+            "winner": "median",
+            "median_error": 22.23,
+            "sd_error": 23.86,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ONGC.NS": {
+            "winner": "median",
+            "median_error": 11.9,
+            "sd_error": 12.91,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "PAGEIND.NS": {
+            "winner": "sd",
+            "median_error": 28.42,
+            "sd_error": 26.05,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "PERSISTENT.NS": {
+            "winner": "median",
+            "median_error": 18.14,
+            "sd_error": 23.46,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "PIDILITIND.NS": {
+            "winner": "sd",
+            "median_error": 12.43,
+            "sd_error": 7.71,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "PIIND.NS": {
+            "winner": "sd",
+            "median_error": 10.65,
+            "sd_error": 7.44,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "PNB.NS": {
+            "winner": "sd",
+            "median_error": 11.64,
+            "sd_error": 11.5,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "POLYCAB.NS": {
+            "winner": "median",
+            "median_error": 27.41,
+            "sd_error": 30.09,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "POWERGRID.NS": {
+            "winner": "sd",
+            "median_error": 14.2,
+            "sd_error": 13.74,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "RELIANCE.NS": {
+            "winner": "sd",
+            "median_error": 9.85,
+            "sd_error": 8.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SBICARD.NS": {
+            "winner": "median",
+            "median_error": 15.12,
+            "sd_error": 15.99,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SBILIFE.NS": {
+            "winner": "median",
+            "median_error": 10.43,
+            "sd_error": 12.87,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SBIN.NS": {
+            "winner": "median",
+            "median_error": 9.33,
+            "sd_error": 10.62,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SHREECEM.NS": {
+            "winner": "median",
+            "median_error": 15.21,
+            "sd_error": 16.1,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SIEMENS.NS": {
+            "winner": "median",
+            "median_error": 23.51,
+            "sd_error": 24.64,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SRF.NS": {
+            "winner": "median",
+            "median_error": 14.62,
+            "sd_error": 14.76,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "SUNPHARMA.NS": {
+            "winner": "median",
+            "median_error": 13.85,
+            "sd_error": 14.23,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TATACOMM.NS": {
+            "winner": "median",
+            "median_error": 8.99,
+            "sd_error": 9.26,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TATACONSUM.NS": {
+            "winner": "median",
+            "median_error": 7.69,
+            "sd_error": 8.29,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TATASTEEL.NS": {
+            "winner": "sd",
+            "median_error": 7.58,
+            "sd_error": 7.58,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TCS.NS": {
+            "winner": "sd",
+            "median_error": 15.38,
+            "sd_error": 14.72,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TECHM.NS": {
+            "winner": "median",
+            "median_error": 10.95,
+            "sd_error": 15.73,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TITAN.NS": {
+            "winner": "median",
+            "median_error": 8.24,
+            "sd_error": 8.67,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TRENT.NS": {
+            "winner": "median",
+            "median_error": 33.05,
+            "sd_error": 34.12,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "TVSMOTOR.NS": {
+            "winner": "sd",
+            "median_error": 11.84,
+            "sd_error": 9.2,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ULTRACEMCO.NS": {
+            "winner": "median",
+            "median_error": 9.19,
+            "sd_error": 9.4,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "UPL.NS": {
+            "winner": "sd",
+            "median_error": 17.1,
+            "sd_error": 15.22,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "VBL.NS": {
+            "winner": "sd",
+            "median_error": 28.28,
+            "sd_error": 27.25,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "VEDL.NS": {
+            "winner": "median",
+            "median_error": 14.8,
+            "sd_error": 16.02,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "VOLTAS.NS": {
+            "winner": "median",
+            "median_error": 22.33,
+            "sd_error": 25.77,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "WIPRO.NS": {
+            "winner": "median",
+            "median_error": 9.97,
+            "sd_error": 10.16,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "YESBANK.NS": {
+            "winner": "sd",
+            "median_error": 16.63,
+            "sd_error": 15.89,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        },
+        "ZEEL.NS": {
+            "winner": "sd",
+            "median_error": 38.31,
+            "sd_error": 36.31,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "last_updated": "2026-03-04"
+        }
+    }
+}
