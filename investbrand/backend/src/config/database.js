@@ -72,6 +72,7 @@ async function runMigrations() {
         scheduled_date DATE UNIQUE,
         created_at     TIMESTAMPTZ  DEFAULT NOW()
       );
+      ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_id INTEGER;
 
       CREATE TABLE IF NOT EXISTS game_sessions (
         id          SERIAL PRIMARY KEY,
@@ -92,6 +93,7 @@ async function runMigrations() {
         vote_date DATE NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+      ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER;
 
       ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_id_vote_date_key;
       ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_ticker_key;
