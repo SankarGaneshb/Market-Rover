@@ -38,12 +38,13 @@ router.get('/me/sessions', authenticate, async (req, res) => {
   const pool = getPool();
   try {
     const result = await pool.query(
-      'SELECT puzzle_id, completed, score, created_at FROM game_sessions WHERE user_id = $1',
+      'SELECT puzzle_id, completed, score, played_at FROM game_sessions WHERE user_id = $1',
       [req.user.id]
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch sessions' });
+    console.error('Error fetching sessions:', err);
+    res.status(500).json({ error: 'Failed to fetch sessions', details: err.message });
   }
 });
 
