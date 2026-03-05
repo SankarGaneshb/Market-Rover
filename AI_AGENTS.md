@@ -180,6 +180,11 @@ The following rules apply to **ALL** agents in the workspace. These are non-nego
 *   **Reason:** Prevents "bit rot" and ensures security compliance.
 *   **Implementation:** check for outdated deps, deprecated API usage, and security gaps (secrets exposure).
 
+### 8. The Timezone Rule (IST Enforcement)
+*   **Rule:** **ALWAYS** use Indian Standard Time (IST, UTC+5:30) for all date, time, scheduling, and calendar calculations across the entire stack (Investbrand backend, frontend, and Python tools).
+*   **Reason:** Prevents day-boundary bugs where UTC server times cause streaks or daily tasks to roll over at the wrong hour for Indian users.
+*   **Implementation:** Do not use `new Date().toISOString().split('T')[0]` unless strictly converted to IST first using an offset of `+5.5 * 60 * 60 * 1000`.
+
 ---
 
 ## 📋 Task Mappings (Defined in `tasks.py`)

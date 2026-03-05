@@ -25,7 +25,7 @@ export default function Home() {
           <h1 className="text-5xl font-black text-white px-2">InvestBrand</h1>
         </div>
         <p className="text-xl text-indigo-300 mb-2">Craft your wealth, one move at a time.</p>
-        <p className="text-slate-400 mb-8 px-4">Solve Nifty 50 brand puzzles. Learn about stocks. Compete for streaks.</p>
+        <p className="text-slate-400 mb-8 px-4">Solve brand puzzles. Learn about stocks. Compete for streaks.</p>
 
         <div className="flex flex-col items-center gap-4">
           <button
