@@ -95,22 +95,22 @@ async function runMigrations() {
       );
       ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER;
 
-      -- Robustly clean up old constraints that block multi-brand voting per day
-      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_id_vote_date_key;
-      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_ticker_key;
-      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_brand_key;
-      
-      -- Also try to drop by columns if name is unknown (PostgreSQL 10+)
-      DO $$ 
-      BEGIN 
-        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'puzzle_votes_user_id_vote_date_key') THEN
-          ALTER TABLE puzzle_votes DROP CONSTRAINT puzzle_votes_user_id_vote_date_key;
-        END IF;
+      -- Aggressively clean up all unique constraints on puzzle_votes to ensure old restrictive ones are removed
+      DO $$
+      DECLARE
+          r record;
+      BEGIN
+          FOR r IN 
+              SELECT conname 
+              FROM pg_constraint 
+              WHERE conrelid = 'puzzle_votes'::regclass 
+                AND contype = 'u'
+          LOOP
+              EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT ' || quote_ident(r.conname);
+          END LOOP;
       END $$;
 
-      -- Ensure the new triple unique constraint exists
-      -- We drop it first to ensure we can re-add it cleanly if it was partially defined
-      ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS puzzle_votes_user_date_brand_key;
+      -- Re-add the single correct triple unique constraint
       ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id);
 
       CREATE TABLE IF NOT EXISTS share_clicks (

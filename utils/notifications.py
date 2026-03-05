@@ -6,26 +6,54 @@ Handles sending alerts and reports via Email (SMTP).
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import streamlit as st
 import logging
+import os
+
+try:
+    import streamlit as st
+except ImportError:
+    st = None
 
 logger = logging.getLogger(__name__)
 
 class EmailManager:
     """
     Manages email notifications using SMTP.
-    Requires [email] section in .streamlit/secrets.toml
+    Requires [email] section in .streamlit/secrets.toml or Environment Variables.
     """
     def __init__(self):
         self._config = self._load_config()
         
     def _load_config(self):
-        """Load email config from secrets."""
-        try:
-            return st.secrets.get("email", {})
-        except FileNotFoundError:
-            logger.warning("Secrets file not found. Email disabled.")
-            return {}
+        """Load email config from Streamlit secrets or Environment Variables."""
+        
+        # 1. Try Streamlit Secrets (for Streamlit app)
+        if st is not None:
+            try:
+                if "email" in st.secrets:
+                    return st.secrets.get("email", {})
+            except Exception:
+                pass
+
+        # 2. Try Environment Variables (for GitHub Actions / Headless run)
+        env_config = {
+            "smtp_server": os.environ.get("SMTP_SERVER"),
+            "smtp_port": os.environ.get("SMTP_PORT", 587),
+            "sender_email": os.environ.get("SENDER_EMAIL"),
+            "sender_password": os.environ.get("SENDER_PASSWORD"),
+            "recipient_email": os.environ.get("RECIPIENT_EMAIL")
+        }
+
+        # Validate if essential keys exist
+        if env_config["smtp_server"] and env_config["sender_email"] and env_config["sender_password"]:
+            try:
+                env_config["smtp_port"] = int(env_config["smtp_port"])
+            except ValueError:
+                env_config["smtp_port"] = 587
+            return env_config
+
+        logger.warning("No Streamlit secrets or Env vars for email found. Email disabled.")
+        return {}
 
     def is_configured(self):
         """Check if email is configured."""

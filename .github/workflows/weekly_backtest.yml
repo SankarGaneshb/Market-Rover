@@ -30,6 +30,12 @@ jobs:
         pip install pandas yfinance nsepython scipy numpy plotly
 
     - name: Run Batch Backtester
+      env:
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+        SENDER_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
         export PYTHONPATH=$PYTHONPATH:.:./rover_tools
         python rover_tools/batch_backtester.py

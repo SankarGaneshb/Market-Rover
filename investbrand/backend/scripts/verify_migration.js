@@ -4,7 +4,6 @@ const { initializePool } = require('../src/config/database');
 async function verifyMigration() {
     try {
         console.log('Starting migration verification...');
-        console.log('DB_NAME:', process.env.DB_NAME);
         const pool = await initializePool();
         console.log('Migration finished successfully.');
 
