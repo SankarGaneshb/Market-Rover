@@ -29,16 +29,19 @@ async function initializePool() {
 
 async function runMigrations() {
   try {
-    console.log("Starting radical simplified migrations...");
+    console.log("Starting radical simplified migrations with corrected order...");
 
-    // 1. Ensure Table Exists
-    await pool.query('CREATE TABLE IF NOT EXISTS puzzle_votes (id SERIAL PRIMARY KEY, user_id INTEGER, vote_date DATE NOT NULL)');
+    // 1. Core Tables Initialization (Independent first)
+    await pool.query("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, google_id VARCHAR(255) UNIQUE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL)");
+    await pool.query("CREATE TABLE IF NOT EXISTS puzzles (id SERIAL PRIMARY KEY, brand_id INTEGER, brand_name VARCHAR(255) NOT NULL, ticker VARCHAR(50) NOT NULL, logo_url TEXT NOT NULL, scheduled_date DATE UNIQUE)");
+    await pool.query("CREATE TABLE IF NOT EXISTS puzzle_votes (id SERIAL PRIMARY KEY, user_id INTEGER, vote_date DATE NOT NULL)");
 
-    // 2. Add brand_id immediately to BOTH tables if missing
+    // 2. Schema Evolution / Column Additions
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0');
     await pool.query('ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER');
     await pool.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_id INTEGER');
 
-    // 3. Relax legacy puzzle_id if it exists
+    // 3. Relax legacy constraints
     try {
       await pool.query('ALTER TABLE puzzle_votes ALTER COLUMN puzzle_id DROP NOT NULL');
     } catch (e) { /* ignore if column missing */ }
@@ -60,11 +63,9 @@ async function runMigrations() {
     // 5. Add Triple Constraint
     await pool.query('ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id)');
 
-    // 6. Final cleanup for other tables
-    await pool.query("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, google_id VARCHAR(255) UNIQUE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL)");
-    await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0");
-    await pool.query("CREATE TABLE IF NOT EXISTS puzzles (id SERIAL PRIMARY KEY, brand_id INTEGER, brand_name VARCHAR(255) NOT NULL, ticker VARCHAR(50) NOT NULL, logo_url TEXT NOT NULL, scheduled_date DATE UNIQUE)");
+    // 6. Secondary tables and indices
     await pool.query("CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), UNIQUE(user_id, puzzle_id))");
+    await pool.query("CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id) ON DELETE SET NULL, ref_page VARCHAR(50), clicked_at TIMESTAMPTZ DEFAULT NOW())");
 
     logger.info('Database migrations completed');
   } catch (err) {
