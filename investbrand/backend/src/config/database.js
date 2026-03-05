@@ -28,26 +28,44 @@ async function initializePool() {
 }
 
 async function runMigrations() {
+  const client = await pool.connect();
   try {
-    console.log("Starting radical simplified migrations with corrected order...");
+    console.log("Starting hyper-sequential migrations...");
 
-    // 1. Core Tables Initialization (Independent first)
-    await pool.query("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, google_id VARCHAR(255) UNIQUE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL)");
-    await pool.query("CREATE TABLE IF NOT EXISTS puzzles (id SERIAL PRIMARY KEY, brand_id INTEGER, brand_name VARCHAR(255) NOT NULL, ticker VARCHAR(50) NOT NULL, logo_url TEXT NOT NULL, scheduled_date DATE UNIQUE)");
-    await pool.query("CREATE TABLE IF NOT EXISTS puzzle_votes (id SERIAL PRIMARY KEY, user_id INTEGER, vote_date DATE NOT NULL)");
+    // 1. Core Table Skeletons
+    await client.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, google_id VARCHAR(255) UNIQUE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL)');
+    await client.query('CREATE TABLE IF NOT EXISTS puzzles (id SERIAL PRIMARY KEY, brand_name VARCHAR(255), ticker VARCHAR(50), logo_url TEXT)');
+    await client.query('CREATE TABLE IF NOT EXISTS puzzle_votes (id SERIAL PRIMARY KEY, user_id INTEGER, vote_date DATE NOT NULL)');
 
-    // 2. Schema Evolution / Column Additions
-    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0');
-    await pool.query('ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER');
-    await pool.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_id INTEGER');
+    // 2. Comprehensive Column Enforcement
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT \'Player\'');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS streak INTEGER DEFAULT 0');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS last_played DATE');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS total_score INTEGER DEFAULT 0');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS best_score INTEGER DEFAULT 0');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()');
 
-    // 3. Relax legacy constraints
-    try {
-      await pool.query('ALTER TABLE puzzle_votes ALTER COLUMN puzzle_id DROP NOT NULL');
-    } catch (e) { /* ignore if column missing */ }
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_id INTEGER');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS company_name VARCHAR(255)');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS difficulty INTEGER DEFAULT 1');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS sector VARCHAR(100)');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS description TEXT');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS hint TEXT');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS scheduled_date DATE');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()');
+    try { await client.query('ALTER TABLE puzzles ADD CONSTRAINT puzzles_scheduled_date_key UNIQUE(scheduled_date)'); } catch (e) { }
 
-    // 4. Drop ALL old unique indexes/constraints to clear path
-    await pool.query(`
+    await client.query('ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER');
+    await client.query('ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS puzzle_id INTEGER');
+    await client.query('ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()');
+
+    // 3. Relaxation
+    try { await client.query('ALTER TABLE puzzle_votes ALTER COLUMN puzzle_id DROP NOT NULL'); } catch (e) { }
+    try { await client.query('ALTER TABLE puzzles ALTER COLUMN scheduled_date DROP NOT NULL'); } catch (e) { }
+
+    // 4. Index/Constraint Cleanup
+    await client.query(`
       DO $$ 
       DECLARE r record; 
       BEGIN 
@@ -60,17 +78,23 @@ async function runMigrations() {
       END $$;
     `);
 
-    // 5. Add Triple Constraint
-    await pool.query('ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id)');
+    // 5. Final Constraints
+    await client.query('ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id)');
 
-    // 6. Secondary tables and indices
-    await pool.query("CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), UNIQUE(user_id, puzzle_id))");
-    await pool.query("CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id) ON DELETE SET NULL, ref_page VARCHAR(50), clicked_at TIMESTAMPTZ DEFAULT NOW())");
+    // 6. Secondary Tables
+    await client.query('CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), score INTEGER DEFAULT 0, completed BOOLEAN DEFAULT FALSE, played_at TIMESTAMPTZ DEFAULT NOW())');
+    await client.query('CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id), clicked_at TIMESTAMPTZ DEFAULT NOW())');
+
+    await client.query('CREATE INDEX IF NOT EXISTS idx_game_sessions_user ON game_sessions(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_puzzles_date ON puzzles(scheduled_date)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date ON puzzle_votes(vote_date)');
 
     logger.info('Database migrations completed');
   } catch (err) {
     logger.error('Migration failed', { error: err.message });
     throw err;
+  } finally {
+    client.release();
   }
 }
 
