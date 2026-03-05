@@ -7,7 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node scripts/seed.js",
-    "test": "jest --coverage",
+    "test": "jest --coverage --testPathIgnorePatterns=puzzles_integration.test.js",
     "test:integration": "node scripts/test-db-setup.js && cross-env DB_NAME=investcraft_test jest --runInBand src/tests/puzzles_integration.test.js"
   },
   "dependencies": {
