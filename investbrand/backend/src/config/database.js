@@ -95,7 +95,7 @@ async function runMigrations() {
       );
       ALTER TABLE puzzle_votes ADD COLUMN IF NOT EXISTS brand_id INTEGER;
 
-      -- Aggressively clean up all unique constraints on puzzle_votes to ensure old restrictive ones are removed
+      -- 1. Aggressively clean up all unique CONSTRAINTS on puzzle_votes
       DO $$
       DECLARE
           r record;
@@ -106,11 +106,32 @@ async function runMigrations() {
               WHERE conrelid = 'puzzle_votes'::regclass 
                 AND contype = 'u'
           LOOP
-              EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT ' || quote_ident(r.conname);
+              EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS ' || quote_ident(r.conname) || ' CASCADE';
           END LOOP;
       END $$;
 
-      -- Re-add the single correct triple unique constraint
+      -- 2. Aggressively clean up any lingering rogue UNIQUE INDEXES not tied to a constraint
+      DO $$
+      DECLARE
+          r record;
+      BEGIN
+          FOR r IN 
+              SELECT i.relname AS index_name
+              FROM pg_class t
+              JOIN pg_index ix ON t.oid = ix.indrelid
+              JOIN pg_class i ON i.oid = ix.indexrelid
+              WHERE t.relname = 'puzzle_votes'
+                AND ix.indisunique = true
+                AND ix.indisprimary = false
+                AND NOT EXISTS (
+                    SELECT 1 FROM pg_constraint c WHERE c.conindid = ix.indexrelid
+                )
+          LOOP
+              EXECUTE 'DROP INDEX IF EXISTS ' || quote_ident(r.index_name) || ' CASCADE';
+          END LOOP;
+      END $$;
+
+      -- 3. Re-add the single correct triple unique constraint
       ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id);
 
       CREATE TABLE IF NOT EXISTS share_clicks (
