@@ -89,6 +89,17 @@ async function runMigrations() {
 
         -- Explicitly drop the rogue_idx if the loop missed it for some reason
         EXECUTE 'DROP INDEX IF EXISTS rogue_idx CASCADE';
+
+        -- Drop rogue columns that might be NOT NULL and causing failures
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'puzzle_votes' AND column_name = 'ticker') THEN
+           EXECUTE 'ALTER TABLE puzzle_votes DROP COLUMN ticker CASCADE';
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'puzzle_votes' AND column_name = 'brand_name') THEN
+           EXECUTE 'ALTER TABLE puzzle_votes DROP COLUMN brand_name CASCADE';
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'puzzle_votes' AND column_name = 'brand') THEN
+           EXECUTE 'ALTER TABLE puzzle_votes DROP COLUMN brand CASCADE';
+        END IF;
       END $$;
     `);
 
