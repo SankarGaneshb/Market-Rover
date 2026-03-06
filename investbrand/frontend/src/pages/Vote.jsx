@@ -15,6 +15,7 @@ export default function Vote() {
 
     const [selectedVote, setSelectedVote] = useState(null);
     const [voteStatus, setVoteStatus] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(null);
     const [votedBrandIds, setVotedBrandIds] = useState([]);
     const [playedBrandIds, setPlayedBrandIds] = useState([]);
 
@@ -63,6 +64,7 @@ export default function Vote() {
     const handleVoteSubmit = async (brandId) => {
         if (!brandId) return;
         setVoteStatus('submitting');
+        setErrorMessage(null);
         try {
             await axios.post('/api/puzzles/vote', { brandId });
             setVoteStatus('success');
@@ -70,6 +72,7 @@ export default function Vote() {
         } catch (err) {
             console.error('Failed to submit vote', err);
             setVoteStatus('error');
+            setErrorMessage(err.response?.data?.details || err.response?.data?.error || err.message);
         }
     };
 
@@ -333,8 +336,10 @@ export default function Vote() {
                             </button>
 
                             {voteStatus === 'error' && (
-                                <div className="mb-3 w-full p-3 bg-red-50 text-red-600 rounded-lg text-[13px] font-bold text-center border border-red-100">
-                                    Failed to submit your vote. Please try again.
+                                <div className="mb-3 w-full p-3 bg-red-50 text-red-600 rounded-lg text-[13px] font-bold text-center border border-red-100 flex flex-col gap-1">
+                                    <div>Failed to submit your vote.</div>
+                                    {errorMessage && <div className="text-[10px] opacity-70 font-mono break-all">{errorMessage}</div>}
+                                    <div className="text-[10px] mt-1">Please try again.</div>
                                 </div>
                             )}
 
