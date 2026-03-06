@@ -2,11 +2,11 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 5432,
-  database: process.env.DB_NAME || 'investcraft',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'Invest123',
+  host: process.env.IC_DB_HOST || process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.IC_DB_PORT || process.env.DB_PORT || '5432'),
+  database: process.env.IC_DB_NAME || process.env.DB_NAME || 'investcraft',
+  user: process.env.IC_DB_USER || process.env.DB_USER || 'postgres',
+  password: process.env.IC_DB_PASS || process.env.DB_PASSWORD || 'Invest123',
 });
 
 async function checkSchema() {

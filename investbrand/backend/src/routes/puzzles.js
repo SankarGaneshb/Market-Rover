@@ -103,7 +103,13 @@ router.post('/vote', authenticate, async (req, res) => {
 
     res.json({ success: true, message: 'Vote recorded for tomorrow!' });
   } catch (err) {
-    logger.error('Error recording puzzle vote', { error: err.message });
+    logger.error('Error recording puzzle vote', {
+      error: err.message,
+      userId,
+      brandId,
+      voteDate: tomorrowStr,
+      stack: err.stack
+    });
     res.status(500).json({ error: 'Failed to record vote' });
   }
 });

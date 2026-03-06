@@ -64,22 +64,50 @@ async function runMigrations() {
     try { await client.query('ALTER TABLE puzzle_votes ALTER COLUMN puzzle_id DROP NOT NULL'); } catch (e) { }
     try { await client.query('ALTER TABLE puzzles ALTER COLUMN scheduled_date DROP NOT NULL'); } catch (e) { }
 
-    // 4. Index/Constraint Cleanup
+    // 4. Index/Constraint Cleanup - Aggressive Legacy Removal
     await client.query(`
       DO $$ 
       DECLARE r record; 
       BEGIN 
+        -- Drop all unique constraints on puzzle_votes except the PK
         FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = 'puzzle_votes'::regclass AND contype = 'u' LOOP 
           EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS ' || quote_ident(r.conname) || ' CASCADE'; 
         END LOOP;
-        FOR r IN SELECT i.relname AS index_name FROM pg_class t JOIN pg_index ix ON t.oid = ix.indrelid JOIN pg_class i ON i.oid = ix.indexrelid WHERE t.relname = 'puzzle_votes' AND ix.indisunique = true AND ix.indisprimary = false AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid = ix.indexrelid) LOOP 
+
+        -- Drop all unique indices on puzzle_votes that are NOT backing a constraint
+        FOR r IN SELECT i.relname AS index_name 
+                 FROM pg_class t 
+                 JOIN pg_index ix ON t.oid = ix.indrelid 
+                 JOIN pg_class i ON i.oid = ix.indexrelid 
+                 WHERE t.relname = 'puzzle_votes' 
+                   AND ix.indisunique = true 
+                   AND ix.indisprimary = false 
+                   AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid = ix.indexrelid) 
+        LOOP 
           EXECUTE 'DROP INDEX IF EXISTS ' || quote_ident(r.index_name) || ' CASCADE'; 
         END LOOP;
+
+        -- Explicitly drop the rogue_idx if the loop missed it for some reason
+        EXECUTE 'DROP INDEX IF EXISTS rogue_idx CASCADE';
       END $$;
     `);
 
-    // 5. Final Constraints
-    await client.query('ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id)');
+    // Remove legacy puzzle_id if it exists, as we now use brand_id exclusively
+    try {
+      await client.query('ALTER TABLE puzzle_votes DROP COLUMN IF EXISTS puzzle_id CASCADE');
+      logger.info('Legacy column puzzle_id removed from puzzle_votes');
+    } catch (e) {
+      logger.warn('Failed to drop puzzle_id (might not exist): ' + e.message);
+    }
+
+    // 5. Final Constraints - Apply the new standard alone
+    await client.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'puzzle_votes_user_date_brand_key') THEN
+          ALTER TABLE puzzle_votes ADD CONSTRAINT puzzle_votes_user_date_brand_key UNIQUE(user_id, vote_date, brand_id);
+        END IF;
+      END $$;
+    `);
 
     // 6. Secondary Tables
     await client.query('CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), score INTEGER DEFAULT 0, completed BOOLEAN DEFAULT FALSE, played_at TIMESTAMPTZ DEFAULT NOW())');
