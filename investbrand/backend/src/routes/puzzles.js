@@ -110,12 +110,7 @@ router.post('/vote', authenticate, async (req, res) => {
       voteDate: tomorrowStr,
       stack: err.stack
     });
-    res.status(500).json({
-      error: 'Failed to record vote',
-      details: err.message,
-      stack: err.stack,
-      debug: { userId, brandId, tomorrowStr }
-    });
+    res.status(500).json({ error: 'Failed to record vote' });
   }
 });
 
