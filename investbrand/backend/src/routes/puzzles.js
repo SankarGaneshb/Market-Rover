@@ -110,7 +110,12 @@ router.post('/vote', authenticate, async (req, res) => {
       voteDate: tomorrowStr,
       stack: err.stack
     });
-    res.status(500).json({ error: 'Failed to record vote' });
+    res.status(500).json({
+      error: 'Failed to record vote',
+      details: err.message,
+      stack: err.stack,
+      debug: { userId, brandId, tomorrowStr }
+    });
   }
 });
 
@@ -257,29 +262,5 @@ router.post('/:id/complete', authenticate, async (req, res) => {
   }
 });
 
-// TEMP DEBUG ROUTE - REMOVE AFTER FIXING
-router.get('/debug/schema', async (req, res) => {
-  const pool = getPool();
-  try {
-    const columns = await pool.query(`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'puzzle_votes'
-    `);
-    const constraints = await pool.query(`
-      SELECT conname, contype 
-      FROM pg_constraint 
-      WHERE conrelid = 'puzzle_votes'::regclass
-    `);
-    const indexes = await pool.query(`
-      SELECT i.relname as index_name, ix.indisunique
-      FROM pg_class t, pg_class i, pg_index ix
-      WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND t.relname = 'puzzle_votes'
-    `);
-    res.json({ columns: columns.rows, constraints: constraints.rows, indexes: indexes.rows });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 module.exports = router;
