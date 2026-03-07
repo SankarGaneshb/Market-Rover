@@ -16,12 +16,15 @@ router.get('/', async (req, res) => {
       const today = getIstDateString();
       result = await pool.query(
         `SELECT u.id, u.name, u.avatar_url, u.streak,
-                gs.score, gs.moves_used, gs.time_taken
+                SUM(gs.score)::int AS score, 
+                SUM(gs.moves_used)::int AS moves_used, 
+                SUM(gs.time_taken)::int AS time_taken
          FROM users u
          JOIN game_sessions gs ON u.id = gs.user_id
          JOIN puzzles p        ON gs.puzzle_id = p.id
          WHERE p.scheduled_date = $1
-         ORDER BY gs.score DESC, gs.time_taken ASC
+         GROUP BY u.id, u.name, u.avatar_url, u.streak
+         ORDER BY score DESC, time_taken ASC
          LIMIT 50`,
         [today]
       );

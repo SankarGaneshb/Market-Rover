@@ -150,7 +150,8 @@ export default function PuzzleGame() {
       const response = await axios.post(`/api/puzzles/${dbPuzzleId}/complete`, {
         score: gameScore,
         movesUsed: movesUsed,
-        timeTaken: timeTaken
+        timeTaken: timeTaken,
+        difficulty: difficulty || 'easy'
       });
       if (response.data.success) {
         setStreak(response.data.streak);

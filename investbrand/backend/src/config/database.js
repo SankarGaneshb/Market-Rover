@@ -124,6 +124,19 @@ async function runMigrations() {
     await client.query('CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), score INTEGER DEFAULT 0, completed BOOLEAN DEFAULT FALSE, played_at TIMESTAMPTZ DEFAULT NOW())');
     await client.query('CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id), clicked_at TIMESTAMPTZ DEFAULT NOW())');
 
+    // Add Difficulty to game_sessions and adjust unique constraint
+    await client.query('ALTER TABLE game_sessions ADD COLUMN IF NOT EXISTS difficulty VARCHAR(20) DEFAULT \'easy\'');
+    try { await client.query('ALTER TABLE game_sessions DROP CONSTRAINT IF EXISTS game_sessions_user_id_puzzle_id_key'); } catch (e) { }
+    try { await client.query('DROP INDEX IF EXISTS game_sessions_user_id_puzzle_id_key CASCADE'); } catch (e) { }
+
+    await client.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'game_sessions_user_puzzle_diff_key') THEN
+          ALTER TABLE game_sessions ADD CONSTRAINT game_sessions_user_puzzle_diff_key UNIQUE(user_id, puzzle_id, difficulty);
+        END IF;
+      END $$;
+    `);
+
     await client.query('CREATE INDEX IF NOT EXISTS idx_game_sessions_user ON game_sessions(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_puzzles_date ON puzzles(scheduled_date)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date ON puzzle_votes(vote_date)');

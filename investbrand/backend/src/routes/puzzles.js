@@ -192,18 +192,18 @@ router.post('/:id/complete', authenticate, async (req, res) => {
   const pool = getPool();
   const puzzleId = parseInt(req.params.id);
   const userId = req.user.id;
-  const { score = 0, movesUsed = 0, timeTaken = 0 } = req.body;
+  const { score = 0, movesUsed = 0, timeTaken = 0, difficulty = 'easy' } = req.body;
 
   try {
     await pool.query(
-      `INSERT INTO game_sessions (user_id, puzzle_id, score, moves_used, completed, time_taken)
-       VALUES ($1, $2, $3, $4, true, $5)
-       ON CONFLICT (user_id, puzzle_id) 
+      `INSERT INTO game_sessions (user_id, puzzle_id, score, moves_used, completed, time_taken, difficulty)
+       VALUES ($1, $2, $3, $4, true, $5, $6)
+       ON CONFLICT (user_id, puzzle_id, difficulty) 
        DO UPDATE SET 
          score = GREATEST(game_sessions.score, EXCLUDED.score),
          moves_used = LEAST(game_sessions.moves_used, EXCLUDED.moves_used),
          time_taken = LEAST(game_sessions.time_taken, EXCLUDED.time_taken)`,
-      [userId, puzzleId, score, movesUsed, timeTaken]
+      [userId, puzzleId, score, movesUsed, timeTaken, difficulty]
     );
 
     // Compute absolute total score from high-scores to prevent infinite farming
@@ -226,7 +226,8 @@ router.post('/:id/complete', authenticate, async (req, res) => {
 
     if (last_played) {
       // Convert both dates to pure Date objects at midnight UTC to safely compare the calendar days
-      const lastPlayedDate = new Date(last_played + 'T00:00:00Z');
+      const lastPlayedStr = last_played instanceof Date ? last_played.toISOString().split('T')[0] : last_played;
+      const lastPlayedDate = new Date(lastPlayedStr + 'T00:00:00Z');
       const todayDate = new Date(today + 'T00:00:00Z');
 
       // Calculate difference in time then difference in days
