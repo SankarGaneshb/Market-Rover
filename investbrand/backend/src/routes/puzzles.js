@@ -107,11 +107,16 @@ router.get('/daily', async (req, res) => {
         voteCount: finalVoteCount
       });
     } else {
+      logger.warn('No daily puzzle found (table might be empty)', { today });
       res.json(null);
     }
   } catch (err) {
-    logger.error('Error fetching daily puzzle', { error: err.message });
-    res.status(500).json({ error: 'Failed to fetch puzzle' });
+    logger.error('Error fetching daily puzzle', {
+      error: err.message,
+      stack: err.stack,
+      today
+    });
+    res.status(500).json({ error: `Failed to fetch puzzle: ${err.message}` });
   }
 });
 
