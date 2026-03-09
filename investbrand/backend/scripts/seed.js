@@ -1,40 +1,29 @@
 require('dotenv').config();
 const { Pool } = require('pg');
-const { Connector } = require('@google-cloud/cloud-sql-connector');
 const fs = require('fs');
 const path = require('path');
 
-const connector = new Connector();
-
-async function getPool() {
+function getPool() {
   const isProduction = process.env.NODE_ENV === 'production';
-  let config;
 
   if (isProduction) {
-    console.log('Using Cloud SQL Connector for seeding...');
-    const instanceName = process.env.CLOUD_SQL_CONNECTION_NAME ||
-      (process.env.DB_HOST ? process.env.DB_HOST.replace('/cloudsql/', '') : 'market-rover:us-central1:investcraft-db');
-
-    const clientOpts = await connector.getOptions({
-      instanceConnectionName: instanceName,
-      ipType: 'PUBLIC',
+    const socketPath = process.env.DB_HOST || `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`;
+    console.log(`Connecting via socket: ${socketPath}`);
+    return new Pool({
+      host: socketPath,
+      database: process.env.DB_NAME || 'postgres',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD,
     });
-    config = {
-      ...clientOpts,
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'investcraft',
-    };
-  } else {
-    config = {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'investcraft',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-    };
   }
-  return new Pool(config);
+
+  return new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'investcraft',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+  });
 }
 
 // Helper to load brands from frontend data
@@ -54,7 +43,7 @@ function loadBrands() {
 async function seed() {
   let pool;
   try {
-    pool = await getPool();
+    pool = getPool();
     const client = await pool.connect();
     try {
       const brands = loadBrands();
