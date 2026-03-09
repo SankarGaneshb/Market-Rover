@@ -26,7 +26,8 @@ def mock_agents():
         'market_context': MagicMock(),
         'shadow_analyst': MagicMock(),
         'report_generator': MagicMock(),
-        'visualizer': MagicMock()
+        'visualizer': MagicMock(),
+        'traditional_timing': MagicMock()
     }
 
 def test_strategist_regime_logic(mock_task_class, mock_agents):

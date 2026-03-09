@@ -9,6 +9,10 @@ except Exception:
         def __init__(self, *args, **kwargs):
             pass
 from textwrap import dedent
+import os
+
+# Ensure logs directory exists
+os.makedirs("logs", exist_ok=True)
 
 
 def create_portfolio_retrieval_task(agent):
@@ -24,6 +28,7 @@ def create_portfolio_retrieval_task(agent):
             - **Deduplication**: Remove any duplicate entries before passing them downstream.
         """),
         agent=agent,
+        output_file="logs/task1_portfolio.txt",
         expected_output="A validated, deduplicated list of stock symbols with .NS suffix."
     )
 
@@ -62,6 +67,7 @@ def create_market_strategy_task(agent, context):
         """),
         agent=agent,
         context=context, # Depends on Portfolio
+        output_file="logs/task2_strategy.txt",
         expected_output="A strategic report after self-correction, combining Global Cues, Macro Events, Corporate Actions, and Specific News."
     )
 
@@ -87,6 +93,7 @@ def create_sentiment_analysis_task(agent, context):
         agent=agent,
         context=context, # Depends on Strategy Task
         async_execution=True,
+        output_file="logs/task3_sentiment.txt",
         expected_output="Sentiment classification with 'Extreme Sentiment' flags."
     )
 
@@ -121,6 +128,7 @@ def create_technical_analysis_task(agent, context):
         agent=agent,
         context=context, # Depends on Portfolio
         async_execution=True,
+        output_file="logs/task4_technical.txt",
         expected_output="Technical analysis report with Trend, Support, and Resistance levels."
     )
 
@@ -168,6 +176,7 @@ def create_shadow_analysis_task(agent, context):
         """),
         agent=agent,
         context=context, # Depends on Sentiment AND Technical Tasks
+        output_file="logs/task5_shadow.txt",
         expected_output="Forensic analysis report identifying Accumulation, Distribution, and Traps, informed by Past Accuracy."
     )
 
@@ -196,6 +205,7 @@ def create_traditional_timing_task(agent, context):
         agent=agent,
         context=context, # Depends on Portfolio and Strategy
         async_execution=True,
+        output_file="logs/task_traditional.txt",
         expected_output="A cultural and traditional timing assessment for the portfolio."
     )
 
@@ -229,6 +239,7 @@ def create_report_generation_task(agent, context):
         """),
         agent=agent,
         context=context, # Depends on ALL previous analysis
+        # No output_file here so user sees the Final Report in console
         expected_output="Comprehensive Intelligence Report with Institutional Radar."
     )
 

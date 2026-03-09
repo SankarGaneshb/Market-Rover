@@ -50,6 +50,14 @@ def test_rover_agents_initialization():
         assert sa_call is not None
         assert len(sa_call.kwargs['tools']) > 0
 
+        # Verify Traditional Timing Analyst creation
+        tt_call = None
+        for call in MockAgent.mock_calls:
+            if call.kwargs.get('role') == 'Traditional Timing Analyst':
+                tt_call = call
+                break
+        assert tt_call is not None
+
 def test_task_creation():
     # Mock an agent object
     mock_agent = MagicMock()
@@ -78,7 +86,8 @@ def test_task_factory_logic():
         'market_context': MagicMock(),
         'shadow_analyst': MagicMock(),
         'report_generator': MagicMock(),
-        'visualizer': MagicMock()
+        'visualizer': MagicMock(),
+        'traditional_timing': MagicMock()
     }
     
     # Patch first so reload picks up the mocks
