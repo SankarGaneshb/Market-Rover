@@ -225,8 +225,17 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     let newStreak = 1;
 
     if (last_played) {
-      // Convert both dates to pure Date objects at midnight UTC to safely compare the calendar days
-      const lastPlayedStr = last_played instanceof Date ? last_played.toISOString().split('T')[0] : last_played;
+      // Postgres returns DATE columns as local Date objects at midnight. 
+      // Extract the local year/month/date to avoid timezone shift from .toISOString()
+      let lastPlayedStr = last_played;
+      if (last_played instanceof Date) {
+        const yyyy = last_played.getFullYear();
+        const mm = String(last_played.getMonth() + 1).padStart(2, '0');
+        const dd = String(last_played.getDate()).padStart(2, '0');
+        lastPlayedStr = `${yyyy}-${mm}-${dd}`;
+      }
+
+      // Convert both to pure Date objects at midnight UTC to safely compare the calendar days
       const lastPlayedDate = new Date(lastPlayedStr + 'T00:00:00Z');
       const todayDate = new Date(today + 'T00:00:00Z');
 
