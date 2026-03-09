@@ -1,4 +1,5 @@
-console.log('--- BACKEND STARTING UP ---');
+const VERSION = '1.1.0-connector-fix';
+console.log(`--- BACKEND STARTING UP (v${VERSION}) ---`);
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');

@@ -11,7 +11,7 @@ router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'InvestCraft API',
-    version: '1.0.0',
+    version: '1.1.0',
     timestamp: getIstDateString(),
   });
 });

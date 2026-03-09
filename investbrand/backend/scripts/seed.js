@@ -12,8 +12,11 @@ async function getPool() {
 
   if (isProduction) {
     console.log('Using Cloud SQL Connector for seeding...');
+    const instanceName = process.env.CLOUD_SQL_CONNECTION_NAME ||
+      (process.env.DB_HOST ? process.env.DB_HOST.replace('/cloudsql/', '') : 'market-rover:us-central1:investcraft-db');
+
     const clientOpts = await connector.getOptions({
-      instanceConnectionName: process.env.CLOUD_SQL_CONNECTION_NAME || process.env.DB_HOST.replace('/cloudsql/', ''),
+      instanceConnectionName: instanceName,
       ipType: 'PUBLIC',
     });
     config = {
