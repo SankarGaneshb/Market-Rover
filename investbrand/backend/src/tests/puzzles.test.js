@@ -34,11 +34,15 @@ describe('Puzzle Routes', () => {
     describe('GET /daily', () => {
         it('should return scheduled puzzle for today', async () => {
             const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString() };
-            mockQuery.mockResolvedValueOnce({ rows: [mockPuzzle] });
+            mockQuery
+                .mockResolvedValueOnce({ rows: [mockPuzzle] }) // First query for scheduled puzzle
+                .mockResolvedValueOnce({ rows: [{ vote_count: 5 }] }); // Second query for vote count
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
             expect(res.body.brand_id).toBe(101);
+            expect(res.body.selectionMethod).toBe('voted');
+            expect(res.body.voteCount).toBe(5);
         });
 
         it('should fallback to voted brand puzzle if no puzzle scheduled today', async () => {
@@ -51,6 +55,8 @@ describe('Puzzle Routes', () => {
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
             expect(res.body.brand_id).toBe(102);
+            expect(res.body.selectionMethod).toBe('voted');
+            expect(res.body.voteCount).toBe(5);
         });
 
         it('should assign a random open puzzle if no votes exist', async () => {
@@ -63,6 +69,8 @@ describe('Puzzle Routes', () => {
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
             expect(res.body.brand_id).toBe(103);
+            expect(res.body.selectionMethod).toBe('lucky_draw');
+            expect(res.body.voteCount).toBe(0);
         });
 
         it('should handle db errors on /daily', async () => {

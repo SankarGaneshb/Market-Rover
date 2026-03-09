@@ -16,6 +16,8 @@ export default function PuzzleGame() {
   const [currentBrand, setCurrentBrand] = useState(null);
   const [dbPuzzleId, setDbPuzzleId] = useState(null);
   const [completedToday, setCompletedToday] = useState(false);
+  const [selectionMethod, setSelectionMethod] = useState(null);
+  const [voteCount, setVoteCount] = useState(0);
 
   const [pieces, setPieces] = useState([]);
   const [solvedPositions, setSolvedPositions] = useState({});
@@ -104,6 +106,8 @@ export default function PuzzleGame() {
           );
         }
         setDbPuzzleId(data.id);
+        setSelectionMethod(data.selectionMethod);
+        setVoteCount(data.voteCount || 0);
       }
 
       if (matchedBrand) {
@@ -313,13 +317,26 @@ export default function PuzzleGame() {
           </div>
 
           <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-8 mb-6 relative overflow-hidden">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-between">
-              <span className="flex items-center gap-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <Calendar className="text-blue-600" />
                 Today's Challenge
-              </span>
-              {completedToday && <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">Completed</span>}
-            </h2>
+                {completedToday && <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold ml-2">Completed</span>}
+              </h2>
+
+              {selectionMethod === 'voted' && (
+                <div className="flex items-center gap-1.5 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-amber-200">
+                  <Zap size={14} className="fill-current" />
+                  Chosen by {voteCount} player{voteCount !== 1 ? 's' : ''}
+                </div>
+              )}
+              {selectionMethod === 'lucky_draw' && (
+                <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-indigo-100">
+                  <Lightbulb size={14} className="fill-current" />
+                  Lucky Draw
+                </div>
+              )}
+            </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8 border border-blue-100">
               <div className="flex items-center gap-5">

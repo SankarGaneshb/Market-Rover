@@ -17,8 +17,12 @@ router.get('/daily', async (req, res) => {
       [today]
     );
 
+    let puzzleMatch = result.rows[0];
+    let finalVoteCount = 0;
+    let finalSelectionMethod = 'lucky_draw';
+
     // If no puzzle is scheduled for TODAY, handle the logic to find one based on votes
-    if (!result.rows[0]) {
+    if (!puzzleMatch) {
       // Find the most voted brand_id for TODAY
       const voteResult = await pool.query(
         `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
@@ -42,10 +46,12 @@ router.get('/daily', async (req, res) => {
            FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
           [chosenBrandId]
         );
+        puzzleMatch = result.rows[0];
       }
 
       // Fall back to a random puzzle if no votes or no puzzle found for the voted brand_id
-      if (!result.rows[0]) {
+      if (!puzzleMatch) {
+        // It's a lucky draw because no community vote could select it
         result = await pool.query(
           `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
            FROM puzzles 
@@ -59,18 +65,50 @@ router.get('/daily', async (req, res) => {
                FROM puzzles ORDER BY RANDOM() LIMIT 1`
           );
         }
+        puzzleMatch = result.rows[0];
+      }
+
+      // If we found a puzzle because it was explicitly voted for today
+      if (chosenBrandId && puzzleMatch && puzzleMatch.brand_id === chosenBrandId) {
+        finalSelectionMethod = 'voted';
+        finalVoteCount = parseInt(voteResult.rows[0].vote_count, 10);
       }
 
       // Schedule the chosen puzzle for today
-      if (result.rows[0]) {
+      if (puzzleMatch) {
         await pool.query(
           `UPDATE puzzles SET scheduled_date = $1 WHERE id = $2`,
-          [today, result.rows[0].id]
+          [today, puzzleMatch.id]
         );
+      }
+    } else {
+      // If it was already scheduled, we just need to see if it was voted on originally for 'today'
+      const checkVote = await pool.query(
+        `SELECT COUNT(*) as vote_count FROM puzzle_votes WHERE brand_id = $1 AND vote_date = $2`,
+        [puzzleMatch.brand_id, today]
+      );
+      const count = parseInt(checkVote.rows[0]?.vote_count || 0, 10);
+      if (count > 0) {
+        finalSelectionMethod = 'voted';
+        finalVoteCount = count;
+      } else {
+        // Either pre-scheduled by the seeder script, or randomized previously.
+        // Check if it's explicitly 45 days pre-scheduled or random? 
+        // For now, any non-voted selection is a 'lucky_draw' for simplicity.
+        finalSelectionMethod = 'lucky_draw';
+        finalVoteCount = 0;
       }
     }
 
-    res.json(result.rows[0] || null);
+    if (puzzleMatch) {
+      res.json({
+        ...puzzleMatch,
+        selectionMethod: finalSelectionMethod,
+        voteCount: finalVoteCount
+      });
+    } else {
+      res.json(null);
+    }
   } catch (err) {
     logger.error('Error fetching daily puzzle', { error: err.message });
     res.status(500).json({ error: 'Failed to fetch puzzle' });
