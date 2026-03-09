@@ -268,14 +268,18 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     let newStreak = 1;
 
     if (last_played) {
-      // Postgres returns DATE columns as local Date objects at midnight. 
-      // Extract the local year/month/date to avoid timezone shift from .toISOString()
-      let lastPlayedStr = last_played;
+      // Postgres DATE columns come back as JS Date objects at midnight UTC.
+      // e.g. storing '2026-03-07' returns as 2026-03-06T18:30:00.000Z in UTC.
+      // Using toISOString and splitting gives the true IST date string reliably,
+      // since the stored date string matches what getIstDateString() produces.
+      let lastPlayedStr;
       if (last_played instanceof Date) {
-        const yyyy = last_played.getFullYear();
-        const mm = String(last_played.getMonth() + 1).padStart(2, '0');
-        const dd = String(last_played.getDate()).padStart(2, '0');
-        lastPlayedStr = `${yyyy}-${mm}-${dd}`;
+        // Add IST offset (5:30) before extracting date to get the correct IST date
+        const istOffsetMs = 5.5 * 60 * 60 * 1000;
+        const istDate = new Date(last_played.getTime() + istOffsetMs);
+        lastPlayedStr = istDate.toISOString().split('T')[0];
+      } else {
+        lastPlayedStr = last_played;
       }
 
       // Convert both to pure Date objects at midnight UTC to safely compare the calendar days
