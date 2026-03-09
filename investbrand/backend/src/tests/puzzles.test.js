@@ -78,7 +78,7 @@ describe('Puzzle Routes', () => {
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(500);
-            expect(res.body.error).toBe('Failed to fetch puzzle');
+            expect(res.body.error).toBe('Failed to fetch puzzle: DB Error');
         });
     });
 
