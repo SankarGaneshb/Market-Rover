@@ -48,50 +48,60 @@ async function seed() {
     try {
       const brands = loadBrands();
       const PUZZLE_EPOCH = new Date('2026-02-01'); // Fixed starting point for brand rotation
-      const base = new Date();
 
-      console.log(`Found ${brands.length} brands. Seeding puzzles...`);
+      // Use IST-aware "today" as the base
+      const istOffsetMs = 5.5 * 60 * 60 * 1000;
+      const nowIst = new Date(Date.now() + istOffsetMs);
+      const todayStr = nowIst.toISOString().split('T')[0];
 
-      // Seed puzzles for the next 30 days starting from today
-      for (let i = 0; i < 45; i++) {
-        const d = new Date(base);
-        d.setDate(base.getDate() + i);
+      // Start from day+2 (skip today's active puzzle and tomorrow's vote window)
+      const startFromDay = 2;
+      const daysToSeed = 45;
+
+      console.log(`Today (IST): ${todayStr}. Seeding ${daysToSeed} days starting from day+${startFromDay}...`);
+
+      let seeded = 0;
+      let skipped = 0;
+
+      for (let i = startFromDay; i < startFromDay + daysToSeed; i++) {
+        // Calculate target date in IST
+        const d = new Date(nowIst);
+        d.setUTCDate(nowIst.getUTCDate() + i);
         const scheduledDate = d.toISOString().split('T')[0];
 
         // Calculate which brand this date SHOULD have based on its distance from the epoch
-        const diffTime = Math.abs(d - PUZZLE_EPOCH);
+        const diffTime = Math.abs(new Date(scheduledDate) - PUZZLE_EPOCH);
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         const brand = brands[diffDays % brands.length];
 
-        await client.query(
-          `INSERT INTO puzzles (brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-           ON CONFLICT (scheduled_date) 
-           DO UPDATE SET 
-              brand_id = EXCLUDED.brand_id,
-              brand_name = EXCLUDED.brand_name,
-              company_name = EXCLUDED.company_name,
-              ticker = EXCLUDED.ticker,
-              logo_url = EXCLUDED.logo_url,
-              sector = EXCLUDED.sector,
-              hint = EXCLUDED.hint`,
+        // Only insert if no puzzle is already scheduled for this date (DO NOTHING on conflict)
+        const result = await client.query(
+          `INSERT INTO puzzles (brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+           ON CONFLICT (scheduled_date) DO NOTHING`,
           [
             brand.id,
             brand.brand,
             brand.company,
             brand.ticker,
             brand.logoUrl,
-            (diffDays % 3) + 1, // Consistent difficulty
+            (diffDays % 3) + 1,
             brand.sector,
             brand.insight,
             scheduledDate
           ]
         );
 
-        if (i % 5 === 0) console.log(`Seeded date: ${scheduledDate} -> ${brand.brand}`);
+        if (result.rowCount > 0) {
+          seeded++;
+          if (seeded <= 5 || i % 10 === 0) console.log(`  ✓ Seeded: ${scheduledDate} → ${brand.brand}`);
+        } else {
+          skipped++;
+          if (skipped <= 3) console.log(`  ~ Skipped: ${scheduledDate} (already scheduled)`);
+        }
       }
 
-      console.log('Database seeding completed successfully.');
+      console.log(`\nDone. Seeded ${seeded} new dates, skipped ${skipped} already-scheduled dates.`);
     } catch (err) {
       console.error('Seeding query failed:', err);
       process.exit(1);
