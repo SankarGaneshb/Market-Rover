@@ -29,6 +29,17 @@ from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals
 from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
 from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
 from rover_tools.forensic_tool import check_accounting_fraud # NEW
+from rover_tools.advanced_skills import (
+    calculate_portfolio_risk_tool,
+    fetch_economic_calendar_tool,
+    analyze_retail_sentiment_tool,
+    detect_technical_patterns_tool,
+    fetch_fii_dii_flow_tool,
+    fetch_subha_muhurtham_tool,
+    analyze_traditional_calendar_tool,
+    fetch_historical_context_tool,
+    generate_sector_heatmap_tool
+)
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
@@ -105,7 +116,7 @@ def create_portfolio_manager_agent():
             "stock holdings. You ensure all stock symbols are properly formatted "
             "with NSE suffixes (.NS) and validate the data integrity."
         ),
-        tools=[read_portfolio],
+        tools=[read_portfolio, calculate_portfolio_risk_tool],
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
@@ -145,7 +156,8 @@ def create_news_scraper_agent():
             batch_scrape_news,
             announce_regime_tool, # NEW
             log_pivot_tool,        # NEW
-            check_accounting_fraud # INTEGRITY SHIELD
+            check_accounting_fraud, # INTEGRITY SHIELD
+            fetch_economic_calendar_tool
         ],
         verbose=True,
         max_iter=MAX_ITERATIONS,
@@ -170,7 +182,7 @@ def create_sentiment_analyzer_agent():
             "their emotion (Fear/Greed). You flag 'Hype' vs 'Panic'. Your output feeds "
             "into the Shadow Analyst to detect contrarian traps."
         ),
-        tools=[],  # Uses LLM reasoning only
+        tools=[analyze_retail_sentiment_tool],  # Uses LLM reasoning and retail sentiment tool
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
         allow_delegation=False,
@@ -194,7 +206,7 @@ def create_market_context_agent():
             "You tell us WHERE the market can go based on structure, while the Strategist "
             "tells us WHY."
         ),
-        tools=[analyze_market_context, batch_get_stock_data],
+        tools=[analyze_market_context, batch_get_stock_data, detect_technical_patterns_tool],
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
         allow_delegation=False,
@@ -214,7 +226,7 @@ def create_report_generator_agent():
             "combining Strategy, Technicals, and Shadow Alerts into a cohesive narrative. "
             "You highlight 'Silent Accumulation' or 'Bull Traps' identified by the team."
         ),
-        tools=[],
+        tools=[fetch_historical_context_tool],
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
         allow_delegation=False,
@@ -246,7 +258,8 @@ def create_shadow_analyst_agent():
             get_trap_indicator_tool,
             read_past_predictions_tool,
             save_prediction_tool,
-            log_pivot_tool
+            log_pivot_tool,
+            fetch_fii_dii_flow_tool
         ], 
         verbose=True,
         max_iter=5, # Strict limit to prevent loops
@@ -268,7 +281,7 @@ def create_visualizer_agent():
             "Call Writers are running away. If data is missing, you gracefully fall back "
             "to Historical Volatility."
         ),
-        tools=[generate_market_snapshot],
+        tools=[generate_market_snapshot, generate_sector_heatmap_tool],
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
@@ -289,5 +302,26 @@ class AgentFactory:
             'market_context': create_market_context_agent(),
             'report_generator': create_report_generator_agent(),
             'visualizer': create_visualizer_agent(),
-            'shadow_analyst': create_shadow_analyst_agent()
+            'shadow_analyst': create_shadow_analyst_agent(),
+            'traditional_timing': create_traditional_timing_agent()
         }
+
+def create_traditional_timing_agent():
+    """Agent H: Traditional Timing Analyst"""
+    llm = get_gemini_llm()
+    return Agent(
+        role="Traditional Timing Analyst",
+        goal="Analyze traditional Indian calendars, astrological dates, and festive timelines to identify culturally significant investing windows.",
+        backstory=(
+            "You are the master of Indian cultural timelines. You know that retail flow into gold or autos "
+            "surges on certain Nakshatras or festivals (Akshaya Tritiya, Dhanteras). You provide the cultural 'When' "
+            "to the broader strategy, advising if today is an auspicious day for sector-specific accumulation."
+        ),
+        tools=[fetch_subha_muhurtham_tool, analyze_traditional_calendar_tool],
+        verbose=True,
+        max_iter=3,
+        allow_delegation=False,
+        llm=llm,
+        function_calling_llm=llm
+    )
+

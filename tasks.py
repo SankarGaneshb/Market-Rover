@@ -86,6 +86,7 @@ def create_sentiment_analysis_task(agent, context):
         """),
         agent=agent,
         context=context, # Depends on Strategy Task
+        async_execution=True,
         expected_output="Sentiment classification with 'Extreme Sentiment' flags."
     )
 
@@ -119,6 +120,7 @@ def create_technical_analysis_task(agent, context):
         """),
         agent=agent,
         context=context, # Depends on Portfolio
+        async_execution=True,
         expected_output="Technical analysis report with Trend, Support, and Resistance levels."
     )
 
@@ -169,6 +171,33 @@ def create_shadow_analysis_task(agent, context):
         expected_output="Forensic analysis report identifying Accumulation, Distribution, and Traps, informed by Past Accuracy."
     )
 
+def create_traditional_timing_task(agent, context):
+    """
+    Task 6: Cultural & Astrological Timing Analysis (The Traditional Analyst).
+    **NEW TASK**
+    """
+    return Task(
+        description=dedent("""
+            Analyze the cultural and astrological timelines for the Indian market to identify 'when' to invest.
+            
+            **Inputs**: 
+            - Portfolio (What are we buying?)
+            - Strategy Report (What is the regime?)
+            
+            **DYNAMIC CULTURAL STRATEGY**:
+            1. **Macro Timing**: Call `fetch_subha_muhurtham_tool` for the current year. Identify if we are in a broader auspicious period.
+            2. **Sector Timing**: If the Portfolio contains specific sectors (like Jewelry/Titan, Auto/Maruti), use `analyze_traditional_calendar_tool` to see if upcoming Indian festivals will drive retail flow.
+            
+            **SYNTHESIS**:
+            Combine this cultural insight with the broader Strategy Report. If the market is in a GROWTH regime AND a major festival is approaching, issue a Strong Buy signal for culturally relevant sectors.
+            
+            Format: A brief, poetic, but actionable assessment of the auspiciousness of current market timing.
+        """),
+        agent=agent,
+        context=context, # Depends on Portfolio and Strategy
+        async_execution=True,
+        expected_output="A cultural and traditional timing assessment for the portfolio."
+    )
 
 def create_report_generation_task(agent, context):
     """
@@ -245,10 +274,13 @@ class TaskFactory:
         # 5. Shadow Analysis (The Synergy Step: Sentiment + Technicals)
         task5 = create_shadow_analysis_task(agents['shadow_analyst'], context=[task3, task4])
         
-        # 6. Report Generation (Synthesizes everything)
+        # 6. Traditional Timing (Cultural Alignment)
+        task_traditional = create_traditional_timing_task(agents['traditional_timing'], context=[task1, task2])
+        
+        # 7. Report Generation (Synthesizes everything including Traditional Timing)
         task6 = create_report_generation_task(
             agents['report_generator'],
-            context=[task2, task3, task4, task5]
+            context=[task2, task3, task4, task5, task_traditional]
         )
         
-        return [task1, task2, task3, task4, task5, task6]
+        return [task1, task2, task3, task4, task5, task_traditional, task6]

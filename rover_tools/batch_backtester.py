@@ -7,7 +7,7 @@ from datetime import datetime
 from market_data import MarketDataFetcher
 from market_analytics import MarketAnalyzer
 from ticker_resources import get_common_tickers
-
+from rover_tools.memory_tool import evaluate_pending_predictions
 
 from utils.notifications import EmailManager
 
@@ -171,6 +171,9 @@ def run_batch_backtest():
     print(f"Results saved to {OUTPUT_FILE}")
     
     generate_markdown_report(results_map, updated_count, failed_count)
+    
+    print("🧠 Evaluating Long-Term Memory (LTM) Outcomes...")
+    evaluate_pending_predictions()
     
     # Send Email Notification
     email_body = generate_email_summary(results_map, updated_count, failed_count)

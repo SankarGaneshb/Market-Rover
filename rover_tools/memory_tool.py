@@ -4,6 +4,7 @@ Memory Tool - Persistent Learning for Market Rover Agents
 import json
 import os
 import datetime
+import yfinance as yf
 from utils.logger import get_logger
 try:
     from crewai.tools import tool
@@ -48,6 +49,52 @@ def write_memory(data):
         logger.error(f"Failed to write memory file: {e}")
         return False
 
+def evaluate_pending_predictions():
+    """
+    Evaluates 'Pending' predictions in the memory against actual market movement
+    if they are older than 3 days. Updates the outcome in the memory ledger.
+    """
+    memory = read_memory()
+    updated = False
+    today = datetime.date.today()
+    
+    for entry in memory:
+        if entry.get("outcome") == "Pending":
+            try:
+                pred_date_str = entry.get("date")
+                pred_date = datetime.datetime.strptime(pred_date_str, "%Y-%m-%d").date()
+                
+                # We need at least 3 days to judge a short term swing/prediction
+                if (today - pred_date).days >= 3:
+                    ticker = entry.get("ticker", "")
+                    signal = str(entry.get("signal", "")).lower()
+                    
+                    # Fetch brief history
+                    stock = yf.Ticker(ticker)
+                    hist = stock.history(start=pred_date.isoformat(), end=today.isoformat())
+                    
+                    if not hist.empty and len(hist) > 1:
+                        price_then = hist.iloc[0]['Close']
+                        price_now = hist.iloc[-1]['Close']
+                        price_diff = (price_now - price_then) / price_then
+                        
+                        logger.info(f"Evaluating {ticker}: Predicted {signal} on {pred_date_str}. Price moved {price_diff*100:.2f}%.")
+                        
+                        if any(s in signal for s in ["buy", "accumulate", "bullish"]):
+                            entry["outcome"] = "Success" if price_diff > 0 else "Failed"
+                        elif any(s in signal for s in ["sell", "trap", "bearish"]):
+                            entry["outcome"] = "Success" if price_diff < 0 else "Failed"
+                        else:
+                            entry["outcome"] = "Neutral (No Direction)"
+                            
+                        updated = True
+            except Exception as e:
+                logger.error(f"Failed to evaluate prediction for {entry.get('ticker')}: {e}")
+                
+    if updated:
+        write_memory(memory)
+        logger.info("Memory ledger outcomes updated.")
+
 # ==============================================================================
 # AGENT TOOLS
 # ==============================================================================
@@ -77,7 +124,8 @@ def read_past_predictions_tool(ticker: str) -> str:
     relevant.sort(key=lambda x: x.get('date', ''), reverse=True)
     latest = relevant[0]
     
-    return f"🧠 **Memory Recall**: On {latest['date']}, we predicted '{latest['signal']}' with {latest.get('confidence', 'N/A')} confidence."
+    outcome_str = f" (Outcome: {latest.get('outcome', 'Pending')})"
+    return f"🧠 **Memory Recall**: On {latest['date']}, we predicted '{latest['signal']}' with {latest.get('confidence', 'N/A')} confidence{outcome_str}."
 
 @tool("Save New Prediction")
 def save_prediction_tool(ticker: str, signal: str, confidence: str) -> str:
