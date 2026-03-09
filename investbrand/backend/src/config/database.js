@@ -1,24 +1,47 @@
 const { Pool } = require('pg');
+const { Connector } = require('@google-cloud/cloud-sql-connector');
 const logger = require('../utils/logger');
 
 let pool;
+const connector = new Connector();
 
 async function initializePool() {
   const isProduction = process.env.NODE_ENV === 'production';
-  const config = isProduction ? {
-    host: `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`,
-    database: process.env.IC_DB_NAME || process.env.DB_NAME,
-    user: process.env.IC_DB_USER || process.env.DB_USER,
-    password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
-    max: 20,
-  } : {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'investcraft',
-    user: process.env.DB_USER || 'postgresql',
-    password: process.env.DB_PASSWORD || 'Postgresql12#',
-    max: 5,
-  };
+  let config;
+
+  if (isProduction) {
+    logger.info('Initializing production database connection via Cloud SQL Connector', {
+      instance: process.env.CLOUD_SQL_CONNECTION_NAME,
+      database: process.env.IC_DB_NAME || process.env.DB_NAME
+    });
+
+    try {
+      const clientOpts = await connector.getOptions({
+        instanceConnectionName: process.env.CLOUD_SQL_CONNECTION_NAME,
+        ipType: 'PUBLIC',
+      });
+
+      config = {
+        ...clientOpts,
+        user: process.env.IC_DB_USER || process.env.DB_USER,
+        password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
+        database: process.env.IC_DB_NAME || process.env.DB_NAME,
+        max: 20,
+      };
+    } catch (err) {
+      logger.error('Failed to get Cloud SQL Connector options', { error: err.message });
+      throw err;
+    }
+  } else {
+    config = {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      database: process.env.DB_NAME || 'investcraft',
+      user: process.env.DB_USER || 'postgresql',
+      password: process.env.DB_PASSWORD || 'Postgresql12#',
+      max: 5,
+    };
+  }
 
   pool = new Pool(config);
   await pool.query('SELECT NOW()');

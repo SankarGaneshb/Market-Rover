@@ -110,7 +110,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         return;
       } catch (err) {
         retries -= 1;
-        logger.error(`DATABASE INIT FAILED (Retries left: ${retries}):`, { error: err.message });
+        logger.error(`DATABASE INIT FAILED (Retries left: ${retries}):`, {
+          error: err.message,
+          stack: err.stack,
+          code: err.code
+        });
         dbError = err.message;
         if (retries === 0) {
           logger.error('FATAL: Could not connect to database after maximum retries. Exiting.');
