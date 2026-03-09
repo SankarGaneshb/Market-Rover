@@ -70,6 +70,7 @@ async function runMigrations() {
     await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()');
 
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_id INTEGER');
+    await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS brand_name VARCHAR(255)');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS company_name VARCHAR(255)');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS difficulty INTEGER DEFAULT 1');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS sector VARCHAR(100)');
