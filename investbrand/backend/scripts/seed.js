@@ -76,8 +76,8 @@ async function seed() {
 
         // Only insert if no puzzle is already scheduled for this date (DO NOTHING on conflict)
         const result = await client.query(
-          `INSERT INTO puzzles (brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          `INSERT INTO puzzles (brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, scheduled_date, selection_method)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'scheduled')
            ON CONFLICT (scheduled_date) DO NOTHING`,
           [
             brand.id,

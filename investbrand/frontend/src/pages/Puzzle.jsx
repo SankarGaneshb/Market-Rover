@@ -336,6 +336,12 @@ export default function PuzzleGame() {
                   Lucky Draw
                 </div>
               )}
+              {selectionMethod === 'scheduled' && (
+                <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-emerald-200">
+                  <span style={{ fontSize: '14px' }}>📅</span>
+                  Scheduled
+                </div>
+              )}
             </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8 border border-blue-100">

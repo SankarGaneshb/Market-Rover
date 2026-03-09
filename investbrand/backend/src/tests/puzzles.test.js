@@ -32,8 +32,8 @@ describe('Puzzle Routes', () => {
     });
 
     describe('GET /daily', () => {
-        it('should return scheduled puzzle for today', async () => {
-            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString() };
+        it('should return scheduled puzzle for today with voted method', async () => {
+            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString(), selection_method: 'voted' };
             mockQuery
                 .mockResolvedValueOnce({ rows: [mockPuzzle] }) // First query for scheduled puzzle
                 .mockResolvedValueOnce({ rows: [{ vote_count: 5 }] }); // Second query for vote count
@@ -43,6 +43,18 @@ describe('Puzzle Routes', () => {
             expect(res.body.brand_id).toBe(101);
             expect(res.body.selectionMethod).toBe('voted');
             expect(res.body.voteCount).toBe(5);
+        });
+
+        it('should return scheduled puzzle for today with scheduled method', async () => {
+            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString(), selection_method: 'scheduled' };
+            mockQuery
+                .mockResolvedValueOnce({ rows: [mockPuzzle] }); // First query for scheduled puzzle
+
+            const res = await request(app).get('/api/puzzles/daily');
+            expect(res.statusCode).toBe(200);
+            expect(res.body.brand_id).toBe(101);
+            expect(res.body.selectionMethod).toBe('scheduled');
+            expect(res.body.voteCount).toBe(0);
         });
 
         it('should fallback to voted brand puzzle if no puzzle scheduled today', async () => {

@@ -76,6 +76,7 @@ async function runMigrations() {
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS sector VARCHAR(100)');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS description TEXT');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS hint TEXT');
+    await client.query("ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS selection_method VARCHAR(20) DEFAULT 'lucky_draw'");
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS scheduled_date DATE');
     await client.query('ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()');
     try { await client.query('ALTER TABLE puzzles ADD CONSTRAINT puzzles_scheduled_date_key UNIQUE(scheduled_date)'); } catch (e) { }

@@ -12,7 +12,7 @@ router.get('/daily', async (req, res) => {
 
   try {
     let result = await pool.query(
-      `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
+      `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
        FROM puzzles WHERE scheduled_date = $1`,
       [today]
     );
@@ -42,7 +42,7 @@ router.get('/daily', async (req, res) => {
       if (chosenBrandId) {
         // Try to find a puzzle with that brand_id that hasn't been played yet
         result = await pool.query(
-          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
+          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
            FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
           [chosenBrandId]
         );
@@ -53,7 +53,7 @@ router.get('/daily', async (req, res) => {
       if (!puzzleMatch) {
         // It's a lucky draw because no community vote could select it
         result = await pool.query(
-          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
+          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
            FROM puzzles 
            WHERE scheduled_date IS NULL
            ORDER BY RANDOM() LIMIT 1`
@@ -61,7 +61,7 @@ router.get('/daily', async (req, res) => {
         // If all puzzles have been scheduled, just pick a random one
         if (!result.rows[0]) {
           result = await pool.query(
-            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint
+            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
                FROM puzzles ORDER BY RANDOM() LIMIT 1`
           );
         }
@@ -74,28 +74,30 @@ router.get('/daily', async (req, res) => {
         finalVoteCount = parseInt(voteResult.rows[0].vote_count, 10);
       }
 
-      // Schedule the chosen puzzle for today
+      // Schedule the chosen puzzle for today and stamp its selection method
       if (puzzleMatch) {
+        const assignedMethod = finalSelectionMethod; // 'voted' or 'lucky_draw'
         await pool.query(
-          `UPDATE puzzles SET scheduled_date = $1 WHERE id = $2`,
-          [today, puzzleMatch.id]
+          `UPDATE puzzles SET scheduled_date = $1, selection_method = $2 WHERE id = $3`,
+          [today, assignedMethod, puzzleMatch.id]
         );
+        puzzleMatch.selection_method = assignedMethod;
       }
     } else {
-      // If it was already scheduled, we just need to see if it was voted on originally for 'today'
-      const checkVote = await pool.query(
-        `SELECT COUNT(*) as vote_count FROM puzzle_votes WHERE brand_id = $1 AND vote_date = $2`,
-        [puzzleMatch.brand_id, today]
-      );
-      const count = parseInt(checkVote.rows[0]?.vote_count || 0, 10);
-      if (count > 0) {
+      // Puzzle already assigned for today — trust the stored selection_method
+      const storedMethod = puzzleMatch.selection_method || 'lucky_draw';
+
+      if (storedMethod === 'voted') {
+        // It was voted — look up the vote count
+        const checkVote = await pool.query(
+          `SELECT COUNT(*) as vote_count FROM puzzle_votes WHERE brand_id = $1 AND vote_date = $2`,
+          [puzzleMatch.brand_id, today]
+        );
+        finalVoteCount = parseInt(checkVote.rows[0]?.vote_count || 0, 10);
         finalSelectionMethod = 'voted';
-        finalVoteCount = count;
       } else {
-        // Either pre-scheduled by the seeder script, or randomized previously.
-        // Check if it's explicitly 45 days pre-scheduled or random? 
-        // For now, any non-voted selection is a 'lucky_draw' for simplicity.
-        finalSelectionMethod = 'lucky_draw';
+        // 'scheduled' (seeder pre-planned) or 'lucky_draw' (random runtime pick)
+        finalSelectionMethod = storedMethod;
         finalVoteCount = 0;
       }
     }
