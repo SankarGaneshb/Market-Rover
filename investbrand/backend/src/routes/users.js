@@ -9,7 +9,10 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT u.*,
-              COUNT(gs.id) FILTER (WHERE gs.completed = true) AS puzzles_completed
+              COUNT(gs.id) FILTER (WHERE gs.completed = true) AS puzzles_completed,
+              COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'easy'), 0)::int AS easy_score,
+              COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'medium'), 0)::int AS medium_score,
+              COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score
        FROM users u
        LEFT JOIN game_sessions gs ON u.id = gs.user_id
        WHERE u.id = $1
@@ -24,6 +27,9 @@ router.get('/me', authenticate, async (req, res) => {
       avatar: u.avatar_url,
       streak: u.streak,
       score: u.total_score,
+      easyScore: u.easy_score,
+      mediumScore: u.medium_score,
+      hardScore: u.hard_score,
       bestScore: u.best_score,
       puzzlesCompleted: parseInt(u.puzzles_completed) || 0,
       joinedAt: u.created_at,

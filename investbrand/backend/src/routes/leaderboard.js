@@ -18,7 +18,10 @@ router.get('/', async (req, res) => {
         `SELECT u.id, u.name, u.avatar_url, u.streak,
                 SUM(gs.score)::int AS score, 
                 SUM(gs.moves_used)::int AS moves_used, 
-                SUM(gs.time_taken)::int AS time_taken
+                SUM(gs.time_taken)::int AS time_taken,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'easy'), 0)::int AS easy_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'medium'), 0)::int AS medium_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score
          FROM users u
          JOIN game_sessions gs ON u.id = gs.user_id
          JOIN puzzles p        ON gs.puzzle_id = p.id
@@ -32,7 +35,10 @@ router.get('/', async (req, res) => {
       result = await pool.query(
         `SELECT u.id, u.name, u.avatar_url, u.streak,
                 SUM(gs.score)::int AS score,
-                COUNT(gs.id)::int  AS games_played
+                COUNT(gs.id)::int  AS games_played,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'easy'), 0)::int AS easy_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'medium'), 0)::int AS medium_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score
          FROM users u
          JOIN game_sessions gs ON u.id = gs.user_id
          WHERE gs.played_at >= NOW() - INTERVAL '7 days'
@@ -71,11 +77,21 @@ router.get('/', async (req, res) => {
       }
 
       result = await pool.query(
-        `SELECT id, name, avatar_url, streak, total_score AS score
-         FROM users
-         ${streakFilter}
-         ORDER BY total_score DESC
-         LIMIT 50`,
+        `WITH top_users AS (
+           SELECT id, name, avatar_url, streak, total_score AS score
+           FROM users
+           ${streakFilter}
+           ORDER BY total_score DESC
+           LIMIT 50
+         )
+         SELECT tu.*,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'easy'), 0)::int AS easy_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'medium'), 0)::int AS medium_score,
+                COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score
+         FROM top_users tu
+         LEFT JOIN game_sessions gs ON tu.id = gs.user_id
+         GROUP BY tu.id, tu.name, tu.avatar_url, tu.streak, tu.score
+         ORDER BY tu.score DESC`,
         params
       );
     }

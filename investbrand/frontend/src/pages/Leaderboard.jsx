@@ -126,8 +126,15 @@ export default function Leaderboard() {
                       </div>
                       <div className={`text-[10px] font-black uppercase tracking-tighter ${level.color}`}>{level.name}</div>
                     </div>
-                    <div className='text-right'>
-                      <div className='text-indigo-400 font-black text-lg'>{u.score.toLocaleString()}</div>
+                    <div className='text-right flex flex-col items-end'>
+                      <div className='text-indigo-400 font-black text-lg leading-none mb-1'>{u.score.toLocaleString()}</div>
+                      <div className='flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider mb-1 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50'>
+                        <span className="text-emerald-400">E: {Number(u.easy_score || 0).toLocaleString()}</span>
+                        <span className="text-slate-600">|</span>
+                        <span className="text-amber-400">M: {Number(u.medium_score || 0).toLocaleString()}</span>
+                        <span className="text-slate-600">|</span>
+                        <span className="text-rose-400">H: {Number(u.hard_score || 0).toLocaleString()}</span>
+                      </div>
                       <div className='text-[10px] text-slate-500 font-bold uppercase'>{u.streak}d streak</div>
                     </div>
                   </div>

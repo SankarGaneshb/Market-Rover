@@ -64,6 +64,22 @@ export default function Profile() {
             <StatCard icon={<Flame className="text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,1)]" size={14} />} value={p.streak} label="Streak" unit="d" />
             <StatCard icon={<CheckCircle className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,1)]" size={14} />} value={p.puzzlesCompleted} label="Solved" />
             <StatCard icon={<Trophy className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,1)]" size={14} />} value={p.score} label="Total" />
+
+            {/* Split Score Box */}
+            <div className="flex bg-white/5 rounded-2xl border border-white/5 overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] flex-shrink-0">
+              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 border-r border-white/10 hover:bg-white/10 transition-colors">
+                <div className="text-[8px] font-black uppercase text-emerald-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]">Easy</div>
+                <div className="text-sm font-black text-white leading-none">{p.easyScore || 0}</div>
+              </div>
+              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 border-r border-white/10 hover:bg-white/10 transition-colors bg-white/5">
+                <div className="text-[8px] font-black uppercase text-amber-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]">Med</div>
+                <div className="text-sm font-black text-white leading-none">{p.mediumScore || 0}</div>
+              </div>
+              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 hover:bg-white/10 transition-colors">
+                <div className="text-[8px] font-black uppercase text-rose-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(251,113,133,0.5)]">Hard</div>
+                <div className="text-sm font-black text-white leading-none">{p.hardScore || 0}</div>
+              </div>
+            </div>
             <div className="bg-[#0f1219]/40 px-3 lg:px-4 py-2 rounded-2xl flex items-center gap-3 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] backdrop-blur-md flex-shrink-0 group/rank transition-all hover:bg-[#0f1219]/60">
               <div className="flex-shrink-0 transition-transform duration-500 group-hover/rank:scale-110">
                 <GlitterBadge size="small" icon={currentLevel.icon} name={currentLevel.name} levelConfig={currentLevel} />
