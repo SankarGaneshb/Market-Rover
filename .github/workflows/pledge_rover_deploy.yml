@@ -12,6 +12,7 @@ env:
   PROJECT_ID: market-rover
   REGION: us-central1
   SERVICE_NAME: pledge-rover
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
