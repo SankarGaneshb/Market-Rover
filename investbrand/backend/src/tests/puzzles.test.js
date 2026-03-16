@@ -176,4 +176,38 @@ describe('Puzzle Routes', () => {
             expect(res.statusCode).toBe(500);
         });
     });
+
+    describe('POST /:id/feedback', () => {
+        it('should save feedback successfully', async () => {
+            mockQuery.mockResolvedValue({ rows: [] });
+
+            const res = await request(app)
+                .post('/api/puzzles/1/feedback')
+                .send({ category: 'puzzle', rating: 'too_hard' });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+        });
+
+        it('should return 400 if category or rating is missing', async () => {
+            const res = await request(app)
+                .post('/api/puzzles/1/feedback')
+                .send({ category: 'puzzle' });
+
+            expect(res.statusCode).toBe(400);
+            expect(res.body.error).toBe('category and rating are required');
+        });
+
+        it('should gracefully swallow db errors on feedback (return 200)', async () => {
+            mockQuery.mockRejectedValue(new Error('DB Error'));
+
+            const res = await request(app)
+                .post('/api/puzzles/1/feedback')
+                .send({ category: 'logo', rating: 'blurry' });
+
+            // The route intentionally swallows DB errors to not block the UI
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+        });
+    });
 });
