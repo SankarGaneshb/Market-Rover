@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import Dashboard from './pages/Dashboard';
-import PromoterProfile from './pages/PromoterProfile';
+import Navbar from './components/layout/Navbar.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import PromoterProfile from './pages/PromoterProfile.jsx';
 
 export default function App() {
   return (

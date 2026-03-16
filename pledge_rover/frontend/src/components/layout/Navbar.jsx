@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, ShieldAlert, Zap } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/utils.js';
 
 export default function Navbar() {
   const location = useLocation();
