@@ -26,6 +26,10 @@ export default function PuzzleGame() {
   const [boardSize, setBoardSize] = useState(300);
   const boardContainerRef = useRef(null);
 
+  // Feedback State
+  const [puzzleFeedback, setPuzzleFeedback] = useState(null);
+  const [logoFeedback, setLogoFeedback] = useState(null);
+
   const [moves, setMoves] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -179,6 +183,8 @@ export default function PuzzleGame() {
     setMoves(0);
     setSolvedPositions({});
     setShowHint(false);
+    setPuzzleFeedback(null);
+    setLogoFeedback(null);
 
     const gridSize = difficultyLevels[diff].grid;
     const puzzlePieces = [];
@@ -253,6 +259,23 @@ export default function PuzzleGame() {
     const timeBonus = Math.max(0, 300 - timer);
     const moveBonus = Math.max(0, 200 - finalMoves * 2);
     return baseScore + timeBonus + moveBonus;
+  };
+
+  const handleFeedback = async (category, rating) => {
+    if (!dbPuzzleId) return;
+    
+    // Optimistic UI update
+    if (category === 'puzzle') setPuzzleFeedback(rating);
+    if (category === 'logo') setLogoFeedback(rating);
+
+    try {
+      await axios.post(`/api/puzzles/${dbPuzzleId}/feedback`, {
+        category,
+        rating
+      });
+    } catch (err) {
+      console.error('Failed to submit feedback', err);
+    }
   };
 
   const formatTime = (seconds) => {
@@ -489,6 +512,60 @@ export default function PuzzleGame() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Micro-Feedback Panel (Dual-Pulse) */}
+            <div className="flex-shrink-0 w-full bg-slate-50/80 backdrop-blur-sm rounded-2xl lg:rounded-[2rem] p-3 lg:p-4 mb-4 lg:mb-6 border border-slate-100/50 shadow-inner">
+              <div className="flex flex-col sm:flex-row gap-3 lg:gap-6 justify-center">
+                
+                {/* Puzzle Difficulty Feedback */}
+                <div className="flex-1 max-w-[200px] mx-auto w-full">
+                  <div className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 text-center">How was the jigsaw?</div>
+                  <div className="flex gap-1.5 lg:gap-2">
+                    {[
+                      { rating: 'too_easy', emoji: '🥱', title: 'Too Easy' },
+                      { rating: 'just_right', emoji: '👍', title: 'Just Right' },
+                      { rating: 'too_hard', emoji: '🤯', title: 'Too Hard' }
+                    ].map(btn => (
+                      <button
+                        key={btn.rating}
+                        onClick={() => handleFeedback('puzzle', btn.rating)}
+                        title={btn.title}
+                        className={`flex-1 flex flex-col items-center p-1.5 lg:p-2 rounded-xl transition-all ${puzzleFeedback === btn.rating ? 'bg-indigo-100 border-indigo-300 scale-105 shadow-sm' : 'bg-white border-slate-100 hover:bg-slate-50 hover:scale-105 shadow-sm border'} `}
+                      >
+                        <span className="text-xl lg:text-2xl leading-none mb-1">{btn.emoji}</span>
+                        {puzzleFeedback === btn.rating && <span className="text-[8px] font-bold text-indigo-600 uppercase">Thanks!</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vertical Divider (Desktop only) */}
+                <div className="hidden sm:block w-px bg-slate-200 my-2 self-stretch" />
+
+                {/* Logo Clarity Feedback */}
+                <div className="flex-1 max-w-[200px] mx-auto w-full">
+                  <div className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 text-center">Logo Quality?</div>
+                  <div className="flex gap-1.5 lg:gap-2">
+                    {[
+                      { rating: 'clear', emoji: '🤩', title: 'Clear & Good' },
+                      { rating: 'blurry', emoji: '📉', title: 'Blurry / Low Res' },
+                      { rating: 'wrong', emoji: '🚨', title: 'Wrong Logo' }
+                    ].map(btn => (
+                      <button
+                        key={btn.rating}
+                        onClick={() => handleFeedback('logo', btn.rating)}
+                        title={btn.title}
+                        className={`flex-1 flex flex-col items-center p-1.5 lg:p-2 rounded-xl transition-all ${logoFeedback === btn.rating ? 'bg-teal-100 border-teal-300 scale-105 shadow-sm' : 'bg-white border-slate-100 hover:bg-slate-50 hover:scale-105 shadow-sm border'} `}
+                      >
+                        <span className="text-xl lg:text-2xl leading-none mb-1">{btn.emoji}</span>
+                        {logoFeedback === btn.rating && <span className="text-[8px] font-bold text-teal-700 uppercase">Thanks!</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
