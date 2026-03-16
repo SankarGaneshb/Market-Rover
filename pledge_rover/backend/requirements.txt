@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+asyncpg
+pg8000
+cloud-sql-python-connector[pg8000]
+pytz
+python-dotenv
+langgraph
+crewai
+httpx
+cloudscraper

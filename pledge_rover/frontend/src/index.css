@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-navy-900 text-white font-sans antialiased;
+    background-image: radial-gradient(circle at top right, rgba(0, 240, 255, 0.05), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(21, 101, 192, 0.1), transparent 40%);
+    background-attachment: fixed;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-navy-800/60 backdrop-blur-md border border-navy-700/50 shadow-glass rounded-xl;
+  }
+  
+  .glass-panel {
+    @apply bg-gradient-to-b from-navy-800/80 to-navy-900/80 backdrop-blur-lg border border-navy-700/50 rounded-2xl shadow-xl;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-trust-blue hover:bg-trust-blue/90 text-white font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-electric-cyan/50;
+  }
+
+  .btn-accent {
+    @apply px-4 py-2 bg-transparent border border-electric-cyan text-electric-cyan hover:bg-electric-cyan/10 font-medium rounded-lg transition-all duration-300 shadow-[0_0_10px_rgba(0,240,255,0.2)] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] focus:outline-none focus:ring-2 focus:ring-electric-cyan/50;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-trust-silver to-white;
+  }
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-trust-blue;
+  }
+}
