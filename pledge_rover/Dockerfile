@@ -19,7 +19,6 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy backend code
 COPY backend/src /app/backend/src
-COPY backend/server.py /app/backend/server.py
 
 # Copy frontend build output from stage 1 into the backend container
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist

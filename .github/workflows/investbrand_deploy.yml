@@ -13,6 +13,7 @@ env:
   REGION: us-central1
   BACKEND_SERVICE: investbrand-api
   FRONTEND_SERVICE: investbrand-ui
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy-backend:

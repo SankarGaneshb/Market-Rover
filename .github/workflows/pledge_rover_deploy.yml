@@ -1,0 +1,43 @@
+name: Deploy Pledge-Rover
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'pledge_rover/**'
+      - '.github/workflows/pledge_rover_deploy.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  SERVICE_NAME: pledge-rover
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build & Push Container
+        working-directory: pledge_rover
+        run: |
+          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080
