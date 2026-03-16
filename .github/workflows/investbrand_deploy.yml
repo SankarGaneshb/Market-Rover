@@ -62,7 +62,7 @@ jobs:
           DB_PASSWORD: Invest123
         run: npm run test:integration
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
@@ -124,7 +124,7 @@ jobs:
           flags: investbrand-frontend
           directory: investbrand/frontend/coverage/
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
