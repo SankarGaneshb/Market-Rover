@@ -6,10 +6,10 @@ const DOSSIER_DATA = {
   'LLOYDSME': {
     title: 'Lloyds Metals And Energy',
     score: '3.8',
-    skin: '12.4%',
+    skin: '76.8% (Normalized)',
     danger: true,
     a1: 'Extracted SAST Regulation 31 from NSE. Pledgor: Thriveni Earthmovers Private Limited. Total encumbered now sits at 1,31,21,610 shares (high percentage of promoter holding).',
-    a2: 'Shadow Track complete. Thriveni Earthmovers is a key promoter entity. Cross-referencing LEI and Pledgee attachments: This pledge is tied to heavy capital expenditure and working capital requirements for mining operations.',
+    a2: 'Shadow Track complete. Thriveni Earthmovers is a key promoter entity. Cross-referencing LEI and Pledgee attachments: This pledge is tied to heavy capital expenditure and working capital requirements for mining operations. Normalized Skin in the Game calculated at 76.8% of SEBI limit.',
     a3: 'Alert. LTV ratio sits at elevated levels. Calculating trigger price... Current market price is ₹845. Estimated margin call trigger is ₹750.',
     a3_alert: 'Contagion proximity: 11.2% (Danger Zone)',
     synthesis: '"This is a mix of Survival and Aggressive Growth Pledging. The promoter structure relies heavily on pledging for massive mining capex. The Actuary\'s margin trigger of ₹750 is plausible if iron ore prices face a sudden macro shock."',
@@ -19,10 +19,10 @@ const DOSSIER_DATA = {
   'DEEPAKFERT': {
     title: 'Deepak Fertilizers',
     score: '6.2',
-    skin: '34.5%',
+    skin: '56.4% (Normalized)',
     danger: false,
     a1: 'Extracted SAST Regulation 31. Pledgor: Robust Marketing Services. 29,05,000 shares newly encumbered.',
-    a2: 'Traced Pledgee to major banking consortium. Purpose matched against recent quarterly announcements: Debt servicing for newly commissioned ammonia plant.',
+    a2: 'Traced Pledgee to major banking consortium. Purpose matched against recent quarterly announcements: Debt servicing for newly commissioned ammonia plant. Normalized Skin in Game is robust at 56.4%.',
     a3: 'LTV is stable at 2.1x. Current price ₹620. Margin trigger at ₹510.',
     a3_alert: 'Contagion proximity: 21% (Safe Zone)',
     synthesis: '"This is standard Growth Pledging for heavy industrial expansion. Cash flows from the new plant should cover the debt servicing. Systemic contagion risk is low unless the ammonia cycle crashes."',
@@ -32,10 +32,10 @@ const DOSSIER_DATA = {
   'NOCIL': {
     title: 'NOCIL Limited',
     score: '8.5',
-    skin: '42.1%',
+    skin: '50.6% (Normalized)',
     danger: false,
     a1: 'Extracted SAST Regulation 31. Pledgor: Gurukripa Trust. Pledged 67,00,000 shares.',
-    a2: 'Trustee structure maps directly to original promoter family. Pledge is for personal liquidity, not corporate debt. No shadow NBFCs detected.',
+    a2: 'Trustee structure maps directly to original promoter family. Pledge is for personal liquidity, not corporate debt. No shadow NBFCs detected. Promoter retains 50.6% Normalized Skin in the Game.',
     a3: 'LTV is extremely conservative (1.4x). CMP ₹305. Margin call trigger ₹160.',
     a3_alert: 'Contagion proximity: >45% (Safe Zone)',
     synthesis: '"Classic low-risk pledge. The borrowing is isolated from corporate operations and heavily collateralized. Zero systemic contagion threat observed."',
@@ -45,10 +45,10 @@ const DOSSIER_DATA = {
   'AJANTPHARM': {
     title: 'Ajanta Pharma',
     score: '9.1',
-    skin: '66.2%',
+    skin: '84.9% (Normalized)',
     danger: false,
     a1: 'Extracted SAST Reg 31. Pledgor: Aayush Agrawal Trust. 79,98,848 shares pledged.',
-    a2: 'Clean corporate structure. Very few shadow entities. Encumbrance represents a fraction of total family net worth.',
+    a2: 'Clean corporate structure. Very few shadow entities. Encumbrance represents a fraction of total family net worth. Normalized Skin in Game remains extremely high at ~85%.',
     a3: 'Minimal LTV. CMP ₹2600. Trigger ₹1800.',
     a3_alert: 'Contagion proximity: 30% (Safe Zone)',
     synthesis: '"Governance checks highlight extremely robust capital structure. Pledging is incidental, not operational. No risk markers triggered."',
@@ -58,10 +58,10 @@ const DOSSIER_DATA = {
   'CAMLINFINE': {
     title: 'Camlin Fine Sciences',
     score: '4.5',
-    skin: '18.9%',
+    skin: '38.0% (Normalized)',
     danger: true,
     a1: 'Extracted SAST Reg 31. Pledgor: Ashish Subhash Dandekar. 88,00,000 shares pledged.',
-    a2: 'Tracing identifies pledges linked to high-yield debt to fund foreign acquisitions (Mexico/Italy subsidiaries). Complex cross-border holding structures detected.',
+    a2: 'Tracing identifies pledges linked to high-yield debt to fund foreign acquisitions (Mexico/Italy subsidiaries). Complex cross-border holding structures detected. Normalized Skin in Game dipping critically to 38.0%.',
     a3: 'LTV creeping higher as stock faces headwinds. CMP ₹112. Trigger ₹90.',
     a3_alert: 'Contagion proximity: 19% (Warning Zone)',
     synthesis: '"Aggressive inorganic Growth Pledging. While not immediately in survival mode, the high-cost debt tied to foreign subsidiaries puts pressure on the Indian parent holding."',
@@ -72,18 +72,42 @@ const DOSSIER_DATA = {
 
 export default function PromoterProfile() {
   const { symbol } = useParams();
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fallback to avoid crashes if someone types a random URL
-  const data = DOSSIER_DATA[symbol] || DOSSIER_DATA['LLOYDSME'];
-
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 800);
+    const fetchPromoterData = async () => {
+      try {
+        const res = await fetch(`/api/promoters/${symbol}`);
+        if (res.ok) {
+           const pData = await res.json();
+           
+           // Synthesize the AI text locally for now until AI Council prompt is fully integrated
+           const dynamicData = {
+              title: pData.company_name,
+              score: pData.governance_score.toFixed(1),
+              skin: pData.skin_in_the_game.toFixed(1) + '%',
+              danger: pData.intent_label === 'Survival',
+              a1: `Extracted SAST Regulation 31. Total encumbered stands at ${pData.pledged_pct}% of total shares.`,
+              a2: `Pledgee tracked. Lender quality falls under: ${pData.trust_signal}. Skin in the Game computation: Layer1 Commitment is ${pData.skin_layer1}%, Layer2 Concentration is ${pData.skin_layer2}.`,
+              a3: `Survival computation signals a ${pData.intent_label} pattern with score ${pData.survival_score.toFixed(0)}/100. Release-to-create ratio is ${pData.release_create_ratio}x.`,
+              a3_alert: pData.intent_label === 'Survival' ? 'Contagion proximity: Warning Zone' : 'Contagion proximity: Safe Zone',
+              synthesis: `This represents a ${pData.intent_label} pledging pattern based on the 8-quarter time-series analysis.`,
+              sentiment: pData.intent_label === 'Survival' ? 'Cautious on Corporate Governance Risk' : 'Neutral/Positive',
+              action: pData.intent_label === 'Survival' ? 'Flag for Institutional Monitoring' : 'Clear for Allocation'
+           };
+           setData(dynamicData);
+        }
+      } catch (err) {
+        console.error("Failed to fetch promoter", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPromoterData();
   }, [symbol]);
 
-  if (loading) {
+  if (loading || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
          <Cpu className="w-12 h-12 text-electric-cyan animate-pulse mb-6" />
@@ -119,8 +143,8 @@ export default function PromoterProfile() {
           </div>
           <div className="w-px bg-navy-700"></div>
           <div className="text-center">
-            <p className="text-xs text-navy-400 uppercase tracking-wider mb-1">True Skin In Game</p>
-            <p className={`text-3xl font-mono ${data.danger ? 'text-red-400' : 'text-emerald-400'}`}>{data.skin}</p>
+            <p className="text-xs text-navy-400 uppercase tracking-wider mb-1" title="Calculated as unencumbered holding relative to SEBI's 75% max limit">Normalized Skin In Game</p>
+            <p className={`text-xl md:text-2xl font-mono ${data.danger ? 'text-red-400' : 'text-emerald-400'}`}>{data.skin}</p>
           </div>
         </div>
       </header>
@@ -194,7 +218,7 @@ export default function PromoterProfile() {
           <section className="glass-panel p-6 border-t-2 border-t-electric-cyan">
              <h3 className="text-sm uppercase tracking-wider text-navy-400 font-bold mb-4">Skeptic Synthesis</h3>
              <div className="prose prose-invert prose-sm">
-               <p className="text-white dangerouslySetInnerHTML={{__html: data.synthesis.replace('Survival', '<strong class=\'text-red-400\'>Survival</strong>').replace('Growth', '<strong class=\'text-emerald-400\'>Growth</strong>')}}"></p>
+               <p className="text-white" dangerouslySetInnerHTML={{__html: data.synthesis.replace('Survival', '<strong class=\'text-red-400\'>Survival</strong>').replace('Growth', '<strong class=\'text-emerald-400\'>Growth</strong>')}}></p>
                <br/>
                <div className="bg-navy-900/80 p-3 rounded-lg border border-navy-700">
                  <h4 className="flex items-center text-trust-silver font-semibold mb-2">

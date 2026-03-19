@@ -20,15 +20,20 @@ export default function Dashboard() {
           // Since our core logic generates Governance Scores, we're blending the feed here.
         }
         
-        // Simulating the /api/promoters list fetch
-        setPromoters([
-          { symbol: "LLOYDSME", company_name: "Lloyds Metals And Energy", governance_score: 3.8, total_shares: 504.6, risk: 'High' },
-          { symbol: "DEEPAKFERT", company_name: "Deepak Fertilizers", governance_score: 6.2, total_shares: 126.9, risk: 'Medium' },
-          { symbol: "NOCIL", company_name: "NOCIL Limited", governance_score: 8.5, total_shares: 166.6, risk: 'Low' },
-          { symbol: "AJANTPHARM", company_name: "Ajanta Pharma", governance_score: 9.1, total_shares: 126.0, risk: 'Low' },
-          { symbol: "CAMLINFINE", company_name: "Camlin Fine Sciences", governance_score: 4.5, total_shares: 167.5, risk: 'Medium' }
-        ]);
-      } catch (err) {
+        // Simulating the /api/promoters list fetch replaced with actual backend call which uses mock_historical.py
+        try {
+          const promRes = await fetch('/api/promoters/');
+          if (promRes.ok) {
+            const promData = await promRes.json();
+            const mappedPromoters = promData.map(p => ({
+              ...p,
+              risk: p.intent_label === 'Survival' ? 'High' : p.intent_label === 'Growth' ? 'Low' : 'Medium'
+            }));
+            setPromoters(mappedPromoters);
+          }
+        } catch (e) {
+          console.error("Failed to fetch promoters from backend.");
+        }
         console.error("Dashboard Fetch Error:", err);
       } finally {
         setLoading(false);
@@ -125,7 +130,7 @@ export default function Dashboard() {
               <tr>
                 <th className="px-6 py-4 font-medium">Symbol</th>
                 <th className="px-6 py-4 font-medium">Company</th>
-                <th className="px-6 py-4 font-medium">Governance Score</th>
+                <th className="px-6 py-4 font-medium">Skin / Survival</th>
                 <th className="px-6 py-4 font-medium">Contagion Risk</th>
                 <th className="px-6 py-4 font-medium text-right">Action</th>
               </tr>
@@ -148,14 +153,27 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4">{p.company_name}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-navy-700 rounded-full h-2 max-w-[100px]">
-                          <div 
-                            className={`h-2 rounded-full ${p.governance_score > 7 ? 'bg-emerald-400' : p.governance_score > 4 ? 'bg-amber-400' : 'bg-red-500'}`}
-                            style={{ width: `${p.governance_score * 10}%` }}
-                          ></div>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-navy-400 w-16">Skin %</span>
+                          <div className="w-full bg-navy-700 rounded-full h-1.5 max-w-[80px]">
+                            <div 
+                              className={`h-1.5 rounded-full ${p.skin_in_the_game > 60 ? 'bg-emerald-400' : p.skin_in_the_game > 30 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              style={{ width: `${p.skin_in_the_game}%` }}
+                            ></div>
+                          </div>
+                          <span className="font-mono text-xs">{p.skin_in_the_game.toFixed(1)}</span>
                         </div>
-                        <span className="font-mono">{p.governance_score.toFixed(1)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-navy-400 w-16">Survival</span>
+                          <div className="w-full bg-navy-700 rounded-full h-1.5 max-w-[80px]">
+                            <div 
+                              className={`h-1.5 rounded-full ${p.survival_score < 30 ? 'bg-emerald-400' : p.survival_score < 60 ? 'bg-amber-400' : 'bg-red-500'}`}
+                              style={{ width: `${p.survival_score}%` }}
+                            ></div>
+                          </div>
+                          <span className="font-mono text-xs">{p.survival_score.toFixed(0)}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">

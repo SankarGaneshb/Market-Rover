@@ -9,11 +9,23 @@ class CouncilOutput(BaseModel):
     final_sentiment: str = Field(description="One of: 'Growth', 'Survival', 'High Contagion Risk'")
     debate_summary: str = Field(description="A 2-3 sentence summary of the Skeptic vs Actuary debate")
 
-def create_council_crew(filing_text: str):
+def create_council_crew(filing_text: str, computed_metrics: dict = None):
     """
     Creates and runs the CrewAI 'Council of Experts' for a given SAST/LODR filing.
+    Ingests mathematical scoring (Skin in Game %, Survival Score) to ground the debate.
     """
     
+    # Format the mathematical context if provided
+    quant_context = ""
+    if computed_metrics:
+        quant_context = (
+            f"\n\n--- DETERMINISTIC QUANTITATIVE METRICS ---\n"
+            f"Skin in the Game (SEBI 75% normalized): {computed_metrics.get('skin_in_the_game', 'N/A')}%\n"
+            f"Survival Score (8-Quarter Time Series): {computed_metrics.get('survival_score', 'N/A')}/100 "
+            f"({computed_metrics.get('intent_label', 'Unknown')} Pattern)\n"
+            f"Release vs Create Trust Ratio: {computed_metrics.get('release_create_ratio', 'N/A')}x\n"
+        )
+
     # 1. The Harvester
     harvester = Agent(
         role='The Harvester',
@@ -35,8 +47,8 @@ def create_council_crew(filing_text: str):
     # 3. The Actuary
     actuary = Agent(
         role='The Actuary',
-        goal='Calculate the margin-call proximity and volatility impact (Contagion Risk).',
-        backstory='You calculate numbers. You look at LTV ratios and the current price vs the trigger price. If it is within 15%, you panic.',
+        goal='Synthesize the deterministic Survival Score (0-100) and Skin in the Game % into a risk thesis.',
+        backstory='You rely on hard math. You see the provided time-series Survival Score and 75%-normalized Skin in the Game metric. You explain *what the math means* regarding margin call proximity and contagion risk.',
         verbose=True,
         allow_delegation=False
     )
@@ -44,33 +56,33 @@ def create_council_crew(filing_text: str):
     # 4. The Skeptic
     skeptic = Agent(
         role='The Skeptic',
-        goal='Analyze the true intent behind the pledge by reading Notes to Accounts and debating The Actuary.',
-        backstory='You never trust the surface data. You look for "Survival Pledging" vs "Growth Pledging". You challenge the numbers with context.',
+        goal='Analyze the true intent behind the pledge by weighing The Actuary\'s math against the context.',
+        backstory='You never trust the surface data. You debate The Actuary. If the math says "Survival Pledging", you explain the dire reality. You finalize the ultimate governance score.',
         verbose=True,
         allow_delegation=False
     )
 
     # Define Tasks
     extract_task = Task(
-        description=f"Extract the Pledgor, Pledgee, % pledged, and purpose from this filing data: {filing_text}",
-        expected_output="A structured summary of the core pledging facts.",
+        description=f"Extract the core facts from this filing data: {filing_text}\n\nYou must strictly incorporate these pre-computed historical metrics into your context: {quant_context}",
+        expected_output="A structured summary of the core pledging facts, combined with the deterministic metrics.",
         agent=harvester
     )
 
     trace_task = Task(
-        description="Take Harvester's output. Analyze the Pledgee. Are they a Tier-1 Bank or an obscure NBFC? Determine the net-effective holding of the promoter.",
-        expected_output="A risk assessment of the Pledgee and the promoter's true economic interest.",
+        description="Take Harvester's output. Analyze the Pledgee. Determine the pledgee quality and how it impacts the provided Skin in the Game percentage.",
+        expected_output="A risk assessment of the Pledgee and its impact on the promoter's true economic interest.",
         agent=genealogist
     )
 
     quantify_task = Task(
-        description="Take the Genealogist's output. Estimate the margin call trigger price. Is it a high contagion risk?",
-        expected_output="Contagion risk assessment and estimated trigger price.",
+        description="Take the Genealogist's output and the deterministic metrics. The Survival Score determines historical intent (Growth vs Survival). Explain the severity of the contagion risk.",
+        expected_output="Contagion risk assessment anchored entirely on the mathematical Survival Score and Skin %.",
         agent=actuary
     )
 
     debate_task = Task(
-        description="Take the Actuary's output. Debate the sentiment. Is this 'Survival' or 'Growth'? Synthesize the final Governance Score (1-10) and summary.",
+        description="Take the Actuary's output. Debate the sentiment. Validate the 'Growth' or 'Survival' label. Synthesize the final Governance Score (1-10) and summary.",
         expected_output="The final JSON determining the governance score and sentiment.",
         agent=skeptic,
         output_json=CouncilOutput
@@ -85,7 +97,7 @@ def create_council_crew(filing_text: str):
 
     return crew
 
-async def run_council(filing_text: str):
-    crew = create_council_crew(filing_text)
+async def run_council(filing_text: str, computed_metrics: dict = None):
+    crew = create_council_crew(filing_text, computed_metrics)
     result = crew.kickoff()
     return result
