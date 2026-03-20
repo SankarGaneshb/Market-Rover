@@ -21,10 +21,7 @@ export default function Vote() {
     // Derived 4-Tier Data Sets
     const indices = useMemo(() => Array.from(new Set(NIFTY50_BRANDS.map(b => b.index))).sort(), []);
 
-    // Automatically select the first Index if none is selected
-    if (!activeIndex && indices.length > 0) {
-        setActiveIndex(indices[0]);
-    }
+    // We will handle the auto-selection inside a useEffect after all dependencies are initialized
 
     const availableSectors = useMemo(() => {
         if (!activeIndex) return [];
@@ -41,6 +38,18 @@ export default function Vote() {
         return NIFTY50_BRANDS.filter(b => b.index === activeIndex && b.sector === activeSector && b.company === activeCompany)
             .sort((a, b) => a.brand.localeCompare(b.brand));
     }, [activeIndex, activeSector, activeCompany]);
+
+    // Automatically select the first Index, Sector, and Company if none are selected
+    // This cascades down so the user immediately sees brands for the first hierarchy path
+    useEffect(() => {
+        if (!activeIndex && indices.length > 0) {
+            setActiveIndex(indices[0]);
+        } else if (activeIndex && !activeSector && availableSectors.length > 0) {
+            setActiveSector(availableSectors[0]);
+        } else if (activeIndex && activeSector && !activeCompany && availableCompanies.length > 0) {
+            setActiveCompany(availableCompanies[0]);
+        }
+    }, [activeIndex, activeSector, activeCompany, indices, availableSectors, availableCompanies]);
 
     if (!user) {
         return <Navigate to="/" />;
