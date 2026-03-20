@@ -48,3 +48,4 @@ jobs:
       with:
         commit_message: "Data: Update weekly backtest registry and reports [skip ci]"
         file_pattern: data/backtest_registry.json backtest_summary.md reports/backtest_summary_*.md
+        add_options: '-f'
