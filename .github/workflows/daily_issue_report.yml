@@ -37,8 +37,8 @@ jobs:
     - name: Set Date
       run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-    - name: Create Discussion
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh discussion create --category "General" --title "Daily Market Intelligence: ${{ env.DATE }}" --body-file daily_report.md
+    - name: Commit Results
+      uses: stefanzweifel/git-auto-commit-action@v7
+      with:
+        commit_message: "Docs: Update daily market intelligence report [skip ci]"
+        file_pattern: daily_report.md
