@@ -1,5 +1,5 @@
 {
-    "last_run": "2026-03-20 22:14:56",
+    "last_run": "2026-03-20 18:01:56",
     "results": {
         "ABB.NS": {
             "winner": "sd",
@@ -110,87 +110,4751 @@
             "detailed_path": [
                 {
                     "date": "2025-01-01",
-                    "actual_price": 3903.2529296875,
-                    "predicted_price": 3886.50048828125,
-                    "error_pct": 0.42919179740656016
+                    "actual_price": 3903.252685546875,
+                    "predicted_price": 3886.500244140625,
+                    "error_pct": 0.42919182425164604
                 },
                 {
                     "date": "2025-01-01",
-                    "actual_price": 3903.2529296875,
-                    "predicted_price": 3924.790088937287,
-                    "error_pct": 0.5517746258762452
+                    "actual_price": 3903.252685546875,
+                    "predicted_price": 3924.7898359733454,
+                    "error_pct": 0.5517744343382894
                 },
                 {
                     "date": "2025-01-31",
                     "actual_price": 3975.0263671875,
-                    "predicted_price": 3963.456916747371,
-                    "error_pct": 0.2910534263528642
+                    "predicted_price": 3963.456654809956,
+                    "error_pct": 0.291060015929656
                 },
                 {
                     "date": "2025-02-28",
                     "actual_price": 3366.89306640625,
-                    "predicted_price": 3945.5764403359813,
-                    "error_pct": 17.18745925445757
+                    "predicted_price": 3945.5748712662635,
+                    "error_pct": 17.187412651560273
                 },
                 {
                     "date": "2025-04-01",
                     "actual_price": 3432.1865234375,
-                    "predicted_price": 4000.7833751791077,
-                    "error_pct": 16.56660696785589
+                    "predicted_price": 4000.781342618668,
+                    "error_pct": 16.566547747285394
                 },
                 {
                     "date": "2025-04-30",
-                    "actual_price": 3338.329833984375,
-                    "predicted_price": 4063.776128196156,
-                    "error_pct": 21.73081541634081
+                    "actual_price": 3338.330078125,
+                    "predicted_price": 4063.773823150191,
+                    "error_pct": 21.730737465980074
                 },
                 {
                     "date": "2025-05-30",
                     "actual_price": 3347.7060546875,
-                    "predicted_price": 4151.344583853906,
-                    "error_pct": 24.005647928411804
+                    "predicted_price": 4151.34266745412,
+                    "error_pct": 24.005590683248837
                 },
                 {
                     "date": "2025-06-30",
                     "actual_price": 3376.09619140625,
-                    "predicted_price": 4192.243414763783,
-                    "error_pct": 24.174288204080533
+                    "predicted_price": 4192.241472628316,
+                    "error_pct": 24.174230678010268
                 },
                 {
                     "date": "2025-07-31",
                     "actual_price": 2971.497314453125,
-                    "predicted_price": 4358.037439392565,
-                    "error_pct": 46.661328556328144
+                    "predicted_price": 4358.035383938735,
+                    "error_pct": 46.66125938400146
                 },
                 {
                     "date": "2025-09-01",
                     "actual_price": 3045.667236328125,
-                    "predicted_price": 4446.553618179276,
-                    "error_pct": 45.996042021322985
+                    "predicted_price": 4446.551778859339,
+                    "error_pct": 45.995981629960625
                 },
                 {
                     "date": "2025-09-30",
                     "actual_price": 2826.288330078125,
-                    "predicted_price": 4447.258268545958,
-                    "error_pct": 57.35331109770482
+                    "predicted_price": 4447.256229047099,
+                    "error_pct": 57.353238935963994
                 },
                 {
                     "date": "2025-10-31",
                     "actual_price": 3003.4013671875,
-                    "predicted_price": 4486.810707408501,
-                    "error_pct": 49.39097905552738
+                    "predicted_price": 4486.808922826618,
+                    "error_pct": 49.390919636832884
                 },
                 {
                     "date": "2025-12-01",
                     "actual_price": 3077.455078125,
-                    "predicted_price": 4531.014533118523,
-                    "error_pct": 47.23251576686321
+                    "predicted_price": 4531.012723545644,
+                    "error_pct": 47.23245696591134
                 },
                 {
                     "date": "2025-12-31",
                     "actual_price": 3148.955322265625,
-                    "predicted_price": 4575.653852620199,
-                    "error_pct": 45.307042633049704
+                    "predicted_price": 4575.652017737117,
+                    "error_pct": 45.306984363468366
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ADANIENT.NS": {
+            "winner": "median",
+            "median_error": 30.75,
+            "sd_error": 33.41,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2553.584228515625,
+                    "predicted_price": 2527.39697265625,
+                    "error_pct": 1.0255097743377515
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2553.584228515625,
+                    "predicted_price": 2656.2791059784195,
+                    "error_pct": 4.021597420441856
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 2286.66650390625,
+                    "predicted_price": 2599.3218808015135,
+                    "error_pct": 13.672976639189095
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 2094.96142578125,
+                    "predicted_price": 2493.907635889916,
+                    "error_pct": 19.043129157372984
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2334.093017578125,
+                    "predicted_price": 2499.485138732667,
+                    "error_pct": 7.08592673509449
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 2300.15966796875,
+                    "predicted_price": 2622.5239617444618,
+                    "error_pct": 14.01486593582387
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2518.6513671875,
+                    "predicted_price": 2774.9085625447274,
+                    "error_pct": 10.17438136518997
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 2619.39990234375,
+                    "predicted_price": 2755.6105912764506,
+                    "error_pct": 5.200072307051087
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 2430.699951171875,
+                    "predicted_price": 2730.853892114821,
+                    "error_pct": 12.348457109987498
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 2284.199951171875,
+                    "predicted_price": 2711.8622969829207,
+                    "error_pct": 18.722631772741256
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 2505.89990234375,
+                    "predicted_price": 2698.572663784571,
+                    "error_pct": 7.688765271933469
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2481.0,
+                    "predicted_price": 2796.850989986671,
+                    "error_pct": 12.730793631062912
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2262.0,
+                    "predicted_price": 2929.29715012346,
+                    "error_pct": 29.500316097412032
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2239.699951171875,
+                    "predicted_price": 3078.673789379968,
+                    "error_pct": 37.45920688032868
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ADANIPORTS.NS": {
+            "winner": "sd",
+            "median_error": 13.81,
+            "sd_error": 12.9,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1212.7994384765625,
+                    "predicted_price": 1225.139404296875,
+                    "error_pct": 1.0174778639255588
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1212.7994384765625,
+                    "predicted_price": 1277.4030541488307,
+                    "error_pct": 5.326817742710944
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1094.02734375,
+                    "predicted_price": 1308.9181323510277,
+                    "error_pct": 19.64217712003852
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1064.222412109375,
+                    "predicted_price": 1277.793145170729,
+                    "error_pct": 20.068242374076636
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1169.062255859375,
+                    "predicted_price": 1290.1110290384474,
+                    "error_pct": 10.354347903404832
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1210.610107421875,
+                    "predicted_price": 1314.448256692871,
+                    "error_pct": 8.57734035379322
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1425.8629150390625,
+                    "predicted_price": 1348.734776379678,
+                    "error_pct": 5.409225378252553
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1450.199951171875,
+                    "predicted_price": 1341.3384273656616,
+                    "error_pct": 7.50665614891552
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1373.0999755859375,
+                    "predicted_price": 1369.4601146054304,
+                    "error_pct": 0.2650834640757978
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1335.300048828125,
+                    "predicted_price": 1395.2942186651765,
+                    "error_pct": 4.492935493389898
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1403.5,
+                    "predicted_price": 1396.0412745090578,
+                    "error_pct": 0.5314375127140893
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1451.5,
+                    "predicted_price": 1383.2011972353896,
+                    "error_pct": 4.705394610031719
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1530.5,
+                    "predicted_price": 1355.9136979264779,
+                    "error_pct": 11.40714159252023
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1469.800048828125,
+                    "predicted_price": 1413.7560940565497,
+                    "error_pct": 3.8130325833271845
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "APOLLOHOSP.NS": {
+            "winner": "median",
+            "median_error": 7.12,
+            "sd_error": 7.85,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 7340.0888671875,
+                    "predicted_price": 7267.0830078125,
+                    "error_pct": 0.9946181946292108
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 7340.0888671875,
+                    "predicted_price": 7429.040712683413,
+                    "error_pct": 1.2118633317037353
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 6783.18115234375,
+                    "predicted_price": 7671.05565554619,
+                    "error_pct": 13.089352668926704
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 6036.84814453125,
+                    "predicted_price": 7646.844250953779,
+                    "error_pct": 26.66948162148184
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 6615.0390625,
+                    "predicted_price": 7757.816042068368,
+                    "error_pct": 17.27543811565161
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 6958.84228515625,
+                    "predicted_price": 7714.352491065852,
+                    "error_pct": 10.856837602443777
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 6862.59326171875,
+                    "predicted_price": 7627.176675612998,
+                    "error_pct": 11.14131910103553
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 7223.15283203125,
+                    "predicted_price": 7949.925151644473,
+                    "error_pct": 10.06170486093459
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 7478.486328125,
+                    "predicted_price": 8127.101004744224,
+                    "error_pct": 8.673074311574549
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 7661.32861328125,
+                    "predicted_price": 8163.310451892279,
+                    "error_pct": 6.55215125142683
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 7399.1767578125,
+                    "predicted_price": 8380.488162070103,
+                    "error_pct": 13.262440354887797
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 7670.81640625,
+                    "predicted_price": 8319.256584048891,
+                    "error_pct": 8.453339820133849
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 7277.837890625,
+                    "predicted_price": 8504.663534972158,
+                    "error_pct": 16.857007023026753
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 7033.16259765625,
+                    "predicted_price": 8694.202554320453,
+                    "error_pct": 23.617255162247098
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ASIANPAINT.NS": {
+            "winner": "median",
+            "median_error": 19.03,
+            "sd_error": 19.77,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2280.022705078125,
+                    "predicted_price": 2256.971923828125,
+                    "error_pct": 1.0109891098303851
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2280.022705078125,
+                    "predicted_price": 2315.196770866661,
+                    "error_pct": 1.5427068208661068
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 2276.2138671875,
+                    "predicted_price": 2247.725044181699,
+                    "error_pct": 1.2515881489203742
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 2156.45751953125,
+                    "predicted_price": 2182.219644488523,
+                    "error_pct": 1.1946502411451614
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2291.25146484375,
+                    "predicted_price": 2270.115763014371,
+                    "error_pct": 0.9224522997007736
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 2399.779052734375,
+                    "predicted_price": 2319.2925911032494,
+                    "error_pct": 3.35391133360453
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2234.959716796875,
+                    "predicted_price": 2421.4205168121352,
+                    "error_pct": 8.342915472431613
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 2337.4521484375,
+                    "predicted_price": 2465.947245343522,
+                    "error_pct": 5.497228980362918
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 2392.366455078125,
+                    "predicted_price": 2652.5190403607553,
+                    "error_pct": 10.874278258266866
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 2566.195068359375,
+                    "predicted_price": 2733.1128653505216,
+                    "error_pct": 6.504485923506229
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 2346.338134765625,
+                    "predicted_price": 2653.46181945646,
+                    "error_pct": 13.089489538621574
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2506.8876953125,
+                    "predicted_price": 2576.132042176091,
+                    "error_pct": 2.7621638972127682
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2867.60009765625,
+                    "predicted_price": 2595.6480232685153,
+                    "error_pct": 9.483612258557491
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2769.5,
+                    "predicted_price": 2662.6099590928425,
+                    "error_pct": 3.859542910531053
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "AXISBANK.NS": {
+            "winner": "median",
+            "median_error": 13.51,
+            "sd_error": 13.61,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1070.8848876953125,
+                    "predicted_price": 1063.790771484375,
+                    "error_pct": 0.6624536672849112
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1070.8848876953125,
+                    "predicted_price": 1083.0025636182568,
+                    "error_pct": 1.1315572814761754
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 985.2579345703125,
+                    "predicted_price": 1147.4925847655898,
+                    "error_pct": 16.466210979161563
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1014.6828002929688,
+                    "predicted_price": 1134.1104399204771,
+                    "error_pct": 11.769948164394439
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1084.6729736328125,
+                    "predicted_price": 1178.913819804165,
+                    "error_pct": 8.688411019933401
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1183.9881591796875,
+                    "predicted_price": 1215.847798699282,
+                    "error_pct": 2.690874843010943
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1191.181884765625,
+                    "predicted_price": 1247.895294248534,
+                    "error_pct": 4.761104094029077
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1198.1759033203125,
+                    "predicted_price": 1277.0373180664374,
+                    "error_pct": 6.581789412354971
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1068.4000244140625,
+                    "predicted_price": 1307.836759980641,
+                    "error_pct": 22.410775935529553
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1061.5,
+                    "predicted_price": 1317.120754491144,
+                    "error_pct": 24.081088505995666
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1131.5999755859375,
+                    "predicted_price": 1345.789469539302,
+                    "error_pct": 18.92802214337784
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1232.800048828125,
+                    "predicted_price": 1394.391931456648,
+                    "error_pct": 13.10771221838684
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1275.699951171875,
+                    "predicted_price": 1444.3300235599509,
+                    "error_pct": 13.218631248921037
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1269.4000244140625,
+                    "predicted_price": 1470.4142582884017,
+                    "error_pct": 15.835373405410527
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BAJAJ-AUTO.NS": {
+            "winner": "sd",
+            "median_error": 14.82,
+            "sd_error": 12.81,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 8524.5048828125,
+                    "predicted_price": 8581.1201171875,
+                    "error_pct": 0.6641468936119709
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 8524.5048828125,
+                    "predicted_price": 8817.776999873242,
+                    "error_pct": 3.4403419446923036
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 8629.1044921875,
+                    "predicted_price": 8815.619277862887,
+                    "error_pct": 2.1614616655094476
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 7707.56005859375,
+                    "predicted_price": 8580.13341330125,
+                    "error_pct": 11.321006233802883
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 7795.4814453125,
+                    "predicted_price": 8728.556020275251,
+                    "error_pct": 11.969428463251852
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 7831.5185546875,
+                    "predicted_price": 8833.044616678795,
+                    "error_pct": 12.788401827789054
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 8394.2568359375,
+                    "predicted_price": 8996.325477166973,
+                    "error_pct": 7.172387657378981
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 8376.0,
+                    "predicted_price": 9244.43321997648,
+                    "error_pct": 10.368113896567328
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 8008.0,
+                    "predicted_price": 9506.653754917948,
+                    "error_pct": 18.714457478995357
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 8967.0,
+                    "predicted_price": 9768.835732525431,
+                    "error_pct": 8.94207351985537
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 8678.5,
+                    "predicted_price": 10038.248371010472,
+                    "error_pct": 15.668011419144687
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 8892.5,
+                    "predicted_price": 10114.67532490179,
+                    "error_pct": 13.743888950259088
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 9096.0,
+                    "predicted_price": 10393.625799790863,
+                    "error_pct": 14.265894896557423
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 9343.0,
+                    "predicted_price": 10680.269390369896,
+                    "error_pct": 14.313062082520567
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BAJAJFINSV.NS": {
+            "winner": "sd",
+            "median_error": 12.19,
+            "sd_error": 12.02,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1575.63232421875,
+                    "predicted_price": 1567.3363037109375,
+                    "error_pct": 0.5265200758004212
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1575.63232421875,
+                    "predicted_price": 1561.209411576413,
+                    "error_pct": 0.9153729852228277
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1735.2545166015625,
+                    "predicted_price": 1527.5362342104806,
+                    "error_pct": 11.970479281499934
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1871.3883056640625,
+                    "predicted_price": 1549.1884080101756,
+                    "error_pct": 17.217158869631504
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1936.1566162109375,
+                    "predicted_price": 1586.5091389083993,
+                    "error_pct": 18.058842677035035
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1950.649658203125,
+                    "predicted_price": 1580.3072980261877,
+                    "error_pct": 18.985590704077772
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2016.4176025390625,
+                    "predicted_price": 1584.8189178584912,
+                    "error_pct": 21.40423115415698
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 2056.0,
+                    "predicted_price": 1597.7862034580019,
+                    "error_pct": 22.28666325593376
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1948.0,
+                    "predicted_price": 1680.894865483747,
+                    "error_pct": 13.711762552169043
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1943.5,
+                    "predicted_price": 1769.9303370385117,
+                    "error_pct": 8.930777615718464
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 2006.4000244140625,
+                    "predicted_price": 1845.0394305736243,
+                    "error_pct": 8.042294252242199
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2088.300048828125,
+                    "predicted_price": 1847.0013230952422,
+                    "error_pct": 11.554791940377077
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2081.800048828125,
+                    "predicted_price": 1877.6329399391036,
+                    "error_pct": 9.807239124811721
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2039.9000244140625,
+                    "predicted_price": 1870.2930637019494,
+                    "error_pct": 8.31447417433267
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BAJFINANCE.NS": {
+            "winner": "sd",
+            "median_error": 17.44,
+            "sd_error": 15.42,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 689.27685546875,
+                    "predicted_price": 678.1156616210938,
+                    "error_pct": 1.6192613692310853
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 689.27685546875,
+                    "predicted_price": 704.5680636762144,
+                    "error_pct": 2.218442137748179
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 783.6743774414062,
+                    "predicted_price": 686.469824468632,
+                    "error_pct": 12.403691605961939
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 847.7987060546875,
+                    "predicted_price": 684.1723406803198,
+                    "error_pct": 19.300143324801546
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 864.4857177734375,
+                    "predicted_price": 709.8599060741598,
+                    "error_pct": 17.886450697824223
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 858.15478515625,
+                    "predicted_price": 734.9261871522717,
+                    "error_pct": 14.359716933995914
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 918.0499877929688,
+                    "predicted_price": 752.5446066435799,
+                    "error_pct": 18.027926948430213
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 936.5,
+                    "predicted_price": 750.0259831409609,
+                    "error_pct": 19.911801052753777
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 881.2000122070312,
+                    "predicted_price": 810.6105669763282,
+                    "error_pct": 8.010604204816852
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 889.3499755859375,
+                    "predicted_price": 807.8976077611081,
+                    "error_pct": 9.158640587038354
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 998.9000244140625,
+                    "predicted_price": 842.2554046332148,
+                    "error_pct": 15.68171147785613
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1042.800048828125,
+                    "predicted_price": 853.2159356099148,
+                    "error_pct": 18.180293857030453
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1021.0999755859375,
+                    "predicted_price": 867.2128463612836,
+                    "error_pct": 15.070721075705528
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 986.7999877929688,
+                    "predicted_price": 901.041681437109,
+                    "error_pct": 8.69054594818782
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BHARTIARTL.NS": {
+            "winner": "median",
+            "median_error": 8.81,
+            "sd_error": 8.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1582.470703125,
+                    "predicted_price": 1574.586669921875,
+                    "error_pct": 0.4982103736616372
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1582.470703125,
+                    "predicted_price": 1571.1391059582324,
+                    "error_pct": 0.7160699496294223
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1612.8170166015625,
+                    "predicted_price": 1612.5416172548678,
+                    "error_pct": 0.017075672184747794
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1557.18212890625,
+                    "predicted_price": 1580.951541701004,
+                    "error_pct": 1.5264375536758503
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1709.8558349609375,
+                    "predicted_price": 1635.0947156376972,
+                    "error_pct": 4.372363903121007
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1849.042236328125,
+                    "predicted_price": 1717.9704456020268,
+                    "error_pct": 7.088631516951388
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1840.8109130859375,
+                    "predicted_price": 1747.7830130860623,
+                    "error_pct": 5.053636923736135
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1992.939208984375,
+                    "predicted_price": 1762.2245623606686,
+                    "error_pct": 11.576602315997448
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1914.300048828125,
+                    "predicted_price": 1830.0574639170918,
+                    "error_pct": 4.400699094303627
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1900.5999755859375,
+                    "predicted_price": 1849.948313708184,
+                    "error_pct": 2.6650353850571844
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1878.4000244140625,
+                    "predicted_price": 1895.5490273090336,
+                    "error_pct": 0.9129579787095912
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2054.5,
+                    "predicted_price": 1925.540781286883,
+                    "error_pct": 6.276915001855294
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2089.699951171875,
+                    "predicted_price": 1999.6601761981308,
+                    "error_pct": 4.308741784831413
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2105.60009765625,
+                    "predicted_price": 1995.281912051303,
+                    "error_pct": 5.239275289155932
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BPCL.NS": {
+            "winner": "sd",
+            "median_error": 10.29,
+            "sd_error": 8.68,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 271.8003234863281,
+                    "predicted_price": 269.17718505859375,
+                    "error_pct": 0.965097610660615
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 271.8003234863281,
+                    "predicted_price": 274.75093509592915,
+                    "error_pct": 1.0855806099691583
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 245.07046508789062,
+                    "predicted_price": 278.7646789350636,
+                    "error_pct": 13.748786021640386
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 222.7316131591797,
+                    "predicted_price": 288.10632948587113,
+                    "error_pct": 29.351341464029208
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 267.12774658203125,
+                    "predicted_price": 293.9675667318261,
+                    "error_pct": 10.047559826044763
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 291.0152893066406,
+                    "predicted_price": 297.98256865107135,
+                    "error_pct": 2.3941282813802105
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 298.8526916503906,
+                    "predicted_price": 306.2173420294043,
+                    "error_pct": 2.464307862961832
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 311.5708312988281,
+                    "predicted_price": 309.70116913281174,
+                    "error_pct": 0.6000761233721479
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 313.7376708984375,
+                    "predicted_price": 311.15805869060705,
+                    "error_pct": 0.8222194677621346
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 299.8752746582031,
+                    "predicted_price": 313.21972074183105,
+                    "error_pct": 4.449998786608161
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 323.5985412597656,
+                    "predicted_price": 322.91158808090995,
+                    "error_pct": 0.21228562285273994
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 339.93804931640625,
+                    "predicted_price": 323.4365772769195,
+                    "error_pct": 4.854258613494482
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 344.2880859375,
+                    "predicted_price": 339.0874816244111,
+                    "error_pct": 1.5105385650878942
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 373.46502685546875,
+                    "predicted_price": 346.1088376986736,
+                    "error_pct": 7.324966781262231
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "BRITANNIA.NS": {
+            "winner": "median",
+            "median_error": 6.04,
+            "sd_error": 8.16,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 4732.7275390625,
+                    "predicted_price": 4701.14111328125,
+                    "error_pct": 0.6674042720723982
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 4732.7275390625,
+                    "predicted_price": 4752.1490975182505,
+                    "error_pct": 0.4103671359792184
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 5063.29541015625,
+                    "predicted_price": 4741.541179898963,
+                    "error_pct": 6.354640687404772
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 4536.005859375,
+                    "predicted_price": 4768.51286927407,
+                    "error_pct": 5.12580929362173
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 4837.4052734375,
+                    "predicted_price": 4790.362064619402,
+                    "error_pct": 0.9724884759276851
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 5368.544921875,
+                    "predicted_price": 4941.803368622487,
+                    "error_pct": 7.948923953559292
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 5439.21875,
+                    "predicted_price": 5085.483831594312,
+                    "error_pct": 6.503414086916222
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 5775.314453125,
+                    "predicted_price": 5138.024716638619,
+                    "error_pct": 11.034719263494756
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 5696.34912109375,
+                    "predicted_price": 5420.58009193306,
+                    "error_pct": 4.8411539268109225
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 5846.5,
+                    "predicted_price": 5544.568242172559,
+                    "error_pct": 5.164316391472527
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 5991.0,
+                    "predicted_price": 5560.450277221998,
+                    "error_pct": 7.186608625905566
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 5836.5,
+                    "predicted_price": 5643.87367319836,
+                    "error_pct": 3.300373970729719
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 5813.5,
+                    "predicted_price": 5711.793335315889,
+                    "error_pct": 1.749491092871958
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 6031.0,
+                    "predicted_price": 5773.767025828965,
+                    "error_pct": 4.265179475560182
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "CIPLA.NS": {
+            "winner": "median",
+            "median_error": 8.08,
+            "sd_error": 8.2,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1512.938232421875,
+                    "predicted_price": 1512.83935546875,
+                    "error_pct": 0.006535425637748619
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1512.938232421875,
+                    "predicted_price": 1550.5158008347796,
+                    "error_pct": 2.4837476909253158
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1463.7635498046875,
+                    "predicted_price": 1519.3635725394442,
+                    "error_pct": 3.7984292437242035
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1392.62353515625,
+                    "predicted_price": 1462.8033198419826,
+                    "error_pct": 5.039393842920981
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1428.985107421875,
+                    "predicted_price": 1490.7991527757079,
+                    "error_pct": 4.325730550499269
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1533.71630859375,
+                    "predicted_price": 1513.092477316417,
+                    "error_pct": 1.3446966144764287
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1450.208251953125,
+                    "predicted_price": 1496.622474423579,
+                    "error_pct": 3.200521194659029
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1505.9000244140625,
+                    "predicted_price": 1547.5809229407432,
+                    "error_pct": 2.7678396872925566
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1554.5999755859375,
+                    "predicted_price": 1607.9414399641466,
+                    "error_pct": 3.431201930779938
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1587.199951171875,
+                    "predicted_price": 1662.0593518608623,
+                    "error_pct": 4.7164442409235505
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1503.300048828125,
+                    "predicted_price": 1699.3683476061422,
+                    "error_pct": 13.042525936911881
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1501.300048828125,
+                    "predicted_price": 1689.0687793405032,
+                    "error_pct": 12.507075494931573
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1523.0999755859375,
+                    "predicted_price": 1679.9973952251935,
+                    "error_pct": 10.301189820379154
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1511.300048828125,
+                    "predicted_price": 1721.836821101751,
+                    "error_pct": 13.930838713125032
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "COALINDIA.NS": {
+            "winner": "sd",
+            "median_error": 11.37,
+            "sd_error": 8.99,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 355.7680969238281,
+                    "predicted_price": 353.69647216796875,
+                    "error_pct": 0.5822963817643607
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 355.7680969238281,
+                    "predicted_price": 352.89397994412764,
+                    "error_pct": 0.8078624824855649
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 369.89459228515625,
+                    "predicted_price": 352.15613032509435,
+                    "error_pct": 4.795545090420544
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 345.0885925292969,
+                    "predicted_price": 362.95956599919356,
+                    "error_pct": 5.178662481687075
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 371.5296630859375,
+                    "predicted_price": 367.57469488392485,
+                    "error_pct": 1.0645094039497565
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 359.9908752441406,
+                    "predicted_price": 370.8638097051599,
+                    "error_pct": 3.020336127588068
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 371.2026062011719,
+                    "predicted_price": 374.18235603095127,
+                    "error_pct": 0.8027286931720865
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 366.2040710449219,
+                    "predicted_price": 360.2271572543621,
+                    "error_pct": 1.6321265281145882
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 351.6287841796875,
+                    "predicted_price": 363.45052518046714,
+                    "error_pct": 3.361994675253478
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 363.1304931640625,
+                    "predicted_price": 362.24033983886653,
+                    "error_pct": 0.2451331799320406
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 374.7095947265625,
+                    "predicted_price": 372.48914526694097,
+                    "error_pct": 0.5925787572218071
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 373.46038818359375,
+                    "predicted_price": 374.8030659370115,
+                    "error_pct": 0.3595234718059876
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 374.6966552734375,
+                    "predicted_price": 359.97138953774333,
+                    "error_pct": 3.9299165147199675
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 393.7942199707031,
+                    "predicted_price": 359.15466032600233,
+                    "error_pct": 8.796360608664559
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "DIVISLAB.NS": {
+            "winner": "sd",
+            "median_error": 12.11,
+            "sd_error": 12.09,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 6045.47265625,
+                    "predicted_price": 6071.1552734375,
+                    "error_pct": 0.4248239740353221
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 6045.47265625,
+                    "predicted_price": 6273.7312688848615,
+                    "error_pct": 3.775695063294688
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 5552.41796875,
+                    "predicted_price": 6018.361766738938,
+                    "error_pct": 8.391727723153283
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 5455.4091796875,
+                    "predicted_price": 5913.734655895193,
+                    "error_pct": 8.401303387364743
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 5524.544921875,
+                    "predicted_price": 6021.242921356274,
+                    "error_pct": 8.990749582188158
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 6059.4091796875,
+                    "predicted_price": 6473.634232144045,
+                    "error_pct": 6.8360633879144626
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 6582.029296875,
+                    "predicted_price": 6590.074055860985,
+                    "error_pct": 0.1222230808028232
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 6778.63427734375,
+                    "predicted_price": 6772.664783592543,
+                    "error_pct": 0.08806336950731525
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 6595.5,
+                    "predicted_price": 7044.722028776694,
+                    "error_pct": 6.811038265130681
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 6093.0,
+                    "predicted_price": 7492.003280431863,
+                    "error_pct": 22.96082849879965
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 5689.5,
+                    "predicted_price": 7558.206703902561,
+                    "error_pct": 32.84483177612375
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 6738.0,
+                    "predicted_price": 7586.055257348168,
+                    "error_pct": 12.586156980530843
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 6422.5,
+                    "predicted_price": 7947.43940867153,
+                    "error_pct": 23.743704300062753
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 6392.5,
+                    "predicted_price": 8212.621301895892,
+                    "error_pct": 28.472761859927907
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "DRREDDY.NS": {
+            "winner": "median",
+            "median_error": 11.0,
+            "sd_error": 13.07,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1360.372314453125,
+                    "predicted_price": 1379.7493896484375,
+                    "error_pct": 1.4243949975637487
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1360.372314453125,
+                    "predicted_price": 1404.4450997539986,
+                    "error_pct": 3.2397590595329837
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1209.677978515625,
+                    "predicted_price": 1409.8014338628334,
+                    "error_pct": 16.5435313282942
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1109.463623046875,
+                    "predicted_price": 1407.3398654595617,
+                    "error_pct": 26.848671396241112
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1144.9385986328125,
+                    "predicted_price": 1452.7474500390815,
+                    "error_pct": 26.884310807044848
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1176.4388427734375,
+                    "predicted_price": 1478.749729983485,
+                    "error_pct": 25.697118814723417
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1243.314697265625,
+                    "predicted_price": 1436.0464362244293,
+                    "error_pct": 15.501444596663411
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1275.2125244140625,
+                    "predicted_price": 1461.7497898574823,
+                    "error_pct": 14.62793549091986
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1270.300048828125,
+                    "predicted_price": 1480.8485644455634,
+                    "error_pct": 16.57470735450835
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1279.9000244140625,
+                    "predicted_price": 1492.0564749323166,
+                    "error_pct": 16.57601738193413
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1223.699951171875,
+                    "predicted_price": 1512.3493555294208,
+                    "error_pct": 23.588250051094715
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1197.5999755859375,
+                    "predicted_price": 1548.4127129748651,
+                    "error_pct": 29.29298134105999
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1260.0999755859375,
+                    "predicted_price": 1566.6970259340264,
+                    "error_pct": 24.33116866029011
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1271.4000244140625,
+                    "predicted_price": 1594.738854302271,
+                    "error_pct": 25.431714934662082
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "EICHERMOT.NS": {
+            "winner": "sd",
+            "median_error": 7.07,
+            "sd_error": 6.96,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 4822.76513671875,
+                    "predicted_price": 4760.1767578125,
+                    "error_pct": 1.2977695809759682
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 4822.76513671875,
+                    "predicted_price": 4844.5981758815,
+                    "error_pct": 0.4527079080944859
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 5127.8095703125,
+                    "predicted_price": 4808.895639397264,
+                    "error_pct": 6.219301371127179
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 4712.4951171875,
+                    "predicted_price": 4888.788562131598,
+                    "error_pct": 3.740978835205949
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 5239.26513671875,
+                    "predicted_price": 4842.585017288159,
+                    "error_pct": 7.571293093195583
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 5495.7392578125,
+                    "predicted_price": 5103.690179508782,
+                    "error_pct": 7.133691390951598
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 5265.22802734375,
+                    "predicted_price": 5478.463320698004,
+                    "error_pct": 4.049877654811261
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 5584.09375,
+                    "predicted_price": 5370.1627758408395,
+                    "error_pct": 3.8310777672592
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 5398.5,
+                    "predicted_price": 5515.095154581246,
+                    "error_pct": 2.1597694652448993
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 6280.0,
+                    "predicted_price": 5568.267341406079,
+                    "error_pct": 11.333322589075173
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 7005.5,
+                    "predicted_price": 5838.858930379455,
+                    "error_pct": 16.653216324609875
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 7007.0,
+                    "predicted_price": 6074.91031361996,
+                    "error_pct": 13.302264683602683
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 7125.5,
+                    "predicted_price": 6246.811544530368,
+                    "error_pct": 12.331604174719411
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 7312.5,
+                    "predicted_price": 6357.5983316246775,
+                    "error_pct": 13.058484353850563
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "GRASIM.NS": {
+            "winner": "median",
+            "median_error": 6.4,
+            "sd_error": 8.05,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2433.298095703125,
+                    "predicted_price": 2433.84619140625,
+                    "error_pct": 0.022524807136982634
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2433.298095703125,
+                    "predicted_price": 2435.7612515258897,
+                    "error_pct": 0.10122704764838912
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 2499.756591796875,
+                    "predicted_price": 2470.988361687345,
+                    "error_pct": 1.1508412540618982
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 2298.2890625,
+                    "predicted_price": 2472.9326469442644,
+                    "error_pct": 7.598852002293094
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2609.507080078125,
+                    "predicted_price": 2554.483731489535,
+                    "error_pct": 2.108572496647252
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 2727.57763671875,
+                    "predicted_price": 2660.4013126847017,
+                    "error_pct": 2.4628565335673014
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2536.572509765625,
+                    "predicted_price": 2615.8252517232786,
+                    "error_pct": 3.124402777864072
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 2834.189697265625,
+                    "predicted_price": 2659.3092259487184,
+                    "error_pct": 6.170386953478381
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 2736.4453125,
+                    "predicted_price": 2796.4505014028978,
+                    "error_pct": 2.19281520550752
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 2803.89990234375,
+                    "predicted_price": 2875.6917231284983,
+                    "error_pct": 2.560427379192043
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 2756.89990234375,
+                    "predicted_price": 3044.877612071377,
+                    "error_pct": 10.445707857684845
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2891.699951171875,
+                    "predicted_price": 3087.601155066292,
+                    "error_pct": 6.774603423672193
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2731.5,
+                    "predicted_price": 3092.036723547674,
+                    "error_pct": 13.199221070755035
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2829.0,
+                    "predicted_price": 3094.4696777083086,
+                    "error_pct": 9.38386983769207
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HCLTECH.NS": {
+            "winner": "median",
+            "median_error": 14.47,
+            "sd_error": 14.92,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1828.66357421875,
+                    "predicted_price": 1833.8763427734375,
+                    "error_pct": 0.2850589156025882
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1828.66357421875,
+                    "predicted_price": 1885.1903908964596,
+                    "error_pct": 3.091154517137425
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1667.0301513671875,
+                    "predicted_price": 1953.6760509429764,
+                    "error_pct": 17.195003902041062
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1521.7222900390625,
+                    "predicted_price": 2014.0394773585197,
+                    "error_pct": 32.35263034142842
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1478.5357666015625,
+                    "predicted_price": 2022.2409723304163,
+                    "error_pct": 36.773219695494326
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1531.89990234375,
+                    "predicted_price": 2031.1909917584405,
+                    "error_pct": 32.59293173469061
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1599.4305419921875,
+                    "predicted_price": 2053.8501832321112,
+                    "error_pct": 28.411339492987086
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1689.341064453125,
+                    "predicted_price": 2053.8919228596933,
+                    "error_pct": 21.579470604095036
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1445.7994384765625,
+                    "predicted_price": 2111.3622694206388,
+                    "error_pct": 46.03424328656395
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1446.2919921875,
+                    "predicted_price": 2226.4985059491855,
+                    "error_pct": 53.94529721357526
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1364.2459716796875,
+                    "predicted_price": 2288.7985906470053,
+                    "error_pct": 67.77022898803136
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1530.4134521484375,
+                    "predicted_price": 2252.1686935432895,
+                    "error_pct": 47.160800918316006
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1631.0841064453125,
+                    "predicted_price": 2315.187060717854,
+                    "error_pct": 41.941611200138205
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1611.6251220703125,
+                    "predicted_price": 2379.9687569950443,
+                    "error_pct": 47.67508426138881
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HDFCBANK.NS": {
+            "winner": "median",
+            "median_error": 10.06,
+            "sd_error": 10.68,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 879.4869384765625,
+                    "predicted_price": 874.60302734375,
+                    "error_pct": 0.555313662903551
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 879.4869384765625,
+                    "predicted_price": 880.8746300761285,
+                    "error_pct": 0.1577842192824065
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 838.047119140625,
+                    "predicted_price": 867.5382298355264,
+                    "error_pct": 3.51902775170244
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 854.6477661132812,
+                    "predicted_price": 865.428321386939,
+                    "error_pct": 1.2614033173789239
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 872.1363525390625,
+                    "predicted_price": 882.4689431452838,
+                    "error_pct": 1.1847448596930832
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 949.6633911132812,
+                    "predicted_price": 910.5028172296358,
+                    "error_pct": 4.123626776613757
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 959.480712890625,
+                    "predicted_price": 923.9831025417137,
+                    "error_pct": 3.6996689846914927
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 998.2658081054688,
+                    "predicted_price": 954.2649874777958,
+                    "error_pct": 4.407725905305593
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1009.0999755859375,
+                    "predicted_price": 976.3845414152527,
+                    "error_pct": 3.242040923813173
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 950.5999755859375,
+                    "predicted_price": 975.8965445761303,
+                    "error_pct": 2.661116099293008
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 951.0,
+                    "predicted_price": 1015.113332804558,
+                    "error_pct": 6.741675373770558
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 987.2999877929688,
+                    "predicted_price": 1035.1013109174687,
+                    "error_pct": 4.841620957714792
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1002.0999755859375,
+                    "predicted_price": 1067.9996205071636,
+                    "error_pct": 6.576154727745001
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 991.2000122070312,
+                    "predicted_price": 1075.6580313847187,
+                    "error_pct": 8.520784719284967
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HDFCLIFE.NS": {
+            "winner": "median",
+            "median_error": 8.52,
+            "sd_error": 14.42,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 615.4987182617188,
+                    "predicted_price": 615.34912109375,
+                    "error_pct": 0.02430503322431602
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 615.4987182617188,
+                    "predicted_price": 595.2570704581439,
+                    "error_pct": 3.2886579944050927
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 636.2911987304688,
+                    "predicted_price": 570.8853541300019,
+                    "error_pct": 10.279231385089856
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 606.8226928710938,
+                    "predicted_price": 541.1582038382545,
+                    "error_pct": 10.821033854577392
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 690.9900512695312,
+                    "predicted_price": 557.0950460486947,
+                    "error_pct": 19.377269611166767
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 741.6500244140625,
+                    "predicted_price": 587.6727002696165,
+                    "error_pct": 20.761453391186112
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 774.7086181640625,
+                    "predicted_price": 602.5110153661501,
+                    "error_pct": 22.227402504698297
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 814.2999877929688,
+                    "predicted_price": 617.1072104385322,
+                    "error_pct": 24.21623238493425
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 755.5,
+                    "predicted_price": 659.5193530515853,
+                    "error_pct": 12.7042550560443
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 781.7999877929688,
+                    "predicted_price": 669.848010068076,
+                    "error_pct": 14.319772252866702
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 756.4500122070312,
+                    "predicted_price": 651.9016330337772,
+                    "error_pct": 13.820923720818238
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 731.8499755859375,
+                    "predicted_price": 650.0882627377405,
+                    "error_pct": 11.171922603773615
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 766.75,
+                    "predicted_price": 668.5384018599572,
+                    "error_pct": 12.808816190419673
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 749.8499755859375,
+                    "predicted_price": 646.7096432551797,
+                    "error_pct": 13.754795717658496
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HEROMOTOCO.NS": {
+            "winner": "median",
+            "median_error": 9.76,
+            "sd_error": 11.18,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3944.24951171875,
+                    "predicted_price": 3921.862548828125,
+                    "error_pct": 0.5675848554740553
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3944.24951171875,
+                    "predicted_price": 3926.37232356596,
+                    "error_pct": 0.4532468876442824
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 4090.1669921875,
+                    "predicted_price": 3833.8256705935696,
+                    "error_pct": 6.267258087104022
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 3556.93798828125,
+                    "predicted_price": 3792.9371714295075,
+                    "error_pct": 6.634897316899664
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 3635.157470703125,
+                    "predicted_price": 3799.8608423031196,
+                    "error_pct": 4.530845580346678
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 3698.30322265625,
+                    "predicted_price": 3906.7708761324975,
+                    "error_pct": 5.636845897306355
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 4163.94921875,
+                    "predicted_price": 4147.632922250853,
+                    "error_pct": 0.3918466734818902
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 4094.184326171875,
+                    "predicted_price": 4285.7084716187965,
+                    "error_pct": 4.677956100379083
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 4179.24072265625,
+                    "predicted_price": 4340.815656247786,
+                    "error_pct": 3.866131297860297
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 5143.7412109375,
+                    "predicted_price": 4453.417093239111,
+                    "error_pct": 13.420661914921078
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 5367.87255859375,
+                    "predicted_price": 4585.104148569269,
+                    "error_pct": 14.58247008437822
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 5438.00537109375,
+                    "predicted_price": 4502.030882632037,
+                    "error_pct": 17.21172423692292
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 6175.1376953125,
+                    "predicted_price": 4689.930156001632,
+                    "error_pct": 24.051407638056034
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 5660.66552734375,
+                    "predicted_price": 4695.323136575636,
+                    "error_pct": 17.05351404538995
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HINDALCO.NS": {
+            "winner": "sd",
+            "median_error": 8.74,
+            "sd_error": 7.91,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 588.6332397460938,
+                    "predicted_price": 598.0640869140625,
+                    "error_pct": 1.6021601450908098
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 588.6332397460938,
+                    "predicted_price": 628.4105832578833,
+                    "error_pct": 6.757576845124732
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 589.973388671875,
+                    "predicted_price": 595.2666273435103,
+                    "error_pct": 0.8971995641280116
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 629.7318115234375,
+                    "predicted_price": 589.2571885986292,
+                    "error_pct": 6.427279388489632
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 658.9178466796875,
+                    "predicted_price": 583.9177453658502,
+                    "error_pct": 11.382314455704254
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 620.1024780273438,
+                    "predicted_price": 612.4872954943247,
+                    "error_pct": 1.2280522660132382
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 628.8880615234375,
+                    "predicted_price": 608.1542598553418,
+                    "error_pct": 3.2968985955735093
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 687.8059692382812,
+                    "predicted_price": 609.6157307607228,
+                    "error_pct": 11.368066282435889
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 678.0773315429688,
+                    "predicted_price": 636.2480531243418,
+                    "error_pct": 6.1688064875202615
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 719.5999755859375,
+                    "predicted_price": 645.603047472805,
+                    "error_pct": 10.283064289000315
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 761.9500122070312,
+                    "predicted_price": 654.6590850196328,
+                    "error_pct": 14.081097902554554
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 847.8499755859375,
+                    "predicted_price": 647.1418254715679,
+                    "error_pct": 23.672601980752894
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 810.7999877929688,
+                    "predicted_price": 671.7792146382635,
+                    "error_pct": 17.1461242288774
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 886.7000122070312,
+                    "predicted_price": 705.8661058710492,
+                    "error_pct": 20.394034492666734
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "HINDUNILVR.NS": {
+            "winner": "median",
+            "median_error": 7.61,
+            "sd_error": 9.26,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2280.011474609375,
+                    "predicted_price": 2284.675537109375,
+                    "error_pct": 0.20456311522726325
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 2280.011474609375,
+                    "predicted_price": 2322.934245201813,
+                    "error_pct": 1.8825681831181107
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 2424.052490234375,
+                    "predicted_price": 2269.127297674621,
+                    "error_pct": 6.39116492666274
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 2150.551025390625,
+                    "predicted_price": 2253.053190700822,
+                    "error_pct": 4.766321007964863
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2193.361083984375,
+                    "predicted_price": 2262.4568201206603,
+                    "error_pct": 3.150221668507432
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 2299.64892578125,
+                    "predicted_price": 2266.975073553229,
+                    "error_pct": 1.4208191459885984
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2305.736328125,
+                    "predicted_price": 2317.605975467188,
+                    "error_pct": 0.5147877143367945
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 2276.702880859375,
+                    "predicted_price": 2424.8754545448933,
+                    "error_pct": 6.508208643790549
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 2501.535400390625,
+                    "predicted_price": 2491.3505299862363,
+                    "error_pct": 0.40714476408362105
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 2628.834716796875,
+                    "predicted_price": 2523.0088414376023,
+                    "error_pct": 4.025581170360421
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 2494.788330078125,
+                    "predicted_price": 2545.87278566249,
+                    "error_pct": 2.0476468872517666
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 2446.269775390625,
+                    "predicted_price": 2453.9064767740824,
+                    "error_pct": 0.31217740006774103
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 2464.5,
+                    "predicted_price": 2531.154081012108,
+                    "error_pct": 2.7045681076124075
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2315.89990234375,
+                    "predicted_price": 2573.5402682625513,
+                    "error_pct": 11.124848947835037
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ICICIBANK.NS": {
+            "winner": "sd",
+            "median_error": 7.04,
+            "sd_error": 6.85,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1273.8211669921875,
+                    "predicted_price": 1271.83642578125,
+                    "error_pct": 0.15581003537756982
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1273.8211669921875,
+                    "predicted_price": 1302.6258849512103,
+                    "error_pct": 2.261284292130111
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1243.2073974609375,
+                    "predicted_price": 1294.9051219713194,
+                    "error_pct": 4.158415129765693
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1194.8802490234375,
+                    "predicted_price": 1248.7062266489968,
+                    "error_pct": 4.504717327912204
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1308.3546142578125,
+                    "predicted_price": 1291.617616794221,
+                    "error_pct": 1.279240144927057
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1416.073486328125,
+                    "predicted_price": 1322.0764663352627,
+                    "error_pct": 6.637863140605531
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1434.7296142578125,
+                    "predicted_price": 1321.9307482658905,
+                    "error_pct": 7.86202953301922
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1434.7296142578125,
+                    "predicted_price": 1340.6462620577076,
+                    "error_pct": 6.557566754400222
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1470.0570068359375,
+                    "predicted_price": 1392.8719524357,
+                    "error_pct": 5.250480358334266
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1411.0,
+                    "predicted_price": 1409.0083989719012,
+                    "error_pct": 0.1411481947624936
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1348.0,
+                    "predicted_price": 1461.9600920490443,
+                    "error_pct": 8.454012763282218
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1345.300048828125,
+                    "predicted_price": 1556.8581741170935,
+                    "error_pct": 15.725720479476257
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1390.0999755859375,
+                    "predicted_price": 1597.1275031525865,
+                    "error_pct": 14.892995554466173
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1342.9000244140625,
+                    "predicted_price": 1635.791824326853,
+                    "error_pct": 21.810395009902972
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "INDUSINDBK.NS": {
+            "winner": "median",
+            "median_error": 21.04,
+            "sd_error": 21.54,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 969.4000244140625,
+                    "predicted_price": 960.1500244140625,
+                    "error_pct": 0.954198449251227
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 969.4000244140625,
+                    "predicted_price": 986.818241627558,
+                    "error_pct": 1.7968038760906409
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 991.2000122070312,
+                    "predicted_price": 946.7641574648335,
+                    "error_pct": 4.48303613750526
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 990.0999755859375,
+                    "predicted_price": 925.8476848251751,
+                    "error_pct": 6.489475037380762
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 682.7000122070312,
+                    "predicted_price": 958.8502202808352,
+                    "error_pct": 40.449714828781985
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 838.4000244140625,
+                    "predicted_price": 1031.4833598666476,
+                    "error_pct": 23.02997731751336
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 816.9500122070312,
+                    "predicted_price": 1051.147829891801,
+                    "error_pct": 28.66733755864359
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 872.0999755859375,
+                    "predicted_price": 1074.6057928092232,
+                    "error_pct": 23.22048192780056
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 798.9000244140625,
+                    "predicted_price": 1090.7527886359092,
+                    "error_pct": 36.5318256731686
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 752.8499755859375,
+                    "predicted_price": 1104.0525315702214,
+                    "error_pct": 46.649739971226744
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 735.5499877929688,
+                    "predicted_price": 1136.6821047653777,
+                    "error_pct": 54.53499063687205
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 794.7999877929688,
+                    "predicted_price": 1099.835947355399,
+                    "error_pct": 38.37895876287892
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 847.1500244140625,
+                    "predicted_price": 1129.8767330636488,
+                    "error_pct": 33.3738653723272
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 864.2000122070312,
+                    "predicted_price": 1161.2591184988876,
+                    "error_pct": 34.373883602849524
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "INFY.NS": {
+            "winner": "sd",
+            "median_error": 17.79,
+            "sd_error": 15.87,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1828.389892578125,
+                    "predicted_price": 1825.9617919921875,
+                    "error_pct": 0.13279993483850164
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1828.389892578125,
+                    "predicted_price": 1906.9601260434201,
+                    "error_pct": 4.29723626149054
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1825.7677001953125,
+                    "predicted_price": 1935.4487697699442,
+                    "error_pct": 6.007394564100268
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1639.189208984375,
+                    "predicted_price": 1939.6925822145352,
+                    "error_pct": 18.332439695375314
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1482.6226806640625,
+                    "predicted_price": 1948.9383135413748,
+                    "error_pct": 31.45207738684065
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1456.9815673828125,
+                    "predicted_price": 1898.3813084698402,
+                    "error_pct": 30.295492473519587
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1539.1375732421875,
+                    "predicted_price": 1930.779683120201,
+                    "error_pct": 25.44555578959852
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1577.6480712890625,
+                    "predicted_price": 2031.1120688291708,
+                    "error_pct": 28.74303881787733
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1486.247314453125,
+                    "predicted_price": 2118.5598494504493,
+                    "error_pct": 42.5442339810039
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1476.7921142578125,
+                    "predicted_price": 2165.4979827663165,
+                    "error_pct": 46.63526178528012
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1420.060546875,
+                    "predicted_price": 2194.0483870100416,
+                    "error_pct": 54.50386195421648
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1482.300048828125,
+                    "predicted_price": 2234.724499058127,
+                    "error_pct": 50.760603484082246
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1564.0,
+                    "predicted_price": 2284.2363391358263,
+                    "error_pct": 46.05091682454132
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1615.4000244140625,
+                    "predicted_price": 2385.5633980374396,
+                    "error_pct": 47.676325491125986
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ITC.NS": {
+            "winner": "median",
+            "median_error": 13.26,
+            "sd_error": 14.62,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 441.2149658203125,
+                    "predicted_price": 440.9414367675781,
+                    "error_pct": 0.06199450923561179
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 441.2149658203125,
+                    "predicted_price": 450.4901943318529,
+                    "error_pct": 2.102201699866584
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 423.69635009765625,
+                    "predicted_price": 447.76439100569155,
+                    "error_pct": 5.680492858266998
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 379.8921203613281,
+                    "predicted_price": 451.94825045298995,
+                    "error_pct": 18.96752426007858
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 391.0965576171875,
+                    "predicted_price": 462.8463224223997,
+                    "error_pct": 18.34579297817348
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 409.5140686035156,
+                    "predicted_price": 478.7058854006364,
+                    "error_pct": 16.89607808422111
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 409.468505859375,
+                    "predicted_price": 489.312183934577,
+                    "error_pct": 19.499345354444166
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 407.9013671875,
+                    "predicted_price": 500.816419759966,
+                    "error_pct": 22.77880390868014
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 403.4937438964844,
+                    "predicted_price": 512.2984004516743,
+                    "error_pct": 26.96563656835868
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 397.5189514160156,
+                    "predicted_price": 509.1986111521327,
+                    "error_pct": 28.094172450973513
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 393.30718994140625,
+                    "predicted_price": 506.1175779012008,
+                    "error_pct": 28.68251352755608
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 411.7213134765625,
+                    "predicted_price": 492.9921232444,
+                    "error_pct": 19.739276813626475
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 395.9517822265625,
+                    "predicted_price": 490.00915139236224,
+                    "error_pct": 23.75475332801517
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 394.7274475097656,
+                    "predicted_price": 500.62048931791986,
+                    "error_pct": 26.826875728102088
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "JSWSTEEL.NS": {
+            "winner": "median",
+            "median_error": 9.74,
+            "sd_error": 10.3,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 903.018310546875,
+                    "predicted_price": 899.0789184570312,
+                    "error_pct": 0.4362471994015297
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 903.018310546875,
+                    "predicted_price": 964.5736399069763,
+                    "error_pct": 6.816620287890163
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 942.4620971679688,
+                    "predicted_price": 899.7706073245464,
+                    "error_pct": 4.529783210561701
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 948.1467895507812,
+                    "predicted_price": 903.0146681504812,
+                    "error_pct": 4.760035249571753
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1053.413330078125,
+                    "predicted_price": 924.912144239025,
+                    "error_pct": 12.19855323356976
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1027.034423828125,
+                    "predicted_price": 990.5262488035321,
+                    "error_pct": 3.554717756052797
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 990.8318481445312,
+                    "predicted_price": 973.6313799627814,
+                    "error_pct": 1.7359623849354597
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1017.7593383789062,
+                    "predicted_price": 996.6625946207472,
+                    "error_pct": 2.0728617230633404
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1048.300048828125,
+                    "predicted_price": 1037.8842150327,
+                    "error_pct": 0.9935927988431034
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1035.5,
+                    "predicted_price": 1065.450763088736,
+                    "error_pct": 2.8923962422729153
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1142.699951171875,
+                    "predicted_price": 1069.667344449038,
+                    "error_pct": 6.391232155732551
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1206.0,
+                    "predicted_price": 1080.1394494927838,
+                    "error_pct": 10.436198217845456
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1168.4000244140625,
+                    "predicted_price": 1084.414162156234,
+                    "error_pct": 7.188108567521331
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1164.800048828125,
+                    "predicted_price": 1163.409901049418,
+                    "error_pct": 0.1193464732513983
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "KOTAKBANK.NS": {
+            "winner": "median",
+            "median_error": 14.97,
+            "sd_error": 16.44,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 357.26806640625,
+                    "predicted_price": 356.7986145019531,
+                    "error_pct": 0.1314004660475478
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 357.26806640625,
+                    "predicted_price": 364.95131986003,
+                    "error_pct": 2.1505570120122037
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 379.82208251953125,
+                    "predicted_price": 365.64404139244726,
+                    "error_pct": 3.732811171229077
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 380.1517028808594,
+                    "predicted_price": 364.163307246359,
+                    "error_pct": 4.20579350647054
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 428.68572998046875,
+                    "predicted_price": 380.5227948935852,
+                    "error_pct": 11.23502176969545
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 441.1114196777344,
+                    "predicted_price": 399.14124185658216,
+                    "error_pct": 9.514643228192696
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 414.462158203125,
+                    "predicted_price": 413.51307518042995,
+                    "error_pct": 0.22899147821112062
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 432.2016906738281,
+                    "predicted_price": 419.99000302424133,
+                    "error_pct": 2.8254604072806946
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 395.7200012207031,
+                    "predicted_price": 418.2891861966912,
+                    "error_pct": 5.703321769525792
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 393.7200012207031,
+                    "predicted_price": 429.4127785272561,
+                    "error_pct": 9.065523010233118
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 398.5400085449219,
+                    "predicted_price": 446.95380185578415,
+                    "error_pct": 12.14778749255867
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 420.44000244140625,
+                    "predicted_price": 445.1437908034736,
+                    "error_pct": 5.875698843739342
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 429.5199890136719,
+                    "predicted_price": 473.1859952737052,
+                    "error_pct": 10.166233790493836
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 440.2200012207031,
+                    "predicted_price": 483.9981056413977,
+                    "error_pct": 9.94459686050169
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "LT.NS": {
+            "winner": "median",
+            "median_error": 9.42,
+            "sd_error": 10.43,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3633.61181640625,
+                    "predicted_price": 3574.314697265625,
+                    "error_pct": 1.631905721819003
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3633.61181640625,
+                    "predicted_price": 3668.9505181068,
+                    "error_pct": 0.9725502746603465
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 3534.4365234375,
+                    "predicted_price": 3665.4458556478226,
+                    "error_pct": 3.706653984067206
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 3134.61572265625,
+                    "predicted_price": 3674.560408879257,
+                    "error_pct": 17.225227396149915
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 3405.04345703125,
+                    "predicted_price": 3763.3140263401287,
+                    "error_pct": 10.521762022421987
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 3310.128662109375,
+                    "predicted_price": 3834.1552327347413,
+                    "error_pct": 15.831003085282823
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 3641.1416015625,
+                    "predicted_price": 3976.0241261120946,
+                    "error_pct": 9.197184872071126
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 3669.800048828125,
+                    "predicted_price": 4161.573943119027,
+                    "error_pct": 13.400563729567219
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 3636.5,
+                    "predicted_price": 4328.530017369663,
+                    "error_pct": 19.030111848471424
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 3598.39990234375,
+                    "predicted_price": 4381.106711284592,
+                    "error_pct": 21.751523737843613
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 3659.0,
+                    "predicted_price": 4485.559108705324,
+                    "error_pct": 22.589754269071452
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 4030.89990234375,
+                    "predicted_price": 4618.890498682367,
+                    "error_pct": 14.587080071046483
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 4073.199951171875,
+                    "predicted_price": 4682.086669794046,
+                    "error_pct": 14.948608610460981
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 4083.5,
+                    "predicted_price": 4806.052563335667,
+                    "error_pct": 17.694442594236985
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "LTIM.NS": {
+            "winner": "sd",
+            "median_error": 25.12,
+            "sd_error": 23.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 5600.50390625,
+                    "predicted_price": 5514.1767578125,
+                    "error_pct": 1.5414175203263656
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 5600.50390625,
+                    "predicted_price": 5483.9061423623325,
+                    "error_pct": 2.0819155890159773
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 5838.2119140625,
+                    "predicted_price": 5522.038142818952,
+                    "error_pct": 5.41559258035804
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 4606.0390625,
+                    "predicted_price": 5491.724371522882,
+                    "error_pct": 19.228784146310794
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 4369.7626953125,
+                    "predicted_price": 5461.577010654706,
+                    "error_pct": 24.985666075492137
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 4527.609375,
+                    "predicted_price": 5574.538333423342,
+                    "error_pct": 23.123217391591826
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 5049.046875,
+                    "predicted_price": 5873.706963766313,
+                    "error_pct": 16.33298539670049
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 5296.1748046875,
+                    "predicted_price": 5841.4626719025755,
+                    "error_pct": 10.29588122228247
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 5086.00146484375,
+                    "predicted_price": 6219.948047174577,
+                    "error_pct": 22.295443486775795
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 5176.64501953125,
+                    "predicted_price": 6185.803030842034,
+                    "error_pct": 19.494441042475888
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 5137.2998046875,
+                    "predicted_price": 6151.845456933688,
+                    "error_pct": 19.748616799052137
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 5684.5,
+                    "predicted_price": 6448.88219222304,
+                    "error_pct": 13.446779703105637
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 6152.5,
+                    "predicted_price": 6413.4804193930995,
+                    "error_pct": 4.241859721952044
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 6063.5,
+                    "predicted_price": 6378.272988075711,
+                    "error_pct": 5.191275469212676
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "M&M.NS": {
+            "winner": "sd",
+            "median_error": 11.31,
+            "sd_error": 10.92,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3057.436279296875,
+                    "predicted_price": 2983.13330078125,
+                    "error_pct": 2.43023800753462
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3057.436279296875,
+                    "predicted_price": 3031.08374608003,
+                    "error_pct": 0.8619160240652824
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 2966.02099609375,
+                    "predicted_price": 3067.536863903164,
+                    "error_pct": 3.4226280914096825
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 2564.496826171875,
+                    "predicted_price": 3051.0660383794766,
+                    "error_pct": 18.973281902396526
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2616.875732421875,
+                    "predicted_price": 3009.5894881146437,
+                    "error_pct": 15.006969984368293
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 2905.45751953125,
+                    "predicted_price": 3175.446496505599,
+                    "error_pct": 9.29247717990754
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 2953.074951171875,
+                    "predicted_price": 3233.8011624288115,
+                    "error_pct": 9.506233871427318
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 3157.829833984375,
+                    "predicted_price": 3414.0276903893823,
+                    "error_pct": 8.113098864537328
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 3203.10009765625,
+                    "predicted_price": 3459.3057674634642,
+                    "error_pct": 7.998678217851614
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 3315.39990234375,
+                    "predicted_price": 3470.5321255960716,
+                    "error_pct": 4.67914061114179
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 3427.0,
+                    "predicted_price": 3531.1395203889642,
+                    "error_pct": 3.038795459263619
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 3487.199951171875,
+                    "predicted_price": 3503.0791937621684,
+                    "error_pct": 0.45535796090376723
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 3741.60009765625,
+                    "predicted_price": 3656.4757259002836,
+                    "error_pct": 2.275079365357313
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 3709.199951171875,
+                    "predicted_price": 3715.249378165565,
+                    "error_pct": 0.16309250170723769
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "MARUTI.NS": {
+            "winner": "median",
+            "median_error": 7.78,
+            "sd_error": 7.8,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 11088.287109375,
+                    "predicted_price": 10742.1337890625,
+                    "error_pct": 3.1217925446738475
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 11088.287109375,
+                    "predicted_price": 10918.383293601688,
+                    "error_pct": 1.532281894375378
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 12178.833984375,
+                    "predicted_price": 11006.749414832564,
+                    "error_pct": 9.623947342136182
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 11817.939453125,
+                    "predicted_price": 11098.464111537174,
+                    "error_pct": 6.087993126395448
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 11358.166015625,
+                    "predicted_price": 11219.72559664447,
+                    "error_pct": 1.2188624359785087
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 12125.7578125,
+                    "predicted_price": 11282.758402404608,
+                    "error_pct": 6.952137945773373
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 12187.0947265625,
+                    "predicted_price": 11590.172133838672,
+                    "error_pct": 4.897989275678634
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 12267.2265625,
+                    "predicted_price": 11879.995371626608,
+                    "error_pct": 3.1566319322505123
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 12473.0,
+                    "predicted_price": 12019.46427930263,
+                    "error_pct": 3.636139827606586
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 14887.0,
+                    "predicted_price": 12276.45807019761,
+                    "error_pct": 17.535715253592997
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 16029.0,
+                    "predicted_price": 13091.735540002563,
+                    "error_pct": 18.32468937549091
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 16186.0,
+                    "predicted_price": 13507.495963513693,
+                    "error_pct": 16.548276513569178
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 16097.0,
+                    "predicted_price": 13566.364132040328,
+                    "error_pct": 15.721164614273917
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 16697.0,
+                    "predicted_price": 13788.951655489798,
+                    "error_pct": 17.41659186985807
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "NESTLEIND.NS": {
+            "winner": "median",
+            "median_error": 6.54,
+            "sd_error": 9.8,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1067.44775390625,
+                    "predicted_price": 1067.8414306640625,
+                    "error_pct": 0.03688018981461787
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1067.44775390625,
+                    "predicted_price": 1075.9485662526795,
+                    "error_pct": 0.79636800164892
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1138.2828369140625,
+                    "predicted_price": 1060.1976022621939,
+                    "error_pct": 6.859914963100149
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1084.38623046875,
+                    "predicted_price": 1059.4250831632298,
+                    "error_pct": 2.3018687073082957
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1106.349853515625,
+                    "predicted_price": 1079.5088293364822,
+                    "error_pct": 2.4260882842665557
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1182.7147216796875,
+                    "predicted_price": 1094.1166818957927,
+                    "error_pct": 7.491074403645554
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1186.6766357421875,
+                    "predicted_price": 1108.2662362765045,
+                    "error_pct": 6.607562422988339
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1220.897216796875,
+                    "predicted_price": 1111.2690793272434,
+                    "error_pct": 8.97930931133172
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1117.814697265625,
+                    "predicted_price": 1132.6710693750667,
+                    "error_pct": 1.3290549986310864
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1168.0933837890625,
+                    "predicted_price": 1140.7732753395853,
+                    "error_pct": 2.338863384437311
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1146.708740234375,
+                    "predicted_price": 1147.3891290728648,
+                    "error_pct": 0.05933405882566986
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1264.7713623046875,
+                    "predicted_price": 1177.6244768406104,
+                    "error_pct": 6.890327221299235
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1253.830322265625,
+                    "predicted_price": 1172.6552289371002,
+                    "error_pct": 6.474168943517365
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1281.083251953125,
+                    "predicted_price": 1181.558119072934,
+                    "error_pct": 7.768826321666145
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "NTPC.NS": {
+            "winner": "median",
+            "median_error": 10.58,
+            "sd_error": 10.73,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 322.5549621582031,
+                    "predicted_price": 322.2649841308594,
+                    "error_pct": 0.08990034610024844
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 322.5549621582031,
+                    "predicted_price": 332.9603811761344,
+                    "error_pct": 3.2259367359624496
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 315.66912841796875,
+                    "predicted_price": 332.1510587095406,
+                    "error_pct": 5.221267716033544
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 303.44183349609375,
+                    "predicted_price": 324.00708982889967,
+                    "error_pct": 6.777330632320562
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 343.0953063964844,
+                    "predicted_price": 329.3032757515414,
+                    "error_pct": 4.019883218397861
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 345.43359375,
+                    "predicted_price": 332.5760746132987,
+                    "error_pct": 3.722139180825196
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 325.3145751953125,
+                    "predicted_price": 328.7301838111846,
+                    "error_pct": 1.0499402351774199
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 326.2888488769531,
+                    "predicted_price": 325.25411126956465,
+                    "error_pct": 0.31712319037255515
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 325.65557861328125,
+                    "predicted_price": 328.4866672856429,
+                    "error_pct": 0.8693505833424094
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 322.1968688964844,
+                    "predicted_price": 336.4869846102388,
+                    "error_pct": 4.4352124720198765
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 335.05426025390625,
+                    "predicted_price": 339.83117916073405,
+                    "error_pct": 1.4257150179818108
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 331.6097412109375,
+                    "predicted_price": 341.0795427598102,
+                    "error_pct": 2.855706685301782
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 324.64898681640625,
+                    "predicted_price": 336.87590226574656,
+                    "error_pct": 3.766195474454017
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 327.0805969238281,
+                    "predicted_price": 348.05620948849577,
+                    "error_pct": 6.4129797860044055
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "ONGC.NS": {
+            "winner": "median",
+            "median_error": 11.9,
+            "sd_error": 12.91,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 220.39593505859375,
+                    "predicted_price": 222.5352325439453,
+                    "error_pct": 0.970661044534608
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 220.39593505859375,
+                    "predicted_price": 225.87241074400845,
+                    "error_pct": 2.484835159940105
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 244.26321411132812,
+                    "predicted_price": 226.77403150901517,
+                    "error_pct": 7.159973991966669
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 213.6844024658203,
+                    "predicted_price": 227.21132549758158,
+                    "error_pct": 6.330327752361316
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 235.33270263671875,
+                    "predicted_price": 228.98112264398134,
+                    "error_pct": 2.6989789016031054
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 231.89857482910156,
+                    "predicted_price": 232.9928442802771,
+                    "error_pct": 0.4718741596329173
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 227.10784912109375,
+                    "predicted_price": 228.31468319051675,
+                    "error_pct": 0.5313924966016973
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 231.6708984375,
+                    "predicted_price": 230.18225480297986,
+                    "error_pct": 0.6425682485630579
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 228.62570190429688,
+                    "predicted_price": 225.98568982361508,
+                    "error_pct": 1.1547310992125082
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 226.46278381347656,
+                    "predicted_price": 225.60743803983272,
+                    "error_pct": 0.3776981626916425
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 228.39691162109375,
+                    "predicted_price": 229.55892026289496,
+                    "error_pct": 0.5087672304995782
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 243.53118896484375,
+                    "predicted_price": 231.65488485042684,
+                    "error_pct": 4.876707646728312
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 239.20120239257812,
+                    "predicted_price": 228.96283236690016,
+                    "error_pct": 4.280233511901293
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 234.853515625,
+                    "predicted_price": 232.39640000499827,
+                    "error_pct": 1.0462332716045455
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "POWERGRID.NS": {
+            "winner": "sd",
+            "median_error": 14.2,
+            "sd_error": 13.74,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 297.1015930175781,
+                    "predicted_price": 295.47442626953125,
+                    "error_pct": 0.547680250220201
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 297.1015930175781,
+                    "predicted_price": 298.8193076958877,
+                    "error_pct": 0.5781573437096762
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 288.7264709472656,
+                    "predicted_price": 305.00913966688444,
+                    "error_pct": 5.639479008002961
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 242.91087341308594,
+                    "predicted_price": 311.81771415282276,
+                    "error_pct": 28.367128968556383
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 280.14398193359375,
+                    "predicted_price": 313.48002236336714,
+                    "error_pct": 11.899609693445235
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 297.71954345703125,
+                    "predicted_price": 322.06693465976554,
+                    "error_pct": 8.177962024266055
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 280.5797424316406,
+                    "predicted_price": 324.54617458697,
+                    "error_pct": 15.669852632372836
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 290.4084777832031,
+                    "predicted_price": 330.14725924293487,
+                    "error_pct": 13.683753918987755
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 281.7901611328125,
+                    "predicted_price": 336.5160244700401,
+                    "error_pct": 19.42078570707598
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 272.1647644042969,
+                    "predicted_price": 330.4126439201547,
+                    "error_pct": 21.401697476654785
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 272.55377197265625,
+                    "predicted_price": 328.8734915292716,
+                    "error_pct": 20.66370945776731
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 280.23681640625,
+                    "predicted_price": 327.68974588920196,
+                    "error_pct": 16.93315321358812
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 266.65643310546875,
+                    "predicted_price": 326.4787659123931,
+                    "error_pct": 22.43423573556286
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 261.66253662109375,
+                    "predicted_price": 330.1746281025238,
+                    "error_pct": 26.18337816568694
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "RELIANCE.NS": {
+            "winner": "sd",
+            "median_error": 9.85,
+            "sd_error": 8.83,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1216.391845703125,
+                    "predicted_price": 1210.6148681640625,
+                    "error_pct": 0.47492734840911127
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1216.391845703125,
+                    "predicted_price": 1194.837819420535,
+                    "error_pct": 1.7719640557217735
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1260.0673828125,
+                    "predicted_price": 1224.5407119498539,
+                    "error_pct": 2.819426274121133
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1195.325927734375,
+                    "predicted_price": 1228.456517424894,
+                    "error_pct": 2.771678328212522
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1247.6170654296875,
+                    "predicted_price": 1241.071005135536,
+                    "error_pct": 0.5246850556582356
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1399.410888671875,
+                    "predicted_price": 1297.5445175140517,
+                    "error_pct": 7.279232424331114
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1415.2476806640625,
+                    "predicted_price": 1308.5135183535833,
+                    "error_pct": 7.541730240490299
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1494.630615234375,
+                    "predicted_price": 1337.068131963306,
+                    "error_pct": 10.54190123399562
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1384.669677734375,
+                    "predicted_price": 1360.8960903481388,
+                    "error_pct": 1.7169139881170064
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1353.9000244140625,
+                    "predicted_price": 1382.6397518102408,
+                    "error_pct": 2.1227363082895434
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1364.0,
+                    "predicted_price": 1430.3480099973215,
+                    "error_pct": 4.86422360684175
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1486.4000244140625,
+                    "predicted_price": 1457.9383439532637,
+                    "error_pct": 1.9148062428227124
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1566.0999755859375,
+                    "predicted_price": 1455.4846869064693,
+                    "error_pct": 7.063105191485801
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1570.4000244140625,
+                    "predicted_price": 1436.5164308122698,
+                    "error_pct": 8.525445206341386
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "SBILIFE.NS": {
+            "winner": "median",
+            "median_error": 10.43,
+            "sd_error": 12.87,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1395.7994384765625,
+                    "predicted_price": 1385.832275390625,
+                    "error_pct": 0.714082755099551
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1395.7994384765625,
+                    "predicted_price": 1409.045703679244,
+                    "error_pct": 0.949009208453267
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1478.7259521484375,
+                    "predicted_price": 1395.9140679588713,
+                    "error_pct": 5.600218490062272
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1425.8004150390625,
+                    "predicted_price": 1357.3211754434558,
+                    "error_pct": 4.802862930414465
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1543.1048583984375,
+                    "predicted_price": 1373.1937446112731,
+                    "error_pct": 11.010989490598341
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1763.3487548828125,
+                    "predicted_price": 1434.1353380594671,
+                    "error_pct": 18.669784744040836
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1809.684326171875,
+                    "predicted_price": 1481.622323191685,
+                    "error_pct": 18.128134185377938
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1835.7481689453125,
+                    "predicted_price": 1540.1121195644196,
+                    "error_pct": 16.10439026343923
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1838.1446533203125,
+                    "predicted_price": 1692.8454651344057,
+                    "error_pct": 7.904665605258391
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1807.2877197265625,
+                    "predicted_price": 1720.3279304231687,
+                    "error_pct": 4.811618446483472
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1788.1142578125,
+                    "predicted_price": 1707.7657234218068,
+                    "error_pct": 4.493478760635131
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1952.985107421875,
+                    "predicted_price": 1731.5228288879468,
+                    "error_pct": 11.339680865579119
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1968.863037109375,
+                    "predicted_price": 1746.7579766426722,
+                    "error_pct": 11.280879181560067
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 2032.0751953125,
+                    "predicted_price": 1776.017102547312,
+                    "error_pct": 12.600817792365717
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "SBIN.NS": {
+            "winner": "median",
+            "median_error": 9.33,
+            "sd_error": 10.62,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 777.58642578125,
+                    "predicted_price": 779.3019409179688,
+                    "error_pct": 0.22062050980315817
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 777.58642578125,
+                    "predicted_price": 778.323356752713,
+                    "error_pct": 0.09477158384325395
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 757.68603515625,
+                    "predicted_price": 777.3460014140754,
+                    "error_pct": 2.594737839370519
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 675.241455078125,
+                    "predicted_price": 758.5510385046996,
+                    "error_pct": 12.337747156968573
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 756.5096435546875,
+                    "predicted_price": 749.3316236796309,
+                    "error_pct": 0.9488338894569215
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 773.1259765625,
+                    "predicted_price": 776.7243523595039,
+                    "error_pct": 0.4654320131633797
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 812.2999877929688,
+                    "predicted_price": 775.7490049208819,
+                    "error_pct": 4.499690190984293
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 820.3499755859375,
+                    "predicted_price": 783.255058870758,
+                    "error_pct": 4.521840411914964
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 796.5499877929688,
+                    "predicted_price": 804.3427716657105,
+                    "error_pct": 0.9783169910445345
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 806.0499877929688,
+                    "predicted_price": 791.8414431200326,
+                    "error_pct": 1.7627374093559978
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 872.4500122070312,
+                    "predicted_price": 790.8471128650384,
+                    "error_pct": 9.353303707975487
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 937.0,
+                    "predicted_price": 800.8500766797705,
+                    "error_pct": 14.530408038444984
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 973.0999755859375,
+                    "predicted_price": 834.3094939462263,
+                    "error_pct": 14.262715560766567
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 982.2000122070312,
+                    "predicted_price": 833.26183575775,
+                    "error_pct": 15.163731887420056
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "SUNPHARMA.NS": {
+            "winner": "median",
+            "median_error": 13.85,
+            "sd_error": 14.23,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1860.3795166015625,
+                    "predicted_price": 1856.8358154296875,
+                    "error_pct": 0.190482702064385
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1860.3795166015625,
+                    "predicted_price": 1908.3526202816465,
+                    "error_pct": 2.578672967100746
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1716.6639404296875,
+                    "predicted_price": 1942.8492333628424,
+                    "error_pct": 13.175863231363724
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1577.7735595703125,
+                    "predicted_price": 1949.5796096490342,
+                    "error_pct": 23.565235190021728
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1681.8526611328125,
+                    "predicted_price": 1990.4108217348169,
+                    "error_pct": 18.346325319256852
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1814.5015869140625,
+                    "predicted_price": 2043.9476770420447,
+                    "error_pct": 12.645130309210861
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1661.30419921875,
+                    "predicted_price": 2018.492658726892,
+                    "error_pct": 21.500484960918925
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1659.4227294921875,
+                    "predicted_price": 2019.4187253577043,
+                    "error_pct": 21.69404995288222
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1695.6851806640625,
+                    "predicted_price": 2129.8901725762,
+                    "error_pct": 25.6064626183791
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1553.210693359375,
+                    "predicted_price": 2187.375716764705,
+                    "error_pct": 40.829298054452664
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1584.0106201171875,
+                    "predicted_price": 2254.039591779863,
+                    "error_pct": 42.29952521486918
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1679.788330078125,
+                    "predicted_price": 2249.502297857327,
+                    "error_pct": 33.91581889086616
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1795.7353515625,
+                    "predicted_price": 2295.7303365024263,
+                    "error_pct": 27.843467273998485
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1708.6011962890625,
+                    "predicted_price": 2359.424008692258,
+                    "error_pct": 38.090972534534565
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "TATACONSUM.NS": {
+            "winner": "median",
+            "median_error": 7.69,
+            "sd_error": 8.29,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 913.5294189453125,
+                    "predicted_price": 907.9706420898438,
+                    "error_pct": 0.6084945640706859
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 913.5294189453125,
+                    "predicted_price": 949.9823832490474,
+                    "error_pct": 3.990343775225167
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1017.11181640625,
+                    "predicted_price": 929.3459758952238,
+                    "error_pct": 8.628927429152117
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 956.6101684570312,
+                    "predicted_price": 931.3865938465609,
+                    "error_pct": 2.63676630692258
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 984.9501342773438,
+                    "predicted_price": 924.5110083601428,
+                    "error_pct": 6.136262518664972
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1157.223388671875,
+                    "predicted_price": 963.1267235701471,
+                    "error_pct": 16.772618580107444
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1106.300048828125,
+                    "predicted_price": 954.647612494852,
+                    "error_pct": 13.708074630740056
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1098.9000244140625,
+                    "predicted_price": 994.3066382727462,
+                    "error_pct": 9.518007445407587
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1073.199951171875,
+                    "predicted_price": 1012.8054563386054,
+                    "error_pct": 5.627515615083859
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1075.699951171875,
+                    "predicted_price": 1015.0293310300796,
+                    "error_pct": 5.640106246700155
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1129.300048828125,
+                    "predicted_price": 1012.322877087838,
+                    "error_pct": 10.358378347869037
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1165.0,
+                    "predicted_price": 1014.8608895155753,
+                    "error_pct": 12.887477294800403
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1163.800048828125,
+                    "predicted_price": 1017.0892774388786,
+                    "error_pct": 12.606183642712084
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1192.0,
+                    "predicted_price": 1064.149930590851,
+                    "error_pct": 10.72567696385478
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "TATASTEEL.NS": {
+            "winner": "sd",
+            "median_error": 7.58,
+            "sd_error": 7.58,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 133.6238250732422,
+                    "predicted_price": 134.90396118164062,
+                    "error_pct": 0.9580148657597299
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 133.6238250732422,
+                    "predicted_price": 142.86401603916516,
+                    "error_pct": 6.915077427889991
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 131.5521240234375,
+                    "predicted_price": 139.35016446107747,
+                    "error_pct": 5.927719142148294
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 134.07333374023438,
+                    "predicted_price": 141.54421141502556,
+                    "error_pct": 5.57223234954829
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 149.63052368164062,
+                    "predicted_price": 140.3859778886041,
+                    "error_pct": 6.178248639098243
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 136.8876953125,
+                    "predicted_price": 148.29647761729154,
+                    "error_pct": 8.334410392947673
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 157.35049438476562,
+                    "predicted_price": 149.1119319208304,
+                    "error_pct": 5.235803354891067
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 159.75999450683594,
+                    "predicted_price": 148.86208479486217,
+                    "error_pct": 6.8214259430933195
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 157.94000244140625,
+                    "predicted_price": 152.67845851837586,
+                    "error_pct": 3.3313561109905354
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 156.1699981689453,
+                    "predicted_price": 149.6760297186369,
+                    "error_pct": 4.158268890599086
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 168.77000427246094,
+                    "predicted_price": 149.10163524278204,
+                    "error_pct": 11.653948291620852
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 182.83999633789062,
+                    "predicted_price": 152.90223647747055,
+                    "error_pct": 16.37374779044226
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 168.6300048828125,
+                    "predicted_price": 153.49062300264674,
+                    "error_pct": 8.977869561639814
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 180.0800018310547,
+                    "predicted_price": 162.54739026518553,
+                    "error_pct": 9.736012543090542
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "TECHM.NS": {
+            "winner": "median",
+            "median_error": 10.95,
+            "sd_error": 15.73,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1655.9381103515625,
+                    "predicted_price": 1658.22216796875,
+                    "error_pct": 0.13793133951742828
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 1655.9381103515625,
+                    "predicted_price": 1731.8006009379803,
+                    "error_pct": 4.581239486680569
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 1627.3648681640625,
+                    "predicted_price": 1729.4151772513453,
+                    "error_pct": 6.270892968361329
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 1446.0120849609375,
+                    "predicted_price": 1711.9710245600882,
+                    "error_pct": 18.392580695916884
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 1355.918701171875,
+                    "predicted_price": 1725.7346192541415,
+                    "error_pct": 27.274195551890173
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 1460.736083984375,
+                    "predicted_price": 1691.5460164998467,
+                    "error_pct": 15.80093317650532
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 1529.642333984375,
+                    "predicted_price": 1642.6189288780577,
+                    "error_pct": 7.385817742073337
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 1639.56201171875,
+                    "predicted_price": 1665.147791556811,
+                    "error_pct": 1.5605252899973827
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 1448.5330810546875,
+                    "predicted_price": 1769.3682361559238,
+                    "error_pct": 22.148969830059652
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 1489.9000244140625,
+                    "predicted_price": 1853.4455711438104,
+                    "error_pct": 24.40066721072245
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 1385.7901611328125,
+                    "predicted_price": 1885.597133235964,
+                    "error_pct": 36.06656953709247
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 1424.4000244140625,
+                    "predicted_price": 1922.8728523716036,
+                    "error_pct": 34.9952835870381
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 1529.5,
+                    "predicted_price": 1955.4298704935916,
+                    "error_pct": 27.847654167609782
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 1590.9000244140625,
+                    "predicted_price": 2042.1959676013073,
+                    "error_pct": 28.367335235503543
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "TITAN.NS": {
+            "winner": "median",
+            "median_error": 8.24,
+            "sd_error": 8.67,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3244.087158203125,
+                    "predicted_price": 3243.388916015625,
+                    "error_pct": 0.021523533538067793
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 3244.087158203125,
+                    "predicted_price": 3303.890809426442,
+                    "error_pct": 1.8434662296940822
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 3479.77783203125,
+                    "predicted_price": 3217.619014713277,
+                    "error_pct": 7.533780315076697
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 3068.016845703125,
+                    "predicted_price": 3199.496586622498,
+                    "error_pct": 4.285496055978811
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 2977.98779296875,
+                    "predicted_price": 3259.048859338151,
+                    "error_pct": 9.43795226538561
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 3369.559326171875,
+                    "predicted_price": 3338.8632088837726,
+                    "error_pct": 0.9109831380525355
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 3544.33349609375,
+                    "predicted_price": 3407.0393265413554,
+                    "error_pct": 3.873624468569564
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 3679.127685546875,
+                    "predicted_price": 3543.203799701584,
+                    "error_pct": 3.694459596475973
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 3347.300048828125,
+                    "predicted_price": 3639.59445350388,
+                    "error_pct": 8.732243910374445
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 3618.60009765625,
+                    "predicted_price": 3688.4133540429066,
+                    "error_pct": 1.929289075957144
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 3367.0,
+                    "predicted_price": 3724.0834642041846,
+                    "error_pct": 10.605389492253774
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 3746.699951171875,
+                    "predicted_price": 3818.562547609102,
+                    "error_pct": 1.9180237909029771
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 3894.89990234375,
+                    "predicted_price": 3836.309087703993,
+                    "error_pct": 1.5042957741866476
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 4051.5,
+                    "predicted_price": 3907.8712621842424,
+                    "error_pct": 3.5450755970815164
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "TMPV.NS": {
+            "winner": "median",
+            "median_error": 100.0,
+            "sd_error": 100.0,
+            "years_tested": [],
+            "detailed_path": [],
+            "last_updated": "2026-03-20"
+        },
+        "ULTRACEMCO.NS": {
+            "winner": "median",
+            "median_error": 9.19,
+            "sd_error": 9.4,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 11374.8974609375,
+                    "predicted_price": 11354.3779296875,
+                    "error_pct": 0.18039310965629413
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 11374.8974609375,
+                    "predicted_price": 11767.9834572357,
+                    "error_pct": 3.4557322177900494
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 11415.09375,
+                    "predicted_price": 11736.531454598604,
+                    "error_pct": 2.8159006981314008
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 10064.6533203125,
+                    "predicted_price": 12070.01733393832,
+                    "error_pct": 19.92481956212631
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 11306.978515625,
+                    "predicted_price": 12420.494217576705,
+                    "error_pct": 9.848039424616829
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 11567.67578125,
+                    "predicted_price": 12623.54351838413,
+                    "error_pct": 9.127743179365218
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 11139.390625,
+                    "predicted_price": 12616.916449743752,
+                    "error_pct": 13.263973537544855
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 12016.8291015625,
+                    "predicted_price": 12820.783615292423,
+                    "error_pct": 6.690238389305112
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 12249.0,
+                    "predicted_price": 13448.11017338429,
+                    "error_pct": 9.789453615677115
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 12826.0,
+                    "predicted_price": 13605.202147546883,
+                    "error_pct": 6.0751765752914615
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 12222.0,
+                    "predicted_price": 14084.794222352504,
+                    "error_pct": 15.24132075235235
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 11947.0,
+                    "predicted_price": 14256.87860146546,
+                    "error_pct": 19.334381865451242
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 11662.0,
+                    "predicted_price": 14463.112552064898,
+                    "error_pct": 24.019143818083506
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 11784.0,
+                    "predicted_price": 14989.959846925942,
+                    "error_pct": 27.20604079197167
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "UPL.NS": {
+            "winner": "sd",
+            "median_error": 17.1,
+            "sd_error": 15.22,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 495.9613342285156,
+                    "predicted_price": 496.4568176269531,
+                    "error_pct": 0.09990363446542479
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 495.9613342285156,
+                    "predicted_price": 507.7971051855098,
+                    "error_pct": 2.3864301791600555
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 598.2750244140625,
+                    "predicted_price": 511.39732419393664,
+                    "error_pct": 14.521365036959713
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 627.2102661132812,
+                    "predicted_price": 495.09595077614574,
+                    "error_pct": 21.06379988896326
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 628.9939575195312,
+                    "predicted_price": 504.3138302524784,
+                    "error_pct": 19.822150241114414
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 663.8251953125,
+                    "predicted_price": 543.9072777824849,
+                    "error_pct": 18.064683048609346
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 622.2060546875,
+                    "predicted_price": 555.3178347175683,
+                    "error_pct": 10.750171822665079
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 655.2536010742188,
+                    "predicted_price": 548.2699725210429,
+                    "error_pct": 16.327056940669628
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 703.7999877929688,
+                    "predicted_price": 578.5115570683802,
+                    "error_pct": 17.80170970412743
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 727.9500122070312,
+                    "predicted_price": 572.6587753365355,
+                    "error_pct": 21.332678654634105
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 655.7999877929688,
+                    "predicted_price": 586.8143258166056,
+                    "error_pct": 10.51931431236035
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 720.0999755859375,
+                    "predicted_price": 584.196691245155,
+                    "error_pct": 18.872835571227387
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 750.8499755859375,
+                    "predicted_price": 579.5820712629985,
+                    "error_pct": 22.80987013275021
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 795.1500244140625,
+                    "predicted_price": 592.8211428570261,
+                    "error_pct": 25.44537198576211
+                }
+            ],
+            "last_updated": "2026-03-20"
+        },
+        "WIPRO.NS": {
+            "winner": "median",
+            "median_error": 9.97,
+            "sd_error": 10.16,
+            "years_tested": [
+                2025,
+                2024,
+                2023
+            ],
+            "detailed_path": [
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 281.50140380859375,
+                    "predicted_price": 282.9543762207031,
+                    "error_pct": 0.5161510359988544
+                },
+                {
+                    "date": "2025-01-01",
+                    "actual_price": 281.50140380859375,
+                    "predicted_price": 294.5482271888591,
+                    "error_pct": 4.634727643893556
+                },
+                {
+                    "date": "2025-01-31",
+                    "actual_price": 298.18499755859375,
+                    "predicted_price": 299.1280636262553,
+                    "error_pct": 0.3162687846078668
+                },
+                {
+                    "date": "2025-02-28",
+                    "actual_price": 265.4410705566406,
+                    "predicted_price": 296.64721297521896,
+                    "error_pct": 11.756335352753739
+                },
+                {
+                    "date": "2025-04-01",
+                    "actual_price": 251.05284118652344,
+                    "predicted_price": 299.34085088264993,
+                    "error_pct": 19.234201639745713
+                },
+                {
+                    "date": "2025-04-30",
+                    "actual_price": 230.8806610107422,
+                    "predicted_price": 288.3049637909505,
+                    "error_pct": 24.871854805343162
+                },
+                {
+                    "date": "2025-05-30",
+                    "actual_price": 238.69140625,
+                    "predicted_price": 290.9228517919165,
+                    "error_pct": 21.882415610392975
+                },
+                {
+                    "date": "2025-06-30",
+                    "actual_price": 254.2842254638672,
+                    "predicted_price": 293.56451093263496,
+                    "error_pct": 15.44739371744841
+                },
+                {
+                    "date": "2025-07-31",
+                    "actual_price": 242.05084228515625,
+                    "predicted_price": 296.41471287553105,
+                    "error_pct": 22.459690731556964
+                },
+                {
+                    "date": "2025-09-01",
+                    "actual_price": 244.0590057373047,
+                    "predicted_price": 303.52069278129045,
+                    "error_pct": 24.36365208665479
+                },
+                {
+                    "date": "2025-09-30",
+                    "actual_price": 233.3455810546875,
+                    "predicted_price": 306.2767437671249,
+                    "error_pct": 31.254572031233398
+                },
+                {
+                    "date": "2025-10-31",
+                    "actual_price": 234.6128692626953,
+                    "predicted_price": 306.405275165252,
+                    "error_pct": 30.600369932039396
+                },
+                {
+                    "date": "2025-12-01",
+                    "actual_price": 243.98101806640625,
+                    "predicted_price": 314.48257015386145,
+                    "error_pct": 28.8963267086074
+                },
+                {
+                    "date": "2025-12-31",
+                    "actual_price": 256.6538391113281,
+                    "predicted_price": 327.36826607115165,
+                    "error_pct": 27.55245244126268
                 }
             ],
             "last_updated": "2026-03-20"
