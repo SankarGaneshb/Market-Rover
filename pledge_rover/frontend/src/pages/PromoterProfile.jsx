@@ -86,6 +86,10 @@ export default function PromoterProfile() {
            const dynamicData = {
               title: pData.company_name,
               score: pData.governance_score.toFixed(1),
+              holding: pData.holding_pct ? pData.holding_pct.toFixed(1) + '%' : 'N/A',
+              prePledge: pData.holding_pct ? pData.holding_pct.toFixed(1) + '%' : '0%',
+              postPledge: (pData.holding_pct - pData.pledged_pct).toFixed(1) + '%',
+              pledgedOfHolding: pData.holding_pct > 0 ? ((pData.pledged_pct / pData.holding_pct) * 100).toFixed(1) + '%' : '0%',
               skin: pData.skin_in_the_game.toFixed(1) + '%',
               danger: pData.intent_label === 'Survival',
               a1: `Extracted SAST Regulation 31. Total encumbered stands at ${pData.pledged_pct}% of total shares.`,
@@ -136,15 +140,20 @@ export default function PromoterProfile() {
           <p className="text-xl text-trust-silver font-display">{data.title} Target Analysis</p>
         </div>
         
-        <div className="flex gap-8 bg-navy-900/50 p-4 rounded-xl border border-navy-700">
+        <div className="flex gap-4 md:gap-8 bg-navy-900/50 p-4 rounded-xl border border-navy-700">
           <div className="text-center">
             <p className="text-xs text-navy-400 uppercase tracking-wider mb-1">Gov Score</p>
-            <p className="text-3xl font-mono text-white">{data.score}<span className="text-sm text-navy-500">/10</span></p>
+            <p className="text-xl md:text-3xl font-mono text-white">{data.score}<span className="text-sm text-navy-500">/10</span></p>
           </div>
           <div className="w-px bg-navy-700"></div>
           <div className="text-center">
-            <p className="text-xs text-navy-400 uppercase tracking-wider mb-1" title="Calculated as unencumbered holding relative to SEBI's 75% max limit">Normalized Skin In Game</p>
-            <p className={`text-xl md:text-2xl font-mono ${data.danger ? 'text-red-400' : 'text-emerald-400'}`}>{data.skin}</p>
+            <p className="text-xs text-navy-400 uppercase tracking-wider mb-1">Sys Holding</p>
+            <p className="text-xl md:text-3xl font-mono text-white">{data.holding}</p>
+          </div>
+          <div className="w-px bg-navy-700"></div>
+          <div className="text-center">
+            <p className="text-xs text-navy-400 uppercase tracking-wider mb-1" title="Calculated as unencumbered holding relative to SEBI's 75% max limit">Norm Skin</p>
+            <p className={`text-xl md:text-3xl font-mono ${data.danger ? 'text-red-400' : 'text-emerald-400'}`}>{data.skin}</p>
           </div>
         </div>
       </header>
@@ -213,8 +222,27 @@ export default function PromoterProfile() {
           </section>
         </div>
 
-        {/* Right Col: Synthesis */}
+        {/* Right Col: Synthesis & Impact */}
         <div className="space-y-6">
+          <section className="glass-panel p-6 border-t-2 border-t-trust-blue">
+             <h3 className="text-sm uppercase tracking-wider text-navy-400 font-bold mb-4">Pledge Impact Analysis</h3>
+             <div className="space-y-3">
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-trust-silver">Pre-Pledge Holding</span>
+                 <span className="font-mono text-white">{data.prePledge}</span>
+               </div>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-trust-silver">Post-Pledge Holding <span className="text-[10px] text-navy-400 ml-1">(Unencumbered)</span></span>
+                 <span className="font-mono text-emerald-400">{data.postPledge}</span>
+               </div>
+               <div className="w-full bg-navy-700 h-px my-2"></div>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-trust-silver">Holding Pledged</span>
+                 <span className="font-mono text-red-400">{data.pledgedOfHolding}</span>
+               </div>
+             </div>
+          </section>
+
           <section className="glass-panel p-6 border-t-2 border-t-electric-cyan">
              <h3 className="text-sm uppercase tracking-wider text-navy-400 font-bold mb-4">Skeptic Synthesis</h3>
              <div className="prose prose-invert prose-sm">
