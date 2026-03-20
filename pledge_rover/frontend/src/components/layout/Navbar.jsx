@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, ShieldAlert, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils.js';
+import logo from '../../assets/logo.png';
 
 export default function Navbar() {
   const location = useLocation();
@@ -15,9 +16,8 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 w-full glass-card border-x-0 border-t-0 rounded-none px-6 py-4 flex items-center justify-between">
       <div className="flex items-center space-x-8">
         <Link to="/" className="flex items-center group">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-navy-700 to-navy-900 border border-electric-cyan/30 shadow-glow group-hover:shadow-glow-lg transition-all duration-300">
-            <Zap className="text-electric-cyan w-5 h-5 absolute z-10" />
-            <ShieldAlert className="text-trust-blue w-6 h-6 opacity-30 group-hover:opacity-50 transition-opacity" />
+          <div className="relative flex items-center justify-center w-10 h-10 transition-transform duration-300 group-hover:scale-105">
+            <img src={logo} alt="Pledge Rover Logo" className="w-full h-full object-contain drop-shadow-lg" />
           </div>
           <span className="ml-3 text-xl font-display font-bold text-white tracking-wide">
             Pledge<span className="text-electric-cyan">Rover</span>
