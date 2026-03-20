@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ShieldAlert, Cpu, GitMerge, FileText, CheckCircle2, TrendingDown } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Cpu, GitMerge, FileText, CheckCircle2, TrendingDown, Network } from 'lucide-react';
+import ShadowNetworkGraph from '../components/ShadowNetworkGraph';
 
 const DOSSIER_DATA = {
   'LLOYDSME': {
@@ -83,6 +84,42 @@ export default function PromoterProfile() {
            const pData = await res.json();
            
            // Synthesize the AI text locally for now until AI Council prompt is fully integrated
+           // Create mock network data based on symbol
+           let mockNetwork = { nodes: [], edges: [] };
+           if (symbol === 'LLOYDSME') {
+             mockNetwork = {
+               nodes: [
+                 { id: '1', type: 'glass', position: { x: 250, y: 50 }, data: { label: 'Thriveni Earthmovers', entityType: 'promoter', description: 'Key Promoter Entity' } },
+                 { id: '2', type: 'glass', position: { x: 250, y: 250 }, data: { label: 'Banking Consortium', entityType: 'lender_safe', description: 'Working Capital & Capex' } }
+               ],
+               edges: [
+                 { id: 'e1-2', source: '1', target: '2', animated: true, label: 'Pledge (1.31Cr)' }
+               ]
+             };
+           } else if (symbol === 'CAMLINFINE') {
+             mockNetwork = {
+               nodes: [
+                 { id: '1', type: 'glass', position: { x: 250, y: 50 }, data: { label: 'Ashish Dandekar', entityType: 'promoter', description: 'Primary Promoter' } },
+                 { id: '2', type: 'glass', position: { x: 100, y: 250 }, data: { label: 'High-Yield Fund', entityType: 'lender_risky', description: 'Expensive Foreign Debt' } },
+                 { id: '3', type: 'glass', position: { x: 400, y: 250 }, data: { label: 'Mexico Subsidiary', entityType: 'subsidiary', description: 'Acquisition Target' } }
+               ],
+               edges: [
+                 { id: 'e1-2', source: '1', target: '2', animated: true, label: 'Pledge (88L)' },
+                 { id: 'e1-3', source: '1', target: '3', animated: true, label: 'Capital Flow' }
+               ]
+             };
+           } else {
+             mockNetwork = {
+               nodes: [
+                 { id: '1', type: 'glass', position: { x: 250, y: 50 }, data: { label: pData.company_name + ' Promoter', entityType: 'promoter', description: 'Core Holding' } },
+                 { id: '2', type: 'glass', position: { x: 250, y: 250 }, data: { label: 'Primary Lender', entityType: pData.intent_label === 'Survival' ? 'lender_risky' : 'lender_safe', description: 'Credit Facility' } }
+               ],
+               edges: [
+                 { id: 'e1-2', source: '1', target: '2', animated: true, label: 'Encumbrance' }
+               ]
+             };
+           }
+
            const dynamicData = {
               title: pData.company_name,
               score: pData.governance_score.toFixed(1),
@@ -98,7 +135,8 @@ export default function PromoterProfile() {
               a3_alert: pData.intent_label === 'Survival' ? 'Contagion proximity: Warning Zone' : 'Contagion proximity: Safe Zone',
               synthesis: `This represents a ${pData.intent_label} pledging pattern based on the 8-quarter time-series analysis.`,
               sentiment: pData.intent_label === 'Survival' ? 'Cautious on Corporate Governance Risk' : 'Neutral/Positive',
-              action: pData.intent_label === 'Survival' ? 'Flag for Institutional Monitoring' : 'Clear for Allocation'
+              action: pData.intent_label === 'Survival' ? 'Flag for Institutional Monitoring' : 'Clear for Allocation',
+              network: mockNetwork
            };
            setData(dynamicData);
         }
@@ -260,9 +298,58 @@ export default function PromoterProfile() {
                </div>
              </div>
           </section>
+
+          {/* New Methodology Box */}
+          <section className="glass-panel p-6 border-t-2 border-t-trust-silver mt-6">
+             <h3 className="text-sm uppercase tracking-wider text-navy-400 font-bold mb-4 flex items-center">
+               <FileText className="w-4 h-4 mr-2" /> Methodology & Formulas
+             </h3>
+             <div className="space-y-4 text-xs text-trust-silver leading-relaxed">
+               <div>
+                 <strong className="text-white text-sm">Gov Score (The Council Rating)</strong>
+                 <p className="mt-1">A qualitative risk score (1-10) debated and finalized by The Skeptic. It heavily penalizes "Survival" intent, obscure shadow lenders (non-Tier 1 banks), and elevated Loan-to-Value (LTV) ratios approaching the Contagion Zone.</p>
+               </div>
+               <div className="w-full bg-navy-700 h-px my-2"></div>
+               <div>
+                 <strong className="text-white text-sm">Norm Skin (Normalized Skin in the Game)</strong>
+                 <p className="mt-1">Since SEBI limits maximum promoter holding to 75% (to maintain a 25% minimum float), an 80% holding is technically impossible. This metric converts raw unencumbered holding into an *effective* commitment relative to the highest legally permissible holding.</p>
+                 <code className="block bg-navy-900/50 p-2 mt-2 rounded border border-navy-700 font-mono text-electric-cyan text-[10px] shadow-inner">
+                   Formula: ((Raw Holding % - Pledged %) ÷ 75%) × 100
+                 </code>
+               </div>
+               <div className="w-full bg-navy-700 h-px my-2"></div>
+               <div>
+                 <strong className="text-white text-sm">Layer 1 & Layer 2 Commitment</strong>
+                 <p className="mt-1"><span className="text-trust-blue font-semibold">Layer 1:</span> The promoter's direct, unencumbered shareholding (highest accountability).<br/><span className="text-orange-400 font-semibold">Layer 2:</span> The percentage of holding routed through opaque shell entities, trusts, or LLPs. High Layer 2 indicates risk obfuscation.</p>
+               </div>
+               <div className="w-full bg-navy-700 h-px my-2"></div>
+               <div>
+                 <strong className="text-white text-sm">Release-to-Create Ratio</strong>
+                 <p className="mt-1">An 8-quarter rolling ratio tracking shares being released from pledge vs new pledges being created. A ratio {">"} 1.0x implies debt reduction and health; ratio {"<"} 1.0x implies heavy debt dependency.</p>
+               </div>
+               <div className="w-full bg-navy-700 h-px my-2"></div>
+               <div>
+                 <strong className="text-white text-sm">Contagion Proximity</strong>
+                 <p className="mt-1">The percentage drop required from the Current Market Price (CMP) to trigger the Actuary's Margin Call Trigger Price. The closer to 0%, the higher the immediate risk of a systemic institutional sell-off.</p>
+                 <code className="block bg-navy-900/50 p-2 mt-2 rounded border border-navy-700 font-mono text-electric-cyan text-[10px] shadow-inner">
+                   Formula: ((CMP - Trigger Price) ÷ CMP) × 100
+                 </code>
+               </div>
+             </div>
+          </section>
         </div>
 
       </div>
+
+      {/* Bottom Full-Width Row: Network Visualization */}
+      <section className="glass-panel p-6 border-t-2 border-t-electric-cyan mt-6">
+        <h2 className="text-xl font-semibold text-white mb-2 border-b border-navy-700 pb-3 flex items-center">
+          <Network className="w-5 h-5 mr-2 text-electric-cyan" />
+          The Genealogist's Shadow Network
+        </h2>
+        <p className="text-sm text-trust-silver mb-6">Interactive map of entity relationships, shadow holding companies, and the lender network.</p>
+        <ShadowNetworkGraph initialNodes={data.network.nodes} initialEdges={data.network.edges} />
+      </section>
     </div>
   );
 }

@@ -205,8 +205,9 @@ class AnalyticsForecast:
                 continue
             
             def calculate_monthly_error(path, actual_df):
-                if not path or actual_df.empty: return 100.0
+                if not path or actual_df.empty: return 100.0, []
                 monthly_errors = []
+                detailed_path = []
                 for point in path:
                     pred_date = point['date']
                     pred_price = point['price']
@@ -217,24 +218,34 @@ class AnalyticsForecast:
                     if abs((actual_date - pred_date).days) > 20: continue
                         
                     actual_price = actual_df.iloc[nearest_idx]['Close']
-                    monthly_errors.append(abs((pred_price - actual_price) / actual_price) * 100)
+                    err_val = abs((pred_price - actual_price) / actual_price) * 100
+                    monthly_errors.append(err_val)
+                    
+                    detailed_path.append({
+                        "date": actual_date.strftime("%Y-%m-%d"),
+                        "actual_price": float(actual_price),
+                        "predicted_price": float(pred_price),
+                        "error_pct": float(err_val)
+                    })
                 
-                return np.mean(monthly_errors) if monthly_errors else 100.0
+                return (np.mean(monthly_errors) if monthly_errors else 100.0), detailed_path
 
             path_med = res_med.get('projection_path')
             path_sd = res_sd.get('projection_path')
             
-            err_med = calculate_monthly_error(path_med, test_df)
-            err_sd = calculate_monthly_error(path_sd, test_df)
+            err_med, path_med_details = calculate_monthly_error(path_med, test_df)
+            err_sd, path_sd_details = calculate_monthly_error(path_sd, test_df)
             
             errors['median'].append(err_med)
             errors['sd'].append(err_sd)
             tested_years.append(test_year)
             
             detailed_metrics.append({
-                'year': test_year,
-                'median_error': err_med,
-                'sd_error': err_sd,
+                'year': int(test_year),
+                'median_error': float(err_med),
+                'sd_error': float(err_sd),
+                'median_path': path_med_details,
+                'sd_path': path_sd_details
             })
             
         avg_err_med = np.mean(errors['median']) if errors['median'] else 100

@@ -4,9 +4,9 @@ import json
 import time
 import os
 from datetime import datetime
-from market_data import MarketDataFetcher
-from market_analytics import MarketAnalyzer
-from ticker_resources import get_common_tickers
+from rover_tools.market_data import MarketDataFetcher
+from rover_tools.market_analytics import MarketAnalyzer
+from rover_tools.ticker_resources import get_common_tickers
 from rover_tools.memory_tool import evaluate_pending_predictions
 
 from utils.notifications import EmailManager
@@ -35,17 +35,23 @@ def generate_email_summary(results_map, updated_count, failed_count):
             
     results_list.sort(key=lambda x: x["error_score"])
     
+    top_performers_count = sum(1 for x in results_list if x['error_score'] < 10.0)
+    high_error_count = sum(1 for x in results_list if x['error_score'] > 20.0)
+
     # Simple HTML Table
     html = f"<h2>Weekly Strategy Backtest Report ({report_date})</h2>"
-    html += f"<p><b>Strategies Tested:</b> {updated_count}<br><b>Failures:</b> {failed_count}</p>"
+    html += f"<p><b>Strategies Tested:</b> {updated_count} (across Nifty 50, Nifty Next 50, and Midcap)<br><b>Failures:</b> {failed_count}</p>"
+    html += "<p><i><b>What does this mean?</b> We test 2 distinct strategies (Median vs SD) by predicting historical prices month-by-month. <b>Error %</b> represents how far off our mathematical prediction was from the actual stock price (lower is better).</i></p>"
+    html += f"<p>✅ <b>Highly Predictable (< 10% Error):</b> {top_performers_count}<br>"
+    html += f"⚠️ <b>Unpredictable (> 20% Error):</b> {high_error_count}</p>"
     
     if results_list:
-        html += "<h3>🏆 Top Performers</h3>"
+        html += "<h3>🏆 Top 10 Most Predictable Stocks</h3>"
         html += "<table border='1' cellspacing='0' cellpadding='5' style='border-collapse: collapse;'>"
         html += "<tr style='background-color: #f2f2f2;'><th>Ticker</th><th>Strategy</th><th>Error %</th><th>Tested (Years)</th></tr>"
         
         for item in results_list[:10]: # Top 10
-            html += f"<tr><td>{item['ticker']}</td><td>{item['winner'].upper()}</td><td>{item['error_score']}%</td><td>{item['years_tested']}</td></tr>"
+            html += f"<tr><td>{item['ticker']}</td><td>{item['winner'].upper()}</td><td>{item['error_score']}%</td><td>{len(item['years_tested'])}</td></tr>"
         html += "</table>"
         
     return html
@@ -69,31 +75,59 @@ def generate_markdown_report(results_map, updated_count, failed_count):
     # Sort by error score (lower is better)
     results_list.sort(key=lambda x: x["error_score"])
     
+    top_performers_count = sum(1 for x in results_list if x['error_score'] < 10.0)
+    high_error_count = sum(1 for x in results_list if x['error_score'] > 20.0)
+
     md = f"# 🧪 Weekly Strategy Backtest Report\n"
     md += f"**Date:** {report_date}\n\n"
-    md += f"- **Strategies Tested:** {updated_count}\n"
-    md += f"- **Failures:** {failed_count}\n\n"
+    md += "> **What does this mean?** We evaluated 2 distinct strategies (Median Return vs Standard Deviation) for each stock by predicting historical prices month-by-month. The **Error %** represents how far off the mathematical model's final prediction was from the *actual* historical stock price (lower is better).\n\n"
+    md += f"- **Total Stocks Tested:** {updated_count} (across Nifty 50, Nifty Next 50, and Midcap)\n"
+    md += f"- **Failures:** {failed_count}\n"
+    md += f"- **Highly Predictable (< 10% Error):** {top_performers_count} stocks\n"
+    md += f"- **Unpredictable (> 20% Error):** {high_error_count} stocks\n\n"
     
-    md += "## 🏆 Top Performers (Lowest Error)\n"
+    md += "## 🏆 Top 5 Most Predictable Stocks (Lowest Error)\n"
     if results_list:
         md += "| Ticker | Strategy | Error % | Tested |\n"
         md += "|--------|----------|---------|--------|\n"
         for item in results_list[:5]:
-            md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {item['years_tested']}y |\n"
+            md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {len(item['years_tested'])}y |\n"
     else:
         md += "No updates found for this run.\n"
 
-    md += "\n## 📉 Least Accurate (High Error)\n"
+    md += "\n## 📉 Top 5 Least Accurate Stocks (High Error)\n"
     if results_list:
         md += "| Ticker | Strategy | Error % | Tested |\n"
         md += "|--------|----------|---------|--------|\n"
         for item in results_list[-5:][::-1]: # Show worst 5
-             md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {item['years_tested']}y |\n"
+             md += f"| {item['ticker']} | {item['winner'].upper()} | {item['error_score']}% | {len(item['years_tested'])}y |\n"
+
+    md += "\n## 🔍 Month-by-Month Breakdown (Top 5 Predictable Stocks)\n"
+    md += "Here is the exact mathematical prediction versus the actual recorded stock price for the most recent year tested.\n\n"
+    
+    for item in results_list[:5]:
+        ticker = item['ticker']
+        path = item.get('detailed_path', [])
+        md += f"### {ticker} ({item['winner'].upper()} Strategy)\n"
+        if not path:
+             md += "_No detailed monthly data available._\n\n"
+             continue
+        md += "| Date | Predicted Price | Actual Price | Error % |\n"
+        md += "|---|---|---|---|\n"
+        for p in path:
+            md += f"| {p['date']} | ₹{p['predicted_price']:.2f} | ₹{p['actual_price']:.2f} | {p['error_pct']:.2f}% |\n"
+        md += "\n"
 
     with open(SUMMARY_FILE, "w", encoding="utf-8") as f:
         f.write(md)
+        
+    os.makedirs("reports", exist_ok=True)
+    archive_file = f"reports/backtest_summary_{datetime.now().strftime('%Y-%m-%d')}.md"
+    import shutil
+    shutil.copy(SUMMARY_FILE, archive_file)
     
     print(f"Summary report generated: {SUMMARY_FILE}")
+    print(f"Archived to: {archive_file}")
 
 def run_batch_backtest():
     """
@@ -101,9 +135,10 @@ def run_batch_backtest():
     """
     print("🚀 Starting Weekly Batch Backtest...")
     
+    import shutil
     fetcher = MarketDataFetcher()
     analyzer = MarketAnalyzer()
-    tickers = get_common_tickers()
+    tickers = get_common_tickers("Nifty 50")
     
     # Load existing registry if exists to preserve old data
     registry = {}
@@ -141,12 +176,17 @@ def run_batch_backtest():
             # Run Backtest
             backtest_res = analyzer.backtest_strategies(history)
             
+            winner = backtest_res["winner"]
+            latest_metrics = backtest_res.get("detailed_metrics", [{}])[0] if backtest_res.get("detailed_metrics") else {}
+            detailed_path = latest_metrics.get(f"{winner}_path", [])
+            
             # Store simplified result
             results_map[ticker] = {
-                "winner": backtest_res["winner"],
-                "median_error": round(backtest_res["median_avg_error"], 2),
-                "sd_error": round(backtest_res["sd_avg_error"], 2),
+                "winner": winner,
+                "median_error": float(round(backtest_res["median_avg_error"], 2)),
+                "sd_error": float(round(backtest_res["sd_avg_error"], 2)),
                 "years_tested": backtest_res["years_tested"],
+                "detailed_path": detailed_path,
                 "last_updated": datetime.now().strftime("%Y-%m-%d")
             }
             

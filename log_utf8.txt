@@ -1,0 +1,10 @@
+6ef1811 feat: Add Pledge Rover logo to Navbar
+ebdab54 feat(investbrand): auto-select Index, Sector and Company on load
+77b7492 feat(pledge-rover): implement SEBI-normalized Skin in the Game and Survival score algorithms
+50f5b34 fix(pledge-rover): commit missing lib/utils.js and unblock lib/ in gitignore
+372d63f test(investbrand): add coverage tests for feedback endpoint
+8145944 fix(pledge-rover): add missing file extensions to fix Vite 8 module resolution
+31e003b fix(pledge-rover): force Node.js 24 for GitHub Actions
+1096e5a ci: enforce Node.js 24 for GitHub Actions to resolve Node 20 deprecation warnings
+11351e9 feat(investbrand): add dual-pulse feedback UI
+f225c62 feat: adding pledge_rover application (React + FastAPI unified Docker on Cloud Run)

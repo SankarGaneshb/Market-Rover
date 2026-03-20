@@ -43,14 +43,8 @@ jobs:
     - name: Set Date
       run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-    - name: Create Discussion
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh discussion create --category "General" --title "Weekly Strategy Backtest: ${{ env.DATE }}" --body-file backtest_summary.md
-
     - name: Commit Results
       uses: stefanzweifel/git-auto-commit-action@v7
       with:
-        commit_message: "Data: Update weekly backtest registry [skip ci]"
-        file_pattern: data/backtest_registry.json
+        commit_message: "Data: Update weekly backtest registry and reports [skip ci]"
+        file_pattern: data/backtest_registry.json backtest_summary.md reports/backtest_summary_*.md

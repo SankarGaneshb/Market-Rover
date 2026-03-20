@@ -1,0 +1,66 @@
+{
+  "winrate": [
+    {
+      "full_name": "COALINDIA.NS - Coal India Ltd",
+      "ticker": "COALINDIA.NS",
+      "win_rate": 100.0,
+      "avg_return": 6.168523729429398
+    },
+    {
+      "full_name": "NTPC.NS - NTPC Ltd",
+      "ticker": "NTPC.NS",
+      "win_rate": 100.0,
+      "avg_return": 5.452915564194197
+    },
+    {
+      "full_name": "SUNPHARMA.NS - Sun Pharmaceutical Industries Ltd",
+      "ticker": "SUNPHARMA.NS",
+      "win_rate": 100.0,
+      "avg_return": 5.264183887847085
+    },
+    {
+      "full_name": "RELIANCE.NS - Reliance Industries Ltd",
+      "ticker": "RELIANCE.NS",
+      "win_rate": 100.0,
+      "avg_return": 3.144993390184525
+    },
+    {
+      "full_name": "BHARTIARTL.NS - Bharti Airtel Ltd",
+      "ticker": "BHARTIARTL.NS",
+      "win_rate": 66.66666666666666,
+      "avg_return": 5.998757773295738
+    }
+  ],
+  "stars": [
+    {
+      "full_name": "M&M.NS - Mahindra & Mahindra Ltd",
+      "ticker": "M&M.NS",
+      "total_return": 171.51033842084112,
+      "label": "M&M.NS (+172%)"
+    },
+    {
+      "full_name": "COALINDIA.NS - Coal India Ltd",
+      "ticker": "COALINDIA.NS",
+      "total_return": 168.2749341088301,
+      "label": "COALINDIA.NS (+168%)"
+    },
+    {
+      "full_name": "BHARTIARTL.NS - Bharti Airtel Ltd",
+      "ticker": "BHARTIARTL.NS",
+      "total_return": 151.06884273760605,
+      "label": "BHARTIARTL.NS (+151%)"
+    },
+    {
+      "full_name": "BAJAJ-AUTO.NS - Bajaj Auto Ltd",
+      "ticker": "BAJAJ-AUTO.NS",
+      "total_return": 148.2020548346445,
+      "label": "BAJAJ-AUTO.NS (+148%)"
+    },
+    {
+      "full_name": "HEROMOTOCO.NS - Hero MotoCorp Ltd",
+      "ticker": "HEROMOTOCO.NS",
+      "total_return": 148.19868439506098,
+      "label": "HEROMOTOCO.NS (+148%)"
+    }
+  ]
+}

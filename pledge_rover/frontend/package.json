@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@xyflow/react": "^12.10.1",
     "autoprefixer": "^10.4.27",
     "axios": "^1.13.6",
     "clsx": "^2.1.1",
