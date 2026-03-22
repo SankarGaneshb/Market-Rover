@@ -1,0 +1,92 @@
+.tooltip-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  margin-left: 8px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.tooltip-icon {
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.tooltip-container:hover .tooltip-icon {
+  color: #3b82f6;
+}
+
+.tooltip-content {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  background-color: white;
+  color: #1f2937;
+  padding: 12px 14px;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+  width: max-content;
+  max-width: 280px;
+  text-align: left;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.tooltip-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tooltip-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+.tooltip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.tooltip-learn-more {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tooltip-learn-more:hover {
+  text-decoration: underline;
+}
+
+.tooltip-gotit {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+}
+
+.tooltip-gotit:hover {
+  color: #374151;
+  text-decoration: underline;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translate(-50%, -5px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

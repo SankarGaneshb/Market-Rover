@@ -1,0 +1,10 @@
+
+> investbrand-frontend@1.0.0 build
+> react-scripts build
+
+Creating an optimized production build...
+Failed to compile.
+
+Module not found: Error: Can't resolve './ContextChips' in 'C:\Users\bsank\Market-Rover\investbrand\frontend\src\pages'
+
+
