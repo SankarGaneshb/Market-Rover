@@ -4,6 +4,8 @@ const { getPool } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const logger = require('../utils/logger');
 const { getIstDateString } = require('../utils/date');
+const { checkMissions, calculateStrategyTags } = require('../utils/missionEngine');
+const { generateUserPersona } = require('../agents/profilerAgent');
 
 // GET /api/puzzles/daily
 router.get('/daily', async (req, res) => {
@@ -145,6 +147,13 @@ router.post('/vote', authenticate, async (req, res) => {
        DO NOTHING`,
       [userId, brandId, tomorrowStr]
     );
+
+    // Asynchronously trigger gamification and AI profiler engines
+    checkMissions(userId).catch(e => logger.error('Mission check failed', { error: e.message }));
+    calculateStrategyTags(userId).catch(e => logger.error('Strategy calculation failed', { error: e.message }));
+    
+    // Trigger the Agentic AI Framework Profiler (Process every vote for demonstration)
+    generateUserPersona(userId).catch(e => logger.error('Profiler generation failed', { error: e.message }));
 
     res.json({ success: true, message: 'Vote recorded for tomorrow!' });
   } catch (err) {

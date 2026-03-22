@@ -9,6 +9,7 @@ import Puzzle from './pages/Puzzle';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Vote from './pages/Vote';
+import MissionsTab from './components/MissionsTab';
 
 function PromoterTracker() {
   const location = useLocation();
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/play" element={<PrivateRoute><Puzzle /></PrivateRoute>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/vote" element={<PrivateRoute><Vote /></PrivateRoute>} />
+            <Route path="/missions" element={<PrivateRoute><MissionsTab /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           </Routes>
         </BrowserRouter>

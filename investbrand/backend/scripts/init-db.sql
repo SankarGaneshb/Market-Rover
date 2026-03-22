@@ -2,6 +2,7 @@
 -- Project: market-rover
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -145,3 +146,33 @@ $$ language 'plpgsql';
 DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Financial Literacy Tables
+CREATE TABLE IF NOT EXISTS user_missions (
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    mission_id VARCHAR(50) NOT NULL,
+    progress INTEGER DEFAULT 0,
+    is_completed BOOLEAN DEFAULT FALSE,
+    completed_at TIMESTAMP,
+    PRIMARY KEY (user_id, mission_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_strategy_tags (
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    tag VARCHAR(100) NOT NULL,
+    calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_content_views (
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    content_id VARCHAR(100) NOT NULL,
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Agentic AI Tables
+CREATE TABLE IF NOT EXISTS user_personas (
+    user_id UUID PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+    profile_summary TEXT,
+    embedding vector(768),
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

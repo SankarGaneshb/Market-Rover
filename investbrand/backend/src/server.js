@@ -5,7 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 console.log('--- ENV CHECK ---');
 console.log('PORT:', process.env.PORT);
@@ -135,3 +136,5 @@ process.on('SIGTERM', () => {
     process.exit(0);
   });
 });
+
+// Nodemon Trigger: Hard-reloading server to mount GOOGLE_API_KEY from .env

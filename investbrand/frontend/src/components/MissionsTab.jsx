@@ -63,11 +63,44 @@ export default function MissionsTab() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {Object.entries(MISSION_DEFS).map(([id, def]) => {
-            const { progress, isCompleted } = getMissionProgress(id);
-            const percent = Math.min(100, Math.round((progress / def.target) * 100));
+          {(() => {
+            const displayMissions = [];
+            
+            // 1. Static Base Missions
+            Object.entries(MISSION_DEFS).forEach(([id, def]) => {
+              const dbEntry = missions.find(m => m.mission_id === id);
+              displayMissions.push({
+                id,
+                title: def.title,
+                desc: def.desc,
+                target: def.target,
+                reward: def.reward,
+                progress: dbEntry ? dbEntry.progress : 0,
+                isCompleted: dbEntry ? dbEntry.is_completed : false,
+                isDynamic: false
+              });
+            });
 
-            return (
+            // 2. Dynamic Gamemaster Missions
+            missions.forEach(m => {
+              if (!MISSION_DEFS[m.mission_id] && m.mission_def) {
+                displayMissions.push({
+                  id: m.mission_id,
+                  title: m.mission_def.title || 'Special Mission',
+                  desc: m.mission_def.description || m.mission_def.desc,
+                  target: m.mission_def.target,
+                  reward: m.mission_def.reward,
+                  progress: m.progress,
+                  isCompleted: m.is_completed,
+                  isDynamic: true
+                });
+              }
+            });
+
+            return displayMissions.map((def) => {
+              const { id, progress, isCompleted, percent = Math.min(100, Math.round((progress / def.target) * 100)) } = def;
+
+              return (
               <div key={id} className={`p-6 rounded-2xl border transition-all shadow-sm ${isCompleted ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200'}`}>
                 <div className="flex justify-between items-start mb-5">
                   <div className="flex items-center gap-4">
@@ -96,10 +129,15 @@ export default function MissionsTab() {
                 </div>
 
                 {isCompleted ? (
-                  <div className="mt-4 pt-4 border-t border-indigo-200/50">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Reward Unlocked</span>
-                    <p onClick={() => setModalData(EXPLAINERS[id])} className="text-sm font-semibold text-indigo-800 mt-1 cursor-pointer hover:underline">{def.reward} &rarr;</p>
-                  </div>
+                   <div className="mt-4 pt-4 border-t border-indigo-200/50">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Reward Unlocked</span>
+                     <p 
+                       onClick={() => def.isDynamic ? null : setModalData(EXPLAINERS[id])} 
+                       className={`text-sm font-semibold text-indigo-800 mt-1 flex items-center gap-1 ${def.isDynamic ? 'cursor-default' : 'cursor-pointer hover:underline'}`}
+                     >
+                       {def.reward} {!def.isDynamic && <span>&rarr;</span>}
+                     </p>
+                   </div>
                 ) : (
                   <div className="mt-4 pt-4 border-t border-slate-100">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Reward Preview</span>
@@ -110,7 +148,8 @@ export default function MissionsTab() {
                 )}
               </div>
             );
-          })}
+           });
+          })()}
         </div>
       </div>
       <ExplainerModal isOpen={!!modalData} onClose={() => setModalData(null)} data={modalData} />

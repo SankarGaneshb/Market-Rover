@@ -149,6 +149,14 @@ async function runMigrations() {
     await client.query('CREATE TABLE IF NOT EXISTS game_sessions (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), puzzle_id INTEGER REFERENCES puzzles(id), score INTEGER DEFAULT 0, completed BOOLEAN DEFAULT FALSE, played_at TIMESTAMPTZ DEFAULT NOW())');
     await client.query('CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id), clicked_at TIMESTAMPTZ DEFAULT NOW())');
 
+    // 7. Financial Literacy & Agentic Framework Tables
+    try { await client.query('CREATE EXTENSION IF NOT EXISTS vector'); } catch (e) { logger.warn('Failed to ensure pgvector extension: ' + e.message); }
+    await client.query('CREATE TABLE IF NOT EXISTS user_missions (user_id INTEGER REFERENCES users(id), mission_id VARCHAR(50), progress INTEGER DEFAULT 0, is_completed BOOLEAN DEFAULT FALSE, completed_at TIMESTAMPTZ, PRIMARY KEY(user_id, mission_id))');
+    await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS mission_def JSONB');
+    await client.query('CREATE TABLE IF NOT EXISTS user_strategy_tags (user_id INTEGER REFERENCES users(id), tag VARCHAR(100), calculated_at TIMESTAMPTZ DEFAULT NOW())');
+    await client.query('CREATE TABLE IF NOT EXISTS user_content_views (user_id INTEGER REFERENCES users(id), content_id VARCHAR(100), viewed_at TIMESTAMPTZ DEFAULT NOW())');
+    await client.query('CREATE TABLE IF NOT EXISTS user_personas (user_id INTEGER PRIMARY KEY REFERENCES users(id), profile_summary TEXT, embedding JSONB, last_updated TIMESTAMPTZ DEFAULT NOW())');
+
     // Add Difficulty to game_sessions and adjust unique constraint
     await client.query('ALTER TABLE game_sessions ADD COLUMN IF NOT EXISTS difficulty VARCHAR(20) DEFAULT \'easy\'');
     try { await client.query('ALTER TABLE game_sessions DROP CONSTRAINT IF EXISTS game_sessions_user_id_puzzle_id_key'); } catch (e) { }
