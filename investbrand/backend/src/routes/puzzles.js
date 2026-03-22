@@ -6,6 +6,7 @@ const logger = require('../utils/logger');
 const { getIstDateString } = require('../utils/date');
 const { checkMissions, calculateStrategyTags } = require('../utils/missionEngine');
 const { generateUserPersona } = require('../agents/profilerAgent');
+const { generateTeacherInsight } = require('../agents/teacherAgent');
 
 // GET /api/puzzles/daily
 router.get('/daily', async (req, res) => {
@@ -350,6 +351,34 @@ router.post('/:id/feedback', authenticate, async (req, res) => {
     // so the Frontend UI can continue functioning during local UI dev without a DB.
     logger.warn('Error saving feedback (swallowed for dev)', { error: err.message, category, rating });
     res.json({ success: true, message: 'Feedback mocked (DB unavailable)' });
+  }
+});
+
+// GET /api/puzzles/:id/insight — dynamically fetches Teacher Agent context (authenticated)
+router.get('/:id/insight', authenticate, async (req, res) => {
+  const puzzleId = parseInt(req.params.id);
+  const userId = req.user.id;
+
+  try {
+    const pool = getPool();
+    const p = await pool.query(
+      `SELECT company_name, ticker FROM puzzles WHERE id = $1`,
+      [puzzleId]
+    );
+
+    if (p.rows.length === 0) {
+      return res.status(404).json({ error: 'Puzzle not found' });
+    }
+
+    const { company_name, ticker } = p.rows[0];
+    
+    // Generate context using LangChain Teacher Agent
+    const insight = await generateTeacherInsight(userId, ticker, company_name);
+    
+    res.json({ success: true, insight });
+  } catch (err) {
+    logger.error('Error fetching teacher insight', { error: err.message, puzzleId });
+    res.status(500).json({ error: 'Failed to fetch insight' });
   }
 });
 

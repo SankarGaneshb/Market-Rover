@@ -29,6 +29,8 @@ export default function PuzzleGame() {
   // Feedback State
   const [puzzleFeedback, setPuzzleFeedback] = useState(null);
   const [logoFeedback, setLogoFeedback] = useState(null);
+  const [teacherInsight, setTeacherInsight] = useState(null);
+  const [isFetchingInsight, setIsFetchingInsight] = useState(false);
 
   const [moves, setMoves] = useState(0);
   const [showHint, setShowHint] = useState(false);
@@ -250,7 +252,23 @@ export default function PuzzleGame() {
     const gameScore = calculateScore(finalMoves);
     setGameState('completed');
     setCompletedToday(true);
+    fetchTeacherInsight();
     await saveGameData(gameScore, finalMoves, timer);
+  };
+
+  const fetchTeacherInsight = async () => {
+    if (!dbPuzzleId) return;
+    setIsFetchingInsight(true);
+    try {
+      const response = await axios.get(`/api/puzzles/${dbPuzzleId}/insight`);
+      if (response.data?.insight) {
+        setTeacherInsight(response.data.insight);
+      }
+    } catch (e) {
+      console.error('Failed to fetch AI insight', e);
+    } finally {
+      setIsFetchingInsight(false);
+    }
   };
 
   const calculateScore = (finalMoves = moves) => {
@@ -450,11 +468,26 @@ export default function PuzzleGame() {
                 <h3 className="text-2xl lg:text-3xl font-black text-slate-800 mb-1 leading-tight text-center">{currentBrand?.brand}</h3>
                 <div className="inline-block bg-indigo-600 text-white px-3 py-1 rounded-full text-[10px] lg:text-xs font-bold mb-4 shadow-sm">{currentBrand?.ticker}</div>
 
-                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full flex-1">
-                  <div className="flex items-center gap-2 mb-2 text-indigo-600 font-black text-[10px] lg:text-xs uppercase tracking-widest">
-                    <Lightbulb size={14} className="animate-pulse" /> Brand Insight
+                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full flex-1 relative overflow-hidden">
+                  {isFetchingInsight && (
+                    <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-4">
+                      <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
+                      <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest text-center">Teacher Agent analyzing...</p>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 text-indigo-600 font-black text-[10px] lg:text-xs uppercase tracking-widest flex-1">
+                      <Lightbulb size={14} className="animate-pulse" /> {teacherInsight ? teacherInsight.title : "Brand Insight"}
+                    </div>
+                    {teacherInsight && (
+                      <span className="text-[8px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex-shrink-0">
+                        AI Generated
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed">{currentBrand?.insight}</p>
+                  <p className="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed">
+                    {teacherInsight ? teacherInsight.insight : currentBrand?.insight}
+                  </p>
                 </div>
               </div>
 
