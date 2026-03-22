@@ -129,6 +129,39 @@ These workflows execute the same agent logic but output directly to **GitHub Dis
 
 ---
 
+## 🎮 InvestBrand Agent Roster (Node.js/LangChain)
+
+The following agents run autonomously within the InvestBrand Node.js backend using `@langchain/google-genai` to drive personalized gamification and micro-learning.
+
+### 8. Contextual Profiler Agent
+*   **Source:** `investbrand/backend/src/agents/profilerAgent.js`
+*   **Role:** The Assessor
+*   **Goal:** Determine user financial literacy through gameplay behavior.
+*   **Key Responsibilities:**
+    *   Analyzes the user's historical portfolio votes (defensive, cyclical, speculative).
+    *   Generates a Persona Tag (e.g., "Yield Hunter") and a Reading Level (beginner, intermediate, advanced).
+    *   Saves this profile to adapt future interactions.
+
+### 9. Adaptive Gamemaster Agent
+*   **Source:** `investbrand/backend/src/agents/gamemasterAgent.js`
+*   **Role:** The Orchestrator
+*   **Goal:** Keep players engaged with dynamic, procedurally generated daily challenges.
+*   **Key Responsibilities:**
+    *   Reads the user's latest voting patterns via PostgreSQL.
+    *   Formulates a counter-strategy or expansion mission (e.g., if a user votes exclusively on IT, it challenges them to research FMCG).
+    *   Enforces strict JSON schema output for seamless React UI ingestion.
+
+### 10. Contextual Teacher Agent
+*   **Source:** `investbrand/backend/src/agents/teacherAgent.js`
+*   **Role:** The Educator
+*   **Goal:** Contextualize gameplay with real-world financial literacy without blocking the user.
+*   **Key Responsibilities:**
+    *   Triggers ephemerally via `/api/puzzles/:id/insight` exactly when a puzzle is solved.
+    *   Reads the user's `user_personas.reading_level`.
+    *   Generates a 2-sentence micro-learning insight about the specific corporate brand (e.g. debt-to-equity ratio vs simple analogies).
+
+---
+
 ## 📜 Global Agent Rules (The "Constitution")
 
 The following rules apply to **ALL** agents in the workspace. These are non-negotiable best practices derived from past deployment issues and performance audits.
