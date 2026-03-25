@@ -1,4 +1,4 @@
-const { ChatGoogleGenerativeAI, GoogleGenAIEmbeddings } = require("@langchain/google-genai");
+const { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } = require("@langchain/google-genai");
 const { getPool } = require("../config/database");
 const logger = require("../utils/logger");
 
@@ -17,7 +17,7 @@ function getAIClient() {
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.7,
     });
-    embeddings = new GoogleGenAIEmbeddings({
+    embeddings = new GoogleGenerativeAIEmbeddings({
       model: "text-embedding-004", // Standard 768-D text embedding model layout
       apiKey: process.env.GOOGLE_API_KEY,
     });
