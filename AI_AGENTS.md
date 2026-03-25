@@ -160,6 +160,24 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   Reads the user's `user_personas.reading_level`.
     *   Generates a 2-sentence micro-learning insight about the specific corporate brand (e.g. debt-to-equity ratio vs simple analogies).
 
+### 11. Quality Control Agent (Moderator)
+*   **Source:** `investbrand/backend/src/agents/qcAgent.js`
+*   **Role:** The Auditor
+*   **Goal:** Maintain visual and functional integrity of the game assets.
+*   **Key Responsibilities:**
+    *   Scans `puzzle_feedback` for "blurry" or "wrong" logo reports.
+    *   Autonomously disables broken puzzles by setting `is_active = false`.
+    *   Flags difficulty imbalances for manual adjustment.
+
+### 12. Operational Support Agent (SRE)
+*   **Source:** `investbrand/backend/src/agents/opsSupportAgent.js`
+*   **Role:** The System Guardian
+*   **Goal:** Intercept and analyze runtime exceptions to prevent system failure.
+*   **Key Responsibilities:**
+    *   Injected into the global `errorHandler` middleware.
+    *   Parses stack traces using Gemini to identify root causes (Database, API, Logic).
+    *   Provides actionable "developer fix" suggestions in the logs.
+
 ---
 
 ## 📜 Global Agent Rules (The "Constitution")
