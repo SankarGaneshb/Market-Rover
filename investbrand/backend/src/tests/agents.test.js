@@ -65,11 +65,12 @@ describe('AI Agents Unit Tests', () => {
   describe('Teacher Agent', () => {
     it('should generate a teaser insight', async () => {
       mockQuery.mockResolvedValueOnce({ rows: [{ reading_level: 'beginner' }] });
-      mockInvoke.mockResolvedValueOnce({ content: 'Test Insight' });
+      mockInvoke.mockResolvedValueOnce({ content: JSON.stringify({ title: 'Test Title', insight: 'Test Insight' }) });
 
       const insight = await generateTeacherInsight(1, 'TCS', 'Tata Consultancy');
 
-      expect(insight).toBe('Test Insight');
+      expect(insight.insight).toBe('Test Insight');
+      expect(insight.title).toBe('Test Title');
       expect(mockInvoke).toHaveBeenCalled();
     });
   });

@@ -153,9 +153,17 @@ async function runMigrations() {
     try { await client.query('CREATE EXTENSION IF NOT EXISTS vector'); } catch (e) { logger.warn('Failed to ensure pgvector extension: ' + e.message); }
     await client.query('CREATE TABLE IF NOT EXISTS user_missions (user_id INTEGER REFERENCES users(id), mission_id VARCHAR(50), progress INTEGER DEFAULT 0, is_completed BOOLEAN DEFAULT FALSE, completed_at TIMESTAMPTZ, PRIMARY KEY(user_id, mission_id))');
     await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS mission_def JSONB');
+    
     await client.query('CREATE TABLE IF NOT EXISTS user_strategy_tags (user_id INTEGER REFERENCES users(id), tag VARCHAR(100), calculated_at TIMESTAMPTZ DEFAULT NOW())');
+    await client.query('ALTER TABLE user_strategy_tags ADD COLUMN IF NOT EXISTS calculation_date DATE DEFAULT CURRENT_DATE');
+    await client.query('ALTER TABLE user_strategy_tags ADD COLUMN IF NOT EXISTS voting_pattern JSONB');
+    try { await client.query('ALTER TABLE user_strategy_tags ADD CONSTRAINT user_strategy_date_key UNIQUE(user_id, calculation_date)'); } catch (e) { }
+
     await client.query('CREATE TABLE IF NOT EXISTS user_content_views (user_id INTEGER REFERENCES users(id), content_id VARCHAR(100), viewed_at TIMESTAMPTZ DEFAULT NOW())');
+    
     await client.query('CREATE TABLE IF NOT EXISTS user_personas (user_id INTEGER PRIMARY KEY REFERENCES users(id), profile_summary TEXT, embedding JSONB, last_updated TIMESTAMPTZ DEFAULT NOW())');
+    await client.query('ALTER TABLE user_personas ADD COLUMN IF NOT EXISTS primary_tag VARCHAR(100)');
+    await client.query('ALTER TABLE user_personas ADD COLUMN IF NOT EXISTS reading_level VARCHAR(50)');
 
     // Add Difficulty to game_sessions and adjust unique constraint
     await client.query('ALTER TABLE game_sessions ADD COLUMN IF NOT EXISTS difficulty VARCHAR(20) DEFAULT \'easy\'');
