@@ -53,7 +53,6 @@ router.post('/google', async (req, res) => {
     const user = result.rows[0];
     res.json({ token: signToken(user), user: formatUser(user) });
   } catch (err) {
-    console.error('GOOGLE AUTH FULL ERROR:', err);
     logger.error('Google auth error', { message: err.message, stack: err.stack, name: err.name });
     res.status(401).json({ error: 'Authentication failed', details: err.message });
   }

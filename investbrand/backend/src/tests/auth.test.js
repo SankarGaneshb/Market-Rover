@@ -21,6 +21,14 @@ const { getPool } = require('../config/database');
 const { OAuth2Client } = require('google-auth-library');
 const authRoutes = require('../routes/auth');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
+
+// Mock Logger
+jest.mock('../utils/logger', () => ({
+    error: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+}));
 
 const app = express();
 app.use(express.json());
