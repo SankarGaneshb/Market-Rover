@@ -29,7 +29,7 @@ newspaper3k>=0.2.8
 duckduckgo_search>=8.1.1
 
 # Utilities
-pydantic~=2.11.10
+pydantic~=2.12.5
 python-dotenv>=1.1.1
 protobuf>=4.25.3
 PyYAML>=6.0.1
