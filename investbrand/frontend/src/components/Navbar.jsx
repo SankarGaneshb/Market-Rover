@@ -48,15 +48,15 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Help Button */}
-        <button 
+        {/* Help Button – always visible */}
+        <button
           onClick={() => setShowOnboarding(true)}
-          className="p-2.5 sm:p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-all group relative"
+          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-3 py-1.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-md shadow-indigo-500/30"
           title="How to Play & AI Agents"
         >
-          <HelpCircle size={22} className="sm:hidden" />
-          <HelpCircle size={20} className="hidden sm:block" />
-          <span className="absolute -bottom-10 right-0 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Help & Agents</span>
+          <HelpCircle size={15} />
+          <span className="hidden sm:inline">How to Play</span>
+          <span className="sm:hidden font-bold text-base leading-none">?</span>
         </button>
 
         {user ? (
