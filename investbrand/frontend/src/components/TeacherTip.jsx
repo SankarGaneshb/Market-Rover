@@ -10,8 +10,9 @@ export default function TeacherTip() {
     const fetchTip = async () => {
       try {
         const res = await axios.get('/api/education/tip');
-        if (res.data.tip) {
-          setTip(res.data.tip);
+        const data = res?.data ?? {};
+        if (data.tip) {
+          setTip(data.tip);
         }
       } catch (err) {
         console.error('Failed to fetch teacher tip:', err);

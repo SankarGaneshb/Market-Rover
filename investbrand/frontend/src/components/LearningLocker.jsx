@@ -13,7 +13,7 @@ export default function LearningLocker() {
     const fetchLocker = async () => {
       try {
         const res = await axios.get('/api/education/locker');
-        setGuides(res.data.locker || []);
+        setGuides((res?.data ?? {}).locker || []);
       } catch (err) {
         console.error('Failed to fetch locker:', err);
       } finally {

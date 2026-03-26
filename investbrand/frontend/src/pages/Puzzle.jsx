@@ -135,7 +135,8 @@ export default function PuzzleGame() {
         if (data && data.id) {
           try {
             const sessions = await axios.get('/api/users/me/sessions');
-            const done = sessions.data.some(s => s.puzzle_id === data.id && s.completed);
+            const sessionList = sessions?.data ?? [];
+            const done = Array.isArray(sessionList) && sessionList.some(s => s.puzzle_id === data.id && s.completed);
             setCompletedToday(done);
           } catch (e) {
             console.error('Failed to check session status', e);
@@ -163,10 +164,11 @@ export default function PuzzleGame() {
         timeTaken: timeTaken,
         difficulty: difficulty || 'easy'
       });
-      if (response.data.success) {
-        setStreak(response.data.streak);
-        if (response.data.realTotal !== undefined) {
-          setScore(response.data.realTotal);
+      const resData = response?.data ?? {};
+      if (resData.success) {
+        setStreak(resData.streak);
+        if (resData.realTotal !== undefined) {
+          setScore(resData.realTotal);
         } else {
           setScore(prev => prev + gameScore);
         }
