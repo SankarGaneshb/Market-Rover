@@ -60,10 +60,13 @@ export default function Vote() {
         const fetchVoteStatus = async () => {
             try {
                 const res = await axios.get('/api/puzzles/vote-status');
-                setVotedBrandIds(res.data.votedBrandIds || []);
-                setPlayedBrandIds(res.data.playedBrandIds || []);
+                const data = res?.data ?? {};
+                setVotedBrandIds(data.votedBrandIds || []);
+                setPlayedBrandIds(data.playedBrandIds || []);
             } catch (err) {
                 console.error('Failed to fetch vote status', err);
+                setVotedBrandIds([]);
+                setPlayedBrandIds([]);
             }
         };
         fetchVoteStatus();
