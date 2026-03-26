@@ -1,18 +1,26 @@
-"""
-Market-Rover - Streamlit Web Application
-
-Interactive portfolio analysis with real-time progress tracking, visualizers, and forecasts.
-"""
-
 import os
+import sys
+import signal
+
+# --- SIGNAL SHIELD: Prevent libraries (like CrewAI) from crashing Streamlit threads ---
+_original_signal = signal.signal
+def _safe_signal(sig, handler):
+    try:
+        return _original_signal(sig, handler)
+    except ValueError:
+        # Ignore signal registration in non-main threads (expected in Streamlit)
+        return None
+signal.signal = _safe_signal
+
+# CRITICAL: Set environment variables BEFORE any other imports
 os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
+
+from dotenv import load_dotenv
+load_dotenv()
 
 import warnings
 warnings.filterwarnings('ignore')
 import streamlit as st
-
-
-import sys
 
 
 
@@ -278,6 +286,13 @@ def main():
             help="Learn about Indian brands through daily logo puzzles & AI insights."
         )
 
+        st.link_button(
+            "🛡️ Skin in the Game", 
+            "https://pledge-rover-ui-9514347926.us-central1.run.app",
+            use_container_width=True,
+            help="Analyze Promoter Pledging & Contagion Risk via the Pledge Rover Council."
+        )
+
         # Sync selection back to state
         st.session_state.nav_selection = selection
     # Default settings after UI removal
@@ -318,4 +333,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        # Emergency SRE Analysis for Landing Page Crashes
+        from utils.ops_support import analyze_error
+        logger = get_logger(__name__)
+        logger.error(f"FATAL APP ERROR: {e}", exc_info=True)
+        
+        analysis = analyze_error(e, context="app_startup")
+        if analysis:
+            st.error(f"🚀 **SRE Ops Agent Analysis**\n\n**Root Cause:** {analysis.get('rootCause')}\n\n**Mitigation:** {analysis.get('mitigation')}")
+        else:
+            st.error(f"A critical error occurred: {e}")

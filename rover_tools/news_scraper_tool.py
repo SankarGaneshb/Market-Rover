@@ -6,7 +6,16 @@ Optimized with AsyncIO/AIOHTTP for parallel fetching.
 import requests
 import asyncio
 import aiohttp
-from newspaper import Article
+try:
+    from newspaper import Article
+except ImportError:
+    # newspaper3k is known to have issues with lxml 5.2.0+ 
+    # if lxml_html_clean is not installed.
+    Article = None
+    import sys
+    print("⚠️ WARNING: newspaper3k could not be imported. News scraping will be disabled.", file=sys.stderr)
+    print("   Fix: pip install lxml_html_clean newspaper3k", file=sys.stderr)
+
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from crewai.tools import tool
@@ -147,6 +156,8 @@ async def process_article(url: str, date_threshold: datetime) -> Optional[Dict]:
         # Given complexity, we'll wrap the blocking call in to_thread.
         
         def blocking_parse():
+            if Article is None:
+                return None
             try:
                 article = Article(url)
                 article.download()

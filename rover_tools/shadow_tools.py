@@ -6,7 +6,14 @@ import pandas as pd
 import numpy as np
 import requests
 from datetime import datetime, timedelta
-from nselib import capital_market, derivatives
+try:
+    from nselib import capital_market, derivatives
+except ImportError:
+    capital_market = None
+    derivatives = None
+    import sys
+    print("⚠️ WARNING: nselib could not be imported. NSE data tools will be disabled.", file=sys.stderr)
+
 from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP
 from utils.logger import get_logger
 try:
@@ -96,6 +103,8 @@ def fetch_block_deals(symbol=None):
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            if capital_market is None:
+                return None
             # Fetch data for the last 1M to ensure we get something
             raw_data = capital_market.block_deals_data(period='1M')
             
@@ -244,6 +253,8 @@ def get_trap_indicator():
     Returns FII Sentiment Status based on Index Futures using nselib.
     """
     try:
+        if derivatives is None:
+             return {"status": "Unknown", "fii_long_pct": 50, "message": "nselib not available"}
         # Fetch FII derivatives stats (nselib requires explicit date sometimes)
         today_str = datetime.now().strftime("%d-%m-%Y")
         # If it fails for today (holiday/market closed), nselib might error or return empty

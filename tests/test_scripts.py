@@ -30,22 +30,31 @@ class TestValidateIssueAssignees(unittest.TestCase):
         self.assertFalse(validate_issue_assignees.valid_label(""))
 
 class TestCheckModels(unittest.TestCase):
-    @patch("scripts.check_models.genai")
+    @patch("scripts.check_models.genai.Client")
     @patch("scripts.check_models.os.getenv")
-    def test_check_models_found(self, mock_getenv, mock_genai):
+    def test_check_models_found(self, mock_getenv, mock_client_cls):
         mock_getenv.return_value = "fake-key"
+        
+        # Setup mock client instance
+        mock_client = MagicMock()
+        mock_client_cls.return_value = mock_client
+        
         m1 = MagicMock()
         m1.name = "models/gemini-pro"
         m1.supported_generation_methods = ["generateContent"]
         m2 = MagicMock()
         m2.name = "models/gemini-vision"
         m2.supported_generation_methods = ["generateContent"]
-        mock_genai.list_models.return_value = [m1, m2]
+        
+        # Mock client.models.list()
+        mock_client.models.list.return_value = [m1, m2]
         
         with patch('builtins.print') as mock_print:
             check_models.main()
-            mock_genai.configure.assert_called_with(api_key="fake-key")
-            mock_genai.list_models.assert_called_once()
+            # Verify Client was initialized with the key
+            mock_client_cls.assert_called_with(api_key="fake-key")
+            # Verify models.list() was called
+            mock_client.models.list.assert_called_once()
             call_args = str(mock_print.call_args_list)
             self.assertIn("Success", call_args)
 

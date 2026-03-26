@@ -16,30 +16,37 @@ except Exception:
         def __init__(self, *args, **kwargs):
             pass
 
-from rover_tools.batch_tools import batch_scrape_news, batch_get_stock_data, batch_detect_accumulation
-from rover_tools.portfolio_tool import read_portfolio
-from rover_tools.news_scraper_tool import scrape_general_market_news
-from rover_tools.search_tool import search_market_news
-from rover_tools.global_market_tool import get_global_cues
-from rover_tools.corporate_actions_tool import get_corporate_actions
-from rover_tools.market_context_tool import analyze_market_context
-from rover_tools.visualizer_tool import generate_market_snapshot
+try:
+    from rover_tools.batch_tools import batch_scrape_news, batch_get_stock_data, batch_detect_accumulation
+    from rover_tools.portfolio_tool import read_portfolio
+    from rover_tools.news_scraper_tool import scrape_general_market_news
+    from rover_tools.search_tool import search_market_news
+    from rover_tools.global_market_tool import get_global_cues
+    from rover_tools.corporate_actions_tool import get_corporate_actions
+    from rover_tools.market_context_tool import analyze_market_context
+    from rover_tools.visualizer_tool import generate_market_snapshot
+    from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals_tool, get_trap_indicator_tool
+    from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
+    from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
+    from rover_tools.forensic_tool import check_accounting_fraud
+    from rover_tools.advanced_skills import (
+        calculate_portfolio_risk_tool,
+        fetch_economic_calendar_tool,
+        analyze_retail_sentiment_tool,
+        detect_technical_patterns_tool,
+        fetch_fii_dii_flow_tool,
+        fetch_subha_muhurtham_tool,
+        analyze_traditional_calendar_tool,
+        fetch_historical_context_tool,
+        generate_sector_heatmap_tool
+    )
+except ImportError as e:
+    import sys
+    print(f"⚠️ WARNING: Some rover_tools could not be imported: {e}", file=sys.stderr)
+    # Define stubs for critical missing tools if needed, or rely on them being optional
+    # For now, we assume most are needed but we'd rather warn than crash during collection.
+
 from config import MAX_ITERATIONS, GOOGLE_API_KEY
-from rover_tools.shadow_tools import analyze_sector_flow_tool, fetch_block_deals_tool, get_trap_indicator_tool
-from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
-from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
-from rover_tools.forensic_tool import check_accounting_fraud # NEW
-from rover_tools.advanced_skills import (
-    calculate_portfolio_risk_tool,
-    fetch_economic_calendar_tool,
-    analyze_retail_sentiment_tool,
-    detect_technical_patterns_tool,
-    fetch_fii_dii_flow_tool,
-    fetch_subha_muhurtham_tool,
-    analyze_traditional_calendar_tool,
-    fetch_historical_context_tool,
-    generate_sector_heatmap_tool
-)
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os

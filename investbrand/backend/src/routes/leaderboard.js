@@ -10,6 +10,7 @@ router.get('/', async (req, res) => {
   const type = req.query.type || 'all-time';
 
   try {
+    logger.info(`Leaderboard Request: type=${type}`);
     let result;
 
     if (type === 'daily') {
@@ -98,7 +99,11 @@ router.get('/', async (req, res) => {
 
     res.json({ leaderboard: result.rows, type });
   } catch (err) {
-    logger.error('Error fetching leaderboard', { error: err.message });
+    logger.error('Error fetching leaderboard', { 
+      error: err.message,
+      stack: err.stack,
+      queryType: type
+    });
     res.status(500).json({ error: 'Failed to fetch leaderboard' });
   }
 });

@@ -11,7 +11,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      modelName: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash',
 
       maxOutputTokens: 200,
       temperature: 0.7,
@@ -66,10 +66,10 @@ You must reply with ONLY a pure JSON object in the exact following structure wit
     logger.info(`Teacher Agent: Generating contextual insight for user ${userId} on ${ticker}...`);
 
     const llmResponse = await aiLlm.invoke(systemPrompt);
-    const rawContent = llmResponse.content || "";
-    const insightText = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+    const rawContent = llmResponse?.content || "";
+    const insightText = String(rawContent)
       .trim()
-      .replace(/```json/g, '')
+      .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim();
     

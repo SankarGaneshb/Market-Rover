@@ -10,7 +10,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      modelName: 'gemini-2.0-flash',
+      model: 'gemini-1.5-flash',
       maxOutputTokens: 500,
       temperature: 0.1, // Low temperature for consistent analysis
       apiKey: process.env.GOOGLE_API_KEY
@@ -99,8 +99,8 @@ Respond ONLY with a JSON object:
 }`;
 
       const response = await aiLlm.invoke(analysisPrompt);
-      const rawContent = response.content || "";
-      const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+      const rawContent = response?.content || "";
+      const cleanContent = String(rawContent)
         .trim()
         .replace(/```json/gi, '')
         .replace(/```/g, '')

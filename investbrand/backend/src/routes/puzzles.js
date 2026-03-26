@@ -9,7 +9,7 @@ const { generateUserPersona } = require('../agents/profilerAgent');
 const { generateTeacherInsight } = require('../agents/teacherAgent');
 
 // GET /api/puzzles/daily
-router.get('/daily', async (req, res) => {
+router.get('/daily', async (req, res, next) => {
   const pool = getPool();
   const today = getIstDateString();
   logger.info(`Puzzles: Fetching daily puzzle for date: ${today}`);

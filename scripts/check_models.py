@@ -1,6 +1,6 @@
 
 import os
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 def main():
@@ -16,14 +16,18 @@ def main():
     print(f"🔑 Using API Key: {api_key[:5]}...{api_key[-3:]}")
     
     try:
-        genai.configure(api_key=api_key)
+        # Use the new Client-based SDK
+        client = genai.Client(api_key=api_key)
         
         print("\n📡 Connecting to Google API to list available models...")
-        models = list(genai.list_models())
+        # The new SDK uses client.models.list()
+        # It's an iterator, so we convert to list for verification
+        models = list(client.models.list())
         
         found_any = False
         print("\n✅ Available Models for your Key:")
         for m in models:
+            # Check supported generation methods (in the new SDK, this is accessible via model properties)
             if 'generateContent' in m.supported_generation_methods:
                 print(f"  - {m.name}")
                 found_any = True

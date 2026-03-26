@@ -9,7 +9,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      modelName: 'gemini-2.0-flash',
+      model: 'gemini-2.0-flash',
       maxOutputTokens: 500,
       temperature: 0.1,
       apiKey: process.env.GOOGLE_API_KEY
@@ -25,14 +25,17 @@ async function analyzeError(err, req) {
   try {
     const aiLlm = getLLMClient();
 
+    const errStack = err.stack ? String(err.stack).split('\n').slice(0, 5).join('\n') : "No stack trace";
+    const errBody = req.body ? JSON.stringify(req.body) : "No body";
+
     const analysisPrompt = `You are the InvestBrand Operational Support Agent (SRE).
 A system error has occurred in the backend. 
 
 ERROR DETAILS:
-- Message: ${err.message}
-- Stack: ${err.stack?.split('\n').slice(0, 5).join('\n')}
+- Message: ${err.message || "Unknown error"}
+- Stack: ${errStack}
 - Route: ${req.method} ${req.path}
-- Body: ${JSON.stringify(req.body)}
+- Body: ${errBody}
 
 TASK:
 1. Identify the likely root cause (e.g. Database connectivity, API rate limit, Code bug, Missing asset).
@@ -48,22 +51,37 @@ Respond ONLY with a JSON object:
 }`;
 
     const response = await aiLlm.invoke(analysisPrompt);
-    const rawContent = response.content || "";
-    const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+    
+    // Check for response.content and ensure it is treated as a string
+    let rawContent = "";
+    if (response && response.content) {
+      if (typeof response.content === 'string') {
+        rawContent = response.content;
+      } else {
+        rawContent = JSON.stringify(response.content);
+      }
+    }
+
+    const cleanContent = rawContent
       .trim()
       .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim();
 
-    
     try {
       return JSON.parse(cleanContent);
-
     } catch (e) {
-      return { rootCause: "Unknown", mitigation: "Generic error", severity: "high" };
+      logger.warn('Ops Agent: Falling back to string analysis');
+      return { 
+        rootCause: "Parsing error", 
+        mitigation: "Check server logs for detailed trace", 
+        severity: "high" 
+      };
     }
   } catch (agentErr) {
-    logger.error('Ops Support Agent failed to analyze error', { error: agentErr.message });
+    logger.error('Ops Support Agent failed to analyze error', { 
+      errorMessage: agentErr.message 
+    });
     return null;
   }
 }

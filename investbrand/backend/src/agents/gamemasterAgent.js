@@ -77,10 +77,10 @@ async function generateDailyMission(userId) {
     
     // We append the JSON instruction strongly
     const llmResponse = await aiLlm.invoke(systemPrompt);
-    const rawContent = llmResponse.content || "";
-    const cleanJsonStr = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+    const rawContent = llmResponse?.content || "";
+    const cleanJsonStr = String(rawContent)
       .trim()
-      .replace(/```json/g, '')
+      .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim();
     

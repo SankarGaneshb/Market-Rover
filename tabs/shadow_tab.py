@@ -21,6 +21,7 @@ def show_shadow_tracker_tab():
     ])
     
     with tab_across:
+        st.info("💡 **Pro Tip:** For institutional-grade promoter pledging analysis and contagion risk, visit the [Skin in the Game](https://pledge-rover-ui-9514347926.us-central1.run.app) module.")
         col_flow, col_trap = st.columns([2, 1])
         
         with col_flow:

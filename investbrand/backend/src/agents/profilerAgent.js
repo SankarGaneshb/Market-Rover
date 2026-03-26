@@ -83,8 +83,8 @@ async function generateUserPersona(userId) {
 
     logger.info(`Profiler Agent: Requesting generative profile mapping for user ${userId}...`);
     const llmResponse = await llm.invoke(systemPrompt);
-    const rawContent = llmResponse.content || "";
-    const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+    const rawContent = llmResponse?.content || "";
+    const cleanContent = String(rawContent)
       .trim()
       .replace(/```json/gi, '')
       .replace(/```/g, '')

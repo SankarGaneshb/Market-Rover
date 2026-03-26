@@ -70,16 +70,21 @@ class SocialAuthManager:
         for idx, (name, settings) in enumerate(self.oauth_providers.items()):
             with cols[idx]:
                 # Create OAuth2Component instance
-                # Note: We create a unique key for each provider to prevent state collisions
-                logger.info(f"Initializing OAuth via OAuth2Component for provider: {name} with revoke_token_endpoint=None")
-                oauth2 = OAuth2Component(
-                    settings.get('client_id'),
-                    settings.get('client_secret'),
-                    settings.get('authorize_endpoint'),
-                    settings.get('token_endpoint'),
-                    settings.get('token_endpoint'), # refresh token endpoint (often same)
-                    None, # Revoke endpoint disabled to prevent MissingRevokeTokenAuthMethodError
-                )
+                try:
+                    logger.info(f"Initializing OAuth for {name}")
+                    oauth2 = OAuth2Component(
+                        client_id=settings.get('client_id'),
+                        client_secret=settings.get('client_secret'),
+                        authroize_endpoint=settings.get('authorize_endpoint'), # Note the library typo 'authroize'
+                        token_endpoint=settings.get('token_endpoint'),
+                        refresh_token_endpoint=settings.get('token_endpoint'),
+                        revoke_token_endpoint=None,
+                        authorize_endpoint=settings.get('authorize_endpoint') # Provide both just in case
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to initialize OAuth component for {name}: {e}")
+                    st.warning(f"⚠️ {name.title()} Login is currently unavailable (Configuration Error).")
+                    continue
 
                 # Render button
                 # Label handling

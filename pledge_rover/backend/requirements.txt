@@ -11,3 +11,4 @@ langgraph
 crewai
 httpx
 cloudscraper
+google-generativeai>=1.56.0

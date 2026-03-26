@@ -26,6 +26,7 @@ nselib>=1.9
 nsepython>=2.97
 beautifulsoup4~=4.13.4
 newspaper3k>=0.2.8
+lxml_html_clean>=0.4.3
 duckduckgo_search>=8.1.1
 
 # Utilities
