@@ -268,6 +268,16 @@ def main():
             label_visibility="hidden"
         )
         
+        # Link to InvestBrand Game
+        st.markdown("---")
+        st.markdown("### 🎮 Play Now")
+        st.link_button(
+            "🧩 Play InvestBrand", 
+            "https://investbrand-ui-9514347926.us-central1.run.app",
+            use_container_width=True,
+            help="Learn about Indian brands through daily logo puzzles & AI insights."
+        )
+
         # Sync selection back to state
         st.session_state.nav_selection = selection
     # Default settings after UI removal
