@@ -99,10 +99,17 @@ Respond ONLY with a JSON object:
 }`;
 
       const response = await aiLlm.invoke(analysisPrompt);
-      let content = response.content.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
+      const rawContent = response.content || "";
+      const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+        .trim()
+        .replace(/```json/gi, '')
+        .replace(/```/g, '')
+        .trim();
+
       
       try {
-        const decision = JSON.parse(content);
+        const decision = JSON.parse(cleanContent);
+
         
         if (decision.shouldDisable) {
           logger.warn(`QC Agent: DISABLING puzzle ${data.ticker} due to: ${decision.rationale}`);

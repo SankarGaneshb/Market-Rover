@@ -48,10 +48,17 @@ Respond ONLY with a JSON object:
 }`;
 
     const response = await aiLlm.invoke(analysisPrompt);
-    let content = response.content.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
+    const rawContent = response.content || "";
+    const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+      .trim()
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim();
+
     
     try {
-      return JSON.parse(content);
+      return JSON.parse(cleanContent);
+
     } catch (e) {
       return { rootCause: "Unknown", mitigation: "Generic error", severity: "high" };
     }
