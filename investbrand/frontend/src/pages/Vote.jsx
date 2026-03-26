@@ -122,15 +122,15 @@ export default function Vote() {
     };
 
     return (
-        <div className="h-[calc(100vh-64px)] w-full bg-[#f8fafc] flex flex-col py-6 px-4 md:px-8 overflow-y-auto font-sans">
+        <div className="h-[calc(100dvh-65px)] w-full bg-[#f8fafc] flex flex-col py-4 sm:py-6 px-3 sm:px-4 md:px-8 overflow-y-auto font-sans hide-scroll">
             <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col min-h-0">
 
-                <div className="mb-4 shrink-0 text-center">
-                    <h1 className="text-3xl font-black text-slate-800 flex items-center justify-center gap-2">
-                        <BarChart3 className="text-indigo-600" size={32} />
-                        Market Rover <span className="text-indigo-600">Brand Profiler</span>
+                <div className="mb-4 shrink-0 text-center px-2">
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center justify-center gap-2">
+                        <BarChart3 className="text-indigo-600 shrink-0" size={28} />
+                        <span className="truncate">Brand Profiler</span>
                     </h1>
-                    <p className="text-sm text-slate-500 mt-2 font-medium">
+                    <p className="text-[11px] sm:text-sm text-slate-500 mt-1.5 font-medium leading-relaxed max-w-2xl mx-auto">
                         {getDynamicDescription()}
                     </p>
                 </div>
@@ -138,7 +138,7 @@ export default function Vote() {
                 <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0 items-start justify-center">
 
                     {/* Main Interaction Area */}
-                    <div className="flex-[3] flex flex-col min-h-0 w-full bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div className="flex-[3] flex flex-col min-h-0 w-full bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
 
                         {/* 4-Tier Selection System */}
                         <div className="flex flex-col gap-5 border-b border-slate-100 pb-5">
@@ -212,8 +212,8 @@ export default function Vote() {
                         </div>
 
                         {/* Tier 4: Brand Grid (Responsive Cards) */}
-                        <div className="flex-1 mt-5 min-h-[300px]">
-                            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-1 mb-3"><Store size={14} /> 4. Core Brands</div>
+                        <div className="flex-1 mt-5 min-h-[250px] sm:min-h-[300px]">
+                            <div className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-1 mb-3"><Store size={14} /> 4. Core Brands</div>
 
                             {availableBrands.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -275,16 +275,16 @@ export default function Vote() {
                     </div>
 
                     {/* Sidebar */}
-                    <div className="lg:w-[340px] flex-shrink-0 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div className="lg:w-[340px] w-full flex-shrink-0 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6">
                         <h3 className="text-[13px] font-black text-slate-400 mb-6 uppercase tracking-widest w-full border-b border-slate-100 pb-3 text-center">Selected Prospect</h3>
 
                         {voteStatus === 'success' && (
-                            <div className="mb-6 w-full p-4 bg-emerald-50 border border-emerald-100 rounded-xl animate-in zoom-in duration-300">
-                                <div className="flex items-center gap-3 text-emerald-700">
-                                    <CheckCircle className="text-emerald-500 shrink-0" size={20} />
+                            <div className="mb-4 sm:mb-6 w-full p-3 sm:p-4 bg-emerald-50 border border-emerald-100 rounded-xl animate-in zoom-in duration-300">
+                                <div className="flex items-center gap-2 sm:gap-3 text-emerald-700">
+                                    <CheckCircle className="text-emerald-500 shrink-0" size={18} />
                                     <div>
                                         <div className="font-bold text-sm">Vote Logged!</div>
-                                        <div className="text-[11px] opacity-80 leading-tight">Your selected brand will be tracked for tomorrow's challenge.</div>
+                                        <div className="text-[10px] sm:text-[11px] opacity-80 leading-tight">Your selected brand will be tracked for tomorrow's challenge.</div>
                                     </div>
                                 </div>
                             </div>
@@ -294,12 +294,12 @@ export default function Vote() {
                             {selectedVote ? (
                                 <div className="flex flex-col items-center animate-in zoom-in duration-300 w-full">
 
-                                    <div className="w-32 h-32 rounded-2xl shadow-lg border border-slate-100 overflow-hidden mb-5 bg-white flex items-center justify-center p-3">
+                                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl shadow-lg border border-slate-100 overflow-hidden mb-4 sm:mb-5 bg-white flex items-center justify-center p-3">
                                         <img src={selectedVote.logoUrl} alt={selectedVote.brand} className="w-full h-full object-contain drop-shadow-sm" />
                                     </div>
 
-                                    <div className="text-slate-800 font-black text-2xl text-center leading-tight mb-1">{selectedVote.brand}</div>
-                                    <div className="text-slate-500 text-sm font-medium mb-6 text-center">{selectedVote.company}</div>
+                                    <div className="text-slate-800 font-black text-xl sm:text-2xl text-center leading-tight mb-0.5 sm:1">{selectedVote.brand}</div>
+                                    <div className="text-slate-500 text-xs sm:text-sm font-medium mb-4 sm:mb-6 text-center">{selectedVote.company}</div>
 
                                     <div className="w-full flex justify-between items-center text-xs text-slate-600 border-t border-b border-slate-100 py-3 mb-2">
                                         <span className="font-bold uppercase tracking-wider text-slate-400">Index</span>

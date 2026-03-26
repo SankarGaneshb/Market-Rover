@@ -44,7 +44,7 @@ describe('AI Agents Unit Tests', () => {
       mockQuery.mockResolvedValueOnce({
         rows: [{ company_name: 'Reliance', sector: 'Energy', vote_date: new Date(), difficulty: 'easy' }]
       });
-      mockInvoke.mockResolvedValueOnce({ content: 'Test Profile Summary' });
+      mockInvoke.mockResolvedValueOnce({ content: JSON.stringify({ profileSummary: 'Test Profile Summary', primaryTag: 'Value Hunter', readingLevel: 'intermediate' }) });
       mockEmbedQuery.mockResolvedValueOnce([0.1, 0.2, 0.3]);
       mockQuery.mockResolvedValueOnce({ rows: [] }); // Upsert query
 

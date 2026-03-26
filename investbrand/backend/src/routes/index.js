@@ -7,6 +7,8 @@ const puzzleRoutes = require('./puzzles');
 const leaderboardRoutes = require('./leaderboard');
 const userRoutes = require('./users');
 const missionsRoutes = require('./missions');
+const educationRoutes = require('./education');
+
 
 router.get('/health', (req, res) => {
   res.json({
@@ -22,5 +24,7 @@ router.use('/puzzles', puzzleRoutes);
 router.use('/leaderboard', leaderboardRoutes);
 router.use('/users', userRoutes);
 router.use('/missions', missionsRoutes);
+router.use('/education', educationRoutes);
+
 
 module.exports = router;

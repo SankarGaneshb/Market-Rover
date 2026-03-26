@@ -3,23 +3,25 @@ const logger = require('./logger');
 const { getIstDateString } = require('./date');
 
 const MISSIONS = {
-  first_steps: { id: 'first_steps', target: 5 },
-  sector_explorer: { id: 'sector_explorer', target: 3 }
+  first_steps: { id: 'first_steps', target: 5, reward: 'guide_basics' },
+  sector_explorer: { id: 'sector_explorer', target: 3, reward: 'guide_diversification' }
 };
 
-async function updateMission(client, userId, missionId, progress, target) {
+async function updateMission(client, userId, missionId, progress, target, reward = null) {
   const isCompleted = progress >= target;
   await client.query(
-    `INSERT INTO user_missions (user_id, mission_id, progress, is_completed, completed_at)
-     VALUES ($1, $2, $3, $4, CASE WHEN $4 THEN NOW() ELSE NULL END)
+    `INSERT INTO user_missions (user_id, mission_id, progress, is_completed, unlocked_reward, completed_at)
+     VALUES ($1, $2, $3, $4, $5, CASE WHEN $4 THEN NOW() ELSE NULL END)
      ON CONFLICT (user_id, mission_id)
      DO UPDATE SET 
        progress = GREATEST(user_missions.progress, EXCLUDED.progress),
-       is_completed = CASE WHEN EXCLUDED.progress >= $5 THEN true ELSE user_missions.is_completed END,
-       completed_at = CASE WHEN EXCLUDED.progress >= $5 AND user_missions.is_completed = false THEN NOW() ELSE user_missions.completed_at END`,
-    [userId, missionId, progress, isCompleted, target]
+       is_completed = CASE WHEN EXCLUDED.progress >= $6 THEN true ELSE user_missions.is_completed END,
+       unlocked_reward = CASE WHEN EXCLUDED.progress >= $6 AND user_missions.unlocked_reward IS NULL THEN $5 ELSE user_missions.unlocked_reward END,
+       completed_at = CASE WHEN EXCLUDED.progress >= $6 AND user_missions.is_completed = false THEN NOW() ELSE user_missions.completed_at END`,
+    [userId, missionId, progress, isCompleted, reward, target]
   );
 }
+
 
 async function checkMissions(userId) {
   const pool = getPool();
@@ -39,11 +41,11 @@ async function checkMissions(userId) {
       if (votes.length === 0) return;
 
       // 1. First Steps: 5 votes total
-      await updateMission(client, userId, MISSIONS.first_steps.id, votes.length, MISSIONS.first_steps.target);
+      await updateMission(client, userId, MISSIONS.first_steps.id, votes.length, MISSIONS.first_steps.target, MISSIONS.first_steps.reward);
 
       // 2. Sector Explorer: Votes across 3 different sectors
       const distinctSectors = new Set(votes.map(v => v.sector).filter(Boolean)).size;
-      await updateMission(client, userId, MISSIONS.sector_explorer.id, distinctSectors, MISSIONS.sector_explorer.target);
+      await updateMission(client, userId, MISSIONS.sector_explorer.id, distinctSectors, MISSIONS.sector_explorer.target, MISSIONS.sector_explorer.reward);
 
       // 3. Dynamic Daily Missions
       const todayStr = getIstDateString();
@@ -64,8 +66,9 @@ async function checkMissions(userId) {
         const tomorrowStr = getIstDateString(tomorrowOffset);
 
         const votesToday = votes.filter(v => v.vote_date && getIstDateString(new Date(v.vote_date)) === tomorrowStr).length;
-        await updateMission(client, userId, dailyId, votesToday, dailyDef.target);
+        await updateMission(client, userId, dailyId, votesToday, dailyDef.target, dailyDef.reward || 'daily_xp_bonus');
       }
+
     } finally {
       client.release();
     }

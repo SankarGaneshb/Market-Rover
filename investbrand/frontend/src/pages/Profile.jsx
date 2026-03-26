@@ -3,9 +3,13 @@ import axios from 'axios';
 import { Trophy, Flame, CheckCircle, Target, TrendingUp, Award, Star, Info } from 'lucide-react';
 import { VIRTUOSO_LEVELS, getVirtuosoLevel, getNextVirtuosoLevel } from '../data/virtuoso';
 import GlitterBadge from '../components/GlitterBadge';
+import TeacherTip from '../components/TeacherTip';
+import LearningLocker from '../components/LearningLocker';
+
 
 export default function Profile() {
   const [p, setP] = useState(null);
+
 
   useEffect(() => {
     axios.get('/api/users/me')
@@ -54,6 +58,8 @@ export default function Profile() {
                 </div>
               )}
             </div>
+
+
             <div className="flex flex-col justify-center flex-1 min-w-0">
               <h1 className="text-white text-xl md:text-2xl font-black truncate tracking-tighter drop-shadow-md">{p.name}</h1>
               <p className="text-cyan-200/60 font-bold text-[10px] md:text-xs truncate tracking-wider">{p.email}</p>
@@ -61,8 +67,10 @@ export default function Profile() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 relative z-10 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0 hide-scroll">
+            <StatCard icon={<Star className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,1)]" size={14} />} value={p.strategyTag} label="Persona" />
             <StatCard icon={<Flame className="text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,1)]" size={14} />} value={p.streak} label="Streak" unit="d" />
             <StatCard icon={<CheckCircle className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,1)]" size={14} />} value={p.puzzlesCompleted} label="Solved" />
+
             <StatCard icon={<Trophy className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,1)]" size={14} />} value={p.score} label="Total" />
 
             {/* Split Score Box */}
@@ -115,7 +123,10 @@ export default function Profile() {
         <div className="flex-1 min-h-0 bg-[#0a0c16]/50 backdrop-blur-3xl rounded-[2.5rem] p-4 lg:p-6 lg:pb-8 shadow-[20px_20px_60px_-15px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] border-t border-l border-white/20 border-b border-r border-black/80 relative overflow-hidden flex flex-col">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_30px_rgba(34,211,238,1)]" />
 
+          <TeacherTip />
+
           <div className="flex items-center justify-between mb-4 flex-shrink-0 relative z-10">
+
             <h2 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3 drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] tracking-tight uppercase">
               <TrendingUp className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,1)] animate-pulse" size={28} /> Mastery Path
             </h2>
@@ -124,8 +135,8 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-x-auto overflow-y-hidden hide-scroll hide-scrollbar w-full relative z-10 pb-4 lg:pb-0 h-full">
-            <div className="flex lg:grid lg:grid-cols-7 gap-3 lg:gap-4 h-full min-w-max lg:min-w-0 pt-2 lg:pt-4">
+          <div className="w-full relative z-10 pb-4 lg:pb-0">
+            <div className="flex lg:grid lg:grid-cols-7 gap-3 lg:gap-4 overflow-x-auto pb-4 hide-scrollbar min-w-full pt-2 lg:pt-4">
               {VIRTUOSO_LEVELS.map((level, idx) => {
                 const isLocked = p.streak < level.minDays;
                 const isCurrent = currentLevel.name === level.name;
@@ -133,10 +144,10 @@ export default function Profile() {
                 return (
                   <div
                     key={idx}
-                    className={`relative w-[280px] lg:w-auto h-full rounded-3xl transition-all duration-700 overflow-hidden group/hero flex flex-col justify-between ${isLocked
+                    className={`relative w-[240px] sm:w-[280px] lg:w-auto rounded-3xl transition-all duration-700 overflow-hidden group/hero flex flex-col justify-between aspect-[3/4] lg:aspect-auto lg:h-full ${isLocked
                       ? 'bg-[#050608]/90 border-t border-l border-white/5 border-b-2 border-r-2 border-black shadow-[15px_15px_30px_-10px_rgba(0,0,0,0.9)] opacity-90'
                       : `bg-[#0f1219]/90 border-t-2 border-l-2 border-white/30 border-b-2 border-r-2 border-black/80 shadow-[20px_20px_50px_-10px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.2)] hover:-translate-y-4 hover:scale-[1.03] hover:bg-[#151923] hover:border-white/50 hover:shadow-[30px_40px_80px_-20px_rgba(0,0,0,1),0_0_80px_${level.accent}33] z-10 hover:z-30 cursor-pointer`
-                      } ${isCurrent ? `ring-2 ring-[${level.accent}] ring-offset-4 ring-offset-[#0a0c16] shadow-[20px_30px_70px_rgba(0,0,0,1),0_0_100px_${level.accent}44] -translate-y-2 lg:-translate-y-3 z-20` : ''}`}
+                      } ${isCurrent ? `ring-2 ring-[${level.accent}] shadow-[20px_30px_70px_rgba(0,0,0,1),0_0_100px_${level.accent}44] -translate-y-2 lg:-translate-y-3 z-20` : ''}`}
                   >
                     {/* Deep Cinematic Spotlight */}
                     <div
@@ -145,14 +156,14 @@ export default function Profile() {
                     />
 
                     {isCurrent && (
-                      <div className="absolute top-4 right-4 bg-white text-black text-[9px] font-black px-3 py-1.5 rounded-full shadow-[0_5px_15px_rgba(255,255,255,0.8)] uppercase tracking-[0.2em] z-30 animate-pulse border border-black/10">
-                        Current
+                      <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full shadow-[0_5px_15px_rgba(16,185,129,0.4)] uppercase tracking-[0.2em] z-30 animate-pulse border border-white/20">
+                        Active
                       </div>
                     )}
 
                     {/* Massive Display Area */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative z-20 w-full px-2 pt-8 pb-4 group-hover/hero:scale-[1.1] transition-transform duration-700 ease-out h-[60%] lg:h-[70%]">
-                      <div className="relative w-full h-full flex items-center justify-center mb-4 drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]">
+                    <div className="flex-1 flex flex-col items-center justify-center relative z-20 w-full px-2 pt-8 pb-4 group-hover/hero:scale-[1.1] transition-transform duration-700 ease-out min-h-[160px] lg:min-h-[200px]">
+                      <div className="relative w-full aspect-square max-h-40 flex items-center justify-center mb-4 drop-shadow-[0_20px_40px_rgba(0,0,0,0.9)]">
                         <div
                           className="absolute inset-x-0 inset-y-10 blur-3xl opacity-60 mix-blend-screen"
                           style={{ background: `radial-gradient(circle, ${level.accent}, transparent 70%)` }}
@@ -204,7 +215,29 @@ export default function Profile() {
               })}
             </div>
           </div>
+
+          {/* New Badges Section */}
+          {p.badges && p.badges.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-white/10 relative z-20">
+               <h3 className="text-xs font-black text-indigo-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                 <Award size={14} /> Mission Accomplishments
+               </h3>
+                <div className="flex flex-wrap gap-2">
+                  {(p.badges || []).filter(b => b && b.trim()).map((b, i) => (
+                   <div key={i} className="px-4 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 text-xs font-bold shadow-lg shadow-indigo-500/5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                     {b}
+                   </div>
+                 ))}
+               </div>
+            </div>
+          )}
+
+          <div className="mt-8 pt-8 border-t border-white/5 relative z-20">
+             <LearningLocker />
+          </div>
+
         </div>
+
       </div>
 
       <style dangerouslySetInnerHTML={{

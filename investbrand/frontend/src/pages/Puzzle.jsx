@@ -334,7 +334,7 @@ export default function PuzzleGame() {
 
   if (gameState === 'menu') {
     return (
-      <div className="fixed inset-0 top-[64px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100vh - 64px)" }}>
+      <div className="fixed inset-0 top-[65px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
         {/* Animated Ultra-Vibrant Mesh Background */}
         <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
           <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-indigo-600/20 blur-[150px] mix-blend-screen animate-blob" />
@@ -342,10 +342,10 @@ export default function PuzzleGame() {
         </div>
 
         <div className="max-w-4xl w-full relative z-10">
-          <div className="text-center mb-4 sm:mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 sm:mb-4">Brand to Stock</h1>
-            <p className="text-xl text-white/90 mb-6">Learn investing through brands you use daily!</p>
-            <div className="flex items-center justify-center gap-6 text-white/80 mb-8">
+          <div className="text-center mb-4 sm:mb-6 px-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 sm:mb-4 tracking-tight">Brand to Stock</h1>
+            <p className="text-lg sm:text-xl text-white/90 mb-6 font-medium">Learn investing through brands you use daily!</p>
+            <div className="flex items-center justify-center gap-4 sm:gap-6 text-white/80 mb-6">
               <div className="flex items-center gap-2">
                 <Zap className="text-yellow-300" size={20} />
                 <span className="font-bold">{streak} Day Streak</span>
@@ -359,10 +359,23 @@ export default function PuzzleGame() {
 
           <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-8 mb-6 relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <Calendar className="text-blue-600" />
-                Today's Challenge
-                {completedToday && <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold ml-2">Completed</span>}
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <Calendar className="text-blue-600 shrink-0" size={20} />
+                <span className="truncate">Today's Challenge</span>
+                {completedToday && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold ml-1.5 shrink-0">Done</span>
+                    <button 
+                      onClick={() => {
+                        setGameState('completed');
+                        fetchTeacherInsight();
+                      }}
+                      className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 transition-colors border border-indigo-100"
+                    >
+                      Review Result & Market Fact →
+                    </button>
+                  </div>
+                )}
               </h2>
 
               {selectionMethod === 'voted' && (
@@ -391,9 +404,9 @@ export default function PuzzleGame() {
                   <TrendingUp className="text-blue-600" size={40} />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-1">Nifty 50 Spotlight</div>
-                  <div className="text-3xl font-black text-slate-800">{currentBrand?.brand}</div>
-                  <div className="text-sm text-slate-500 font-medium">{currentBrand?.company}</div>
+                  <div className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-0.5">Nifty 50 Spotlight</div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">{currentBrand?.brand}</div>
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium">{currentBrand?.company}</div>
                 </div>
               </div>
             </div>
@@ -438,50 +451,50 @@ export default function PuzzleGame() {
 
   if (gameState === 'completed') {
     return (
-      <div className="fixed inset-0 top-[64px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100vh - 64px)" }}>
+      <div className="fixed inset-0 top-[65px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
         {/* Animated Ultra-Vibrant Mesh Background */}
         <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
           <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-emerald-600/20 blur-[150px] mix-blend-screen animate-blob" />
           <div className="absolute bottom-[-30%] left-[20%] w-[90vw] h-[90vw] rounded-full bg-teal-600/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
         </div>
 
-        <div className="max-w-5xl w-full h-full flex flex-col items-center justify-center p-2 lg:p-4 relative z-10">
-          <div className="bg-white rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] p-5 lg:p-8 text-center w-full max-h-[95vh] flex flex-col min-h-0 border border-white/20">
+        <div className="max-w-5xl w-full h-full flex flex-col items-center justify-start sm:justify-center p-2 lg:p-4 relative z-10 overflow-y-auto hide-scroll">
+          <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] p-4 sm:p-5 lg:p-8 text-center w-full my-4 flex flex-col min-h-0 border border-white/20">
 
-            <div className="flex-shrink-0 mb-4 lg:mb-6">
-              <div className="text-4xl lg:text-5xl mb-1">🎉</div>
-              <h2 className="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight leading-none mb-1">Puzzle Solved!</h2>
-              <p className="text-sm lg:text-base text-slate-500 font-bold uppercase tracking-widest">You discovered a Nifty investment</p>
+            <div className="flex-shrink-0 mb-3 sm:mb-4 lg:mb-6">
+              <div className="text-3xl sm:text-4xl lg:text-5xl mb-1">🎉</div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 tracking-tight leading-none mb-1">Puzzle Solved!</h2>
+              <p className="text-[10px] sm:text-sm lg:text-base text-slate-500 font-bold uppercase tracking-widest">You discovered a Nifty investment</p>
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-4 lg:gap-6 mb-4 lg:mb-6">
 
               {/* Left Column: Brand Reveal */}
-              <div className="flex-[1.2] bg-gradient-to-br from-blue-50 to-indigo-50/30 rounded-[2rem] p-5 lg:p-6 border border-indigo-100 flex flex-col items-center justify-center relative shadow-inner">
-                <div className="w-20 h-20 lg:w-28 lg:h-28 mb-4 bg-white rounded-2xl shadow-lg p-3 lg:p-4 flex items-center justify-center flex-shrink-0 z-10 transition-transform hover:scale-105 duration-500">
+              <div className="flex-[1.2] bg-gradient-to-br from-blue-50 to-indigo-50/30 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-5 lg:p-6 border border-indigo-100 flex flex-col items-center justify-center relative shadow-inner">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 mb-3 sm:mb-4 bg-white rounded-xl sm:rounded-2xl shadow-lg p-2 sm:p-3 lg:p-4 flex items-center justify-center flex-shrink-0 z-10 transition-transform hover:scale-105 duration-500">
                   {currentBrand?.logoSvg ? (
                     <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }} />
                   ) : (
                     <img src={currentBrand?.logoUrl} alt={currentBrand?.brand} className="max-w-full max-h-full object-contain" />
                   )}
                 </div>
-                <h3 className="text-2xl lg:text-3xl font-black text-slate-800 mb-1 leading-tight text-center">{currentBrand?.brand}</h3>
-                <div className="inline-block bg-indigo-600 text-white px-3 py-1 rounded-full text-[10px] lg:text-xs font-bold mb-4 shadow-sm">{currentBrand?.ticker}</div>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 mb-1 leading-tight text-center">{currentBrand?.brand}</h3>
+                <div className="inline-block bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] sm:text-[10px] lg:text-xs font-bold mb-3 sm:mb-4 shadow-sm">{currentBrand?.ticker}</div>
 
-                <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full flex-1 relative overflow-hidden">
+                <div className="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full flex-1 relative overflow-hidden">
                   {isFetchingInsight && (
                     <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-4">
                       <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
                       <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest text-center">Teacher Agent analyzing...</p>
                     </div>
                   )}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-indigo-600 font-black text-[10px] lg:text-xs uppercase tracking-widest flex-1">
-                      <Lightbulb size={14} className="animate-pulse" /> {teacherInsight ? teacherInsight.title : "Brand Insight"}
+                  <div className="flex items-center justify-between mb-1.5 sm:mb-2 text-wrap">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-indigo-600 font-black text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest flex-1">
+                      <Lightbulb size={12} className="animate-pulse" /> {teacherInsight ? teacherInsight.title : "Brand Insight"}
                     </div>
                     {teacherInsight && (
-                      <span className="text-[8px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex-shrink-0">
-                        AI Generated
+                      <span className="text-[7px] sm:text-[8px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex-shrink-0">
+                        AI
                       </span>
                     )}
                   </div>
@@ -495,7 +508,7 @@ export default function PuzzleGame() {
               <div className="flex-1 flex flex-col gap-4 lg:gap-6">
 
                 {/* Mastery Status Card */}
-                <div className="bg-slate-50 rounded-[2rem] p-4 lg:p-5 border border-slate-100 flex items-center gap-4 relative overflow-hidden group">
+                <div className="bg-slate-50 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-4 lg:p-5 border border-slate-100 flex items-center gap-3 sm:gap-4 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
                   <div className="flex-shrink-0 transform scale-[1.3] lg:scale-[1.5] origin-left ml-2">
                     {(() => {
@@ -504,8 +517,8 @@ export default function PuzzleGame() {
                     })()}
                   </div>
                   <div className="flex-1 text-left min-w-0 z-10">
-                    <div className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Mastery</div>
-                    <div className="text-lg lg:text-xl font-black text-slate-800 uppercase tracking-tighter truncate leading-none mb-2">
+                    <div className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Mastery</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-black text-slate-800 uppercase tracking-tighter truncate leading-none mb-1.5 sm:mb-2">
                       {getVirtuosoLevel(streak).name.split(' ')[0]}
                     </div>
                     {(() => {
@@ -537,9 +550,9 @@ export default function PuzzleGame() {
                     { label: 'Score', value: calculateScore(), icon: <Trophy size={18} />, bg: 'bg-green-50', text: 'text-green-600', labelColor: 'text-green-400' },
                     { label: 'Streak', value: `${streak}d`, icon: <Zap size={18} />, bg: 'bg-orange-50', text: 'text-orange-600', labelColor: 'text-orange-400' }
                   ].map((stat, i) => (
-                    <div key={i} className={`${stat.bg} rounded-2xl lg:rounded-[1.5rem] p-3 lg:p-4 flex flex-col justify-center`}>
-                      <div className={`text-[9px] lg:text-[10px] font-black uppercase ${stat.labelColor} tracking-widest mb-1`}>{stat.label}</div>
-                      <div className={`text-xl lg:text-2xl font-black ${stat.text} flex items-center gap-2 leading-none`}>
+                    <div key={i} className={`${stat.bg} rounded-xl sm:rounded-2xl lg:rounded-[1.5rem] p-2.5 sm:p-3 lg:p-4 flex flex-col justify-center`}>
+                      <div className={`text-[8px] sm:text-[9px] lg:text-[10px] font-black uppercase ${stat.labelColor} tracking-widest mb-0.5 sm:mb-1`}>{stat.label}</div>
+                      <div className={`text-lg sm:text-xl lg:text-2xl font-black ${stat.text} flex items-center gap-1.5 sm:gap-2 leading-none whitespace-nowrap`}>
                         {stat.icon} {stat.value}
                       </div>
                     </div>
@@ -626,7 +639,7 @@ export default function PuzzleGame() {
   const gridSize = difficultyLevels[difficulty]?.grid || 3;
 
   return (
-    <div className="fixed inset-0 top-[64px] bg-[#030014] font-sans overflow-hidden" style={{ height: "calc(100vh - 64px)" }}>
+    <div className="fixed inset-0 top-[65px] bg-[#030014] font-sans overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
       {/* Animated Ultra-Vibrant Mesh Background */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
         <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-blue-600/20 blur-[150px] mix-blend-screen animate-blob" />
@@ -634,23 +647,30 @@ export default function PuzzleGame() {
       </div>
 
       <div className="relative z-10 p-2 sm:p-4 w-full max-w-4xl mx-auto h-full flex flex-col min-h-0">
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 mb-2 text-white flex items-center justify-between gap-2 shadow-sm shrink-0">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-black tracking-tight flex items-center gap-2">
-              <Trophy size={18} className="text-yellow-400" /> Solve It!
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 mb-2 text-white flex items-center justify-between gap-2 shadow-sm shrink-0 border border-white/5">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+            <h2 className="text-sm sm:text-base font-black tracking-tight flex items-center gap-1.5 shrink-0">
+              <Trophy size={16} className="text-yellow-400" /> Solve It!
             </h2>
-            <div className="flex items-center gap-3 text-xs font-bold bg-white/10 px-3 py-1 rounded-lg">
-              <span className="flex items-center gap-1"><Clock size={14} /> {formatTime(timer)}</span>
-              <span className="flex items-center gap-1"><Move size={14} /> {moves}</span>
-              <span className="flex items-center gap-1"><Zap size={14} className="text-orange-400" /> {streak}</span>
+            <div className="flex items-center gap-2.5 sm:gap-3 text-[10px] sm:text-xs font-bold bg-white/10 px-2 py-1 rounded-lg">
+              <span className="flex items-center gap-1 shrink-0"><Clock size={12} /> {formatTime(timer)}</span>
+              <span className="flex items-center gap-1 shrink-0"><Move size={12} /> {moves}</span>
+              <span className="flex items-center gap-1 shrink-0"><Zap size={12} className="text-orange-400" /> {streak}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowHint(!showHint)} className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg flex items-center gap-2 transition font-bold text-xs">
-              <Eye size={14} /> Hint
+          <div className="flex items-center gap-2 shrink-0">
+            <button 
+              onClick={() => setShowHint(!showHint)} 
+              className="px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-lg flex items-center gap-2 transition font-bold text-[10px] sm:text-xs border border-indigo-500/20"
+            >
+              <Eye size={14} /> <span className="hidden xs:inline">Hint</span>
             </button>
-            <button onClick={() => setGameState('menu')} className="p-1.5 bg-red-500/80 hover:bg-red-500 rounded-lg transition">
-              <X size={16} />
+            <button 
+              onClick={() => setGameState('menu')} 
+              className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg transition-colors active:scale-90"
+              aria-label="Exit Game"
+            >
+              <X size={20} />
             </button>
           </div>
         </div>
@@ -685,7 +705,7 @@ export default function PuzzleGame() {
                 gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
                 width: boardSize,
                 height: boardSize,
-                padding: '4px'
+                padding: '6px'
               }}
             >
               {Array.from({ length: gridSize * gridSize }).map((_, position) => {
@@ -758,7 +778,7 @@ export default function PuzzleGame() {
           /* GUARANTEED ZERO SCROLLBAR: Force layout strictly visually */
           * { -ms-overflow-style: none; scrollbar-width: none; }
           *::-webkit-scrollbar { display: none !important; }
-          body, html { overflow: hidden !important; height: 100vh !important; margin: 0; padding: 0; }
+          body, html { overflow: hidden !important; height: 100dvh !important; margin: 0; padding: 0; }
           
           /* Utility hide scroll for inner flex containers */
           .hide-scroll {

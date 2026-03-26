@@ -4,19 +4,20 @@ import { Target, Award, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ExplainerModal from './ExplainerModal';
 import { EXPLAINERS } from '../data/explainers';
+import TeacherTip from './TeacherTip';
 
 const MISSION_DEFS = {
   first_steps: {
-    title: 'First Steps',
-    desc: 'Complete your first 5 votes (any combination)',
-    target: 5,
-    reward: 'Introduction to investment basics guide'
+    title: "First Steps",
+    description: "Complete 5 different puzzle votes to start your journey.",
+    target: 5, // Keeping original target as it's not specified in instruction
+    reward: "Foundations Guide"
   },
   sector_explorer: {
-    title: 'Sector Explorer',
-    desc: 'Vote across 3 different sectors',
-    target: 3,
-    reward: 'Sector comparison chart and defensively characteristics'
+    title: "Sector Samurai",
+    description: "Vote across 3 different sectors to learn about market diversification.",
+    target: 3, // Keeping original target as it's not specified in instruction
+    reward: "Diversification Handbook"
   }
 };
 
@@ -62,17 +63,20 @@ export default function MissionsTab() {
           <p className="text-slate-500 mt-2 font-medium">Complete missions through your daily voting to earn badges and unlock exclusive investing knowledge.</p>
         </div>
 
+        <TeacherTip />
+
         <div className="grid gap-6 md:grid-cols-2">
+
           {(() => {
             const displayMissions = [];
             
             // 1. Static Base Missions
             Object.entries(MISSION_DEFS).forEach(([id, def]) => {
-              const dbEntry = missions.find(m => m.mission_id === id);
+              const dbEntry = (missions || []).find(m => m.mission_id === id);
               displayMissions.push({
                 id,
                 title: def.title,
-                desc: def.desc,
+                desc: def.description || def.desc,
                 target: def.target,
                 reward: def.reward,
                 progress: dbEntry ? dbEntry.progress : 0,
@@ -82,7 +86,7 @@ export default function MissionsTab() {
             });
 
             // 2. Dynamic Gamemaster Missions
-            missions.forEach(m => {
+            (missions || []).forEach(m => {
               if (!MISSION_DEFS[m.mission_id] && m.mission_def) {
                 displayMissions.push({
                   id: m.mission_id,
@@ -98,59 +102,67 @@ export default function MissionsTab() {
             });
 
             return displayMissions.map((def) => {
-              const { id, progress, isCompleted, percent = Math.min(100, Math.round((progress / def.target) * 100)) } = def;
+              const { id, progress, isCompleted } = def;
+              const percent = Math.min(100, Math.round((progress / def.target) * 100));
 
               return (
-              <div key={id} className={`p-6 rounded-2xl border transition-all shadow-sm ${isCompleted ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200'}`}>
-                <div className="flex justify-between items-start mb-5">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl flex items-center justify-center shadow-sm ${isCompleted ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <Award size={28} />
+                <div key={id} className={`p-6 rounded-2xl border transition-all shadow-sm ${isCompleted ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200'}`}>
+                  <div className="flex justify-between items-start mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-3 rounded-xl flex items-center justify-center shadow-sm ${isCompleted ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                        <Award size={28} />
+                      </div>
+                      <div>
+                        <h3 className={`font-black text-xl leading-tight ${isCompleted ? 'text-indigo-900' : 'text-slate-800'}`}>{def.title}</h3>
+                        <p className="text-sm font-medium text-slate-500 mt-1">{def.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className={`font-black text-xl leading-tight ${isCompleted ? 'text-indigo-900' : 'text-slate-800'}`}>{def.title}</h3>
-                      <p className="text-sm font-medium text-slate-500 mt-1">{def.desc}</p>
+                    {isCompleted && <CheckCircle className="text-indigo-500 shrink-0" size={28} />}
+                  </div>
+
+                  <div className="mb-5">
+                    <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-widest">
+                      <span className="text-slate-400">Progress</span>
+                      <span className={isCompleted ? 'text-indigo-600' : 'text-slate-600'}>{progress} / {def.target}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-700 ease-out ${isCompleted ? 'bg-indigo-500' : 'bg-blue-400'}`}
+                        style={{ width: `${percent}%` }}
+                      ></div>
                     </div>
                   </div>
-                  {isCompleted && <CheckCircle className="text-indigo-500 shrink-0" size={28} />}
-                </div>
 
-                <div className="mb-5">
-                  <div className="flex justify-between text-xs font-bold mb-2 uppercase tracking-widest">
-                    <span className="text-slate-400">Progress</span>
-                    <span className={isCompleted ? 'text-indigo-600' : 'text-slate-600'}>{progress} / {def.target}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-700 ease-out ${isCompleted ? 'bg-indigo-500' : 'bg-blue-400'}`}
-                      style={{ width: `${percent}%` }}
-                    ></div>
-                  </div>
+                  {isCompleted ? (
+                    <div className="mt-4 pt-4 border-t border-indigo-200/50">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Reward Unlocked</span>
+                      <p 
+                        onClick={() => def.isDynamic ? null : setModalData(EXPLAINERS[id])} 
+                        className={`text-sm font-semibold text-indigo-800 mt-1 flex items-center gap-1 ${def.isDynamic ? 'cursor-default' : 'cursor-pointer hover:underline'}`}
+                      >
+                        {def.reward} {!def.isDynamic && <span>&rarr;</span>}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {def.reward && (
+                          <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-100 uppercase tracking-tighter">
+                            🎁 Unlocks: {def.reward}
+                          </span>
+                        )}
+                        <span className="text-xs font-bold text-slate-400">{percent}% complete</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{progress}/{def.target}</span>
+                    </div>
+                  )}
                 </div>
-
-                {isCompleted ? (
-                   <div className="mt-4 pt-4 border-t border-indigo-200/50">
-                     <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Reward Unlocked</span>
-                     <p 
-                       onClick={() => def.isDynamic ? null : setModalData(EXPLAINERS[id])} 
-                       className={`text-sm font-semibold text-indigo-800 mt-1 flex items-center gap-1 ${def.isDynamic ? 'cursor-default' : 'cursor-pointer hover:underline'}`}
-                     >
-                       {def.reward} {!def.isDynamic && <span>&rarr;</span>}
-                     </p>
-                   </div>
-                ) : (
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Reward Preview</span>
-                    <p className="text-[13px] font-medium text-slate-400 mt-1 flex items-center gap-1">
-                      {def.reward}
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-           });
+              );
+            });
           })()}
         </div>
+
+
       </div>
       <ExplainerModal isOpen={!!modalData} onClose={() => setModalData(null)} data={modalData} />
     </div>

@@ -16,11 +16,15 @@ router.get('/', authenticate, async (req, res) => {
   const dynamicMissionId = `daily_${todayStr}`;
 
   try {
-    // 1. Fetch existing missions
+    // 1. Fetch relevant missions: static ones + today's dynamic one
     let result = await pool.query(
-      'SELECT mission_id, progress, is_completed, completed_at, mission_def FROM user_missions WHERE user_id = $1',
-      [userId]
+      `SELECT mission_id, progress, is_completed, completed_at, mission_def 
+       FROM user_missions 
+       WHERE user_id = $1 
+       AND (mission_id NOT LIKE 'daily_%' OR mission_id = $2)`,
+      [userId, dynamicMissionId]
     );
+
     
     // 2. See if today's Gamemaster mission exists
     const hasDaily = result.rows.some(r => r.mission_id === dynamicMissionId);

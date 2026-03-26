@@ -1,7 +1,42 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
+const { getPool } = require('../config/database');
+
+const { getTeacherInsight } = require('../utils/education');
+const { PREMIUM_GUIDES } = require('../data/premium_guides');
+
+
+// GET /api/education/locker
+router.get('/locker', authenticate, async (req, res) => {
+  try {
+    const pool = getPool();
+    // Fetch all completed missions with rewards for this user
+    const result = await pool.query(
+      'SELECT unlocked_reward FROM user_missions WHERE user_id = $1 AND is_completed = true AND unlocked_reward IS NOT NULL',
+      [req.user.id]
+    );
+
+    const unlockedIds = result.rows.map(r => r.unlocked_reward);
+    const locker = unlockedIds
+      .map(id => PREMIUM_GUIDES[id])
+      .filter(Boolean);
+
+    res.json({ locker });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch locker' });
+  }
+});
+
+// GET /api/education/tip
+router.get('/tip', authenticate, async (req, res) => {
+  try {
+    const tip = await getTeacherInsight(req.user.id);
+    res.json({ tip });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed' });
+  }
+});
 
 // POST /api/education/views
 // Record a content view for a user

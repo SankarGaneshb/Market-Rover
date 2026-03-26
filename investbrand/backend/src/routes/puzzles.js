@@ -12,14 +12,15 @@ const { generateTeacherInsight } = require('../agents/teacherAgent');
 router.get('/daily', async (req, res) => {
   const pool = getPool();
   const today = getIstDateString();
+  logger.info(`Puzzles: Fetching daily puzzle for date: ${today}`);
 
   try {
-    let result = await pool.query(
-      `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-       FROM puzzles WHERE scheduled_date = $1`,
+    const result = await pool.query(
+      'SELECT * FROM puzzles WHERE scheduled_date = $1',
       [today]
     );
 
+    logger.info(`Puzzles: Query result rows: ${result.rows.length}`);
     let puzzleMatch = result.rows[0];
     let finalVoteCount = 0;
     let finalSelectionMethod = 'lucky_draw';

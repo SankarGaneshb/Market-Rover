@@ -45,11 +45,11 @@ export default function Leaderboard() {
   const userLevel = user ? getVirtuosoLevel(user.streak).name : null;
 
   return (
-    <div className='min-h-screen bg-slate-900 p-4 md:p-6'>
+    <div className='min-h-dvh bg-slate-900 p-3 sm:p-4 md:p-6'>
       <div className='max-w-4xl mx-auto'>
-        <div className='flex flex-col md:flex-row items-center justify-between gap-4 mb-8'>
-          <h1 className='text-white text-3xl font-black flex items-center gap-3'>
-            <Trophy className='text-yellow-400' size={32} />
+        <div className='flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8'>
+          <h1 className='text-white text-2xl sm:text-3xl font-black flex items-center gap-2 sm:gap-3'>
+            <Trophy className='text-yellow-400 shrink-0' size={28} />
             Leaderboard
           </h1>
           <button
@@ -107,12 +107,12 @@ export default function Leaderboard() {
               {data.map((u, i) => {
                 const level = getVirtuosoLevel(u.streak);
                 return (
-                  <div key={u.id} className={`flex items-center gap-4 px-6 py-4 hover:bg-slate-700/30 transition-colors ${user?.id === u.id ? 'bg-indigo-600/10' : ''}`}>
-                    <div className='w-8 font-black text-slate-500'>
-                      {i === 0 ? <Trophy size={20} className='text-yellow-400' /> : i === 1 ? <Trophy size={20} className='text-slate-300' /> : i === 2 ? <Trophy size={20} className='text-amber-600' /> : `#${i + 1}`}
+                  <div key={u.id} className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 hover:bg-slate-700/30 transition-colors ${user?.id === u.id ? 'bg-indigo-600/10' : ''}`}>
+                    <div className='w-6 sm:w-8 font-black text-slate-500 text-xs sm:text-base'>
+                      {i === 0 ? <Trophy size={18} className='text-yellow-400' /> : i === 1 ? <Trophy size={18} className='text-slate-300' /> : i === 2 ? <Trophy size={18} className='text-amber-600' /> : `#${i + 1}`}
                     </div>
-                    <div className='relative'>
-                      <img src={u.avatar_url || `https://ui-avatars.com/api/?name=${u.name}&background=random`} alt={u.name} className='w-12 h-12 rounded-2xl shadow-md border-2 border-slate-700' />
+                    <div className='relative shrink-0'>
+                      <img src={u.avatar_url || `https://ui-avatars.com/api/?name=${u.name}&background=random`} alt={u.name} className='w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl shadow-md border-2 border-slate-700' />
                       {level.image && (
                         <div className='absolute -bottom-1 -right-1 w-5 h-5 bg-slate-900 rounded-full p-0.5 border border-slate-700'>
                           <img src={level.image} alt={level.name} className='w-full h-full object-contain' />
@@ -126,16 +126,16 @@ export default function Leaderboard() {
                       </div>
                       <div className={`text-[10px] font-black uppercase tracking-tighter ${level.color}`}>{level.name}</div>
                     </div>
-                    <div className='text-right flex flex-col items-end'>
-                      <div className='text-indigo-400 font-black text-lg leading-none mb-1'>{u.score.toLocaleString()}</div>
-                      <div className='flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider mb-1 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50'>
-                        <span className="text-emerald-400">E: {Number(u.easy_score || 0).toLocaleString()}</span>
+                    <div className='text-right flex flex-col items-end shrink-0'>
+                      <div className='text-indigo-400 font-black text-base sm:text-lg leading-none mb-1'>{u.score.toLocaleString()}</div>
+                      <div className='flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase tracking-wider mb-1 bg-slate-900/50 px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-700/50'>
+                        <span className="text-emerald-400">E:{Math.floor(u.easy_score / 1000)}k</span>
                         <span className="text-slate-600">|</span>
-                        <span className="text-amber-400">M: {Number(u.medium_score || 0).toLocaleString()}</span>
+                        <span className="text-amber-400">M:{Math.floor(u.medium_score / 1000)}k</span>
                         <span className="text-slate-600">|</span>
-                        <span className="text-rose-400">H: {Number(u.hard_score || 0).toLocaleString()}</span>
+                        <span className="text-rose-400">H:{Math.floor(u.hard_score / 1000)}k</span>
                       </div>
-                      <div className='text-[10px] text-slate-500 font-bold uppercase'>{u.streak}d streak</div>
+                      <div className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase'>{u.streak}d streak</div>
                     </div>
                   </div>
                 );

@@ -12,7 +12,8 @@ function getLLMClient() {
   }
   if (!llm) {
     llm = new ChatGoogleGenerativeAI({
-      model: "google-gemini-2.0-flash",
+      model: "gemini-1.5-flash",
+
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.8,
     });
@@ -57,26 +58,32 @@ async function generateDailyMission(userId) {
       You are an expert game designer constructing a personalized stock market educational mission for a player.
       Context: ${contextStr}
 
-      Generate a single daily mission for the player.
+      Generate a single daily mission for the player. 
+      CRITICAL: Ensure the title is unique and creative (e.g. "Sector Samurai", "Mid-Cap Maverick", "Dividend Detective"). 
+      Avoid generic titles like "Market Explorer" unless the user is completely new.
       
-      You must respond ONLY with a valid Raw JSON object (no markdown block formatting, no backticks, no comments) matching exactly this schema:
+      You must respond ONLY with a valid Raw JSON object (no markdown block formatting) matching exactly this schema:
       {
         "id": "dynamic_daily",
-        "title": "A catchy, fun title for the mission",
+        "title": "A unique, catchy title relating to the mission type",
         "description": "1-2 sentences explaining what to do and why it helps their financial knowledge",
         "target": <an integer between 2 and 5 representing how many votes/actions they need>,
-        "reward": "Name of an exclusive badge, title, or insight they unlock"
+        "reward": "Name of an exclusive badge or title"
       }
     `;
+
 
     logger.info(`Gamemaster Agent: Orchestrating daily mission for user ${userId}...`);
     
     // We append the JSON instruction strongly
     const llmResponse = await aiLlm.invoke(systemPrompt);
-    const rawContent = llmResponse.content.trim();
+    const rawContent = llmResponse.content || "";
+    const cleanJsonStr = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+      .trim()
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
     
-    // Clean potential markdown blocks just in case
-    const cleanJsonStr = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
     const missionData = JSON.parse(cleanJsonStr);
 
     logger.info(`Gamemaster Agent successfully orchestrated mission: ${missionData.title}`);

@@ -1,118 +1,70 @@
-# 📖 Market-Rover User Guide
+# 🚀 Market-Rover & InvestBrand User Guide
 
-Welcome to **Market-Rover**, your AI-powered stock intelligence system. This guide will help you navigate the features and get the most out of your analysis.
-
----
-
-## 🚀 Getting Started
-
-1.  **Launch**: The app is accessible via your browser (local or hosted URL).
-2.  **Navigation**: Use the sidebar on the left to switch between different modules (Tabs).
-3.  **Disclaimer**: Always review the legal disclaimer at the bottom of the screen.
+Welcome to the **Hybrid Intelligence Funnel**. This guide will help you navigate the AI-driven features of both the Market-Rover analysis engine and the InvestBrand gamified experience.
 
 ---
 
-## 📂 Tab 1: Portfolio Analysis
+## 🧠 1. Market-Rover: Institutional Grade Analysis
 
-**Purpose**: Deep-dive intelligence reports for your portfolio.
+Market-Rover uses a "Shadow Analyst" pattern to help you detect market traps and find smart money flow.
 
-### How to Use:
-1.  **Input Method**:
-    *   **Upload CSV**: Upload a CSV file with columns: `Symbol`, `Company Name`, `Quantity`, `Average Price`.
-    *   **Manage Portfolios**: Manually create or edit portfolios directly in the app.
-2.  **Analyze**: Click **"🚀 Analyze Portfolio"**.
-3.  **Process**:
-    *   The AI agents (Researcher, Fundamentals, Technicals, Analyst) will process each stock.
-    *   Progress bars show real-time status.
-4.  **View Reports**: Once complete, reports are saved to `reports/<username>/`. You can view them in the "Recent Reports" section or the dedicated viewer.
+### 📥 Tab 1: Upload & Analyze
+1.  **Portfolio Upload**: Upload your stock list in `.csv` format (Ticker columns only).
+2.  **AI Scrutiny**: The **Strategist** and **Sentiment** agents scan thousands of headlines in real-time.
+3.  **The Result**: A weekly-formatted intelligence report that connects Macro news ("Crude up") to your specific stocks ("Asian Paints down").
 
----
+### 📊 Tab 2: View Reports
+*   Browse your analysis history.
+*   The **Shadow Analyst** flags divergences (e.g., "Retail Panicking but Smart Money Buying").
 
-## 📈 Tab 2: Market Visualizer
-
-**Purpose**: Quick technical snapshots and support/resistance levels.
-
-### Key Features:
-*   **One-Click Snapshot**: Select a stock (or use the default) and click "Generate Snapshot".
-*   **OI Walls**: Visualizes Open Interest to show where "Smart Money" is betting (Support/Resistance).
-*   **Volatility Bands**: See price action relative to statistical volatility.
-*   **AI Outlook**: A concise Bull/Bear/Neutral verdict from the AI.
-
-> **Tip**: Use this for a pre-market check on your key holdings.
+### 📈 Tab 3 & 4: Visualizer & Heatmap
+*   **OI Walls**: See where the big money is placing their bets (Support/Resistance).
+*   **Seasonality Heatmap**: Check if a stock historically performs better in specific months.
 
 ---
 
-## 🔥 Tab 3: Monthly Heatmap & Forecast (V4.1)
+## 🔄 The Two Engines of Growth
 
-**Purpose**: Historical seasonality analysis and long-term price prediction (2026).
+InvestBrand rewards you for two distinct behaviors. Understanding this "Dual-Engine" model is the key to mastering the platform:
 
-### How to Use:
-1.  **Select Ticker**: Choose from the dropdown or enter a custom symbol (e.g., `RELIANCE.NS`).
-2.  **Robust Mode (Exclude Outliers)**:
-    *   ✅ **Check this box** to remove extreme volatility events (e.g., COVID crash) from calculations.
-    *   This makes the "Average Return" and "Seasonality" more representative of *normal* market behavior.
-3.  **Visualizations**:
-    *   **Heatmap**: Green/Red matrix showing monthly returns since IPO.
-    *   **Seasonality**: Bar charts showing "Win Rate" (probability of green month) and "Avg Return".
-4.  **2026 Forecast**:
-    *   The app backtests two strategies (Median vs Standard Deviation) and picks the winner.
-    *   Displays **Conservative**, **Baseline**, and **Aggressive** price targets for Dec 2026.
-    *   **Download**: Use the "📥 Download Matrix" button to save the heatmap data.
+### 1. The Mastery Path (Consistency / Discipline)
+*   **Metric**: Your **Streak** (Days played in a row).
+*   **Philosophy**: Financial literacy is a marathon, not a sprint. This track rewards you for showing up every day.
+*   **Outcome**: Elevates your **Virtuoso Rank** (Apprentice → Grandmaster). It proves you have the discipline of a professional investor.
 
----
+### 2. Mission Accomplishments (Curiosity / Exploration)
+*   **Metric**: **Voting Actions** (Total count and diversity).
+*   **Philosophy**: To find elite brands, you must explore outside your favorite sectors. This track rewards you for curiosity.
+*   **Outcome**: Unlocks unique **Badges** (e.g., *Sector Samurai*, *Dividend Detective*) and **Knowledge Rewards**. It builds your reputation as a well-rounded analyst.
 
-## 📊 Tab 4: Benchmark Index Analysis
+> [!TIP]
+> **Pro Tip**: Use the **Missions Tab** to find specific goals, and check your **Profile** to see your "Persona" (e.g., *Brand Loyalist* vs. *Sector Diversifier*).
 
-**Purpose**: Same powerful tools as Tab 3, but optimized for Indices (Nifty 50, Bank Nifty).
+## 🎮 2. InvestBrand: Gamified Learning
 
-*   Use this to understand the broader market trend before analyzing individual stocks.
+InvestBrand is where AI acts as your **Personal Financial Teacher**.
 
----
+### 🧩 The Daily Puzzle
+*   Guess the corporate brand based on its logo and sector hints.
+*   **AI Insight**: After every win, the **Teacher Agent** slides in a "Did you know?" tip tailored to your knowledge level.
 
-## 🎯 Tab 5: Forecast Tracker
+### 🎯 AI Missions
+*   Check the **Missions Tab** for dynamic challenges.
+*   The **Gamemaster Agent** watches your behavior. If you only bet on "Bank" stocks, it might challenge you to "Diversify into IT" for bonus points.
 
-**Purpose**: Track the performance of the AI's predictions over time.
-
-*   **Save Forecast**: In Tab 3/4, click "💾 Save Forecast" to add a prediction here.
-*   **Real-Time Tracking**: This tab updates live prices to show if the prediction is In-the-Money (ITM) or Out-of-the-Money (OTM).
-*   **Management**: Delete old or invalid forecasts using the checkbox system.
-
----
-
-## 🕵️ Tab 6: Shadow Tracker & Forensics
-
-**Purpose**: Advanced "Smart Money" detection.
-
-*   **Shadow Score**: Detects "Silent Accumulation" (institutional buying without price spikes).
-*   **Spider Web**: Identifies sector rotation trends.
-*   **Forensic Checks**: red flags in accounting (Beneish M-Score, Altman Z-Score).
+### 🤖 Meet Your Agents
+*   **Profiler Agent**: Quietly builds your "Investing Persona" based on your picks.
+*   **QC Agent**: Monitors your feedback (e.g., "Logo is blurry") and autonomously fixes the game assets.
+*   **Ops Support**: An "AI SRE" that handles backend exceptions gracefully so your game never crashes.
 
 ---
 
-## 💡 Best Practices
+## 🛠️ 3. Troubleshooting & Support
 
-*   **Rate Limits**: The app limits requests (e.g., 30 per minute) to prevent API bans. If you see a warning, wait a few seconds.
-*   **Cost Control**: The "System Health" or sidebar metrics show generic API usage. The generic Gemini API key is free but has daily quotas.
-*   **Data Accuracy**: Data comes from `yfinance` and `NSE`. Occasional delays may occur.
-
----
-## 📢 Automated Intelligence
-
-Market-Rover works for you even when you're sleeping. Check the [GitHub Discussions](https://github.com/SankarGaneshb/Market-Rover/discussions) tab for:
-
-1.  **Daily Market Reports**: Posted every day at 00:00 UTC. Covers Nifty trends, Sector Rotation, and Key Insights.
-2.  **Weekly Strategy Backtest**: Runs every Sunday.
-    *   **Email Reports**: Receive a top-performers summary directly to your inbox.
-    *   **Setup**: Add your SMTP details (Gmail, Outlook, etc.) to `.streamlit/secrets.toml`:
-        ```toml
-        [email]
-        smtp_server = "smtp.gmail.com"
-        smtp_port = 587
-        sender_email = "your-email@gmail.com"
-        sender_password = "your-app-password"
-        recipient_email = "recipient@example.com"
-        ```
+*   **Google Login**: Requires a valid Google account. Your profile is automatically synced.
+*   **Data Latency**: NSE Option Chain data is refreshed every 5 minutes.
+*   **Errors**: If an error occurs, the **Ops Support Agent** will log a fix. Simply refresh the page to restart the session.
 
 ---
 
-*Market-Rover V4.2*
+> **DISCLAIMER**: Market-Rover is an educational tool. All insights are AI-generated and do not constitute financial advice. Always consult with a registered financial advisor before trading.

@@ -13,7 +13,8 @@ function getAIClient() {
   }
   if (!llm || !embeddings) {
     llm = new ChatGoogleGenerativeAI({
-      model: "google-gemini-2.0-flash", // Per Market-Rover Rule
+      model: "gemini-1.5-flash", 
+
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.7,
     });
@@ -63,16 +64,45 @@ async function generateUserPersona(userId) {
     const systemPrompt = `
       You are an expert psychological financial profiler. Based on the user's recent stock picking history provided below,
       generate a succinct 2-3 sentence qualitative "Investing Persona" that describes their habits and risk-awareness.
-      Refer to the user in the third person. Keep it highly professional but approachable. Do not use markdown.
       
       User Vote History:
       ${historyText}
+
+      TASK:
+      1. Create a 2-3 sentence "profileSummary".
+      2. Categorize the user into a "primaryTag" (e.g., Growth Seeker, Value Hunter, Sector Diversifier).
+      3. Determine their "readingLevel" (either: beginner, intermediate, or advanced).
+      
+      You must reply with ONLY a pure JSON object:
+      {
+        "profileSummary": "...",
+        "primaryTag": "...",
+        "readingLevel": "..."
+      }
     `;
 
     logger.info(`Profiler Agent: Requesting generative profile mapping for user ${userId}...`);
     const llmResponse = await llm.invoke(systemPrompt);
-    const profileSummary = llmResponse.content.trim();
+    const rawContent = llmResponse.content || "";
+    const cleanContent = (typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent))
+      .trim()
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim();
 
+    let parsed;
+    try {
+      parsed = JSON.parse(cleanContent);
+    } catch (e) {
+      logger.error('Profiler Agent: Invalid JSON response', { raw: rawContent });
+      parsed = { 
+        profileSummary: rawContent.substring(0, 500), 
+        primaryTag: 'Explorer', 
+        readingLevel: 'beginner' 
+      };
+    }
+
+    const { profileSummary, primaryTag, readingLevel } = parsed;
     logger.info(`Profiler Agent generated summary for User ${userId}: ${profileSummary}`);
 
     // 3. Generate Semantic Embedding of the Summary
@@ -83,17 +113,19 @@ async function generateUserPersona(userId) {
 
     // 4. Upsert Knowledge Graph into Postgres
     const upsertQuery = `
-      INSERT INTO user_personas (user_id, profile_summary, embedding, last_updated)
-      VALUES ($1, $2, $3::jsonb, CURRENT_TIMESTAMP)
+      INSERT INTO user_personas (user_id, profile_summary, embedding, primary_tag, reading_level, last_updated)
+      VALUES ($1, $2, $3::jsonb, $4, $5, CURRENT_TIMESTAMP)
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         profile_summary = EXCLUDED.profile_summary,
         embedding = EXCLUDED.embedding,
+        primary_tag = EXCLUDED.primary_tag,
+        reading_level = EXCLUDED.reading_level,
         last_updated = CURRENT_TIMESTAMP;
     `;
     
-    await pool.query(upsertQuery, [userId, profileSummary, embeddingString]);
-    logger.info(`Profiler Agent: Successfully saved contextual embedding mapping to pgvector for user ${userId}.`);
+    await pool.query(upsertQuery, [userId, profileSummary, embeddingString, primaryTag, readingLevel]);
+    logger.info(`Profiler Agent: Successfully saved contextual persona for user ${userId}.`);
 
   } catch (err) {
     logger.error(`Profiler Agent Error generating persona for user ${userId}: ${err.message}`);

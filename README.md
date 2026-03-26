@@ -1,7 +1,12 @@
 # 🔍 Market-Rover - AI Stock Intelligence Platform for Indian Markets - Your personal quant researcher
 
 **Multi-agent AI that reads your Indian equity portfolio like a research desk – portfolios, heatmaps, institutional flows, and forecasts in one place.**
+
+> [!TIP]
+> **NEW TO MARKET-ROVER?** Check out our [User Guide](USER_GUIDE.md) for a full onboarding to our AI Agents and Shadow Analysis tools.
+
 **Your complete toolkit for smart investing decisions powered by cutting-edge AI**
+
 
 ![Security](https://img.shields.io/badge/Security-100%2F100-success)
 ![Cost](https://img.shields.io/badge/Cost-$0%2Fmonth-success)

@@ -12,13 +12,16 @@ router.get('/me', authenticate, async (req, res) => {
               COUNT(gs.id) FILTER (WHERE gs.completed = true) AS puzzles_completed,
               COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'easy'), 0)::int AS easy_score,
               COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'medium'), 0)::int AS medium_score,
-              COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score
+              COALESCE(SUM(gs.score) FILTER (WHERE gs.difficulty = 'hard'), 0)::int AS hard_score,
+              (SELECT tag FROM user_strategy_tags WHERE user_id = u.id ORDER BY calculation_date DESC LIMIT 1) as strategy_tag,
+              ARRAY(SELECT mission_def->>'reward' FROM user_missions WHERE user_id = u.id AND is_completed = true) as unlocked_rewards
        FROM users u
        LEFT JOIN game_sessions gs ON u.id = gs.user_id
        WHERE u.id = $1
        GROUP BY u.id`,
       [req.user.id]
     );
+
     const u = result.rows[0];
     res.json({
       id: u.id,
@@ -33,7 +36,10 @@ router.get('/me', authenticate, async (req, res) => {
       bestScore: u.best_score,
       puzzlesCompleted: parseInt(u.puzzles_completed) || 0,
       joinedAt: u.created_at,
+      strategyTag: u.strategy_tag || 'Market Explorer',
+      badges: u.unlocked_rewards || []
     });
+
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
