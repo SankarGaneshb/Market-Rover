@@ -15,7 +15,7 @@ router.get('/daily', async (req, res) => {
   logger.info(`Puzzles: Fetching daily puzzle for date: ${today}`);
 
   try {
-    const result = await pool.query(
+    let result = await pool.query(
       'SELECT * FROM puzzles WHERE scheduled_date = $1',
       [today]
     );
