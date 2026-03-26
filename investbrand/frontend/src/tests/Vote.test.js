@@ -40,7 +40,7 @@ describe('Vote Component', () => {
 
     it('renders correctly with initial index selected', () => {
         renderWithContext(<Vote />);
-        expect(screen.getByText(/Market Rover/i)).toBeInTheDocument();
+        expect(screen.getByText(/Brand Profiler/i)).toBeInTheDocument();
         expect(screen.getByText(/1. Market Index/i)).toBeInTheDocument();
     });
 
