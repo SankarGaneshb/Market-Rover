@@ -6,7 +6,7 @@ crewai>=1.7.2
 crewai-tools>=1.7.2
 langgraph~=1.0.8
 google-genai>=1.56.0
-langchain-google-genai~=4.2.0
+langchain-google-genai~=4.2.1
 
 # Frontend UI
 streamlit>=1.52.0
