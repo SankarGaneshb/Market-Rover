@@ -2,6 +2,7 @@
 FROM node:22-bullseye AS frontend-builder
 
 WORKDIR /app/frontend
+# ⚠️ Using relative paths for subfolder context (pledge_rover/)
 COPY frontend/package*.json ./
 RUN npm ci
 
@@ -27,6 +28,11 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 EXPOSE 8080
 ENV PORT=8080
 
+# ✅ Add health check with extended startup period for database initialization
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD python -c "import requests; requests.get('http://localhost:8080/health', timeout=5)" || exit 1
+
 # Run from /app so import paths work correctly (backend.src.server)
 WORKDIR /app
-CMD ["uvicorn", "backend.src.server:app", "--host", "0.0.0.0", "--port", "8080"]
+# ✅ Add --timeout-keep-alive for Cloud Run compatibility
+CMD ["uvicorn", "backend.src.server:app", "--host", "0.0.0.0", "--port", "8080", "--timeout-keep-alive", "75"]

@@ -1,14 +1,12 @@
 import os
 import uvicorn
-from fastapi import FastAPI
+import signal
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from src.routes import api_router
-
-import signal
-from fastapi import Request
-from fastapi.responses import JSONResponse
+from src.config.database import init_db, close_db
 from src.utils.ops_support import analyze_error
 
 # --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
@@ -52,12 +50,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ Health check endpoint for Cloud Run
+@app.get("/health")
+async def health_check():
+    """Cloud Run health check endpoint"""
+    return {"status": "ok", "service": "Pledge Rover API"}
+
 @app.on_event("startup")
 async def startup_event():
     from dotenv import load_dotenv
     load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
-    from src.config.database import init_db
+    
     try:
         await init_db()
         from src.data.seed import seed_data
@@ -68,14 +72,19 @@ async def startup_event():
         print(f"DATABASE: FAILED to initialize. Error: {str(e)}")
         print("ALERT: The app will start but database features may fail until connection is fixed.")
 
-    from src.data.scan_manager import ScanManager
-    ScanManager.set_status("idle", "System ready.")
+    try:
+        from src.data.scan_manager import ScanManager
+        ScanManager.set_status("idle", "System ready.")
+    except Exception as e:
+        print(f"SCAN_MANAGER: Failed to initialize. Error: {str(e)}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    from src.config.database import close_db
     print("--- PLEDGE ROVER BACKEND SHUTTING DOWN ---")
-    await close_db()
+    try:
+        await close_db()
+    except Exception as e:
+        print(f"DATABASE: Error during shutdown. Error: {str(e)}")
 
 app.include_router(api_router, prefix="/api")
 
@@ -97,4 +106,4 @@ if os.path.isdir(dist_folder):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     print(f"Pledge Rover API starting on port {port}")
-    uvicorn.run("src.server:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("src.server:app", host="0.0.0.0", port=port, reload=False)
