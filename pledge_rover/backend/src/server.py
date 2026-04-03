@@ -55,6 +55,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    from dotenv import load_dotenv
+    load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
     from src.data.scan_manager import ScanManager
     ScanManager.set_status("idle", "System ready.")
