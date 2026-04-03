@@ -17,16 +17,16 @@ WORKDIR /app
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy backend code
-COPY backend/src /app/backend/src
+# Copy entire backend directory to preserve structure (config, src, etc.)
+COPY backend/ ./backend/
 
 # Copy frontend build output from stage 1 into the backend container
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Expose Cloud Run port
 EXPOSE 8080
 ENV PORT=8080
 
-# Run the Uvicorn server from the backend directory
-WORKDIR /app/backend
-CMD ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run from /app so import paths work correctly (backend.src.server)
+WORKDIR /app
+CMD ["uvicorn", "backend.src.server:app", "--host", "0.0.0.0", "--port", "8080"]
