@@ -27,7 +27,7 @@ def sanitize_ticker(ticker: str) -> Optional[str]:
         >>> sanitize_ticker("<script>alert('xss')</script>")
         None
     """
-    if not ticker:
+    if not ticker or not isinstance(ticker, str):
         return None
     
     # Remove leading/trailing whitespace
@@ -108,7 +108,7 @@ def sanitize_llm_input(user_input: str, max_length: int = 200) -> str:
     Returns:
         Sanitized input safe for LLM
     """
-    if not user_input:
+    if not user_input or not isinstance(user_input, str):
         return ""
     
     # Remove potential injection patterns

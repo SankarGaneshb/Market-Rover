@@ -51,7 +51,7 @@ def load_portfolio_file(file_bytes, filename):
     
 
     # Validate columns
-    df.columns = df.columns.str.strip() # Remove leading/trailing spaces from headers
+    df.columns = [str(col).strip() for col in df.columns] # Remove leading/trailing spaces from headers
 
     required_columns = ['Symbol', 'Company Name']
 
@@ -72,14 +72,10 @@ def load_portfolio_file(file_bytes, filename):
     try:
 
         # 1. Sanitize Tickers (Strict Regex)
-
-        df['Symbol'] = df['Symbol'].astype(str).apply(sanitize_ticker)
-
-        
+        df['Symbol'] = df['Symbol'].astype(str).replace('nan', '').apply(sanitize_ticker)
 
         # 2. Sanitize Company Names (LLM Prompt Injection Prevention)
-
-        df['Company Name'] = df['Company Name'].astype(str).apply(lambda x: sanitize_llm_input(x, max_length=100))
+        df['Company Name'] = df['Company Name'].astype(str).replace('nan', '').apply(lambda x: sanitize_llm_input(x, max_length=100))
 
         
 
