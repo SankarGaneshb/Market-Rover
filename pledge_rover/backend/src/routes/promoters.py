@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
+from sqlalchemy import select
+from src.config.database import async_session
+from src.data.models import Promoter
 from pydantic import BaseModel
-from src.data.mock_historical import get_all_enriched_promoters, get_enriched_promoter_data
 
 router = APIRouter()
 
@@ -20,13 +22,22 @@ class PromoterResponse(BaseModel):
     trust_signal: str
     release_create_ratio: float
 
+    class Config:
+        from_attributes = True
+
 @router.get("/{symbol}", response_model=PromoterResponse)
 async def get_promoter(symbol: str):
-    promoter = get_enriched_promoter_data(symbol)
-    if not promoter:
-        raise HTTPException(status_code=404, detail="Promoter not found")
-    return promoter
+    async with async_session() as session:
+        stmt = select(Promoter).where(Promoter.symbol == symbol.upper())
+        result = await session.execute(stmt)
+        promoter = result.scalars().first()
+        if not promoter:
+            raise HTTPException(status_code=404, detail="Promoter not found")
+        return promoter
 
 @router.get("/", response_model=List[PromoterResponse])
 async def list_promoters():
-    return get_all_enriched_promoters()
+    async with async_session() as session:
+        stmt = select(Promoter)
+        result = await session.execute(stmt)
+        return result.scalars().all()

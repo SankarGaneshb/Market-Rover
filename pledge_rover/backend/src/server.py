@@ -58,14 +58,16 @@ async def startup_event():
     from dotenv import load_dotenv
     load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
+    await init_db()
+    from src.data.seed import seed_data
+    await seed_data()
     from src.data.scan_manager import ScanManager
     ScanManager.set_status("idle", "System ready.")
-    # await connect_to_db()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     print("--- PLEDGE ROVER BACKEND SHUTTING DOWN ---")
-    # await close_db_connection()
+    await close_db()
 
 app.include_router(api_router, prefix="/api")
 

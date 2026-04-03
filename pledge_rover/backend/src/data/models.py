@@ -18,6 +18,18 @@ class Promoter(Base):
     company_name = Column(String(255))
     governance_score = Column(Float, default=5.0)
     total_shares = Column(Float)  # Represented in millions or actual
+    
+    # Enriched Metrics (Persisted from Scans)
+    holding_pct = Column(Float, default=0.0)
+    pledged_pct = Column(Float, default=0.0)
+    skin_in_the_game = Column(Float, default=0.0)
+    skin_layer1 = Column(Float, default=0.0)
+    skin_layer2 = Column(Float, default=0.0)
+    survival_score = Column(Float, default=0.0)
+    intent_label = Column(String(50), default="Neutral")
+    trust_signal = Column(String(50), default="Stable")
+    release_create_ratio = Column(Float, default=1.0)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     pledges = relationship("PledgeEvent", back_populates="promoter")

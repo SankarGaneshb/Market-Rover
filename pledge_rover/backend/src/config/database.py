@@ -32,15 +32,21 @@ if is_production:
         echo=False,
     )
 else:
-    # Use local postgres or sqlite for dev if desired, assuming standard postgres here
-    db_user = os.environ.get("DB_USER", "postgres")
-    db_pass = os.environ.get("DB_PASSWORD", "password")
-    db_host = os.environ.get("DB_HOST", "localhost")
-    db_port = os.environ.get("DB_PORT", "5432")
+    # Use local postgres or sqlite for dev
+    db_user = os.environ.get("DB_USER")
+    db_pass = os.environ.get("DB_PASSWORD")
+    db_host = os.environ.get("DB_HOST")
     db_name = os.environ.get("DB_NAME", "pledgerover")
     
-    local_url = f"postgresql+asyncpg://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
-    print(f"Initializing connection to local database: {db_name}")
+    if db_user and db_pass and db_host:
+        db_port = os.environ.get("DB_PORT", "5432")
+        local_url = f"postgresql+asyncpg://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+        print(f"Initializing connection to local Postgres: {db_name}")
+    else:
+        # Professional SQLite fallback for laptops
+        local_url = f"sqlite+aiosqlite:///./{db_name}.db"
+        print(f"Initializing connection to local SQLite: {db_name}.db")
+    
     engine = create_async_engine(local_url, echo=False)
 
 # Create session factory
