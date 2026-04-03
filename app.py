@@ -280,7 +280,7 @@ def main():
         st.markdown("---")
         st.link_button(
             "🛡️ Skin in the Game",
-            "https://pledge-rover-ui-9514347926.us-central1.run.app",
+            "https://pledge-rover-9514347926.us-central1.run.app",
             use_container_width=True,
             help="Analyze Promoter Pledging & Contagion Risk via the Pledge Rover Council."
         )
