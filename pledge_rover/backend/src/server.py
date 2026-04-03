@@ -58,9 +58,17 @@ async def startup_event():
     from dotenv import load_dotenv
     load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
-    await init_db()
-    from src.data.seed import seed_data
-    await seed_data()
+    
+    try:
+        await init_db()
+        from src.data.seed import seed_data
+        await seed_data()
+        print("DATABASE: Initialization and seeding successful.")
+    except Exception as e:
+        # LOG AND PROCEED: This allows the port to bind so we can see logs
+        print(f"DATABASE: FAILED to initialize. Error: {str(e)}")
+        print("ALERT: The app will start but database features may fail until connection is fixed.")
+
     from src.data.scan_manager import ScanManager
     ScanManager.set_status("idle", "System ready.")
 

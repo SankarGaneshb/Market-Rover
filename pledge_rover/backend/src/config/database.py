@@ -20,8 +20,8 @@ def getconn() -> pg8000.dbapi.Connection:
     )
     return conn
 
-# Determine environment
-is_production = os.getenv("NODE_ENV") == "production"
+# Determine environment (Standard Cloud Run or Cloud SQL presence)
+is_production = os.getenv("K_SERVICE") is not None or os.getenv("CLOUD_SQL_CONNECTION_NAME") is not None
 
 if is_production:
     print(f"Initializing connection to Cloud SQL: {os.getenv('CLOUD_SQL_CONNECTION_NAME')}")
