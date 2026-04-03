@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from src.routes import api_router
-# from src.config.database import connect_to_db, close_db_connection
 
 import signal
 from fastapi import Request
@@ -58,7 +57,7 @@ async def startup_event():
     from dotenv import load_dotenv
     load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
-    
+    from src.config.database import init_db
     try:
         await init_db()
         from src.data.seed import seed_data
@@ -74,6 +73,7 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    from src.config.database import close_db
     print("--- PLEDGE ROVER BACKEND SHUTTING DOWN ---")
     await close_db()
 
