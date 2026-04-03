@@ -56,6 +56,8 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
+    from src.data.scan_manager import ScanManager
+    ScanManager.set_status("idle", "System ready.")
     # await connect_to_db()
 
 @app.on_event("shutdown")

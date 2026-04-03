@@ -1,0 +1,287 @@
+﻿
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.2823412
+Z FAIL src/tests/puzzle
+s_integration.test.js
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.2846821
+Z     error: database 
+"investcraft_test" 
+does not exist
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.2976415
+Z     error: database 
+"investcraft_test" 
+does not exist
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3179577
+Z     console.error
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3182370
+Z       GOOGLE AUTH 
+FULL ERROR: Error: 
+Invalid token
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3228855
+Z     [31m[1m>[22m[
+39m[90m 56 |[39m     
+console[33m.[39merror
+([32m'GOOGLE AUTH 
+FULL ERROR:'[39m[33m,
+[39m err)[33m;[39m
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3239733
+Z      [90m 57 |[39m 
+    logger[33m.[39mer
+ror([32m'Google auth 
+error'[39m[33m,[39m 
+*** message[33m:[39m 
+err[33m.[39mmessage[
+33m,[39m 
+stack[33m:[39m err[3
+3m.[39mstack[33m,[39
+m name[33m:[39m 
+err[33m.[39mname 
+***)[33m;[39m
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3242884
+Z      [90m 58 |[39m 
+    res[33m.[39mstatu
+s([35m401[39m)[33m.
+[39mjson(*** 
+error[33m:[39m 
+[32m'Authentication fa
+iled'[39m[33m,[39m 
+details[33m:[39m 
+err[33m.[39mmessage 
+***)[33m;[39m
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3245110
+Z       at error (src/r
+outes/auth.js:56:13)
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3265934
+Z       
+[31merror[39m: 
+Google auth error 
+Invalid token ***"name"
+:"Error","stack":"Error
+: Invalid token\n    
+at Object.<anonymous> (
+/home/runner/work/Marke
+t-Rover/Market-Rover/in
+vestbrand/backend/src/t
+ests/auth.test.js:66:45
+)\n    at Promise.final
+ly.completed (/home/run
+ner/work/Market-Rover/M
+arket-Rover/investbrand
+/backend/node_modules/j
+est-circus/build/jestAd
+apterInit.js:1557:28)\n
+    at new Promise 
+(<anonymous>)\n    at 
+callAsyncCircusFn (/hom
+e/runner/work/Market-Ro
+ver/Market-Rover/invest
+brand/backend/node_modu
+les/jest-circus/build/j
+estAdapterInit.js:1497:
+10)\n    at 
+_callCircusTest (/home/
+runner/work/Market-Rove
+r/Market-Rover/investbr
+and/backend/node_module
+s/jest-circus/build/jes
+tAdapterInit.js:1007:40
+)\n    at processTicksA
+ndRejections (node:inte
+rnal/process/task_queue
+s:95:5)\n    at 
+_runTest (/home/runner/
+work/Market-Rover/Marke
+t-Rover/investbrand/bac
+kend/node_modules/jest-
+circus/build/jestAdapte
+rInit.js:947:3)\n    
+at /home/runner/work/Ma
+rket-Rover/Market-Rover
+/investbrand/backend/no
+de_modules/jest-circus/
+build/jestAdapterInit.j
+s:849:7\n    at _runTes
+tsForDescribeBlock (/ho
+me/runner/work/Market-R
+over/Market-Rover/inves
+tbrand/backend/node_mod
+ules/jest-circus/build/
+jestAdapterInit.js:862:
+11)\n    at _runTestsFo
+rDescribeBlock (/home/r
+unner/work/Market-Rover
+/Market-Rover/investbra
+nd/backend/node_modules
+/jest-circus/build/jest
+AdapterInit.js:857:11)\
+n    at run (/home/runn
+er/work/Market-Rover/Ma
+rket-Rover/investbrand/
+backend/node_modules/je
+st-circus/build/jestAda
+pterInit.js:761:3)\n   
+ at runAndTransformResu
+ltsToJestFormat (/home/
+runner/work/Market-Rove
+r/Market-Rover/investbr
+and/backend/node_module
+s/jest-circus/build/jes
+tAdapterInit.js:1918:21
+)\n    at jestAdapter (
+/home/runner/work/Marke
+t-Rover/Market-Rover/in
+vestbrand/backend/node_
+modules/jest-circus/bui
+ld/runner.js:101:19)\n 
+   at runTestInternal (
+/home/runner/work/Marke
+t-Rover/Market-Rover/in
+vestbrand/backend/node_
+modules/jest-runner/bui
+ld/testWorker.js:275:16
+)\n    at runTest (/hom
+e/runner/work/Market-Ro
+ver/Market-Rover/invest
+brand/backend/node_modu
+les/jest-runner/build/t
+estWorker.js:343:7)\n  
+  at Object.worker (/ho
+me/runner/work/Market-R
+over/Market-Rover/inves
+tbrand/backend/node_mod
+ules/jest-runner/build/
+testWorker.js:497:12)",
+"timestamp":"2026-03-05
+T19:57:43.250Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3462966
+Z       
+[31merror[39m: Error 
+fetching daily puzzle 
+***"error":"DB Error","
+timestamp":"2026-03-05T
+19:57:43.268Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3474979
+Z       
+[31merror[39m: Error 
+recording puzzle vote 
+***"error":"DB Error","
+timestamp":"2026-03-05T
+19:57:43.301Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3478543
+Z       
+[31merror[39m: Error 
+fetching puzzles 
+***"error":"DB Error","
+timestamp":"2026-03-05T
+19:57:43.312Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.3482649
+Z       
+[31merror[39m: Error 
+completing puzzle 
+***"error":"DB error 
+on completion","timesta
+mp":"2026-03-05T19:57:4
+3.325Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.5755755
+Z     console.error
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.5756462
+Z       Error fetching 
+sessions: Error: DB 
+Error
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.5806395
+Z     [31m[1m>[22m[
+39m[90m 46 |[39m     
+console[33m.[39merror
+([32m'Error fetching s
+essions:'[39m[33m,[3
+9m err)[33m;[39m
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.5809305
+Z      [90m 47 |[39m 
+    res[33m.[39mstatu
+s([35m500[39m)[33m.
+[39mjson(*** 
+error[33m:[39m 
+[32m'Failed to fetch s
+essions'[39m[33m,[39
+m details[33m:[39m 
+err[33m.[39mmessage 
+***)[33m;[39m
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.5812087
+Z       at error (src/r
+outes/users.js:46:13)
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.6502769
+Z       
+[31merror[39m: Error 
+fetching leaderboard 
+***"error":"DB Error","
+timestamp":"2026-03-05T
+19:57:43.642Z"***
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.7241551
+Z Test Suites: 1 
+failed, 4 passed, 5 
+total
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.7242437
+Z Tests:       2 
+failed, 26 passed, 28 
+total
+deploy-backend	Run 
+Backend Unit Tests	2026
+-03-05T19:57:43.7483661
+Z ##[error]Process 
+completed with exit 
+code 1.
+deploy-backend	Stop 
+containers	2026-03-05T1
+9:57:43.9828857Z  
+2026-03-05 
+19:57:16.871 UTC [49] 
+LOG:  background 
+worker "logical 
+replication launcher" 
+(PID 55) exited with 
+exit code 1
+
+

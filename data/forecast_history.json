@@ -345,6 +345,62 @@
           "2025"
         ],
         "status": "active"
+      },
+      {
+        "timestamp": "2026-04-03T11:44:45.801919",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-04-03T11:45:09.726997",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-04-03T12:45:33.251600",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
+      },
+      {
+        "timestamp": "2026-04-03T12:46:05.772722",
+        "ticker": "TEST.NS",
+        "current_price": 100.0,
+        "target_price": 120.0,
+        "target_date": "2026-12-31",
+        "strategy": "Test Strategy",
+        "confidence": "High",
+        "years_tested": [
+          "2024",
+          "2025"
+        ],
+        "status": "active"
       }
     ]
   }

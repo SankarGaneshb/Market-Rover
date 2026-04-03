@@ -44,3 +44,10 @@ class AnalysisRun(Base):
     final_sentiment = Column(String(50))    # Growth, Survival, Neutral
     governance_score_calc = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class GlobalScanStatus(Base):
+    __tablename__ = "global_scan_status"
+    id = Column(Integer, primary_key=True, index=True)
+    status = Column(String(50), default="idle") # idle, scanning, completed, failed
+    last_scan_at = Column(DateTime(timezone=True), onupdate=func.now())
+    message = Column(String(255), default="")

@@ -6,42 +6,83 @@ export default function Dashboard() {
   const [promoters, setPromoters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState(null);
+  const [scanStatus, setScanStatus] = useState({ status: 'idle', message: '' });
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch 7-day rolling window from Harvester backend
+      const res = await fetch('/api/pledges/feed');
+      if (res.ok) {
+        const data = await res.json();
+        setMetrics(data.metrics);
+      }
+      
+      const promRes = await fetch('/api/promoters/');
+      if (promRes.ok) {
+        const promData = await promRes.json();
+        const mappedPromoters = promData.map(p => ({
+          ...p,
+          risk: p.intent_label === 'Survival' ? 'High' : p.intent_label === 'Growth' ? 'Low' : 'Medium'
+        }));
+        setPromoters(mappedPromoters);
+      }
+    } catch (e) {
+      console.error("Dashboard Fetch Error:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkScanStatus = async () => {
+    try {
+      const res = await fetch('/api/agents/status');
+      if (res.ok) {
+        const data = await res.json();
+        const prevStatus = scanStatus.status;
+        setScanStatus(data);
+        
+        // If we just finished scanning, refresh the data
+        if (prevStatus === 'scanning' && data.status === 'idle') {
+          fetchDashboardData();
+        }
+      }
+    } catch (e) {
+      console.error("Status Poll Error:", e);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Fetch 7-day rolling window from Harvester backend
-        const res = await fetch('/api/pledges/feed');
-        if (res.ok) {
-          const data = await res.json();
-          setMetrics(data.metrics);
-          
-          // Fallback to local array mapping to retain the specific Governance UI colors if the backend just returns raw events
-          // Since our core logic generates Governance Scores, we're blending the feed here.
-        }
-        
-        // Simulating the /api/promoters list fetch replaced with actual backend call which uses mock_historical.py
-        try {
-          const promRes = await fetch('/api/promoters/');
-          if (promRes.ok) {
-            const promData = await promRes.json();
-            const mappedPromoters = promData.map(p => ({
-              ...p,
-              risk: p.intent_label === 'Survival' ? 'High' : p.intent_label === 'Growth' ? 'Low' : 'Medium'
-            }));
-            setPromoters(mappedPromoters);
-          }
-        } catch (e) {
-          console.error("Failed to fetch promoters from backend.");
-        }
-        console.error("Dashboard Fetch Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchDashboardData();
+    checkScanStatus();
   }, []);
+
+  // Poll status while scanning
+  useEffect(() => {
+    let interval;
+    if (scanStatus.status === 'scanning') {
+      interval = setInterval(checkScanStatus, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [scanStatus.status]);
+
+  const handleTriggerScan = async () => {
+    if (scanStatus.status === 'scanning') return;
+    
+    setScanStatus({ status: 'scanning', message: 'Initiating scan...' });
+    try {
+      const res = await fetch('/api/agents/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setScanStatus(data);
+      }
+    } catch (e) {
+      setScanStatus({ status: 'idle', message: 'Trigger failed.' });
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -50,15 +91,37 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-white mb-2">Market Overview</h1>
           <p className="text-trust-silver text-sm">Real-time analysis of Promoter Pledging & Skin in the Game.</p>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-400" />
-          <input 
-            type="text" 
-            placeholder="Search NSE/BSE Symbol..." 
-            className="bg-navy-800/50 border border-navy-600 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-electric-cyan w-full md:w-64"
-          />
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handleTriggerScan}
+            disabled={scanStatus.status === 'scanning'}
+            className={`btn-primary text-sm py-2 px-4 flex items-center gap-2 transition-all duration-300 ${
+              scanStatus.status === 'scanning' ? 'opacity-70 cursor-not-allowed shadow-[0_0_15px_rgba(0,255,242,0.3)]' : ''
+            }`}
+          >
+            <Activity className={`w-4 h-4 ${scanStatus.status === 'scanning' ? 'animate-pulse' : ''}`} />
+            {scanStatus.status === 'scanning' ? 'Pulse Scanning...' : '📡 Trigger Pulse Scan'}
+          </button>
+          <div className="relative hidden md:block">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-400" />
+            <input 
+              type="text" 
+              placeholder="Search NSE/BSE Symbol..." 
+              className="bg-navy-800/50 border border-navy-600 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-electric-cyan w-64"
+            />
+          </div>
         </div>
       </header>
+
+      {scanStatus.status === 'scanning' && (
+        <div className="bg-electric-cyan/10 border border-electric-cyan/30 rounded-xl p-4 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
+          <div className="w-10 h-10 rounded-full border-2 border-electric-cyan border-t-transparent animate-spin"></div>
+          <div>
+            <h4 className="text-electric-cyan font-bold leading-tight">Scanning for latest information</h4>
+            <p className="text-navy-300 text-xs">{scanStatus.message || 'The Council of Experts has been mobilized to analyze fresh BSE/NSE filings.'}</p>
+          </div>
+        </div>
+      )}
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
