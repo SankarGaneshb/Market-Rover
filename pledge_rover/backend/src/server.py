@@ -1,56 +1,111 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import os
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Request
+from src.routes import api_router
+from src.config.database import init_db, close_db
+from src.utils.ops_support import analyze_error
 
-DATABASE_URL = "your_database_url_here"
+import signal
 
-Base = declarative_base()
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
+_original_signal = signal.signal
+def _safe_signal(sig, handler):
+    try:
+        return _original_signal(sig, handler)
+    except ValueError:
+        return None
+signal.signal = _safe_signal
 
-# Database Models
-class Item(Base):
-    __tablename__ = "items"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String, index=True)
-    price = Column(Integer)
+app = FastAPI(
+    title="Pledge Rover API",
+    version="1.0.0",
+    description="The signal institutions had. Now yours."
+)
 
-Base.metadata.create_all(bind=engine)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Global SRE Guardian for Pledge Rover.
+    Captures crashes and provides AI diagnostics.
+    """
+    analysis = analyze_error(exc, context="pledge_rover_api")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": str(exc),
+            "sre_analysis": analysis or "SRE Agent unavailable"
+        }
+    )
 
-app = FastAPI()
+# CORS Middleware (similar to InvestBrand)
+ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "*").split(",")
 
-# Pydantic models
-class ItemCreate(BaseModel):
-    name: str
-    description: str
-    price: int
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/items/", response_model=Item)
-def create_item(item: ItemCreate):
-    db = SessionLocal()
-    db_item = Item(**item.dict())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    db.close()
-    return db_item
+# ✅ Health check endpoint for Cloud Run
+@app.get("/health")
+async def health_check():
+    """Cloud Run health check endpoint"""
+    return {"status": "ok", "service": "Pledge Rover API"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    db = SessionLocal()
-    item = db.query(Item).filter(Item.id == item_id).first()
-    db.close()
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+@app.on_event("startup")
+async def startup_event():
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("--- PLEDGE ROVER BACKEND STARTING UP ---")
+    
+    try:
+        await init_db()
+        from src.data.seed import seed_data
+        await seed_data()
+        print("DATABASE: Initialization and seeding successful.")
+    except Exception as e:
+        # LOG AND PROCEED: This allows the port to bind so we can see logs
+        print(f"DATABASE: FAILED to initialize. Error: {str(e)}")
+        print("ALERT: The app will start but database features may fail until connection is fixed.")
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+    try:
+        from src.data.scan_manager import ScanManager
+        ScanManager.set_status("idle", "System ready.")
+    except Exception as e:
+        print(f"SCAN_MANAGER: Failed to initialize. Error: {str(e)}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("--- PLEDGE ROVER BACKEND SHUTTING DOWN ---")
+    try:
+        await close_db()
+    except Exception as e:
+        print(f"DATABASE: Error during shutdown. Error: {str(e)}")
+
+app.include_router(api_router, prefix="/api")
+
+# Serve React static assets in production if they exist
+# In local development, Vite handles this on port 5173
+dist_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "../frontend/dist")
+if os.path.isdir(dist_folder):
+    print(f"Mounting static frontend from {dist_folder}")
+    app.mount("/assets", StaticFiles(directory=os.path.join(dist_folder, "assets")), name="assets")
+    
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # Fallback to index.html for client-side routing
+        file_path = os.path.join(dist_folder, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(dist_folder, "index.html"))
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8080))
+    print(f"Pledge Rover API starting on port {port}")
+    uvicorn.run("src.server:app", host="0.0.0.0", port=port, reload=False)
