@@ -1,5 +1,6 @@
 import os
 from crewai import Agent, Task, Crew, Process
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field
 
 # Define Output Schema for The Council
@@ -15,6 +16,14 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
     Ingests mathematical scoring (Skin in Game %, Survival Score) to ground the debate.
     """
     
+    # Initialize Google Gemini LLM (Required to avoid OpenAI 401 fallback)
+    gemini_llm = ChatGoogleGenerativeAI(
+        model="gemini-2.0-flash", 
+        verbose=True, 
+        temperature=0.3,
+        google_api_key=os.getenv("GOOGLE_API_KEY")
+    )
+
     # Format the mathematical context if provided
     quant_context = ""
     if computed_metrics:
@@ -32,7 +41,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Extract exact pledging data from raw SAST & LODR disclosures.',
         backstory='An expert in reading XBRL and PDF tables. You find the Pledgor, the Pledgee, and the exact percentage encumbered without hallucinating.',
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
     # 2. The Genealogist
@@ -41,7 +51,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Map the entity network and identify shell companies or obscure NBFCs.',
         backstory='You maintain the Shadow Tracker. You look at the Pledgee (the lender) and determine if it is a Tier-1 Bank (safe) or a related party/obscure NBFC (red flag).',
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
     # 3. The Actuary
@@ -50,7 +61,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Synthesize the deterministic Survival Score (0-100) and Skin in the Game % into a risk thesis.',
         backstory='You rely on hard math. You see the provided time-series Survival Score and 75%-normalized Skin in the Game metric. You explain *what the math means* regarding margin call proximity and contagion risk.',
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
     # 4. The Skeptic
@@ -59,7 +71,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Analyze the true intent behind the pledge by weighing The Actuary\'s math against the context.',
         backstory='You never trust the surface data. You debate The Actuary. If the math says "Survival Pledging", you explain the dire reality. You finalize the ultimate governance score.',
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=gemini_llm
     )
 
     # Define Tasks

@@ -1,5 +1,5 @@
 {
     "status": "idle",
-    "last_scan_at": null,
-    "message": "System ready."
+    "last_scan_at": "2026-04-03T14:09:53.489680",
+    "message": "Scan failed: Error code: 401 - {'error': {'message': 'Incorrect API key provided: SanAIAge****IKey. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}"
 }
