@@ -4,7 +4,7 @@
 # Core App & AI Agents
 crewai>=1.7.2
 crewai-tools>=1.7.2
-langgraph~=1.1.4
+langgraph~=1.1.6
 google-genai>=1.56.0
 langchain-google-genai~=4.2.0
 
