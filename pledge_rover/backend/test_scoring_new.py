@@ -1,5 +1,5 @@
 import pytest
-from src.data.scoring import calculate_skin_in_the_game, MOCK_HISTORICAL_DATA
+from src.data.scoring import calculate_skin_in_the_game
 
 def test_full_skin_no_pledge():
     # 75% holding, 0% pledge -> 100% skin
