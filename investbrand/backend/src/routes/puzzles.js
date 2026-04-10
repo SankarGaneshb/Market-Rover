@@ -7,6 +7,9 @@ const { getIstDateString } = require('../utils/date');
 const { checkMissions, calculateStrategyTags } = require('../utils/missionEngine');
 const { generateUserPersona } = require('../agents/profilerAgent');
 const { generateTeacherInsight } = require('../agents/teacherAgent');
+const { generateInitialClues, evaluateGuess } = require('../agents/puzzleAgent');
+
+const puzzleCluesCache = {};
 
 // GET /api/puzzles/daily
 router.get('/daily', async (req, res, next) => {
@@ -380,6 +383,70 @@ router.get('/:id/insight', authenticate, async (req, res) => {
   } catch (err) {
     logger.error('Error fetching teacher insight', { error: err.message, puzzleId });
     res.status(500).json({ error: 'Failed to fetch insight' });
+  }
+});
+
+// GET /api/puzzles/:id/clues — Gets the dynamic word cloud and clues
+router.get('/:id/clues', authenticate, async (req, res) => {
+  const puzzleId = parseInt(req.params.id);
+  
+  if (puzzleCluesCache[puzzleId]) {
+    return res.json({ success: true, clues: puzzleCluesCache[puzzleId] });
+  }
+
+  try {
+    const pool = getPool();
+    const p = await pool.query(
+      `SELECT company_name, ticker, sector FROM puzzles WHERE id = $1`,
+      [puzzleId]
+    );
+
+    if (p.rows.length === 0) {
+      return res.status(404).json({ error: 'Puzzle not found' });
+    }
+
+    const { company_name, ticker, sector } = p.rows[0];
+    
+    const clues = await generateInitialClues(company_name, ticker, sector);
+    puzzleCluesCache[puzzleId] = clues;
+    
+    res.json({ success: true, clues });
+  } catch (err) {
+    logger.error('Error generating clues', { error: err.message, puzzleId });
+    res.status(500).json({ error: 'Failed to generate clues' });
+  }
+});
+
+// POST /api/puzzles/:id/guess — Evaluate a dynamic guess
+router.post('/:id/guess', authenticate, async (req, res) => {
+  const puzzleId = parseInt(req.params.id);
+  const { guess } = req.body;
+
+  if (!guess) {
+    return res.status(400).json({ error: 'Guess is required' });
+  }
+
+  try {
+    const pool = getPool();
+    const p = await pool.query(
+      `SELECT company_name, sector FROM puzzles WHERE id = $1`,
+      [puzzleId]
+    );
+
+    if (p.rows.length === 0) {
+      return res.status(404).json({ error: 'Puzzle not found' });
+    }
+
+    const { company_name, sector } = p.rows[0];
+    const feedback = await evaluateGuess(guess, company_name, sector);
+    
+    const isCorrect = feedback.startsWith('CORRECT:');
+    const cleanFeedback = isCorrect ? feedback.replace('CORRECT:', '').trim() : feedback;
+
+    res.json({ success: true, isCorrect, feedback: cleanFeedback });
+  } catch (err) {
+    logger.error('Error evaluating guess', { error: err.message, puzzleId });
+    res.status(500).json({ error: 'Failed to evaluate guess' });
   }
 });
 

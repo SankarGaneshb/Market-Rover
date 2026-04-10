@@ -178,6 +178,15 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   Parses stack traces using Gemini to identify root causes (Database, API, Logic).
     *   Provides actionable "developer fix" suggestions in the logs.
 
+### 13. Brand Puzzle Agent (PuzzleAgent)
+*   **Source:** `investbrand/backend/src/agents/puzzleAgent.js`
+*   **Role:** The Mystery Weaver
+*   **Goal:** Bridge the gap between consumer brands and stock market identities through gamified "Brand to Stock" challenges.
+*   **Key Responsibilities:**
+    *   **Mystery Generation:** Autonomously researches company heritage and geography to generate "Word Cloud" clues without revealing names or years.
+    *   **Dynamic Evaluation:** Intercepts user guesses in real-time to provide witty, comparative feedback that guides the user toward the correct ticker.
+    *   **Fundamental Hints:** Translates complex financial ratios (P/E, ROE, F-Score) into simplified "Mystery Hints".
+
 ---
 
 ## 📜 Global Agent Rules (The "Constitution")

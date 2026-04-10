@@ -2,6 +2,7 @@ const { generateUserPersona } = require('../agents/profilerAgent');
 const { generateTeacherInsight } = require('../agents/teacherAgent');
 const { runQualityCheck } = require('../agents/qcAgent');
 const { analyzeError } = require('../agents/opsSupportAgent');
+const { generateInitialClues, evaluateGuess } = require('../agents/puzzleAgent');
 const { getPool } = require('../config/database');
 
 // Mock Database
@@ -112,6 +113,59 @@ describe('AI Agents Unit Tests', () => {
 
       expect(analysis.rootCause).toBe('DB Timeout');
       expect(mockInvoke).toHaveBeenCalled();
+    });
+  });
+
+  describe('Puzzle Agent', () => {
+    it('should generate initial clues using Gemini', async () => {
+      mockInvoke.mockResolvedValueOnce({
+        content: JSON.stringify({
+          wordCloud: "Cloud, Word, Test",
+          clue1: "Clue 1",
+          clue2: "Clue 2",
+          clue3: "Clue 3"
+        })
+      });
+
+      const clues = await generateInitialClues('RELIANCE', 'Reliance Industries');
+
+      expect(clues.wordCloud).toBe("Cloud, Word, Test");
+      expect(clues.clue1).toBe("Clue 1");
+      expect(mockInvoke).toHaveBeenCalled();
+    });
+
+    it('should evaluate a guess correctly', async () => {
+      mockInvoke.mockResolvedValueOnce({
+        content: "CORRECT: Perfect!"
+      });
+
+      const result = await evaluateGuess('Reliance', 'Reliance Industries', 'Energy');
+
+      expect(result.startsWith('CORRECT:')).toBe(true);
+      expect(result).toContain("Perfect!");
+    });
+
+    it('should evaluate an incorrect guess and provide feedback', async () => {
+      mockInvoke.mockResolvedValueOnce({
+        content: "Not quite."
+      });
+
+      const result = await evaluateGuess('Tata', 'Reliance Industries', 'Energy');
+
+      expect(result.startsWith('CORRECT:')).toBe(false);
+      expect(result).toBe("Not quite.");
+    });
+
+    it('should handle errors in generateInitialClues gracefully', async () => {
+      mockInvoke.mockRejectedValue(new Error("Gemini Error"));
+      const clues = await generateInitialClues('RELIANCE', 'Reliance Industries', 'Energy');
+      expect(clues.wordCloud).toContain("Mystery");
+    });
+
+    it('should handle errors in evaluateGuess gracefully', async () => {
+      mockInvoke.mockRejectedValue(new Error("Gemini Error"));
+      const result = await evaluateGuess('Reliance', 'Reliance Industries', 'Energy');
+      expect(result).toContain("Not quite right");
     });
   });
 });

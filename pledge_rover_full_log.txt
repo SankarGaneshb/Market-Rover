@@ -1,0 +1,255 @@
+﻿commit 1585acb7aa8ae8394117091d246f1730c81277d1
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Apr 3 19:37:44 2026 +0530
+
+    Update Dockerfile for health check and timeout
+    
+    Add health check and timeout settings for Cloud Run compatibility
+
+ pledge_rover/Dockerfile | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+commit 20f04d3e66be495e2c402bf7c3f8799b33d00b93
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Apr 3 19:35:58 2026 +0530
+
+    Refactor server.py for improved functionality
+    
+    Refactor server.py to enhance error handling, add CORS support, and implement health check endpoint.
+
+ pledge_rover/backend/src/server.py | 163 +++++++++++++++++++++++++------------
+ 1 file changed, 109 insertions(+), 54 deletions(-)
+
+commit ce2a8220b23dfddc078e929922c324a228a9499e
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Apr 3 19:30:39 2026 +0530
+
+    Updated server.py with FastAPI server code including database initialization, error handling, and Cloud Run compatibility.
+
+ pledge_rover/backend/src/server.py | 57 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 54 insertions(+), 3 deletions(-)
+
+commit 8d302b73416a871728bf2a507fe12552fbdc1e72
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Apr 3 19:21:24 2026 +0530
+
+    Update Dockerfile to copy backend directory structure
+
+ pledge_rover/Dockerfile | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 5c01d51397e14818dcf2adadec52639e6e57e065
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Apr 3 18:55:26 2026 +0530
+
+    Update import statements in server.py to include init_db and close_db.
+
+ pledge_rover/backend/src/server.py | 101 ++-----------------------------------
+ 1 file changed, 3 insertions(+), 98 deletions(-)
+
+commit 93abe31b7c39ef8a6591ded09e93192dd854c435
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 18:14:16 2026 +0530
+
+    fix: Resolve Cloud Run PORT binding by improving env detection and startup resilience
+
+ pledge_rover/backend/src/config/database.py |  4 ++--
+ pledge_rover/backend/src/server.py          | 14 +++++++++++---
+ 2 files changed, 13 insertions(+), 5 deletions(-)
+
+commit 2a5c96b003e2bdaee517f07ad411147656a87317
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 16:54:47 2026 +0530
+
+    feat: Transition from Mock to Real SQL Persistence (SQLAlchemy)
+
+ pledge_rover/backend/requirements.txt        |  1 +
+ pledge_rover/backend/src/config/database.py  | 20 ++++++----
+ pledge_rover/backend/src/data/models.py      | 12 ++++++
+ pledge_rover/backend/src/data/seed.py        | 39 +++++++++++++++++++
+ pledge_rover/backend/src/routes/agents.py    | 58 +++++++++++++++++++++++-----
+ pledge_rover/backend/src/routes/pledges.py   | 37 +++++++++++-------
+ pledge_rover/backend/src/routes/promoters.py | 23 ++++++++---
+ pledge_rover/backend/src/server.py           |  6 ++-
+ 8 files changed, 157 insertions(+), 39 deletions(-)
+
+commit 8d9ed9397349b99e55e60e41e07206e06cf10300
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 16:30:25 2026 +0530
+
+    fix: Load .env on backend startup to ensure GOOGLE_API_KEY is available
+
+ pledge_rover/backend/src/server.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit c5da6cf44286f75f663192983b28f9905e931c4e
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 16:15:27 2026 +0530
+
+    fix: Explicitly configure Gemini LLM in Council agents to fix 401 fallback
+
+ pledge_rover/backend/requirements.txt         |  2 ++
+ pledge_rover/backend/src/agents/council.py    | 21 +++++++++++++++++----
+ pledge_rover/backend/src/data/scan_state.json |  4 ++--
+ 3 files changed, 21 insertions(+), 6 deletions(-)
+
+commit d99fd5bae74c5e6e69804b4e86b46a8399a5ff8e
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 14:13:02 2026 +0530
+
+    fix: Correct google-generativeai version typo in requirements.txt
+
+ pledge_rover/backend/requirements.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 3feca06aa1a7017736b5c3650b8426a7c9b068d1
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Apr 3 13:47:59 2026 +0530
+
+    feat: Implement 'Trigger Scan' with persistent status tracking in Pledge Rover
+
+ pledge_rover/backend/src/data/models.py       |   7 ++
+ pledge_rover/backend/src/data/scan_manager.py |  55 +++++++++++
+ pledge_rover/backend/src/data/scan_state.json |   5 +
+ pledge_rover/backend/src/routes/agents.py     |  58 +++++++++--
+ pledge_rover/backend/src/server.py            |   2 +
+ pledge_rover/frontend/src/pages/Dashboard.jsx | 137 +++++++++++++++++++-------
+ 6 files changed, 218 insertions(+), 46 deletions(-)
+
+commit 834a5a5bd3ade4afe0d846c36708d57704cacf77
+Author: Antigravity <bot@market-rover.local>
+Date:   Thu Mar 26 18:34:10 2026 +0530
+
+    prod: deploy platform-wide stability and feature updates
+
+ pledge_rover/backend/requirements.txt         |  1 +
+ pledge_rover/backend/src/server.py            | 29 ++++++++++++
+ pledge_rover/backend/src/utils/ops_support.py | 64 +++++++++++++++++++++++++++
+ 3 files changed, 94 insertions(+)
+
+commit a4956ad6326c84f9eb5c36ae624f74c6141fb6e2
+Author: Antigravity <bot@market-rover.local>
+Date:   Fri Mar 20 22:48:36 2026 +0530
+
+    Fix github actions discussion error and correct ticker names
+
+ pledge_rover/backend/test_scoring_new.py           |  32 +++
+ pledge_rover/backend/testing.out                   | Bin 0 -> 3410 bytes
+ pledge_rover/frontend/package-lock.json            | 234 ++++++++++++++++++++-
+ pledge_rover/frontend/package.json                 |   1 +
+ .../frontend/src/components/ShadowNetworkGraph.jsx |  86 ++++++++
+ .../frontend/src/pages/PromoterProfile.jsx         |  91 +++++++-
+ 6 files changed, 440 insertions(+), 4 deletions(-)
+
+commit 389f197f0d48afc548e1226585dd73efbc0f356c
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Mar 20 20:05:18 2026 +0530
+
+    feat(pledge-rover): update PromoterProfile UI for Skin in the Game
+
+ .../frontend/src/pages/PromoterProfile.jsx         | 38 +++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+commit 6ef181194d4201006fe49487189310874224d07f
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Mar 20 15:40:12 2026 +0530
+
+    feat: Add Pledge Rover logo to Navbar
+
+ pledge_rover/frontend/src/assets/logo.png              | Bin 0 -> 556370 bytes
+ pledge_rover/frontend/src/components/layout/Navbar.jsx |   6 +++---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 77b7492215f407ebdb6dda3a4c3cabb54ea7b4fe
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Fri Mar 20 00:29:33 2026 +0530
+
+    feat(pledge-rover): implement SEBI-normalized Skin in the Game and Survival score algorithms
+
+ pledge_rover/backend/src/agents/council.py         |  40 +++---
+ pledge_rover/backend/src/data/mock_historical.py   | 138 +++++++++++++++++++++
+ pledge_rover/backend/src/data/scoring.py           | 122 ++++++++++++++++++
+ pledge_rover/backend/src/routes/promoters.py       |  23 ++--
+ pledge_rover/frontend/src/pages/Dashboard.jsx      |  52 +++++---
+ .../frontend/src/pages/PromoterProfile.jsx         |  64 +++++++---
+ 6 files changed, 377 insertions(+), 62 deletions(-)
+
+commit 50f5b3450596900883f7febef2fd8af7dfe070f9
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Mon Mar 16 23:30:36 2026 +0530
+
+    fix(pledge-rover): commit missing lib/utils.js and unblock lib/ in gitignore
+
+ pledge_rover/frontend/src/lib/utils.js | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 81459448b3a5a20f933d68c4acaeec3bb565b992
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Mon Mar 16 22:43:28 2026 +0530
+
+    fix(pledge-rover): add missing file extensions to fix Vite 8 module resolution
+
+ pledge_rover/frontend/src/App.jsx                      | 6 +++---
+ pledge_rover/frontend/src/components/layout/Navbar.jsx | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+commit 1096e5a21268951cc13471d2a13740b05417e944
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Mon Mar 16 22:12:55 2026 +0530
+
+    ci: enforce Node.js 24 for GitHub Actions to resolve Node 20 deprecation warnings
+
+ pledge_rover/Dockerfile | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit f225c62c3a1a28afcd2de5574f6c2dd87535362e
+Author: Sankar Ganesh <b.sankarganesh@gmail.com>
+Date:   Mon Mar 16 18:04:36 2026 +0530
+
+    feat: adding pledge_rover application (React + FastAPI unified Docker on Cloud Run)
+
+ pledge_rover/Dockerfile                            |   33 +
+ pledge_rover/README.md                             |   45 +
+ pledge_rover/USER_GUIDE.md                         |   78 +
+ pledge_rover/backend/out.txt                       |  Bin 0 -> 2176 bytes
+ pledge_rover/backend/output.txt                    |  Bin 0 -> 396 bytes
+ pledge_rover/backend/output2.txt                   |  Bin 0 -> 196 bytes
+ pledge_rover/backend/requirements.txt              |   13 +
+ pledge_rover/backend/src/agents/council.py         |   91 +
+ pledge_rover/backend/src/agents/harvester.py       |  146 +
+ pledge_rover/backend/src/config/database.py        |   61 +
+ pledge_rover/backend/src/data/models.py            |   46 +
+ pledge_rover/backend/src/routes/__init__.py        |    9 +
+ pledge_rover/backend/src/routes/agents.py          |   19 +
+ pledge_rover/backend/src/routes/health.py          |   18 +
+ pledge_rover/backend/src/routes/pledges.py         |   32 +
+ pledge_rover/backend/src/routes/promoters.py       |   31 +
+ pledge_rover/backend/src/server.py                 |   57 +
+ pledge_rover/backend/test_bse.py                   |   25 +
+ pledge_rover/backend/test_cs.py                    |   20 +
+ pledge_rover/backend/test_nse.py                   |   36 +
+ pledge_rover/frontend/.gitignore                   |   24 +
+ pledge_rover/frontend/README.md                    |   16 +
+ pledge_rover/frontend/build_err.txt                |  Bin 0 -> 6970 bytes
+ pledge_rover/frontend/eslint.config.js             |   29 +
+ pledge_rover/frontend/index.html                   |   13 +
+ pledge_rover/frontend/lint_output.txt              |  Bin 0 -> 532 bytes
+ pledge_rover/frontend/out.txt                      |   31 +
+ pledge_rover/frontend/package-lock.json            | 3794 ++++++++++++++++++++
+ pledge_rover/frontend/package.json                 |   36 +
+ pledge_rover/frontend/postcss.config.js            |    6 +
+ pledge_rover/frontend/public/favicon.svg           |    1 +
+ pledge_rover/frontend/public/icons.svg             |   24 +
+ pledge_rover/frontend/src/App.css                  |  184 +
+ pledge_rover/frontend/src/App.jsx                  |   21 +
+ pledge_rover/frontend/src/assets/hero.png          |  Bin 0 -> 44919 bytes
+ pledge_rover/frontend/src/assets/react.svg         |    1 +
+ pledge_rover/frontend/src/assets/vite.svg          |    1 +
+ .../frontend/src/components/layout/Navbar.jsx      |   60 +
+ pledge_rover/frontend/src/index.css                |   43 +
+ pledge_rover/frontend/src/main.jsx                 |   10 +
+ pledge_rover/frontend/src/pages/Dashboard.jsx      |  184 +
+ .../frontend/src/pages/PromoterProfile.jsx         |  216 ++
+ pledge_rover/frontend/tailwind.config.js           |   49 +
+ pledge_rover/frontend/vite.config.js               |   15 +
+ 44 files changed, 5518 insertions(+)

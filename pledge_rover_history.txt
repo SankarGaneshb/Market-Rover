@@ -1,0 +1,20 @@
+﻿1585acb | 2026-04-03 19:37:44 +0530 | b.sankarganesh@gmail.com | Update Dockerfile for health check and timeout
+20f04d3 | 2026-04-03 19:35:58 +0530 | b.sankarganesh@gmail.com | Refactor server.py for improved functionality
+ce2a822 | 2026-04-03 19:30:39 +0530 | b.sankarganesh@gmail.com | Updated server.py with FastAPI server code including database initialization, error handling, and Cloud Run compatibility.
+8d302b7 | 2026-04-03 19:21:24 +0530 | b.sankarganesh@gmail.com | Update Dockerfile to copy backend directory structure
+5c01d51 | 2026-04-03 18:55:26 +0530 | b.sankarganesh@gmail.com | Update import statements in server.py to include init_db and close_db.
+93abe31 | 2026-04-03 18:14:16 +0530 | bot@market-rover.local | fix: Resolve Cloud Run PORT binding by improving env detection and startup resilience
+2a5c96b | 2026-04-03 16:54:47 +0530 | bot@market-rover.local | feat: Transition from Mock to Real SQL Persistence (SQLAlchemy)
+8d9ed93 | 2026-04-03 16:30:25 +0530 | bot@market-rover.local | fix: Load .env on backend startup to ensure GOOGLE_API_KEY is available
+c5da6cf | 2026-04-03 16:15:27 +0530 | bot@market-rover.local | fix: Explicitly configure Gemini LLM in Council agents to fix 401 fallback
+d99fd5b | 2026-04-03 14:13:02 +0530 | bot@market-rover.local | fix: Correct google-generativeai version typo in requirements.txt
+3feca06 | 2026-04-03 13:47:59 +0530 | bot@market-rover.local | feat: Implement 'Trigger Scan' with persistent status tracking in Pledge Rover
+834a5a5 | 2026-03-26 18:34:10 +0530 | bot@market-rover.local | prod: deploy platform-wide stability and feature updates
+a4956ad | 2026-03-20 22:48:36 +0530 | bot@market-rover.local | Fix github actions discussion error and correct ticker names
+389f197 | 2026-03-20 20:05:18 +0530 | b.sankarganesh@gmail.com | feat(pledge-rover): update PromoterProfile UI for Skin in the Game
+6ef1811 | 2026-03-20 15:40:12 +0530 | b.sankarganesh@gmail.com | feat: Add Pledge Rover logo to Navbar
+77b7492 | 2026-03-20 00:29:33 +0530 | b.sankarganesh@gmail.com | feat(pledge-rover): implement SEBI-normalized Skin in the Game and Survival score algorithms
+50f5b34 | 2026-03-16 23:30:36 +0530 | b.sankarganesh@gmail.com | fix(pledge-rover): commit missing lib/utils.js and unblock lib/ in gitignore
+8145944 | 2026-03-16 22:43:28 +0530 | b.sankarganesh@gmail.com | fix(pledge-rover): add missing file extensions to fix Vite 8 module resolution
+1096e5a | 2026-03-16 22:12:55 +0530 | b.sankarganesh@gmail.com | ci: enforce Node.js 24 for GitHub Actions to resolve Node 20 deprecation warnings
+f225c62 | 2026-03-16 18:04:36 +0530 | b.sankarganesh@gmail.com | feat: adding pledge_rover application (React + FastAPI unified Docker on Cloud Run)

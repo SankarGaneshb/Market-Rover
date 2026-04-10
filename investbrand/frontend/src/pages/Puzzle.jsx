@@ -38,6 +38,15 @@ export default function PuzzleGame() {
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
 
+  // Brand to Stock State
+  const [wordCloud, setWordCloud] = useState('');
+  const [clues, setClues] = useState({});
+  const [currentClueIdx, setCurrentClueIdx] = useState(1);
+  const [userGuess, setUserGuess] = useState('');
+  const [dynamicFeedback, setDynamicFeedback] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  const [isGuessing, setIsGuessing] = useState(false);
+
   const timerRef = useRef(null);
 
   const difficultyLevels = {
@@ -114,13 +123,23 @@ export default function PuzzleGame() {
         setDbPuzzleId(data.id);
         setSelectionMethod(data.selectionMethod);
         setVoteCount(data.voteCount || 0);
+
+        // Fetch the clues and word cloud for the puzzle
+        try {
+          const clueResponse = await axios.get(`/api/puzzles/${data.id}/clues`);
+          if (clueResponse.data?.success) {
+            setWordCloud(clueResponse.data.clues.wordCloud);
+            setClues(clueResponse.data.clues);
+          }
+        } catch (e) {
+          console.error("Failed to fetch clues for puzzle", data.id, e);
+        }
       }
 
       if (matchedBrand) {
         setCurrentBrand(matchedBrand);
       } else {
         // If API succeeded but brand still not found, or API returned empty
-        // Use a stable daily index based on date string (YYYYMMDD)
         const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
         const todayInt = parseInt(todayStr);
         const todayIndex = todayInt % NIFTY50_BRANDS.length;
@@ -146,7 +165,6 @@ export default function PuzzleGame() {
       setGameState('menu');
     } catch (err) {
       console.error('Failed to fetch daily puzzle', err);
-      // Fallback puzzle selection if API fails
       const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
       const todayInt = parseInt(todayStr);
       const todayIndex = todayInt % NIFTY50_BRANDS.length;
@@ -189,6 +207,10 @@ export default function PuzzleGame() {
     setShowHint(false);
     setPuzzleFeedback(null);
     setLogoFeedback(null);
+    setAttempts(0);
+    setUserGuess('');
+    setDynamicFeedback('');
+    setCurrentClueIdx(1);
 
     const gridSize = difficultyLevels[diff].grid;
     const puzzlePieces = [];
@@ -207,6 +229,35 @@ export default function PuzzleGame() {
     }
     setPieces(puzzlePieces);
     setGameState('playing');
+  };
+
+  const handleGuess = async (e) => {
+    if (e) e.preventDefault();
+    if (!userGuess.trim() || attempts >= 3 || isGuessing) return;
+
+    setIsGuessing(true);
+    try {
+      const { data } = await axios.post(`/api/puzzles/${dbPuzzleId}/guess`, {
+        guess: userGuess
+      });
+
+      setDynamicFeedback(data.feedback);
+      setAttempts(prev => prev + 1);
+
+      if (data.isCorrect) {
+        completeGame(moves, attempts + 1);
+      } else {
+        // Automatically show the next hint after a wrong guess
+        if (currentClueIdx < 3) {
+          setCurrentClueIdx(prev => prev + 1);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to evaluate guess', error);
+      setDynamicFeedback("Unable to check your guess right now. Please try again.");
+    } finally {
+      setIsGuessing(false);
+    }
   };
 
   const handleDragStart = (e, piece) => {
@@ -249,9 +300,9 @@ export default function PuzzleGame() {
     setDraggedPiece(null);
   };
 
-  const completeGame = async (finalMoves) => {
+  const completeGame = async (finalMoves, finalAttempts = attempts) => {
     if (timerRef.current) clearInterval(timerRef.current);
-    const gameScore = calculateScore(finalMoves);
+    const gameScore = calculateScore(finalMoves, finalAttempts);
     setGameState('completed');
     setCompletedToday(true);
     fetchTeacherInsight();
@@ -273,12 +324,15 @@ export default function PuzzleGame() {
     }
   };
 
-  const calculateScore = (finalMoves = moves) => {
-    if (!difficulty) return 0;
-    const baseScore = difficultyLevels[difficulty].pieces * 100;
-    const timeBonus = Math.max(0, 300 - timer);
-    const moveBonus = Math.max(0, 200 - finalMoves * 2);
-    return baseScore + timeBonus + moveBonus;
+  const calculateScore = (finalMoves = moves, finalAttempts = attempts) => {
+    // Brand to Stock Scoring: 1st guess: 10, 2nd: 7, 3rd: 5, failure: 0
+    let points = 0;
+    if (finalAttempts === 1) points = 10;
+    else if (finalAttempts === 2) points = 7;
+    else if (finalAttempts === 3) points = 5;
+
+    // Scaling for InvestBrand reward system
+    return points * 100 + (difficulty ? difficultyLevels[difficulty].grid * 50 : 0);
   };
 
   const handleFeedback = async (category, rating) => {
@@ -700,73 +754,115 @@ export default function PuzzleGame() {
             </div>
           </div>
 
-          <div ref={boardContainerRef} className="flex-1 w-full min-h-0 relative flex items-center justify-center">
-            <div
-              className="grid shadow-inner bg-slate-50 rounded-xl"
-              style={{
-                gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                width: boardSize,
-                height: boardSize,
-                padding: '6px'
-              }}
-            >
-              {Array.from({ length: gridSize * gridSize }).map((_, position) => {
-                const piece = pieces.find(p => p.currentPosition === position);
-                if (!piece) return null;
+          <div ref={boardContainerRef} className="flex-1 w-full min-h-0 relative flex flex-col md:flex-row items-center justify-center gap-4">
+            {/* Word Cloud Clue */}
+            <div className="w-full md:w-1/3 bg-slate-50 p-4 rounded-xl shadow-inner flex flex-col">
+              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Word Cloud Clue</div>
+              <div className="flex-1 flex flex-wrap gap-2 items-center justify-center p-2">
+                {wordCloud.split(',').map((word, i) => (
+                  <span key={i} className={`font-bold px-2 py-1 rounded-lg ${i % 2 === 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'}`} style={{ fontSize: `${Math.max(10, 24 - i * 3)}px` }}>
+                    {word.trim()}
+                  </span>
+                ))}
+              </div>
 
-                const row = Math.floor(piece.correctPosition / gridSize);
-                const col = piece.correctPosition % gridSize;
-                const isSolved = solvedPositions[piece.id];
-
-                return (
-                  <div
-                    key={position}
-                    className={`relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing transition-all duration-300 border border-slate-100/30 ${isSolved ? 'shadow-inner' : 'hover:scale-[1.02] hover:z-50 hover:shadow-2xl'}`}
-                    style={{ aspectRatio: '1', touchAction: 'none' }}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, piece)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, position)}
-                  >
-                    <div className="absolute inset-0 bg-white">
-                      {(() => {
-                        let imageUrl = '';
-                        if (currentBrand?.logoSvg) {
-                          const encodedSvg = encodeURIComponent(currentBrand.logoSvg)
-                            .replace(/'/g, "%27")
-                            .replace(/"/g, "%22");
-                          imageUrl = `url("data:image/svg+xml;charset=utf-8,${encodedSvg}")`;
-                        } else {
-                          imageUrl = `url("${currentBrand?.logoUrl}")`;
-                        }
-
-                        return (
-                          <div
-                            className={`absolute inset-0 ${isSolved ? 'opacity-100' : 'opacity-90'}`}
-                            style={{
-                              backgroundImage: imageUrl,
-                              // Force the background to be the size of the ENTIRE board.
-                              // e.g. for a 3x3 grid, the background is 300% width and 300% height
-                              // of the individual piece.
-                              backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
-                              // Position the background so the correct "slice" is shown.
-                              // If col=0, x=0%. If col=1 (in 3x3), x=50%. If col=2, x=100%.
-                              backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
-                              backgroundRepeat: 'no-repeat',
-                              pointerEvents: "none"
-                            }}
-                          />
-                        );
-                      })()}
+              {/* Hints */}
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hints Revealed: {currentClueIdx}/3</div>
+                <div className="space-y-2">
+                  {[1, 2, 3].map(idx => (
+                    <div key={idx} className={`p-2 rounded-lg text-xs leading-tight transition-all duration-500 ${idx <= currentClueIdx ? 'bg-white border border-slate-100 text-slate-600 opacity-100' : 'bg-slate-100 text-slate-300 opacity-50 select-none'}`}>
+                      {idx <= currentClueIdx ? clues[`clue${idx}`] : `Hint ${idx} (hidden)`}
                     </div>
-                    {isSolved && (
-                      <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-0.5 shadow-sm animate-in zoom-in">
-                        <Award size={10} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Puzzle Board */}
+            <div className="relative">
+              <div
+                className="grid shadow-inner bg-slate-50 rounded-xl"
+                style={{
+                  gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+                  width: boardSize,
+                  height: boardSize,
+                  padding: '6px'
+                }}
+              >
+                {Array.from({ length: gridSize * gridSize }).map((_, position) => {
+                  const piece = pieces.find(p => p.currentPosition === position);
+                  if (!piece) return null;
+
+                  const row = Math.floor(piece.correctPosition / gridSize);
+                  const col = piece.correctPosition % gridSize;
+                  const isSolved = solvedPositions[piece.id];
+
+                  return (
+                    <div
+                      key={position}
+                      className={`relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing transition-all duration-300 border border-slate-100/30 ${isSolved ? 'shadow-inner' : 'hover:scale-[1.02] hover:z-50 hover:shadow-2xl'}`}
+                      style={{ aspectRatio: '1', touchAction: 'none' }}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, piece)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, position)}
+                    >
+                      <div className="absolute inset-0 bg-white">
+                        <div
+                          className={`absolute inset-0 ${isSolved ? 'opacity-100' : 'opacity-90'}`}
+                          style={{
+                            backgroundImage: `url("/mystery_stock_puzzle.png")`,
+                            backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
+                            backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
+                            backgroundRepeat: 'no-repeat',
+                            pointerEvents: "none"
+                          }}
+                        />
                       </div>
-                    )}
+                      {isSolved && (
+                        <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-0.5 shadow-sm animate-in zoom-in">
+                          <Award size={10} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Dynamic Guessing Overlay / Feedback UI */}
+              <form onSubmit={handleGuess} className="mt-4 flex flex-col gap-2">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={userGuess}
+                    onChange={(e) => setUserGuess(e.target.value)}
+                    placeholder="Identify this company and its stock..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
+                    disabled={attempts >= 3 || isGuessing}
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-4 rounded-lg text-xs font-black hover:bg-indigo-700 transition-all disabled:opacity-50"
+                    disabled={!userGuess.trim() || attempts >= 3 || isGuessing}
+                  >
+                    {isGuessing ? "Thinking..." : "Guess!"}
+                  </button>
+                </div>
+                {dynamicFeedback && (
+                  <div className={`text-xs p-2 rounded-lg font-medium leading-tight animate-in fade-in slide-in-from-top-1 ${dynamicFeedback.toLowerCase().includes('good try') || dynamicFeedback.toLowerCase().includes('not quite') ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-indigo-50 text-indigo-700'}`}>
+                    📣 {dynamicFeedback}
                   </div>
-                );
-              })}
+                )}
+                <div className="flex justify-between items-center px-1">
+                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Attempts: {attempts}/3</div>
+                  {attempts < 3 && !isGuessing && (
+                    <div className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">
+                      Possible Score: {calculateScore(moves, attempts + 1)} pts
+                    </div>
+                  )}
+                </div>
+              </form>
             </div>
           </div>
 
