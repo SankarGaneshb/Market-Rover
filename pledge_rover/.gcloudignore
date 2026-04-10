@@ -10,5 +10,3 @@ __pycache__/
 frontend/dist/
 frontend/build/
 backend/__pycache__/
-.dockerignore
-Dockerfile
