@@ -1,13 +1,15 @@
 import os
 import uvicorn
-import signal
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Request
 from src.routes import api_router
 from src.config.database import init_db, close_db
 from src.utils.ops_support import analyze_error
+
+import signal
 
 # --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
 _original_signal = signal.signal
