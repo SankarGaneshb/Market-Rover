@@ -2,10 +2,10 @@
 FROM node:22-bullseye AS frontend-builder
 
 WORKDIR /app/frontend
-COPY pledge_rover/frontend/package*.json ./
+COPY frontend/package*.json ./
 RUN npm ci
 
-COPY pledge_rover/frontend/ .
+COPY frontend/ .
 RUN npm run build
 
 # Stage 2: Build the FastAPI Backend
@@ -14,11 +14,11 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install Backend Dependencies
-COPY pledge_rover/backend/requirements.txt ./backend/
+COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy entire backend directory to preserve structure (config, src, etc.)
-COPY pledge_rover/backend/ ./backend/
+COPY backend/ ./backend/
 
 # Copy frontend build output from stage 1 into the backend container
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
