@@ -183,9 +183,10 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
 *   **Role:** The Mystery Weaver
 *   **Goal:** Bridge the gap between consumer brands and stock market identities through gamified "Brand to Stock" challenges.
 *   **Key Responsibilities:**
-    *   **Mystery Generation:** Autonomously researches company heritage and geography to generate "Word Cloud" clues without revealing names or years.
-    *   **Dynamic Evaluation:** Intercepts user guesses in real-time to provide witty, comparative feedback that guides the user toward the correct ticker.
-    *   **Fundamental Hints:** Translates complex financial ratios (P/E, ROE, F-Score) into simplified "Mystery Hints".
+    *   **Mystery Generation:** Creates thematic "Word Cloud" associations based on company heritage, products, and culture, strictly masking identifiable names/years.
+    *   **Dynamic Evaluation:** Provides clever, directional feedback on user guesses (e.g., "Think more global" or "Right industry, wrong ticker") to guide learning without giving the answer.
+    *   **Fundamental Hint Layering**: Translates complex financial metrics (P/E, ROE) into simplified, readable "Trivia Hints" for three difficulty levels.
+    *   **Gamified Scoring**: Governs the 10/7/5 reward system, ensuring hints are balanced against potential point returns.
 
 ---
 

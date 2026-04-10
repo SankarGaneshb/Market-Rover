@@ -58,6 +58,18 @@ This guide covers how to handle operational issues that require manual intervent
 3.  **Backtest**:
     *   If data is missing for `batch_backtester.py`, verify `yfinance` is up.
 
+### 6. Microservice Startup Errors (Cloud Run)
+**Status**: Manual Fix Required
+**Symptom**: "The user-provided container failed to start and listen on the port... PORT=8080"
+**Common Causes**:
+1.  **ModuleNotFoundError**: (Python) Occurs if `__init__.py` files are missing in parent directories, preventing the server (e.g., Uvicorn) from importing the application.
+    *   **Fix**: Add empty `__init__.py` files to `backend/` and `src/` folders of the microservice.
+2.  **Hardcoded Port**: Container listens on a port other than 8080.
+    *   **Fix**: Ensure `uvicorn` (Python) or `node` (JS) is bound to `0.0.0.0:8080`.
+3.  **Missing Node Engine**: (Node.js) Occurs if the required Node version is not matched by the Docker base image.
+    *   **Fix**: Update `FROM node:XX-alpine` in the microservice `Dockerfile`.
+
+
 ---
 
 ## 🛑 Limitations & Scope
