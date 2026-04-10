@@ -1,0 +1,12 @@
+.gcloudignore
+.git
+.gitignore
+node_modules/
+npm-debug.log
+.env
+.dockerignore
+Dockerfile
+dist/
+build/
+coverage/
+*.md
