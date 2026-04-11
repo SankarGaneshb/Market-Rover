@@ -29,6 +29,7 @@ try:
     from rover_tools.memory_tool import read_past_predictions_tool, save_prediction_tool
     from rover_tools.autonomy_tools import announce_regime_tool, log_pivot_tool
     from rover_tools.forensic_tool import check_accounting_fraud
+    from rover_tools.sre_tools import propose_system_remediation
     from rover_tools.advanced_skills import (
         calculate_portfolio_risk_tool,
         fetch_economic_calendar_tool,
@@ -310,7 +311,8 @@ class AgentFactory:
             'report_generator': create_report_generator_agent(),
             'visualizer': create_visualizer_agent(),
             'shadow_analyst': create_shadow_analyst_agent(),
-            'traditional_timing': create_traditional_timing_agent()
+            'traditional_timing': create_traditional_timing_agent(),
+            'sre_support': create_sre_support_agent()
         }
 
 def create_traditional_timing_agent():
@@ -325,6 +327,27 @@ def create_traditional_timing_agent():
             "to the broader strategy, advising if today is an auspicious day for sector-specific accumulation."
         ),
         tools=[fetch_subha_muhurtham_tool, analyze_traditional_calendar_tool],
+        verbose=True,
+        max_iter=3,
+        allow_delegation=False,
+        llm=llm,
+        function_calling_llm=llm
+    )
+
+
+def create_sre_support_agent():
+    """Agent I: SRE Support Sentinel"""
+    llm = get_flash_llm()
+    return Agent(
+        role="SRE Support Sentinel",
+        goal="Ensure 99.9% uptime and optimal latency of the Market-Rover ecosystem.",
+        backstory=(
+            "You are the sentinel of infrastructure. You monitor token costs, build logs, and "
+            "deployment latency. You follow Rule #7 and #8. When the system is breathing heavy, "
+            "you don't just watch—you use the 'propose_system_remediation' tool to ask the "
+            "Human-In-The-Loop for a mission-critical fix (e.g., scaling, cache purging, or key rotation)."
+        ),
+        tools=[propose_system_remediation],
         verbose=True,
         max_iter=3,
         allow_delegation=False,
