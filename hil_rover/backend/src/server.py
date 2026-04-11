@@ -11,10 +11,10 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="HIL Rover API")
 
-# Path to built React frontend inside container structure
+# Path to built React frontend inside container
 DIST_PATH = "../frontend/dist"
 
-# Enable CORS for React frontend
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,24 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-@app.get("/{path:path}")
-async def serve_react(path: str = None):
-    # If the path is for an API, health check, or static asset, skip catch-all
-    if path and (path.startswith("api") or path.startswith("health") or path.startswith("assets")):
-        return None
-
-    # Otherwise, return the React index.html
-    full_path = os.path.join(DIST_PATH, "index.html")
-    if os.path.exists(full_path):
-        return FileResponse(full_path)
-    return {"status": "Frontend building... please refresh in 30s"}
-
-# Mount the rest of the static assets (js, css, images)
-if os.path.exists(os.path.join(DIST_PATH)):
-    app.mount("/assets", StaticFiles(directory=os.path.join(DIST_PATH, "assets")), name="assets")
-
-# Shared data path - use absolute path for container stability
+# 1. SHARED LOGIC
 DATA_FILE = os.environ.get("HIL_DATA_PATH", "/app/data/hil_requests.json")
 
 def load_requests():
@@ -60,9 +43,9 @@ class HILDecision(BaseModel):
     decision: str
     comments: Optional[str] = None
 
+# 2. CORE API ROUTES (PRIORITY)
 @app.get("/api/health-stats")
 async def get_health_stats():
-    # In a real app, this would poll the JobManager or a metrics DB
     return {
         "api_latency": "142ms",
         "cache_hit_rate": "84.2%",
@@ -132,3 +115,16 @@ async def get_stats():
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+# 3. STATIC ASSETS
+if os.path.exists(os.path.join(DIST_PATH, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(DIST_PATH, "assets")), name="assets")
+
+# 4. CATCH-ALL FOR REACT SPA (LOWEST PRIORITY)
+@app.get("/{path:path}")
+async def catch_all(path: str):
+    # This route will only be reached if no API or Asset route matches
+    index_file = os.path.join(DIST_PATH, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"status": "Mission Control initializing... please refresh in 30s"}
