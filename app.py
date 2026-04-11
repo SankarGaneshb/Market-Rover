@@ -53,7 +53,6 @@ from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
 from tabs.brain_tab import show_brain_tab
 from tabs.trading_calendar_tab import show_trading_calendar_tab
-from tabs.hil_tab import show_hil_tab
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -302,12 +301,6 @@ def main():
     st.session_state.test_mode = False
     max_parallel = 2 # Reduced from 5 to prevent API Rate Limits (429)
 
-    # 1. HIL Stealth Route Check
-    qp_tab = st.query_params.get("tab")
-    if qp_tab == "hil_admin":
-        show_hil_tab()
-        st.stop() # Skip normal navigation rendering
-
     # 2. Main content area - Render based on selection
 
     # Global Balloon Trigger
@@ -336,9 +329,6 @@ def main():
 
     elif selection.startswith("🧠 Agent Brain"):
         show_brain_tab()
-
-    elif selection.startswith("⚖️ HIL Approval"):
-        show_hil_tab()
 
     elif selection.startswith("⚙️ System Health"):
         show_system_health_tab()
