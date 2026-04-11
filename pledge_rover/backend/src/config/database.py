@@ -24,11 +24,23 @@ def getconn() -> pg8000.dbapi.Connection:
 is_production = os.getenv("K_SERVICE") is not None or os.getenv("CLOUD_SQL_CONNECTION_NAME") is not None
 
 if is_production:
-    print(f"Initializing connection to Cloud SQL: {os.getenv('CLOUD_SQL_CONNECTION_NAME')}")
-    # The SQLAlchemy engine will indirectly call getconn()
+    print(f"Initializing connection to Cloud SQL (ASYNC): {os.getenv('CLOUD_SQL_CONNECTION_NAME')}")
+    
+    async def get_async_conn():
+        # Use connect_async for non-blocking I/O
+        return await connector.connect_async(
+            os.environ["CLOUD_SQL_CONNECTION_NAME"],
+            "asyncpg",
+            user=os.environ.get("PR_DB_USER", os.environ.get("DB_USER", "postgres")),
+            password=os.environ.get("PR_DB_PASSWORD", os.environ.get("DB_PASSWORD", "password")),
+            db=os.environ.get("PR_DB_NAME", os.environ.get("DB_NAME", "pledgerover")),
+            ip_type=IPTypes.PUBLIC,
+        )
+
+    # Use async_creator for SQLAlchemy 1.4+
     engine = create_async_engine(
-        "postgresql+pg8000://",
-        creator=getconn,
+        "postgresql+asyncpg://",
+        async_creator=get_async_conn,
         echo=False,
     )
 else:
