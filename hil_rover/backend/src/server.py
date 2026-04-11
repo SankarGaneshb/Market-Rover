@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import json
@@ -9,6 +11,9 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="HIL Rover API")
 
+# Path to built React frontend
+DIST_PATH = "../../frontend/dist"
+
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
@@ -16,6 +21,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+@app.get("/{path:path}")
+async def serve_react(path: str = None):
+    # If the path looks like an API call or health check, let the app handle it normally
+    if path and (path.startswith("api") or path.startswith("health")):
+        return None
+
+    # Otherwise, return the React index.html
+    full_path = os.path.join(DIST_PATH, "index.html")
+    if os.path.exists(full_path):
+        return FileResponse(full_path)
+    return {"status": "Frontend building... please refresh in 30s"}
+
+# Mount the rest of the static assets (js, css, images)
+if os.path.exists(os.path.join(DIST_PATH)):
+    app.mount("/assets", StaticFiles(directory=os.path.join(DIST_PATH, "assets")), name="assets")
 
 # Shared data path - use absolute path for container stability
 DATA_FILE = os.environ.get("HIL_DATA_PATH", "/app/data/hil_requests.json")
