@@ -93,9 +93,12 @@ app.include_router(api_router, prefix="/api")
 # Serve React static assets in production if they exist
 # In local development, Vite handles this on port 5173
 dist_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "../frontend/dist")
-if os.path.isdir(dist_folder):
+assets_path = os.path.join(dist_folder, "assets")
+if os.path.isdir(assets_path):
     print(f"Mounting static frontend from {dist_folder}")
-    app.mount("/assets", StaticFiles(directory=os.path.join(dist_folder, "assets")), name="assets")
+    app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+else:
+    print(f"WARNING: Static assets directory NOT found at {assets_path}. Skipping mount.")
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
