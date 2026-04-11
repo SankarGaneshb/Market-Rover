@@ -17,6 +17,12 @@ WORKDIR /app
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
+# Copy root dependencies needed for agents
+COPY agents.py config.py ./
+COPY rover_tools/ ./rover_tools/
+COPY utils/ ./utils/
+COPY scripts/ ./scripts/
+
 # Copy entire backend directory
 COPY backend/ ./backend/
 

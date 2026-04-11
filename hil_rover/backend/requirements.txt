@@ -2,3 +2,13 @@ fastapi
 uvicorn
 pydantic
 requests
+crewai>=1.7.2
+crewai-tools>=1.7.2
+langchain-google-genai~=4.2.0
+python-dotenv>=1.1.1
+yfinance>=0.2.66
+nselib>=1.9
+nsepython>=2.97
+beautifulsoup4~=4.13.4
+duckduckgo_search>=8.1.1
+matplotlib>=3.10.8

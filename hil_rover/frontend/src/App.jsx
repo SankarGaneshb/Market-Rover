@@ -214,6 +214,16 @@ function App() {
               <div className="stat-value">{healthData?.token_usage_total}</div>
             </div>
           </div>
+          <div style={{marginTop: '2rem'}}>
+            <button className="btn-approve" style={{maxWidth: '300px'}} onClick={async () => {
+              const res = await fetch(`${API_BASE}/sre/audit`, { method: 'POST' });
+              const data = await res.json();
+              alert(data.message);
+              fetchData();
+            }}>
+              🔍 Run SRE Sentinel Audit
+            </button>
+          </div>
         </main>
       )}
 

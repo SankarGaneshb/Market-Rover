@@ -44,6 +44,16 @@ class HILDecision(BaseModel):
     comments: Optional[str] = None
 
 # 2. CORE API ROUTES (PRIORITY)
+from scripts.sre_sentinel import run_sre_sentinel
+
+@app.post("/api/sre/audit")
+async def trigger_sre_audit():
+    try:
+        run_sre_sentinel()
+        return {"status": "Audit successful", "message": "SRE Support has scanned the infrastructure."}
+    except Exception as e:
+        return {"status": "Error", "message": str(e)}
+
 @app.get("/api/health-stats")
 async def get_health_stats():
     return {
