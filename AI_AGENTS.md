@@ -241,15 +241,24 @@ The following rules apply to **ALL** agents in the workspace. These are non-nego
 
 ### 6. The "No Versioning" Rule
 *   **Rule:** Do not hardcode versions like "V2.0" or "V3.0" in the UI or docs.
-*   **Reason:** It creates confusion (e.g., Title says 2.0, Tab says 4.0).
+*   **Reasoning:** To keep the system clean and avoid misleading users about the underlying model version.
 *   **Implementation:** Refer to features by name (e.g., "Monthly Heatmap", "Market Visualizer").
 
-### 7. The Regular Audit Rule (Maintenance)
+### 7. Pre-Flight Integrity Checklist (MANDATORY)
+*   **Purpose:** To prevent "Deployment Regressions" BEFORE they hit production.
+*   **Checklist:**
+    *   [ ] **Routing Order**: Static asset mounts (`/assets`) and technical routes (`/api`) MUST be declared **ABOVE** the global catch-all in FastAPI/Express.
+    *   [ ] **MIME-Type Protection**: The global catch-all `/{path}` must explicitly exclude assets to prevent returning HTML for `.js` files (Blank Screen fix).
+    *   [ ] **Container-Safe Pathing**: Verify that file paths (e.g., `DIST_PATH`) are relative to the container `WORKDIR`, not the local Dev root.
+    *   [ ] **JSX Guardrail**: All text nodes containing `>`, `<`, or `&` MUST use HTML entities (`&gt;`, `&lt;`, `&amp;`).
+    *   [ ] **HIL Pulse**: Verify the Governance Heartbeat isn't accidentally blocked by a new auth layer or route.
+
+### 8. The Regular Audit Rule (Maintenance)
 *   **Rule:** Conduct a full system audit **Monthly** using `FINAL_AUDIT_CHECKLIST.md`.
 *   **Reason:** Prevents "bit rot" and ensures security compliance.
 *   **Implementation:** check for outdated deps, deprecated API usage, and security gaps (secrets exposure).
 
-### 8. The Timezone Rule (IST Enforcement)
+### 9. The Timezone Rule (IST Enforcement)
 *   **Rule:** **ALWAYS** use Indian Standard Time (IST, UTC+5:30) for all date, time, scheduling, and calendar calculations across the entire stack (Investbrand backend, frontend, and Python tools).
 *   **Reason:** Prevents day-boundary bugs where UTC server times cause streaks or daily tasks to roll over at the wrong hour for Indian users.
 *   **Implementation:** Do not use `new Date().toISOString().split('T')[0]` unless strictly converted to IST first using an offset of `+5.5 * 60 * 60 * 1000`.
