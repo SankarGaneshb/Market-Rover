@@ -237,6 +237,7 @@ The following rules apply to **ALL** agents in the workspace. These are non-nego
 *   **Implementation:**
     *   Use absolute imports from root (e.g., `from rover_tools.batch_tools` not `from ..tools`).
     *   Run `python -m py_compile *.py` before pushing.
+    *   **JSX Entity Safety**: Always use `&gt;`, `&lt;`, and `&amp;` for characters inside JSX text nodes to prevent Vite/Rolldown compiler errors (Unexpected Token).
 
 ### 6. The "No Versioning" Rule
 *   **Rule:** Do not hardcode versions like "V2.0" or "V3.0" in the UI or docs.

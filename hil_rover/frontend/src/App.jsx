@@ -90,7 +90,7 @@ function App() {
               </div>
             </div>
             <div className="stat-card" style={stats?.sla_breaches > 0 ? {borderColor: 'var(--accent-red)'} : {}}>
-              <div className="stat-label">SLA Breaches (>24h)</div>
+              <div className="stat-label">SLA Breaches (&gt;24h)</div>
               <div className="stat-value" style={{color: stats?.sla_breaches > 0 ? 'var(--accent-red)' : 'var(--text-secondary)'}}>
                 {stats?.sla_breaches || 0}
               </div>
