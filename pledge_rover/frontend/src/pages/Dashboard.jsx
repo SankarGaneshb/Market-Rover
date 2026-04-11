@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Activity, ShieldAlert, ArrowUpRight, TrendingDown, Users, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -33,28 +33,28 @@ export default function Dashboard() {
     }
   };
 
-  const checkScanStatus = async () => {
+  const checkScanStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/agents/status');
       if (res.ok) {
         const data = await res.json();
-        const prevStatus = scanStatus.status;
-        setScanStatus(data);
-        
-        // If we just finished scanning, refresh the data
-        if (prevStatus === 'scanning' && data.status === 'idle') {
-          fetchDashboardData();
-        }
+        setScanStatus((prev) => {
+          // If we just finished scanning, refresh the data
+          if (prev.status === 'scanning' && data.status === 'idle') {
+            fetchDashboardData();
+          }
+          return data;
+        });
       }
-    } catch (e) {
-      console.error("Status Poll Error:", e);
+    } catch (err) {
+      console.error("Status Poll Error:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
     checkScanStatus();
-  }, []);
+  }, [checkScanStatus]);
 
   // Poll status while scanning
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function Dashboard() {
       interval = setInterval(checkScanStatus, 3000);
     }
     return () => clearInterval(interval);
-  }, [scanStatus.status]);
+  }, [scanStatus.status, checkScanStatus]);
 
   const handleTriggerScan = async () => {
     if (scanStatus.status === 'scanning') return;
@@ -79,7 +79,7 @@ export default function Dashboard() {
         const data = await res.json();
         setScanStatus(data);
       }
-    } catch (e) {
+    } catch {
       setScanStatus({ status: 'idle', message: 'Trigger failed.' });
     }
   };

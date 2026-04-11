@@ -55,7 +55,7 @@ const nodeTypes = {
 };
 
 export default function ShadowNetworkGraph({ initialNodes = [], initialEdges = [] }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, _setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
