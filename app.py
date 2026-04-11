@@ -208,10 +208,7 @@ def main():
             "📅 Trading Calendar",
             "🕵️ Shadow Tracker",
             "---",
-            "🧠 Agent Brain",
-            "---",
-            "👤 Investor Profile",
-            "⚙️ System Health"
+            "👤 Investor Profile"
         ]
 
         # Determining Valid Options based on User Status
@@ -326,12 +323,8 @@ def main():
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
 
-
-    elif selection.startswith("🧠 Agent Brain"):
-        show_brain_tab()
-
-    elif selection.startswith("⚙️ System Health"):
-        show_system_health_tab()
+    elif selection.startswith("👤 Investor Profile"):
+        show_profiler_tab()
 
 
 if __name__ == "__main__":

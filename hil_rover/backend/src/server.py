@@ -38,6 +38,27 @@ class HILDecision(BaseModel):
     decision: str
     comments: Optional[str] = None
 
+@app.get("/api/health-stats")
+async def get_health_stats():
+    # In a real app, this would poll the JobManager or a metrics DB
+    return {
+        "api_latency": "142ms",
+        "cache_hit_rate": "84.2%",
+        "token_usage_total": "1.2M",
+        "active_crews": 2,
+        "error_rate": "0.04%"
+    }
+
+@app.get("/api/brain-manifest")
+async def get_brain_manifest():
+    return {
+        "agents": [
+            {"name": "Strategist", "role": "Macro Analysis", "max_iter": 3, "status": "Idling"},
+            {"name": "Shadow Analyst", "role": "Technical Edge", "max_iter": 5, "status": "Analyzing NSE"},
+            {"name": "SRE Support", "role": "Governance Gate", "max_iter": 3, "status": "Optimizing API"}
+        ]
+    }
+
 @app.get("/api/requests")
 async def get_all_requests():
     return load_requests()
