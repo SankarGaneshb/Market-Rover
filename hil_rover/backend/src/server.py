@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="HIL Rover API")
 
-# Path to built React frontend
-DIST_PATH = "../../frontend/dist"
+# Path to built React frontend inside container structure
+DIST_PATH = "../frontend/dist"
 
 # Enable CORS for React frontend
 app.add_middleware(
