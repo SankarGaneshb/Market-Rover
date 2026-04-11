@@ -1,0 +1,31 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: pledge-rover-frontend-lint
+        name: Pledge-Rover Frontend Lint
+        entry: bash -c "cd pledge_rover/frontend && npm run lint"
+        language: system
+        files: ^pledge_rover/frontend/
+        pass_filenames: false
+
+      - id: pledge-rover-backend-compile
+        name: Pledge-Rover Backend Syntax Check
+        entry: bash -c "python -m py_compile pledge_rover/backend/src/*.py pledge_rover/backend/src/**/*.py"
+        language: system
+        files: ^pledge_rover/backend/
+        pass_filenames: false
+
+      - id: root-app-compile
+        name: Root Streamlit App Syntax Check
+        entry: python -m py_compile app.py agents.py tasks.py config.py
+        language: system
+        files: ^(app\.py|agents\.py|tasks\.py|config\.py)$
+        pass_filenames: false

@@ -9,29 +9,29 @@ This document serves as the **Single Source of Truth** for the Agentic AI system
 ## 🧠 The Hybrid Intelligence Funnel
 The agents operate in a sequential pipeline designed to mimic a hedge fund's decision-making process:
 `Portfolio Manager` -> `Strategist` -> `Sentiment` -> `Technical` -> `Shadow Analyst` -> `Report Writer`
-    
+
 ```mermaid
 graph TD
     User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
-    
+
     subgraph "Hybrid Intelligence Funnel"
         A -->|Validated Tickers| B[Market Strategist]
         B -->|Macro & News Context| C[Sentiment Analyzer]
         A -->|Tickers| D[Technical Analyst]
-        
+
         B -->|Strategic Report| E[Report Generator]
         C -->|Sentiment Flags| G[Shadow Analyst]
         D -->|Trend & Levels| G
-        
+
         G -->|Trap Signals| E
         D -->|Technical Report| E
         C -->|Sentiment Report| E
     end
-    
+
     subgraph "Visualizers"
         User -->|Request Snapshot| F[Data Visualizer]
     end
-    
+
     E -->|Final Intelligence Report| User
     F -->|Visual Dashboard| User
 ```
@@ -68,7 +68,7 @@ These workflows execute the same agent logic but output directly to **GitHub Dis
     *   **Macro Scan:** Checks Crude, Gold, Nasdaq, and USD/INR.
     *   **Official Data:** Monitors Board Meetings, Results, and Dividends.
     *   **Funnel Logic:** Connects global events to portfolio stocks (e.g., "Crude up -> Paints down").
-*   **Tools:** 
+*   **Tools:**
     *   `search_market_news` (Macro)
     *   `get_global_cues` (Indices/Commodities)
     *   `get_corporate_actions` (Official NSE data)
@@ -91,7 +91,7 @@ These workflows execute the same agent logic but output directly to **GitHub Dis
     *   Ignores news entirely; focuses only on the Chart.
     *   Determines Trend (Uptrend/Downtrend) and Support/Resistance.
     *   Provides the "Where" to the Strategist's "Why".
-*   **Tools:** 
+*   **Tools:**
     *   `analyze_market_context`
     *   `batch_get_stock_data`
 
@@ -103,7 +103,7 @@ These workflows execute the same agent logic but output directly to **GitHub Dis
     *   **Silent Accumulation:** Detects when Retail is fearful (Sentiment) but Smart Money is buying (Block Deals/Support).
     *   **Bull Traps:** Detects when Retail is euphoric but Price is hitting resistance.
     *   Uses 'Trap Indicators' to find divergences.
-*   **Tools:** 
+*   **Tools:**
     *   `analyze_sector_flow_tool`
     *   `fetch_block_deals_tool`
     *   `batch_detect_accumulation`
@@ -177,6 +177,12 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   Injected into the global `errorHandler` middleware.
     *   Parses stack traces using Gemini to identify root causes (Database, API, Logic).
     *   Provides actionable "developer fix" suggestions in the logs.
+*   **KPIs:**
+    *   **Deployment Stability Score:** Target >95% success rate for CI/CD runs.
+    *   **Automated Guardrail Integrity:** 0 syntax/lint errors reaching the build stage (linked to `.pre-commit-config.yaml`).
+    *   **TTR (Time To Resolution):** <30 mins for production hotfixes.
+*   **Incident History (Context):**
+    *   **2026-04-11 (Pledge-Rover):** Successfully resolved 16-failure deployment sequence by hardening Docker WORKDIR and StaticFiles mounting logic. Added to the agent's "Common Failure Patterns" database.
 
 ### 13. Brand Puzzle Agent (PuzzleAgent)
 *   **Source:** `investbrand/backend/src/agents/puzzleAgent.js`
@@ -260,5 +266,3 @@ Understanding which Agent executes which Task is crucial.
 | **Shadow Analyst** | Task 5: Shadow Analysis | `create_shadow_analysis_task` | **Synergy Task**: Compare Sentiment vs Price vs Flow |
 | **Report Generator** | Task 6: Report Generation | `create_report_generation_task` | Synthesize Master Intelligence Report |
 | **Visualizer** | Snapshot Task | `create_market_snapshot_task` | Generate single-stock visual dashboard |
-
-
