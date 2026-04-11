@@ -37,7 +37,7 @@ except ImportError as e:
 
 
 from utils.job_manager import JobManager
-from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats, 
+from utils.metrics import (get_api_usage, get_performance_stats, get_cache_stats,
                            get_error_stats)
 from utils.security import RateLimiter
 from utils.auth import AuthManager
@@ -53,6 +53,7 @@ from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
 from tabs.brain_tab import show_brain_tab
 from tabs.trading_calendar_tab import show_trading_calendar_tab
+from tabs.hil_tab import show_hil_tab
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -87,19 +88,19 @@ if 'portfolio_limiter' not in st.session_state:
 
 def main():
     """Main application entry point"""
-    
+
     # Initialize Authentication
     auth_manager = AuthManager()
-    
+
     # Check if user is authenticated
     if not auth_manager.check_authentication():
-        # Stop execution if not authenticated 
+        # Stop execution if not authenticated
         # (check_authentication handles the login widget display)
         st.stop()
-        
+
     # Show logout button in sidebar
     auth_manager.logout_widget()
-    
+
     # CSS for Fixed Footer and Layout Adjustments
     st.markdown(
         """
@@ -151,17 +152,17 @@ def main():
         .footer p {
             margin: 0;
         }
-        
+
         /* Adjust main content to not be hidden by footer */
         .block-container {
             padding-bottom: 100px; /* Increased padding */
         }
-        
+
         /* Adjust Sidebar to not be hidden by footer */
         section[data-testid="stSidebar"] > div > div:nth-child(2) {
             padding-bottom: 100px;
         }
-        
+
         /* Hide default Streamlit footer */
         footer {visibility: hidden;}
         </style>
@@ -176,7 +177,7 @@ def main():
     st.title("🔍 Market-Rover")
     st.markdown("**AI-Powered Stock Intelligence System**")
     st.markdown("---")
-    
+
     # Sidebar
     with st.sidebar:
         # App Logo
@@ -184,21 +185,21 @@ def main():
              st.image("assets/login_logo.png", use_container_width=True)
         except:
              pass
-             
+
         st.header("🚀 About")
         st.markdown("""
-        **AI Stock Intelligence**        
+        **AI Stock Intelligence**
         Your personal quant researcher.
-        """)        
+        """)
         st.markdown("---")
-        st.header("📍 Navigation") # NAVIGATION        
+        st.header("📍 Navigation") # NAVIGATION
         # User Profile Status Check
         user_profile_mgr = UserProfileManager()
         current_user = st.session_state.get('username', 'guest')
-        
+
         profile_status = user_profile_mgr.get_profile_status(current_user)
         force_profile = not profile_status['exists'] or profile_status['needs_update']
-        
+
         # Complete Options List
         all_options = [
             "📤 Portfolio Analysis",
@@ -211,9 +212,10 @@ def main():
             "🧠 Agent Brain",
             "---",
             "👤 Investor Profile",
+            "⚖️ HIL Approval",
             "⚙️ System Health"
         ]
-        
+
         # Determining Valid Options based on User Status
         if force_profile:
              # Case 1: New User or Expired Profile -> Show ONLY Profile
@@ -221,23 +223,23 @@ def main():
              # Force logic: If not initialized or invalid, set to Profile
              if "nav_selection" not in st.session_state or st.session_state.nav_selection != "👤 Investor Profile":
                   st.session_state.nav_selection = "👤 Investor Profile"
-                  
+
         else:
              # Case 2: Existing User -> Show everything EXCEPT Profile (or keep it as optional?)
              # User requested: "Once persona completed show in left sidebar... move to Market Analysis"
              # So we keep "👤 Investor Profile" available if they want to re-take it, but defaults change.
              # CHANGE: User specifically wants it locked/hidden if valid.
              valid_options = [o for o in all_options if o != "---" and o != "👤 Investor Profile"]
-             
+
              # If JUST finished profile (detected by flag or default), landing page might change.
              # But here we just define options.
-             
+
              # SHOW PERSONA WIDGET
              if profile_status.get('exists'):
                  p_val = profile_status.get('persona', 'Unknown')
                  # Simple Map for Emoji
                  p_emoji = "🛡️" if "Defender" in p_val else ("🦅" if "Hunter" in p_val else ("🌱" if "Preserver" in p_val else "🚀"))
-                 
+
                  st.markdown("### 🆔 Your Persona")
                  st.info(f"**{p_emoji} {p_val}**")
                  st.markdown("---")
@@ -245,14 +247,14 @@ def main():
 
         # Safe default if selection is invalid (e.g. state persists but options changed)
         # Note: We must ensure nav_selection exists before checking "not in valid_options"
-        
+
         # 1. Initialize logic
         if "nav_selection" not in st.session_state:
              # Check for deep links
              qp_ticker = st.query_params.get("ticker")
              qp_category = st.query_params.get("category")
              qp_tab = st.query_params.get("tab")
-             
+
              if qp_tab == "calendar":
                  st.session_state.nav_selection = "📅 Trading Calendar"
              elif qp_ticker or qp_category:
@@ -269,13 +271,13 @@ def main():
                  st.session_state.nav_selection = valid_options[0]
 
         selection = st.radio(
-            "Navigate", 
-            valid_options, 
+            "Navigate",
+            valid_options,
             index=valid_options.index(st.session_state.nav_selection) if st.session_state.nav_selection in valid_options else 0,
             key="nav_radio",
             label_visibility="hidden"
         )
-        
+
         # Skin in the Game – contextual shortcut (below Shadow Tracker in nav)
         st.markdown("---")
         st.link_button(
@@ -302,7 +304,7 @@ def main():
     max_parallel = 2 # Reduced from 5 to prevent API Rate Limits (429)
 
     # Main content area - Render based on selection
-    
+
     # Global Balloon Trigger
     if st.session_state.get('show_balloons'):
         st.balloons()
@@ -313,7 +315,7 @@ def main():
 
     if selection.startswith("📤 Portfolio Analysis"):
         show_portfolio_analysis_tab(max_parallel)
-    
+
     elif selection.startswith("🔍 Market Analysis"):
         show_market_analysis_tab()
 
@@ -322,14 +324,17 @@ def main():
 
     elif selection.startswith("🎯 Forecast Tracker"):
         show_forecast_tracker_tab()
-    
+
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
 
-    
+
     elif selection.startswith("🧠 Agent Brain"):
         show_brain_tab()
-        
+
+    elif selection.startswith("⚖️ HIL Approval"):
+        show_hil_tab()
+
     elif selection.startswith("⚙️ System Health"):
         show_system_health_tab()
 
@@ -342,7 +347,7 @@ if __name__ == "__main__":
         from utils.ops_support import analyze_error
         logger = get_logger(__name__)
         logger.error(f"FATAL APP ERROR: {e}", exc_info=True)
-        
+
         analysis = analyze_error(e, context="app_startup")
         if analysis:
             st.error(f"🚀 **SRE Ops Agent Analysis**\n\n**Root Cause:** {analysis.get('rootCause')}\n\n**Mitigation:** {analysis.get('mitigation')}")

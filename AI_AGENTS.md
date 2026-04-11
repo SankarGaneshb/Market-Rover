@@ -177,6 +177,7 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   Injected into the global `errorHandler` middleware.
     *   Parses stack traces using Gemini to identify root causes (Database, API, Logic).
     *   Provides actionable "developer fix" suggestions in the logs.
+    *   **HIL Escalation**: Routes complex governance or system critical decisions to the **HIL Management Dashboard** for human review.
 *   **KPIs:**
     *   **Deployment Stability Score:** Target >95% success rate for CI/CD runs.
     *   **Automated Guardrail Integrity:** 0 syntax/lint errors reaching the build stage (linked to `.pre-commit-config.yaml`).
