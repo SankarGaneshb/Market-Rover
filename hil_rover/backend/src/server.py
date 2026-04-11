@@ -25,8 +25,8 @@ app.add_middleware(
 @app.get("/")
 @app.get("/{path:path}")
 async def serve_react(path: str = None):
-    # If the path looks like an API call or health check, let the app handle it normally
-    if path and (path.startswith("api") or path.startswith("health")):
+    # If the path is for an API, health check, or static asset, skip catch-all
+    if path and (path.startswith("api") or path.startswith("health") or path.startswith("assets")):
         return None
 
     # Otherwise, return the React index.html
