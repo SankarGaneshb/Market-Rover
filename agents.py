@@ -75,7 +75,7 @@ def _create_llm(model_name: str, temp: float = 0.3):
         raise ValueError("GOOGLE_API_KEY not found.")
 
     os.environ.setdefault("GOOGLE_API_KEY", GOOGLE_API_KEY)
-    
+
     # CRITICAL: Unset OPENAI_API_KEY to prevent CrewAI from defaulting to GPT-4
     if "OPENAI_API_KEY" in os.environ:
         del os.environ["OPENAI_API_KEY"]
@@ -144,22 +144,22 @@ def create_news_scraper_agent():
         backstory=(
             "You are a hedge fund strategist who anticipates ripples. You know that fog "
             "grounds planes (Aviation) and strikes halt deliveries (Logistics). "
-            "You triangulate data: \n"
+            "You triangulate data following the 'Governance Heartbeat' protocol (Rule #8): \n"
             "1. Macro Events (via Search) \n"
             "2. Global Cues (Crude/Indices) \n"
             "3. Official Data (NSE Corporate Actions) \n"
             "4. News Media (Moneycontrol). \n"
-            "You connect these dots to find risks others miss.\n"
+            "You connect these dots to find risks others miss, while ensuring every maneuver is visible in HIL Mission Control.\n"
             "CRITICAL: EFFICIENCY IS KEY. usage limits apply.\n"
             "1. Run 'Search Market News' ONCE for top headlines.\n"
             "2. Run 'Global Cues' ONCE.\n"
             "3. Synthesize immediately. DO NOT loop looking for more."
         ),
         tools=[
-            search_market_news, 
-            get_global_cues, 
-            get_corporate_actions, 
-            scrape_general_market_news, 
+            search_market_news,
+            get_global_cues,
+            get_corporate_actions,
+            scrape_general_market_news,
             batch_scrape_news,
             announce_regime_tool, # NEW
             log_pivot_tool,        # NEW
@@ -254,20 +254,20 @@ def create_shadow_analyst_agent():
         backstory=(
             "You are a forensic market detective. You look for DIVERGENCES. "
             "If Sentiment is PANIC but Block Deals are BUYING, you scream 'ACCUMULATION'. "
-            "If Sentiment is EUPHORIA but Delivery is LOW, you scream 'TRAP'. "
-            "You are the deeper truth behind the noise."
-            "CRITICAL: You have a MEMORY. Always check if you were wrong last time before shouting."
+            "You are the deeper truth behind the noise. "
+            "CRITICAL: You follow Rule #8. Always verify the 'Governance Eye' heartbeat before synthesizing sentiment vs flow. "
+            "You have a MEMORY. Always check if you were wrong last time before shouting."
         ),
         tools=[
-            analyze_sector_flow_tool, 
-            fetch_block_deals_tool, 
-            batch_detect_accumulation, 
+            analyze_sector_flow_tool,
+            fetch_block_deals_tool,
+            batch_detect_accumulation,
             get_trap_indicator_tool,
             read_past_predictions_tool,
             save_prediction_tool,
             log_pivot_tool,
             fetch_fii_dii_flow_tool
-        ], 
+        ],
         verbose=True,
         max_iter=5, # Strict limit to prevent loops
         allow_delegation=False,
@@ -299,7 +299,7 @@ def create_visualizer_agent():
 
 class AgentFactory:
     """Factory class to create all agents."""
-    
+
     @staticmethod
     def create_all_agents():
         return {
@@ -331,4 +331,3 @@ def create_traditional_timing_agent():
         llm=llm,
         function_calling_llm=llm
     )
-
