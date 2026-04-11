@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 # Copy entire backend directory
 COPY backend/ ./backend/
 
+# Create data directory for persistent logs
+RUN mkdir -p /app/data && chmod 777 /app/data
+
 # Copy frontend build output from stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 

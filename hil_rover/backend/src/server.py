@@ -17,8 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Shared data path (assuming it's in a persistent volume or handled via DB in prod)
-DATA_FILE = os.environ.get("HIL_DATA_PATH", "../../data/hil_requests.json")
+# Shared data path - use absolute path for container stability
+DATA_FILE = os.environ.get("HIL_DATA_PATH", "/app/data/hil_requests.json")
 
 def load_requests():
     if not os.path.exists(DATA_FILE):
