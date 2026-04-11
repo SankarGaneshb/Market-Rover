@@ -212,7 +212,6 @@ def main():
             "🧠 Agent Brain",
             "---",
             "👤 Investor Profile",
-            "⚖️ HIL Approval",
             "⚙️ System Health"
         ]
 
@@ -303,7 +302,13 @@ def main():
     st.session_state.test_mode = False
     max_parallel = 2 # Reduced from 5 to prevent API Rate Limits (429)
 
-    # Main content area - Render based on selection
+    # 1. HIL Stealth Route Check
+    qp_tab = st.query_params.get("tab")
+    if qp_tab == "hil_admin":
+        show_hil_tab()
+        st.stop() # Skip normal navigation rendering
+
+    # 2. Main content area - Render based on selection
 
     # Global Balloon Trigger
     if st.session_state.get('show_balloons'):
