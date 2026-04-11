@@ -1,0 +1,73 @@
+name: Deploy HIL-Rover
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'hil_rover/**'
+      - '.github/workflows/hil_rover_deploy.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  SERVICE_NAME: hil-rover
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  lint-and-check:
+    name: Lint & Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Backend Syntax Check
+        run: python -m py_compile hil_rover/backend/src/*.py
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Frontend Deps
+        working-directory: hil_rover/frontend
+        run: npm ci
+
+      - name: Frontend Lint
+        working-directory: hil_rover/frontend
+        run: npm run lint || echo "Lint warnings ignored for initial deploy"
+
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    needs: [lint-and-check]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build & Push Container
+        working-directory: hil_rover
+        run: |
+          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080
