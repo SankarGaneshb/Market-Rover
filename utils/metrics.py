@@ -43,7 +43,7 @@ class PerformanceMonitor:
     Supports both decorator and context manager usage.
     """
     _instance = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(PerformanceMonitor, cls).__new__(cls)
@@ -56,17 +56,17 @@ class PerformanceMonitor:
         # Calculate Operations Per Second (OPS = 1.0 / Mean duration)
         # Handle zero duration safety
         ops = 1.0 / duration_sec if duration_sec > 0 else 0
-        
+
         meta_str = f" | {metadata}" if metadata else ""
         log_msg = f"METRIC: {name} completed in {duration_sec:.4f}s (OPS: {ops:.2f}){meta_str}"
         logger.info(log_msg)
         # We could also push to a dashboard or DB here in the future
-    
+
     @contextmanager
     def measure(self, name: str, metadata: Optional[Dict[str, Any]] = None):
         """
         Context manager to measure execution time of a block.
-        
+
         Usage:
             with PerformanceMonitor().measure("complex_calc", {"items": 10}):
                 do_work()
@@ -81,14 +81,14 @@ class PerformanceMonitor:
 def track_performance(name_override: Optional[str] = None):
     """
     Decorator to measure execution time of a function.
-    
+
     Usage:
         @track_performance(name_override="custom_name")
         def my_func(): ...
     """
     def decorator(func: Callable):
         metric_name = name_override or func.__name__
-        
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             monitor = PerformanceMonitor()
@@ -109,7 +109,7 @@ def track_error_detail(error_type: str, error_message: str, context: Optional[Di
     """
     # Log to standard logger
     logger.error(f"ERROR: {error_type} - {error_message} | Context: {context}")
-    
+
     # Log to JSONL
     data = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -155,6 +155,20 @@ def track_workflow_event(event_name: str, description: str, session_id: Optional
 def track_error(error_type: str, message: str = "Unspecified error", context: Optional[Dict[str, Any]] = None):
     """Alias/Compatibility wrapper for track_error_detail"""
     track_error_detail(error_type, message, context)
+
+def track_agent_kpi(agent_name: str, kpi_name: str, value: Any, metadata: Optional[Dict[str, Any]] = None):
+    """
+    Log a specific KPI event for an agent.
+    Example: track_agent_kpi("Strategist", "Funnel_Integrity", 100)
+    """
+    data = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "agent": agent_name,
+        "kpi": kpi_name,
+        "value": value,
+        "metadata": metadata or {}
+    }
+    _append_to_jsonl(_get_metric_file("agent_kpis"), data)
 
 def track_engagement(username: str, event_type: str, description: str, metadata: Optional[Dict[str, Any]] = None):
     """
@@ -226,7 +240,7 @@ def get_error_stats() -> Dict[str, Any]:
         'total': 0,
         'by_type': {}
     }
-    
+
     try:
         error_file = _get_metric_file("errors")
         if error_file.exists():
@@ -241,5 +255,5 @@ def get_error_stats() -> Dict[str, Any]:
                         continue
     except Exception as e:
         logger.error(f"Error reading error stats: {e}")
-        
+
     return stats

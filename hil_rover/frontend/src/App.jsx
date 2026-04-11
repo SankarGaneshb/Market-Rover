@@ -7,6 +7,7 @@ function App() {
   const [stats, setStats] = useState(null);
   const [healthData, setHealthData] = useState(null);
   const [brainData, setBrainData] = useState(null);
+  const [kpiData, setKpiData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('governance');
 
@@ -16,7 +17,8 @@ function App() {
         `${API_BASE}/requests`,
         `${API_BASE}/stats`,
         `${API_BASE}/health-stats`,
-        `${API_BASE}/brain-manifest`
+        `${API_BASE}/brain-manifest`,
+        `${API_BASE}/kpi-leaderboard`
       ];
       const results = await Promise.all(urls.map(u => fetch(u).then(r => r.json())));
 
@@ -24,6 +26,7 @@ function App() {
       setStats(results[1]);
       setHealthData(results[2]);
       setBrainData(results[3]);
+      setKpiData(results[4]);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching HIL data:', error);
@@ -67,6 +70,7 @@ function App() {
       <nav className="tabs">
         <button className={`tab-btn ${activeTab === 'governance' ? 'active' : ''}`} onClick={() => setActiveTab('governance')}>🛡️ Governance Gate</button>
         <button className={`tab-btn ${activeTab === 'brain' ? 'active' : ''}`} onClick={() => setActiveTab('brain')}>🧠 Agent Brain</button>
+        <button className={`tab-btn ${activeTab === 'kpis' ? 'active' : ''}`} onClick={() => setActiveTab('kpis')}>📈 Agent KPIs</button>
         <button className={`tab-btn ${activeTab === 'health' ? 'active' : ''}`} onClick={() => setActiveTab('health')}>⚙️ System Health</button>
       </nav>
 
@@ -152,6 +156,36 @@ function App() {
                   <div className="instructions" style={{borderLeftColor: 'var(--accent-blue)'}}>
                     <strong>Autonomy Level:</strong> High (max_iter={agent.max_iter})<br />
                     <strong>Memory State:</strong> Optimized
+                  </div>
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
+
+      {activeTab === 'kpis' && (
+        <main>
+          <h2 style={{marginBottom: '1.5rem'}}>📈 Agent Performance Leaderboard</h2>
+          <div className="request-grid">
+            {kpiData.map(kpi => (
+              <div key={kpi.agent} className="request-card">
+                 <div className="card-header">
+                    <span className="agent-badge" style={{background: kpi.score >= kpi.target ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
+                      {kpi.status}
+                    </span>
+                  </div>
+                  <h3 className="task-name">{kpi.agent}</h3>
+                  <div className="instructions">
+                    <strong>Primary KPI:</strong> {kpi.kpi}
+                  </div>
+                  <div style={{marginTop: '1rem'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.8rem'}}>
+                      <span>Score: {kpi.score}%</span>
+                      <span style={{opacity: 0.5}}>Target: {kpi.target}%</span>
+                    </div>
+                    <div className="progress-bar-bg">
+                      <div className="progress-bar-fill" style={{width: `${kpi.score}%`, backgroundColor: kpi.score >= kpi.target ? 'var(--accent-green)' : 'var(--accent-amber)'}}></div>
+                    </div>
                   </div>
               </div>
             ))}

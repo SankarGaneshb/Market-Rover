@@ -265,6 +265,20 @@ The following rules apply to **ALL** agents in the workspace. These are non-nego
 
 ---
 
+## 📊 Agent KPI Matrix
+These KPIs are captured by `utils/metrics.py` and displayed in the **HIL Mission Control**.
+
+| Agent | Primary KPI | target | Measuring Logic |
+| :--- | :--- | :--- | :--- |
+| **Strategist** | Funnel Integrity | >90% | Successfully runs Macro -> Official -> News. |
+| **Sentiment Analyzer** | Shift Sensitivity | < 5m | Detects shift in Fear/Greed from news spikes. |
+| **Market Context** | Technical Precision | >80% | Accuracy of identified Support/Resistance levels. |
+| **Shadow Analyst** | Divergence Alpha | >70% | Correctly identifies Smart Money when Retail Panics. |
+| **Report Generator** | Cohesion Score | >95% | Synthesis of all 4 previous agent outputs. |
+| **SRE Support** | SLA Governance | < 24h | User review time for pending HIL Requests. |
+
+---
+
 ## 📋 Task Mappings (Defined in `tasks.py`)
 Understanding which Agent executes which Task is crucial.
 

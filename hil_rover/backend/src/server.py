@@ -64,6 +64,17 @@ async def get_brain_manifest():
         ]
     }
 
+@app.get("/api/kpi-leaderboard")
+async def get_kpi_leaderboard():
+    # In a production app, we would query the metrics/agent_kpis_YYYY-MM-DD.jsonl
+    # For now, we return the unified KPI target map
+    return [
+        {"agent": "Strategist", "kpi": "Funnel Integrity", "score": 94, "target": 90, "status": "Above Target"},
+        {"agent": "Shadow Analyst", "kpi": "Divergence Alpha", "score": 82, "target": 70, "status": "Above Target"},
+        {"agent": "Market Context", "kpi": "Technical Precision", "score": 78, "target": 80, "status": "Near Target"},
+        {"agent": "SRE Support", "kpi": "SLA Governance", "score": 98, "target": 95, "status": "Optimal"}
+    ]
+
 @app.get("/api/requests")
 async def get_all_requests():
     return load_requests()
