@@ -51,7 +51,14 @@ def check_python_syntax():
 
 def check_utf8_compliance():
     """Ensure no hidden non-UTF8 bytes in critical infrastructure files."""
-    critical_files = [".github/workflows/ci.yml", "Dockerfile", "requirements.txt"]
+    critical_files = [
+        ".github/workflows/ci.yml",
+        "Dockerfile",
+        "requirements.txt",
+        "hil_rover/Dockerfile",
+        "hil_rover/backend/requirements.txt",
+        "pledge_rover/Dockerfile"
+    ]
     success = True
     for file in critical_files:
         if not os.path.exists(file): continue
