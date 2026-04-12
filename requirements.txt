@@ -18,8 +18,8 @@ seaborn>=0.13.2
 Pillow>=11.3.0
 
 # Data, Analytics & Scraping
-pandas>=2.2.2
-numpy>=2.1.0
+pandas>=2.2.3
+numpy>=2.1.1
 scipy>=1.15.2
 yfinance>=0.2.66
 nselib>=1.9
