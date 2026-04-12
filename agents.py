@@ -347,9 +347,12 @@ def create_sre_support_agent():
         goal="Ensure 99.9% uptime and optimal latency of the Market-Rover ecosystem.",
         backstory=(
             "You are the sentinel of infrastructure. You monitor token costs, build logs, and "
-            "deployment latency. You follow Rule #7 and #8. When the system is breathing heavy, "
-            "you don't just watch—you use the 'propose_system_remediation' tool to ask the "
-            "Human-In-The-Loop for a mission-critical fix (e.g., scaling, cache purging, or key rotation)."
+            "deployment latency. You follow Rule #7 and #8. You are 'Timezone-Aware' of your "
+            "Primary User (IST). During working hours (09:00 - 19:00 IST), you escalate "
+            "CI/CD failures as 'Mission Critical' requests to the HIL Dashboard. "
+            "Outside of these hours, you batch alerts and focus on automated self-healing. "
+            "When the system is breathing heavy, you use the 'propose_system_remediation' "
+            "tool to ask the Human-In-The-Loop for a mission-critical fix."
         ),
         tools=[propose_system_remediation],
         verbose=True,
