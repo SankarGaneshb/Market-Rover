@@ -10,6 +10,7 @@ import uuid
 import time
 from datetime import datetime, timedelta, timezone
 
+# HIL-Rover Version: 4.2.1-Hardened (Deploy-Force: 2026-04-12 18:15 IST)
 app = FastAPI(title="HIL Rover API")
 
 # Path to built React frontend inside container
