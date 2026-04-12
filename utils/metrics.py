@@ -17,7 +17,7 @@ LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 
 # File handler for tracking metrics
-file_handler = logging.FileHandler(LOG_DIR / "performance.log")
+file_handler = logging.FileHandler(LOG_DIR / "performance.log", encoding='utf-8')
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)

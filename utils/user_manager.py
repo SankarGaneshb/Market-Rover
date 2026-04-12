@@ -21,7 +21,7 @@ class UserProfileManager:
     def _load_profiles(self) -> dict:
         if os.path.exists(DATA_FILE):
             try:
-                with open(DATA_FILE, 'r') as f:
+                with open(DATA_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     return data.get("profiles", {})
             except Exception as e:
@@ -30,7 +30,7 @@ class UserProfileManager:
 
     def _save_profiles(self):
         try:
-            with open(DATA_FILE, 'w') as f:
+            with open(DATA_FILE, 'w', encoding='utf-8') as f:
                 json.dump({"profiles": self.profiles}, f, indent=4)
         except Exception as e:
             logger.error(f"Error saving user profiles: {e}")
@@ -41,7 +41,7 @@ class UserProfileManager:
         Returns: {'exists': bool, 'last_updated': datetime_obj, 'days_old': int, 'needs_update': bool}
         """
         profile = self.profiles.get(username)
-        
+
         if not profile:
             return {
                 'exists': False,
@@ -49,14 +49,14 @@ class UserProfileManager:
                 'days_old': 9999,
                 'needs_update': True
             }
-            
+
         last_updated_str = profile.get('last_updated')
-        
+
         try:
             last_updated = datetime.fromisoformat(last_updated_str)
             days_old = (datetime.now() - last_updated).days
             needs_update = days_old > 365 # Force update once a year
-            
+
             return {
                 'exists': True,
                 'last_updated': last_updated,
@@ -66,7 +66,7 @@ class UserProfileManager:
             }
         except Exception:
              return {
-                'exists': True, 
+                'exists': True,
                 'last_updated': None,
                 'days_old': 9999,
                 'needs_update': True
