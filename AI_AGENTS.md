@@ -180,7 +180,8 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   **HIL Escalation**: Routes complex governance or system critical decisions to the standalone **HIL Rover Console** (React-based) for human review.
 *   **KPIs:**
     *   **Deployment Stability Score:** Target >98.5% success rate for CI/CD runs.
-    *   **Automated Guardrail Integrity:** 100% Pass Rate for `scripts/build_integrity_check.py`.
+    *   **Regressive Build Prevention:** Target 100%. Zero encoding or syntax regressions reaching `origin/main` (Enforced by `scripts/build_integrity_check.py`).
+    *   **Satellite Autonomy Score:** Target >99%. Independence of HIL/Pledge/InvestBrand deployments from core build failures.
     *   **TTR (Time To Resolution):** <15 mins for production hotfixes (Autonomous SRE Mode).
 *   **Incident History (Context):**
     *   **2026-04-12 (Global Build Failure Cluster):** Successfully resolved 10+ concurrent failures across Core, HIL, and Pledge modules. Hardened infrastructure via UTF-8 enforcement and modular CI isolation.
@@ -276,7 +277,9 @@ These KPIs are captured by `utils/metrics.py` and displayed in the **HIL Mission
 | **Market Context** | Technical Precision | >80% | Accuracy of identified Support/Resistance levels. |
 | **Shadow Analyst** | Divergence Alpha | >70% | Correctly identifies Smart Money when Retail Panics. |
 | **Report Generator** | Cohesion Score | >95% | Synthesis of all 4 previous agent outputs. |
-| **SRE Support** | SLA Governance | < 24h | User review time for pending HIL Requests. |
+| **SRE Support** | Regressive Prevention | 100% | Zero syntax/encoding errors reaching Remote. |
+| **SRE Support** | Satellite Autonomy | >99% | Success rate of independent module deploys. |
+| **SRE Support** | TTR (Hotfix) | < 15m | Autonomous recovery time for CI failures. |
 
 ---
 
