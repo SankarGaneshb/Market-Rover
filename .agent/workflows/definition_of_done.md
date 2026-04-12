@@ -24,3 +24,8 @@ Run this checklist before marking any significant task as "Completed".
 
 5.  **Clean Up**
     - [ ] Remove temporary files or debug prints.
+
+6.  **CI/CD & Infrastructure Stability**
+    - [ ] **CRITICAL**: No emojis or non-standard Unicode in `.github/workflows/`, `Dockerfile`, or `.env`.
+    - [ ] Peg Python dependencies to versions with verified 3.13 wheels (e.g. pandas 2.2.3+).
+    - [ ] Ensure `Notify HIL on Failure` step is present and traceable.
