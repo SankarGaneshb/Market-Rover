@@ -80,11 +80,12 @@ jobs:
             -d '{
               "agent_name": "SRE Support",
               "task_name": "HIL-Rover Deploy Failure",
-              "instructions": "HIL-Rover deployment failed. Investigate Docker build logs and dependencies.",
+              "instructions": "HIL-Rover Deploy #${{ github.run_number }} failed. Review build logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.",
               "data": {
                 "service": "hil-rover",
                 "action": "DEPLOY_FAILURE",
-                "repo": "Market-Rover",
+                "build_id": "${{ github.run_number }}",
+                "repo": "${{ github.repository }}",
                 "workflow": "hil_rover_deploy.yml"
               }
             }'

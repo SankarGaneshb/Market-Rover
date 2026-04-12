@@ -154,11 +154,12 @@ jobs:
           -d '{
             "agent_name": "SRE Support",
             "task_name": "Market-Rover CI Failure",
-            "instructions": "CI Build failed on Python 3.13. Review the GitHub Actions logs and approve remediation.",
+            "instructions": "CI Build #${{ github.run_number }} failed on Python 3.13. Review the logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} and approve remediation.",
             "data": {
               "service": "market-rover",
               "action": "CI_TEST_FAILURE",
-              "repo": "Market-Rover",
+              "build_id": "${{ github.run_number }}",
+              "repo": "${{ github.repository }}",
               "workflow": "ci.yml"
             }
           }'
