@@ -35,14 +35,14 @@ def propose_system_remediation(issue_description: str, suggested_fix: str, risk_
     requests = []
     if HIL_REQUESTS_FILE.exists():
         try:
-            with open(HIL_REQUESTS_FILE, 'r') as f:
+            with open(HIL_REQUESTS_FILE, 'r', encoding='utf-8') as f:
                 requests = json.load(f)
         except:
             requests = []
 
     requests.append(new_request)
 
-    with open(HIL_REQUESTS_FILE, 'w') as f:
+    with open(HIL_REQUESTS_FILE, 'w', encoding='utf-8') as f:
         json.dump(requests, f, indent=2)
 
     return f"Governance Request {request_id} created. Awaiting human approval in Mission Control."
