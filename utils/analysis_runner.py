@@ -25,7 +25,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
     """Run portfolio analysis with improved progress tracking and error handling"""
 
-    
+
 
     # Create job
 
@@ -35,7 +35,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
     st.session_state.job_manager.start_job(job_id)
 
-    
+
 
     # Show progress
 
@@ -47,7 +47,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
     detail_text = st.empty()
 
-    
+
 
     # Stock processing tracker
 
@@ -55,7 +55,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
     processed_stocks = 0
 
-    
+
 
     try:
 
@@ -67,7 +67,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
         progress_bar.progress(5)
 
-        
+
 
         # Check if test mode is enabled
 
@@ -81,35 +81,24 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             progress_bar.progress(10)
 
-            
+
 
             # Simulate progress with delays
-
             stages = [
-
-                (20, "📰 [MOCK] Scraping news articles..."),
-
-                (40, "💭 [MOCK] Analyzing sentiment..."),
-
-                (60, "📈 [MOCK] Evaluating market context..."),
-
-                (80, "📝 [MOCK] Generating intelligence report..."),
-
+                (20, "📰 [MOCK] Mapping Regimes...", "Market Impact Strategist"),
+                (40, "💭 [MOCK] Analyzing Sentiment...", "Sentiment Analyzer"),
+                (60, "📈 [MOCK] Scanning Concordance...", "Technical Analyst"),
+                (80, "📡 [MOCK] Detecting Absorption...", "Shadow Analyst"),
+                (95, "📝 [MOCK] Synthesizing Report...", "Report Generator"),
             ]
 
-            
-
-            for pct, msg in stages:
-
+            for pct, msg, agent_name in stages:
                 time.sleep(2)  # 2 second delay per stage
-
                 progress_bar.progress(pct)
+                status_text.markdown(f"**Agent Active (Mock):** {agent_name}")
+                detail_text.text(msg)
 
-                status_text.text(msg)
 
-                detail_text.text(f"Processing stocks: {', '.join(df['Symbol'].tolist())}")
-
-            
 
             # Generate mock report
 
@@ -117,15 +106,15 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             result = mock_generator.generate_mock_report(stocks)
 
-            
+
 
         else:
 
             # **REAL MODE** - Actual API analysis
 
-            
 
-            # Save the current DataFrame to the default PORTFOLIO_FILE 
+
+            # Save the current DataFrame to the default PORTFOLIO_FILE
 
             # This ensures the agents (which read from disk) access the correct data
 
@@ -139,7 +128,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 logger.error(f"Failed to save temporary portfolio file: {e}")
 
-                # We continue anyway, hoping the file exists or agents can handle it, 
+                # We continue anyway, hoping the file exists or agents can handle it,
 
                 # but this log helps debugging.
 
@@ -149,7 +138,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             crew = create_crew(max_parallel_stocks=max_parallel)
 
-            
+
 
             # Start analysis
 
@@ -159,22 +148,22 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             progress_bar.progress(10)
 
-            
+
 
             # Run analysis (this will take time)
 
             # Update progress incrementally during execution
 
-            
+
 
             analysis_complete = False
 
             result = None
-            
+
             # Using a list to hold error to allow modification in closure if needed, though nonlocal works too
             error_container = []
 
-            
+
 
             def run_crew():
 
@@ -198,7 +187,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                     analysis_complete = True
 
-            
+
 
             # Start crew in background thread
 
@@ -206,49 +195,39 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             thread.start()
 
-            
 
-            # Simulate progress while waiting
 
+            # Simulated progress steps mapping to our 7-Task Intelligence Workflow
             progress_steps = [
-
-                (20, "📰 Scraping news articles..."),
-
-                (40, "💭 Analyzing sentiment..."),
-
-                (60, "📈 Evaluating market context..."),
-
-                (80, "📝 Generating intelligence report..."),
-
+                (14, "📂 Portfolio Retrieval...", "Portfolio Manager"),
+                (28, "📰 Market Strategy Mapping...", "Market Impact Strategist"),
+                (42, "💭 Sentiment Analysis...", "Sentiment Analyzer"),
+                (56, "📈 Technical Concordance Check...", "Technical Analyst"),
+                (70, "🕵️ Shadow Analysis (Forensics)...", "Shadow Analyst"),
+                (84, "📅 Traditional Timing Audit...", "Traditional Timing Analyst"),
+                (98, "📝 Final Intelligence Synthesis...", "Report Generator"),
             ]
 
-            
+
 
             step_idx = 0
 
             while not analysis_complete and step_idx < len(progress_steps):
-
                 time.sleep(15)  # Wait 15 seconds between updates
-
                 if not analysis_complete:
-
-                    pct, msg = progress_steps[step_idx]
-
+                    pct, msg, agent_name = progress_steps[step_idx]
                     progress_bar.progress(pct)
-
-                    status_text.text(msg)
-
-                    detail_text.text(f"Processing stocks: {', '.join(df['Symbol'].tolist())}")
-
+                    status_text.markdown(f"**Agent Active:** {agent_name}")
+                    detail_text.text(f"Action: {msg}")
                     step_idx += 1
 
-            
+
 
             # Wait for thread to complete
 
             thread.join()
 
-            
+
 
             # Check for errors
 
@@ -256,7 +235,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 raise error_container[0]
 
-        
+
 
         # Complete
 
@@ -266,13 +245,13 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
         detail_text.text("")
 
-        
+
 
         # Mark job complete
 
         st.session_state.job_manager.complete_job(job_id, result)
 
-        
+
 
         # Save report
 
@@ -283,7 +262,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
         target_dir = get_user_report_dir()
         report_path = target_dir / report_filename
 
-        
+
 
         with open(report_path, 'w', encoding='utf-8') as f:
 
@@ -297,7 +276,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             f.write(str(result))
 
-        
+
 
         # Success message
 
@@ -305,25 +284,25 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
         st.session_state.analysis_complete = True
 
-        
+
 
         # Generate visualizations
 
         st.subheader("📊 Visual Analytics")
 
-        
+
 
         # Get stock data from portfolio
 
         stocks = df.to_dict('records')
 
-        
+
 
         # Initialize visualizer
 
         visualizer = ReportVisualizer()
 
-        
+
 
         # Create visualizations with mock data (in test mode) or extracted data (real mode)
 
@@ -345,11 +324,11 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
             import json
 
-            
+
 
             sentiment_data = {'positive': 0, 'negative': 0, 'neutral': 0}
 
-            
+
 
             try:
 
@@ -359,7 +338,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 json_match = re.search(r'```json\s*({.*?})\s*```', report_text, re.DOTALL)
 
-                
+
 
                 if json_match:
 
@@ -389,33 +368,33 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
                 sentiment_data['negative'] = len(re.findall(r'NEGATIVE', str(result), re.IGNORECASE))
 
-                
+
 
             # Real Risk Calculation
 
             # Real Risk Calculation
             from rover_tools.market_analytics import MarketAnalyzer
             ma_risk = MarketAnalyzer()
-            
+
             stock_risk_data = []
-            
+
             # UX: Progress for Post-Analysis
             risk_progress = st.progress(0)
             risk_status = st.empty()
-            
+
             # Collect Tickers for Correlation
             all_tickers = [s['Symbol'] for s in stocks]
-            
+
             for i, s in enumerate(stocks):
                 risk_status.text(f"📊 Calculating Risk Metrics for {s.get('Symbol')}...")
                 risk_progress.progress((i + 1) / len(stocks))
-                
+
                 ticker_sym = s['Symbol']
                 try:
                     r_score = ma_risk.calculate_risk_score(ticker_sym)
                 except:
                     r_score = 50
-                    
+
                 # Shadow Score Calculation
                 try:
                     shadow_res = detect_silent_accumulation(ticker_sym)
@@ -427,9 +406,9 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                     shadow_signals = "Error"
 
                 stock_risk_data.append({
-                    'symbol': ticker_sym, 
-                    'company': s['Company Name'], 
-                    'risk_score': r_score, 
+                    'symbol': ticker_sym,
+                    'company': s['Company Name'],
+                    'risk_score': r_score,
                     'sentiment': 'neutral', # Could rely on previous sentiment logic if granuallar
                     'shadow_score': shadow_score,
                     'shadow_signals': shadow_signals
@@ -445,7 +424,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             for t in all_tickers:
                  full = f"{t}.NS" if '.' not in t else t
                  clean_tickers.append(full)
-                 
+
             corr_matrix = ma_risk.calculate_correlation_matrix(clean_tickers)
         except Exception as e:
             logger.error(f"Correlation failed: {e}")
@@ -453,14 +432,14 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
 
         # Display charts in columns
         col1, col2 = st.columns(2)
-        
+
         with col1:
             # Sentiment pie chart
             if sum(sentiment_data.values()) > 0:
                 fig_sentiment = visualizer.create_sentiment_pie_chart(sentiment_data)
                 fig_sentiment.update_layout(height=400) # Ensure fixed height
                 st.plotly_chart(fig_sentiment, width="stretch", use_container_width=True)
-        
+
         with col2:
             # Portfolio risk heatmap
             if stock_risk_data:
@@ -477,7 +456,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                  fig_corr = visualizer.create_correlation_heatmap(corr_matrix)
                  st.plotly_chart(fig_corr, width="stretch", use_container_width=True)
                  st.caption("🔍 **What does this mean?** Shows how your stocks move together. High numbers (red) mean they move in the same direction, reducing diversification. Low or negative numbers (blue) mean they move independently, helping to spread risk. (The lower triangle simply avoids repeating data).")
-                 
+
         with col4:
              # Individual stock risk gauges (Top 3 Riskiest)
              if stock_risk_data:
@@ -485,13 +464,13 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                  for idx, stock_data in enumerate(sorted_risk):
                      # Show mini-gauges
                      fig_gauge = visualizer.create_risk_gauge(
-                         stock_data['risk_score'], 
+                         stock_data['risk_score'],
                          stock_data['symbol']
                      )
                      fig_gauge.update_layout(height=130, margin=dict(l=20, r=20, t=30, b=20))
                      st.plotly_chart(fig_gauge, use_container_width=True)
 
-        
+
         # --- REBALANCING ---
         st.markdown("### ⚖️ Rebalancing Opportunities")
         with st.expander("Show Rebalancing Strategies", expanded=True):
@@ -506,9 +485,9 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                      'symbol': f"{s['Symbol']}.NS" if '.' not in s['Symbol'] else s['Symbol'],
                      'value': float(qty) * float(price)
                  })
-             
+
              col_strategies = st.columns(2)
-             
+
              # Helper for color-coded actions
              def color_action(val):
                  color = '#28a745' if val == 'Buy' else ('#dc3545' if val == 'Sell' else '#6c757d')
@@ -566,11 +545,11 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
         # Show report text in expander
         with st.expander("📄 Full Text Report", expanded=False):
             st.text(str(result)[:2000] + "..." if len(str(result)) > 2000 else str(result))
-        
+
         # Download buttons
         st.markdown("### 📥 Download Report")
         download_col1, download_col2, download_col3 = st.columns(3)
-        
+
         with download_col1:
             st.download_button(
                 label="📄 Download TXT",
@@ -579,7 +558,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 mime="text/plain",
                 width="stretch"
             )
-        
+
         with download_col2:
             # HTML export with charts
             figures = []
@@ -589,13 +568,13 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 figures.append(visualizer.create_portfolio_heatmap(stock_risk_data))
             if not corr_matrix.empty:
                  figures.append(visualizer.create_correlation_heatmap(corr_matrix))
-            
+
             html_path = target_dir / report_filename.replace('.txt', '.html')
             visualizer.export_to_html(figures, str(result), html_path)
-            
+
             with open(html_path, 'r', encoding='utf-8') as f:
                 html_content = f.read()
-            
+
             st.download_button(
                 label="🌐 Download HTML",
                 data=html_content,
@@ -603,7 +582,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 mime="text/html",
                 width="stretch"
             )
-        
+
         with download_col3:
             # CSV export (data only)
             csv_data = df.to_csv(index=False)
@@ -614,7 +593,7 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
                 mime="text/csv",
                 width="stretch"
             )
-    
+
     except Exception as e:
         # Mark job as failed
         st.session_state.job_manager.fail_job(job_id, str(e))
@@ -624,57 +603,57 @@ def run_analysis(df: pd.DataFrame, filename: str, max_parallel: int):
             pass
         status_text.text("")
         detail_text.text("")
-        
+
         # User-friendly error messages
         error_msg = str(e).lower()
-        
+
         if "rate limit" in error_msg or "429" in error_msg:
             st.error("⏱️ **Rate Limit Reached**")
             st.warning("""
             The API rate limit has been exceeded. This happens when making too many requests in a short time.
-            
+
             **What you can do:**
             - Wait 1-2 minutes and try again
             - Reduce the number of concurrent stocks in the sidebar (try 2-3 instead of 5)
             - Analyze smaller portfolios at a time
-            
+
             **Technical details:** The Google Gemini API has usage limits to prevent abuse.
             """)
-        
+
         elif "api" in error_msg and ("key" in error_msg or "auth" in error_msg):
             st.error("🔑 **API Authentication Error**")
             st.warning("""
             There's an issue with your API credentials.
-            
+
             **What you can do:**
             - Check that your `.env` file contains a valid `GOOGLE_API_KEY`
             - Verify your API key is active at https://makersuite.google.com/app/apikey
             - Make sure the key hasn't expired
             """)
-        
+
         elif "connection" in error_msg or "network" in error_msg:
             st.error("🌐 **Network Connection Error**")
             st.warning("""
             Unable to connect to the API services.
-            
+
             **What you can do:**
             - Check your internet connection
             - Try again in a few moments
             - Check if a firewall is blocking the connection
             """)
-        
+
         elif "portfolio" in error_msg or "csv" in error_msg:
             st.error("📊 **Portfolio Data Error**")
             st.warning(f"""
             There's an issue with the portfolio data.
-            
+
             **Error details:** {str(e)}
-            
+
             **What you can do:**
             - Verify your CSV has the required columns: Symbol, Company Name
             - Ensure symbols are valid (e.g. RELIANCE.NS)
             """)
-        
+
         else:
              st.error(f"❌ Analysis Failed: {str(e)}")
              logger.error(f"Unknown analysis error: {e}")
