@@ -39,7 +39,10 @@ try:
         fetch_subha_muhurtham_tool,
         analyze_traditional_calendar_tool,
         fetch_historical_context_tool,
-        generate_sector_heatmap_tool
+        generate_sector_heatmap_tool,
+        fetch_options_skew_tool,
+        calculate_mtc_score_tool,
+        detect_institutional_absorption_tool
     )
 except ImportError as e:
     import sys
@@ -136,25 +139,18 @@ def create_portfolio_manager_agent():
 def create_news_scraper_agent():
     """
     Agent B: Market Impact Strategist (Formerly News Scraper)
-    Uses a Hybrid Funnel strategies: Macro Search -> Global Cues -> Official Data -> Specific News.
+    Elite Upgrade: Uses Quadratic Regime Mapping (Goldilocks/Reflation/Stagflation/Deflation).
     """
     llm = get_gemini_llm()
     return Agent(
         role="Market Impact Strategist",
-        goal="Monitor macro events, global cues (Crude/Gold), corporate actions, and news to identify multi-layered impacts.",
+        goal="Orchestrate macro strategy by mapping the global 'Quadratic Regime' and identifying interest-rate sensitive risks.",
         backstory=(
-            "You are a hedge fund strategist who anticipates ripples. You know that fog "
-            "grounds planes (Aviation) and strikes halt deliveries (Logistics). "
-            "You triangulate data following the 'Governance Heartbeat' protocol (Rule #8): \n"
-            "1. Macro Events (via Search) \n"
-            "2. Global Cues (Crude/Indices) \n"
-            "3. Official Data (NSE Corporate Actions) \n"
-            "4. News Media (Moneycontrol). \n"
-            "You connect these dots to find risks others miss, while ensuring every maneuver is visible in HIL Mission Control.\n"
-            "CRITICAL: EFFICIENCY IS KEY. usage limits apply.\n"
-            "1. Run 'Search Market News' ONCE for top headlines.\n"
-            "2. Run 'Global Cues' ONCE.\n"
-            "3. Synthesize immediately. DO NOT loop looking for more."
+            "You are a top-tier hedge fund strategist. You don't just 'scrape news'; you 'map regimes.' "
+            "You categorize the market into one of four quadrants (Goldilocks, Reflation, Stagflation, Deflation) "
+            "by triangulating VIX, DXY, and 10Y Yields. Your 'brain' is trained to see interest-rate ripples "
+            "before they hit the stock price. You follow the 'Governance Heartbeat' protocol but with an "
+            "elite layer of macro-causality. You tell the team what the 'vibe' of the market is, and why."
         ),
         tools=[
             search_market_news,
@@ -162,10 +158,11 @@ def create_news_scraper_agent():
             get_corporate_actions,
             scrape_general_market_news,
             batch_scrape_news,
-            announce_regime_tool, # NEW
-            log_pivot_tool,        # NEW
-            check_accounting_fraud, # INTEGRITY SHIELD
-            fetch_economic_calendar_tool
+            announce_regime_tool,
+            log_pivot_tool,
+            check_accounting_fraud,
+            fetch_economic_calendar_tool,
+            calculate_portfolio_risk_tool # Re-added for cross-functional support
         ],
         verbose=True,
         max_iter=MAX_ITERATIONS,
@@ -202,21 +199,26 @@ def create_sentiment_analyzer_agent():
 def create_market_context_agent():
     """
     Agent D: Technical Market Analyst (Formerly Market Context)
-    Refocused on Technicals (Price Action) to complement the Strategist's Fundamentals.
+    Elite Upgrade: Multi-Timeframe Concordance (MTC) and Volume Profile Anchoring.
     """
     llm = get_gemini_llm()
     return Agent(
         role="Technical Market Analyst",
-        goal="Analyze Nifty/BankNifty Price Action, Trends, and Support/Resistance Levels",
+        goal="Confirm high-conviction entries using Multi-Timeframe Concordance (15m, 1h, Day) and Volume Points of Control.",
         backstory=(
-            "You are a Chartered Market Technician (CMT). You don't care about the news; "
-            "you care about the Price. You analyze Charts, Trends, and Levels. "
-            "You tell us WHERE the market can go based on structure, while the Strategist "
-            "tells us WHY."
+            "You are a CMT trained in 'Concordance Scanning.' You believe a breakout on the Daily chart "
+            "is a trap unless it is confirmed by the 1-hour and 15-minute flows. You focus on 'Institutional "
+            "Footprints'—zones with the highest volume (POC)—rather than just lines on a chart. "
+            "You provide the 'Structural High Ground' for the team, filtering out 90% of retail noise."
         ),
-        tools=[analyze_market_context, batch_get_stock_data, detect_technical_patterns_tool],
+        tools=[
+            analyze_market_context,
+            batch_get_stock_data,
+            detect_technical_patterns_tool,
+            calculate_mtc_score_tool # NEW ELITE SKILL
+        ],
         verbose=True,
-        max_iter=3, # Ultra strict limit for rate limiting
+        max_iter=3,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -246,18 +248,18 @@ def create_report_generator_agent():
 def create_shadow_analyst_agent():
     """
     Agent G: Shadow Analyst
-    Tracks "Smart Money" vs "Retail Sentiment" (Contrarian Logic).
+    Elite Upgrade: Institutional Fingerprinting and Options Gamma Squeeze Detection.
     """
     llm = get_gemini_llm()
     return Agent(
         role="Institutional Shadow Analyst",
-        goal="Detect Market Traps (Accumulation/Distribution) by comparing Sentiment vs Flow.",
+        goal="Detect stealth institutional flows using Volume-at-Price (VAP) and Options Gamma Skew to expose retail traps.",
         backstory=(
-            "You are a forensic market detective. You look for DIVERGENCES. "
-            "If Sentiment is PANIC but Block Deals are BUYING, you scream 'ACCUMULATION'. "
-            "You are the deeper truth behind the noise. "
-            "CRITICAL: You follow Rule #8. Always verify the 'Governance Eye' heartbeat before synthesizing sentiment vs flow. "
-            "You have a MEMORY. Always check if you were wrong last time before shouting."
+            "You are a forensic market detective who specializes in 'Fingerprinting.' "
+            "You search for 'Dead Zones' where retail is panicking but large blocks are being "
+            "silently absorbed. You also track the 'Gamma Wall'—identifying where market makers "
+            "will force a squeeze. You are the ultimate contrarian brain of the team, "
+            "trained to see the 'Shadow' behind the price action."
         ),
         tools=[
             analyze_sector_flow_tool,
@@ -267,7 +269,9 @@ def create_shadow_analyst_agent():
             read_past_predictions_tool,
             save_prediction_tool,
             log_pivot_tool,
-            fetch_fii_dii_flow_tool
+            fetch_fii_dii_flow_tool,
+            fetch_options_skew_tool,         # NEW ELITE SKILL
+            detect_institutional_absorption_tool # NEW ELITE SKILL
         ],
         verbose=True,
         max_iter=5, # Strict limit to prevent loops

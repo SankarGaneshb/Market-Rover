@@ -35,6 +35,8 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 # Expose Cloud Run port
 EXPOSE 8080
 ENV PORT=8080
+# Set PYTHONPATH so internal imports from root (scripts, agents) work
+ENV PYTHONPATH=/app
 
 # Run from /app/backend so 'src' is findable
 WORKDIR /app/backend
