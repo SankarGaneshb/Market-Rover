@@ -208,7 +208,10 @@ def main():
             "📅 Trading Calendar",
             "🕵️ Shadow Tracker",
             "---",
-            "👤 Investor Profile"
+            "🧠 Agent Brain",
+            "---",
+            "👤 Investor Profile",
+            "⚙️ System Health"
         ]
 
         # Determining Valid Options based on User Status
@@ -273,7 +276,7 @@ def main():
             label_visibility="hidden"
         )
 
-        # Skin in the Game – contextual shortcut (below Shadow Tracker in nav)
+        # Skin in the Game – contextual shortcut
         st.markdown("---")
         st.link_button(
             "🛡️ Skin in the Game",
@@ -308,7 +311,7 @@ def main():
     if selection.startswith("👤 Investor Profile"):
         show_profiler_tab()
 
-    if selection.startswith("📤 Portfolio Analysis"):
+    elif selection.startswith("📤 Portfolio Analysis"):
         show_portfolio_analysis_tab(max_parallel)
 
     elif selection.startswith("🔍 Market Analysis"):
@@ -323,8 +326,12 @@ def main():
     elif selection.startswith("🕵️ Shadow Tracker"):
         show_shadow_tracker_tab()
 
-    elif selection.startswith("👤 Investor Profile"):
-        show_profiler_tab()
+    elif selection.startswith("🧠 Agent Brain"):
+        show_brain_tab()
+
+    elif selection.startswith("⚙️ System Health"):
+        show_system_health_tab()
+
 
 
 if __name__ == "__main__":
