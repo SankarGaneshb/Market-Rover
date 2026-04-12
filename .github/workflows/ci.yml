@@ -143,11 +143,11 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check . || echo "⚠️ Code formatting issues found. Run 'black .' locally."
+        black --check . || echo "[Black] Code formatting issues found. Run 'black .' locally."
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only . || echo "⚠️ Import sorting issues found. Run 'isort .' locally."
+        isort --check-only . || echo "[isort] Import sorting issues found. Run 'isort .' locally."
 
     - name: Notify HIL on Failure
       if: failure()
