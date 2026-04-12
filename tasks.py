@@ -39,6 +39,8 @@ def create_market_strategy_task(agent, context):
     """
     return Task(
         description=dedent("""
+            **REGIME CHECK**: IF VIX > 22, **DECLARE REGIME: DEFENSIVE**.
+
             Execute the 'Elite Macro Mapping' protocol to identify the market's current Quadratic Regime:
 
             **QUADRATIC REGIME DIAGNOSTICS**:
@@ -97,6 +99,11 @@ def create_technical_analysis_task(agent, context):
         description=dedent("""
             Analyze the Technical structure of the market using 'Concordance Scanning':
 
+            **DYNAMIC TOOL USAGE & REGIME ADAPTATION**:
+            1. IF REGIME = DEFENSIVE:
+                - **IGNORE all 'Breakout' signals** unless backed by extreme Institutional Absorption.
+                - Focus exclusively on 'Mean Reversion' around the POC.
+
             **MTC PROTOCOL (Multi-Timeframe Concordance)**:
             1. **Step 1**: Identify the Daily Trend (Primary).
             2. **Step 2**: Check 1-hour and 15-min price action.
@@ -125,13 +132,16 @@ def create_shadow_analysis_task(agent, context):
     """
     return Task(
         description=dedent("""
-            Perform a 'Forensic Fingerprint' scan by looking for Institutional Footprints:
+            Perform a 'Forensic Fingerprint' scan looking for Institutional Footprints.
+
+            **MEMORY CHECK**: Use `read_past_predictions_tool` to recall your previous analysis.
 
             **FINGERPRINTING PROTOCOL**:
             1. **Search for Absorption**: Is the stock in a 'High Volume, Low Volatility' zone? This is the fingerprint of stealth institutional buying.
             2. **Options Gamma Wall**: Identify the Call/Put strike with the highest Open Interest.
-               - If price is approaching a major Call strike, warn of a 'Gamma Trap' where price will be pinned.
             3. **Contrarian Check**: If Sentiment is EXTREME PANIC but technical POC is holding, issue a **SHADOW ACCUMULATION ALERT**.
+
+            **MEMORIZE**: Use `save_prediction_tool` to store your final forensic stance.
 
             **Mission**: Distinguish between 'Retail Noise' and 'Institutional Intent'.
         """),
