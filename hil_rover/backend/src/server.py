@@ -137,6 +137,37 @@ async def get_stats():
 async def health():
     return {"status": "healthy"}
 
+@app.post("/api/requests")
+async def create_request(request: Request):
+    """
+    Experimental: Allows external systems (like CI) to push an HIL request.
+    """
+    try:
+        new_data = await request.json()
+
+        # Validation
+        if not new_data.get("agent_name") or not new_data.get("task_name"):
+            return JSONResponse(status_code=400, content={"error": "Missing agent_name or task_name"})
+
+        requests_list = load_requests()
+
+        # Generate ID if missing
+        if not new_data.get("id"):
+            new_data["id"] = f"EXT-{int(time.time())}"
+
+        if not new_data.get("status"):
+            new_data["status"] = "PENDING"
+
+        if not new_data.get("created_at"):
+            new_data["created_at"] = datetime.now(timezone.utc).isoformat()
+
+        requests_list.append(new_data)
+        save_requests(requests_list)
+
+        return {"status": "success", "id": new_data["id"]}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
 # 3. STATIC ASSETS
 if os.path.exists(os.path.join(DIST_PATH, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(DIST_PATH, "assets")), name="assets")

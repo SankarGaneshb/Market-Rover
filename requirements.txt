@@ -18,9 +18,9 @@ seaborn>=0.13.2
 Pillow>=11.3.0
 
 # Data, Analytics & Scraping
-pandas>=2.3.0
-numpy>=2.2.0
-scipy>=1.16.3
+pandas>=2.2.2
+numpy>=2.1.0
+scipy>=1.15.2
 yfinance>=0.2.66
 nselib>=1.9
 nsepython>=2.97
@@ -36,4 +36,4 @@ protobuf>=4.25.3
 PyYAML>=6.0.1
 Requests>=2.32.3
 httpx>=0.28.1
-aiohttp>=3.13.0
+aiohttp>=3.11.0
