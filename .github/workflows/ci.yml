@@ -5,10 +5,14 @@ on:
     branches: [ main, develop ]
     paths-ignore:
       - 'investbrand/**'
+      - 'pledge_rover/**'
+      - 'hil_rover/**'
   pull_request:
     branches: [ main, develop ]
     paths-ignore:
       - 'investbrand/**'
+      - 'pledge_rover/**'
+      - 'hil_rover/**'
   schedule:
     # 03:30 UTC = 09:00 AM IST (Monday to Friday)
     - cron: '30 3 * * 1-5'
