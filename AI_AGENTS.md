@@ -179,11 +179,12 @@ The following agents run autonomously within the InvestBrand Node.js backend usi
     *   Provides actionable "developer fix" suggestions in the logs.
     *   **HIL Escalation**: Routes complex governance or system critical decisions to the standalone **HIL Rover Console** (React-based) for human review.
 *   **KPIs:**
-    *   **Deployment Stability Score:** Target >95% success rate for CI/CD runs.
-    *   **Automated Guardrail Integrity:** 0 syntax/lint errors reaching the build stage (linked to `.pre-commit-config.yaml`).
-    *   **TTR (Time To Resolution):** <30 mins for production hotfixes.
+    *   **Deployment Stability Score:** Target >98.5% success rate for CI/CD runs.
+    *   **Automated Guardrail Integrity:** 100% Pass Rate for `scripts/build_integrity_check.py`.
+    *   **TTR (Time To Resolution):** <15 mins for production hotfixes (Autonomous SRE Mode).
 *   **Incident History (Context):**
-    *   **2026-04-11 (Pledge-Rover):** Successfully resolved 16-failure deployment sequence by hardening Docker WORKDIR and StaticFiles mounting logic. Added to the agent's "Common Failure Patterns" database.
+    *   **2026-04-12 (Global Build Failure Cluster):** Successfully resolved 10+ concurrent failures across Core, HIL, and Pledge modules. Hardened infrastructure via UTF-8 enforcement and modular CI isolation.
+    *   **2026-04-11 (Pledge-Rover):** Successfully resolved 16-failure deployment sequence by hardening Docker WORKDIR.
 
 ### 13. Brand Puzzle Agent (PuzzleAgent)
 *   **Source:** `investbrand/backend/src/agents/puzzleAgent.js`
