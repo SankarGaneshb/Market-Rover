@@ -59,9 +59,9 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Build & Push Container
-        working-directory: hil_rover
         run: |
-          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          gcloud builds submit . --config hil_rover/cloudbuild.yaml --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} || \
+          gcloud builds submit . --dockerfile hil_rover/Dockerfile --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         run: |

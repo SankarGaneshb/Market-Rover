@@ -2,10 +2,10 @@
 FROM node:22-bullseye AS frontend-builder
 
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
+COPY hil_rover/frontend/package*.json ./
 RUN npm ci
 
-COPY frontend/ .
+COPY hil_rover/frontend/ .
 RUN npm run build
 
 # Stage 2: Build the FastAPI Backend
@@ -14,7 +14,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install Backend Dependencies
-COPY backend/requirements.txt ./backend/
+COPY hil_rover/backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy root dependencies needed for agents
@@ -24,7 +24,7 @@ COPY utils/ ./utils/
 COPY scripts/ ./scripts/
 
 # Copy entire backend directory
-COPY backend/ ./backend/
+COPY hil_rover/backend/ ./backend/
 
 # Create data directory for persistent logs
 RUN mkdir -p /app/data && chmod 777 /app/data
