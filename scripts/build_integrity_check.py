@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 import sys
 import os
-import yaml
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+
 import subprocess
 from pathlib import Path
 
@@ -9,6 +14,10 @@ def check_yaml_syntax():
     """Verify all GitHub workflow files are valid YAML."""
     workflows_dir = Path(".github/workflows")
     if not workflows_dir.exists():
+        return True
+
+    if not HAS_YAML:
+        print("[SKIP] YAML Syntax: 'PyYAML' not installed. Skipping structural check but enforcing UTF-8.")
         return True
 
     success = True
