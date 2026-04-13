@@ -9,6 +9,7 @@ function App() {
   const [brainData, setBrainData] = useState(null);
   const [kpiData, setKpiData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState(() => Date.now());
   const [activeTab, setActiveTab] = useState('governance');
 
   const fetchData = async () => {
@@ -35,9 +36,14 @@ function App() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
     const interval = setInterval(fetchData, 10000); // Poll every 10s
-    return () => clearInterval(interval);
+    const timeInterval = setInterval(() => setNow(Date.now()), 60000); // Update stable time every minute
+    return () => {
+      clearInterval(interval);
+      clearInterval(timeInterval);
+    };
   }, []);
 
   const handleDecision = async (id, decision) => {
@@ -48,7 +54,7 @@ function App() {
         body: JSON.stringify({ decision, comments: "Processed via Governance Portal" })
       });
       fetchData();
-    } catch (error) {
+    } catch {
       alert('Failed to process request');
     }
   };
@@ -62,7 +68,7 @@ function App() {
       <header className="header" style={{ marginBottom: '1rem' }}>
         <div className="title-group">
           <h1>HIL MISSION CONTROL</h1>
-          <p className="timestamp">System Time: {new Date().toLocaleTimeString()} IST</p>
+          <p className="timestamp">System Time: {new Date(now).toLocaleTimeString()} IST</p>
         </div>
         <div className="agent-badge">Operational Status: Optimal</div>
       </header>
@@ -112,7 +118,7 @@ function App() {
             ) : (
               <div className="request-grid">
                 {pendingRequests.map(req => {
-                  const age = Date.now() - new Date(req.created_at).getTime();
+                  const age = now - new Date(req.created_at).getTime();
                   const isUrgent = age > (18 * 60 * 60 * 1000);
 
                   return (
