@@ -18,6 +18,12 @@ env:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
+    env:
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: Invest123
+      DB_HOST: localhost
+      DB_PORT: 5432
     services:
       postgres:
         image: postgres:15
