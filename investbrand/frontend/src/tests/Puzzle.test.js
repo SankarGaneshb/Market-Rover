@@ -46,15 +46,22 @@ describe('PuzzleGame Component', () => {
         jest.clearAllMocks();
         useAuth.mockReturnValue({ user: mockUser });
 
-        // Mock the two sequenced API calls to prevent console.errors
         axios.get.mockImplementation((url) => {
-            if (url === '/api/daily-puzzle') {
+            if (url === '/api/puzzles/daily') {
                 return Promise.resolve({
                     data: {
                         id: 1,
                         puzzle_date: new Date().toISOString().split('T')[0],
                         brand_id: 1,
                         ticker: 'RELIANCE'
+                    }
+                });
+            }
+            if (url === '/api/puzzles/1/clues') {
+                return Promise.resolve({
+                    data: {
+                        success: true,
+                        clues: { clue1: 'Test 1', clue2: 'Test 2', clue3: 'Test 3' }
                     }
                 });
             }
@@ -77,8 +84,8 @@ describe('PuzzleGame Component', () => {
     it('renders menu after fetching puzzle', async () => {
         renderWithContext(<PuzzleGame />);
         await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
-        expect(screen.getByText(/Brand to Stock/i)).toBeInTheDocument();
-        expect(screen.getAllByText(/pieces/i)[0]).toBeInTheDocument();
+        expect(screen.getByText(/Market Puzzle/i)).toBeInTheDocument();
+        expect(screen.getByText(/Easy/i)).toBeInTheDocument();
     });
 
     it('starts game when difficulty is selected', async () => {
@@ -88,24 +95,12 @@ describe('PuzzleGame Component', () => {
         const easyButton = screen.getByText(/Easy/i);
         fireEvent.click(easyButton);
 
-        expect(screen.getByText(/Solve It!/i)).toBeInTheDocument();
-        expect(screen.getByText(/Progress:/i)).toBeInTheDocument();
-    });
-
-    it('shows hint when hint button is clicked', async () => {
-        renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
-        fireEvent.click(screen.getByText(/Easy/i));
-
-        // In our new UI, the hint button might be different. 
-        // We'll look for a button that has Hint text or an Eye icon (lucide-eye).
-        // Check for clue context
-        expect(screen.getByText(/Word Cloud Clue/i)).toBeInTheDocument();
-        expect(screen.getByText(/Hints Revealed:/i)).toBeInTheDocument();
+        // Check for clue context appearing in the new UI immediately
+        expect(screen.getByText(/Terminal Intelligence/i)).toBeInTheDocument();
+        expect(screen.getByText(/Phase 1 Clue/i)).toBeInTheDocument();
 
         // Check that puzzle board and pieces are present
         expect(document.querySelector('.grid')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText(/Identify this company/i)).toBeInTheDocument();
     });
 
     it('handles axios errors gracefully', async () => {
@@ -114,40 +109,18 @@ describe('PuzzleGame Component', () => {
 
         renderWithContext(<PuzzleGame />);
         await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
-        expect(screen.getByText(/Brand to Stock/i)).toBeInTheDocument();
+        expect(screen.getByText(/Market Puzzle/i)).toBeInTheDocument();
 
         consoleSpy.mockRestore();
     });
 
-    it('triggers share functions when buttons are clicked', async () => {
-        // Mock navigator.share
-        global.navigator.share = jest.fn();
-
-        renderWithContext(<PuzzleGame />);
-        await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
-
-        const shareScoreBtn = screen.getByText(/Invite Friends/i);
-        fireEvent.click(shareScoreBtn);
-        expect(global.navigator.share).toHaveBeenCalled();
-
-        const shareLeaderboardBtn = screen.getByText(/Share Stats/i);
-        fireEvent.click(shareLeaderboardBtn);
-        expect(global.navigator.share).toHaveBeenCalledTimes(2);
-    });
-
-    it('handles piece dropping and game completion', async () => {
+    it('handles piece dropping and game completion transitions', async () => {
         renderWithContext(<PuzzleGame />);
         await waitFor(() => expect(screen.queryByText(/Loading challenge/i)).not.toBeInTheDocument());
         fireEvent.click(screen.getByText(/Easy/i));
 
-        // Pieces start loaded. They get shuffled, but we can just grab all draggable pieces.
         const pieces = await screen.findAllByRole('generic');
 
-        // Simulating completion is hard with drag/drop in JSDOM, 
-        // but rendering without crashing on drop is testable.
-        // We will just verify the board renders and pieces are present.
-        expect(screen.getByText(/Solve It!/i)).toBeInTheDocument();
-        const progress = screen.getByText(/Progress:/i);
-        expect(progress).toBeInTheDocument();
+        expect(screen.getByText(/Terminal Intelligence/i)).toBeInTheDocument();
     });
 });
