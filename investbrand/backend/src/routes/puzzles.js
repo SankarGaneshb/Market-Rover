@@ -44,47 +44,49 @@ router.get('/daily', async (req, res, next) => {
       );
 
       let chosenBrandId = null;
-      if (voteResult.rows[0]) {
-        chosenBrandId = voteResult.rows[0].brand_id;
-      }
+      let finalVoteCount = 0;
 
-      if (chosenBrandId) {
-        // PRIORITY 1: Look for a NEW puzzle for the voted brand
-        result = await pool.query(
-          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-           FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
-          [chosenBrandId]
+      if (voteResult.rows.length > 0) {
+        // MULTI-TIER DEMOCRATIC POOL: Check top 5 voted brands for fresh content
+        const topVotes = await pool.query(
+          `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
+           FROM puzzle_votes
+           WHERE vote_date = $1
+           GROUP BY brand_id
+           ORDER BY vote_count DESC, first_vote ASC
+           LIMIT 5`,
+          [today]
         );
-        puzzleMatch = result.rows[0];
 
-        // PRIORITY 2: If exhausted, RECYCLE the least-recent puzzle for the same voted brand
-        if (!puzzleMatch) {
-          logger.info(`Puzzles: Community voted for ${chosenBrandId} but all assets played. Recycling least-recent puzzle.`);
-          result = await pool.query(
+        for (const vote of topVotes.rows) {
+          const freshPuzzle = await pool.query(
             `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-             FROM puzzles WHERE brand_id = $1 ORDER BY scheduled_date ASC NULLS FIRST LIMIT 1`,
-            [chosenBrandId]
+             FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL LIMIT 1`,
+            [vote.brand_id]
           );
-          puzzleMatch = result.rows[0];
+
+          if (freshPuzzle.rows[0]) {
+            puzzleMatch = freshPuzzle.rows[0];
+            chosenBrandId = vote.brand_id;
+            finalVoteCount = parseInt(vote.vote_count, 10);
+            finalSelectionMethod = 'voted';
+            logger.info(`Puzzles: Community vote honored for brand ${chosenBrandId} (Rank #${topVotes.rows.indexOf(vote) + 1} with ${finalVoteCount} votes).`);
+            break;
+          } else {
+            logger.warn(`Puzzles: Community voted for brand ${vote.brand_id} but no fresh assets available. Checking next rank...`);
+          }
         }
       }
 
-      // Fall back to a random puzzle if no votes or no puzzle found for the voted brand_id
+      // Fall back to a random puzzle ONLY if no voted brands have fresh content
       if (!puzzleMatch) {
-        // It's a lucky draw because no community vote could select it
+        logger.info('Puzzles: No voted brands have fresh content or no votes cast. Falling back to Lucky Draw.');
         result = await pool.query(
           `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
            FROM puzzles
            WHERE scheduled_date IS NULL
            ORDER BY RANDOM() LIMIT 1`
         );
-        // If all puzzles have been scheduled, just pick a random one
-        if (!result.rows[0]) {
-          result = await pool.query(
-            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-               FROM puzzles ORDER BY RANDOM() LIMIT 1`
-          );
-        }
         puzzleMatch = result.rows[0];
       }
 
