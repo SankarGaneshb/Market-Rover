@@ -39,6 +39,20 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+
+      - name: Notify HIL - Build Started
+        run: |
+          MSG="[IN-PROGRESS] InvestBrand API Build #${{ github.run_number }} has started. Initializing environment and database tests..."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Backend Deploy\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"pending\",
+              \"data\": { \"service\": \"investbrand-api\", \"action\": \"DEPLOY_START\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
       - name: Sync Brand Data to Backend
         run: |
           mkdir -p investbrand/backend/src/data
@@ -147,6 +161,20 @@ jobs:
         working-directory: investbrand/frontend
     steps:
       - uses: actions/checkout@v4
+
+      - name: Notify HIL - UI Build Started
+        run: |
+          MSG="[IN-PROGRESS] InvestBrand UI Build #${{ github.run_number }} has started. Optimizing assets and preparing Cloud Run deployment..."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Frontend Deploy\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"pending\",
+              \"data\": { \"service\": \"investbrand-ui\", \"action\": \"DEPLOY_START\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
