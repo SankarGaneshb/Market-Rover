@@ -212,7 +212,7 @@ router.post('/track-click', async (req, res) => {
   }
 });
 
-// GET /api/puzzles — paginated list
+// GET /api/puzzles - paginated list
 router.get('/', async (req, res) => {
   const pool = getPool();
   const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -234,7 +234,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/puzzles/:id/complete — save game result (authenticated)
+// POST /api/puzzles/:id/complete - save game result (authenticated)
 router.post('/:id/complete', authenticate, async (req, res) => {
   const pool = getPool();
   const puzzleId = parseInt(req.params.id);
@@ -318,7 +318,7 @@ router.post('/:id/complete', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/puzzles/:id/feedback — save simple puzzle/logo feedback (authenticated)
+// POST /api/puzzles/:id/feedback - save simple puzzle/logo feedback (authenticated)
 router.post('/:id/feedback', authenticate, async (req, res) => {
   const puzzleId = parseInt(req.params.id);
   const userId = req.user.id;
@@ -346,7 +346,7 @@ router.post('/:id/feedback', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/puzzles/:id/insight — dynamically fetches Teacher Agent context (authenticated)
+// GET /api/puzzles/:id/insight - dynamically fetches Teacher Agent context (authenticated)
 router.get('/:id/insight', authenticate, async (req, res) => {
   const puzzleId = parseInt(req.params.id);
   const userId = req.user.id;
@@ -374,7 +374,7 @@ router.get('/:id/insight', authenticate, async (req, res) => {
   }
 });
 
-// GET/POST /api/puzzles/:id/clues — Gets the dynamic word cloud and clues
+// GET/POST /api/puzzles/:id/clues - Gets the dynamic word cloud and clues
 router.all('/:id/clues', authenticate, async (req, res) => {
   const puzzleId = parseInt(req.params.id);
   const logoSvg = req.body?.logoSvg || req.query?.logoSvg;

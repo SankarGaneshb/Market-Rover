@@ -55,7 +55,7 @@ function generateMergedPuzzleSvg(ticker, companyName, wordCloudStr) {
 
     // Dashboard Header
     svg += `<text x="40" y="70" fill="#f8fafc" font-family="Arial, sans-serif" font-size="52" font-weight="900">${currentPrice} <tspan font-size="20" fill="#94a3b8" font-weight="400">INR</tspan></text>`;
-    svg += `<text x="40" y="105" fill="${successColor}" font-family="Arial, sans-serif" font-size="20" font-weight="bold">+${diff.toFixed(2)} (${percentChange}%) <tspan fill="#64748b" font-weight="400">↑ ALL TIME</tspan></text>`;
+    svg += `<text x="40" y="105" fill="${successColor}" font-family="Arial, sans-serif" font-size="20" font-weight="bold">+${diff.toFixed(2)} (${percentChange}%) <tspan fill="#64748b" font-weight="400">^ ALL TIME</tspan></text>`;
 
     // Time selectors
     const selectors = ['1D', '5D', '1M', '6M', 'YTD', '1Y', '5Y', 'MAX'];

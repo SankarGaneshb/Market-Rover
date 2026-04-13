@@ -31,12 +31,12 @@ async function generateInitialClues(companyName, ticker, sector) {
 
       1. DO NOT mention the company name, its ticker, exact founder names, or the exact year of establishment.
       2. Keep it completely anonymous.
-      3. clue1 MUST describe the sector name and a generic stock price range (e.g. 'Sector: IT. Stock Price Range: ₹1000 - ₹2000').
+      3. clue1 MUST describe the sector name and a generic stock price range (e.g. 'Sector: IT. Stock Price Range: Rs. 1000 - Rs. 2000').
 
       Your output MUST be a valid JSON object matching exactly this schema:
       {
         "wordCloud": "A comma separated string of 5-7 thematic words/concepts related to the company's geography, iconic products, or loosely to its founders (e.g. 'Electronic City, Outsourcing, Banyan, Hub')",
-        "clue1": "Sector name and stock price range (e.g. 'Sector: Energy. Stock Price Range: ₹2500 - ₹3000').",
+        "clue1": "Sector name and stock price range (e.g. 'Sector: Energy. Stock Price Range: Rs. 2500 - Rs. 3000').",
         "clue2": "A medium difficulty hint focusing on product lines or thematic dominance.",
         "clue3": "An easy difficulty hint focusing on its most famous characteristic or geographical origin."
       }
