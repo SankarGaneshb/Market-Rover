@@ -1,6 +1,6 @@
 """
 Social Authentication Manager for Market-Rover.
-Iron-clad implementation: Rounds-trip persistence, zero artifacts, absolute reliability.
+Open Access implementation: Anyone with a social account can login instantly.
 """
 import streamlit as st
 import httpx
@@ -9,7 +9,7 @@ from streamlit_oauth import OAuth2Component
 
 logger = logging.getLogger(__name__)
 
-# THE DEFINITIVE HTML TRAY - Moved here to prevent indentation issues
+# THE DEFINITIVE HTML TRAY - Zero Indent for perfect rendering
 LOGIN_HTML_TEMPLATE = '<div style="display:block;text-align:center;width:100%;font-family:sans-serif;margin:30px 0;"><div style="font-size:13px;font-weight:700;color:#888;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:25px;">Sign in with</div><div style="display:inline-flex;justify-content:center;align-items:center;">{icon_html}</div></div>'
 
 class SocialAuthManager:
@@ -24,12 +24,6 @@ class SocialAuthManager:
                 if 'client_id' in settings and 'client_secret' in settings:
                      providers[p_name] = settings
         return providers
-
-    def is_user_allowed(self, email):
-        """Check if email is in the approved list. Empty list means Open Access."""
-        whitelist = self._config.get('approved_emails', [])
-        if not whitelist: return True
-        return email in whitelist
 
     def _normalize_profile(self, profile, provider):
         data = {'email': None, 'name': None, 'username': None, 'provider': provider}
@@ -51,20 +45,15 @@ class SocialAuthManager:
         if not data['name']: data['name'] = profile.get('display_name') or data['username'] or data['email']
         if not data['username']: data['username'] = data['email']
 
-        if self.is_user_allowed(data['email']):
-            return data
-        else:
-            st.warning(f"🚫 Access Denied: {data['email']} is not on the approved list.")
-            return None
+        # OPEN ACCESS: Automatically approve all social users
+        logger.info(f"✨ New Social Login: {data['name']} ({data['email']}) via {provider}")
+        return data
 
     def render_social_login_buttons(self):
         if not self.oauth_providers: return None
 
         # 1. Round-Trip Persistence logic
         trigger = st.query_params.get("login_trigger")
-        code = st.query_params.get("code")
-        state = st.query_params.get("state")
-
         if trigger:
             st.session_state['active_oauth_provider'] = trigger
             st.query_params.clear()
