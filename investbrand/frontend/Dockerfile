@@ -3,6 +3,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+ARG REACT_APP_GOOGLE_CLIENT_ID
+ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
+
 RUN npm run build
 
 FROM nginx:alpine
