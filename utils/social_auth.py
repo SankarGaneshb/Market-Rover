@@ -58,18 +58,9 @@ class SocialAuthManager:
         # 1. Capture the Round-Trip or Trigger
         trigger = st.query_params.get("login_trigger")
         if trigger and trigger in self.oauth_providers:
-            settings = self.oauth_providers[trigger]
-            c_id = settings.get('client_id', '')
-
-            # THE SAFETY SHIELD: Stop redirection if ID is still a test placeholder
-            if "test-id" in c_id.lower():
-                st.query_params.clear()
-                st.warning(f"🛡️ **Governance Check**: Identity Verification is currently pending for **{trigger.upper()}**. Please use **Google** for now.")
-                st.session_state.pop('active_oauth_provider', None)
-            else:
-                st.session_state['active_oauth_provider'] = trigger
-                st.query_params.clear()
-                st.rerun()
+            st.session_state['active_oauth_provider'] = trigger
+            st.query_params.clear()
+            st.rerun()
 
         active_provider = st.session_state.get('active_oauth_provider')
 
