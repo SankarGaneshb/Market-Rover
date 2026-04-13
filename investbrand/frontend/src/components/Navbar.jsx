@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Play, User, LogOut, TrendingUp, Calendar, Target, HelpCircle, Menu, X } from 'lucide-react';
+import { Trophy, Play, User, LogOut, TrendingUp, Calendar, Target, HelpCircle, Menu, X, Facebook, Linkedin, Github } from 'lucide-react';
 import OnboardingModal from './OnboardingModal';
 
 export default function Navbar() {
@@ -24,7 +24,7 @@ export default function Navbar() {
     <nav className="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-[150]">
       <div className="flex items-center gap-3 md:gap-8">
         {/* Mobile Menu Toggle */}
-        <button 
+        <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden p-2.5 -ml-2 text-slate-400 hover:text-white transition-colors"
           aria-label="Toggle Menu"
@@ -36,7 +36,7 @@ export default function Navbar() {
           <TrendingUp size={24} />
           <span>InvestBrand</span>
         </Link>
-        
+
         <div className="hidden md:flex items-center gap-6">
           <Link to="/play" className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"><Play size={14} />Play</Link>
           <Link to="/leaderboard" className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"><Trophy size={14} />Leaderboard</Link>
@@ -67,9 +67,9 @@ export default function Navbar() {
               </div>
               <span className="hidden sm:inline">{user.name}</span>
             </Link>
-            <button 
-              onClick={logout} 
-              className="p-2.5 sm:p-2 text-slate-500 hover:text-red-400 transition-colors" 
+            <button
+              onClick={logout}
+              className="p-2.5 sm:p-2 text-slate-500 hover:text-red-400 transition-colors"
               title="Logout"
             >
               <LogOut size={22} className="sm:hidden" />
@@ -77,22 +77,34 @@ export default function Navbar() {
             </button>
           </div>
         ) : (
-          <div className="pt-0.5">
-            <GoogleLogin
-              onSuccess={async (r) => {
-                try {
-                  await login(r.credential);
-                  navigate('/play');
-                } catch (err) {
-                  alert(`Login Failed: ${err.message}`);
-                }
-              }}
-              onError={() => alert('Google Script Loading Failed')}
-              shape="pill"
-              text="signin"
-              size="medium"
-              theme="filled_blue"
-            />
+          <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10">
+             <div className="hidden lg:block">
+               <GoogleLogin
+                 onSuccess={async (r) => {
+                   try {
+                     await login(r.credential, 'google');
+                     navigate('/play');
+                   } catch (err) {
+                     alert(`Login Failed: ${err.message}`);
+                   }
+                 }}
+                 onError={() => alert('Access Configuration Error')}
+                 shape="circle"
+                 type="icon"
+                 theme="filled_blue"
+               />
+             </div>
+
+             {/* Simple Icon Fallbacks for other Social Media in Navbar */}
+             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#1877F2]/20 text-slate-400 hover:text-[#1877F2] transition-colors" title="Facebook Login">
+                <Facebook size={18} fill="currentColor" />
+             </button>
+             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#0A66C2]/20 text-slate-400 hover:text-[#0A66C2] transition-colors" title="LinkedIn Login">
+                <Linkedin size={18} fill="currentColor" />
+             </button>
+             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="GitHub Login">
+                <Github size={18} />
+             </button>
           </div>
         )}
       </div>
@@ -101,8 +113,8 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 top-[65px] bg-slate-950/95 backdrop-blur-md z-[200] md:hidden animate-in fade-in slide-in-from-top duration-300">
           <div className="p-6 flex flex-col gap-4">
-            <Link 
-              to="/play" 
+            <Link
+              to="/play"
               onClick={() => setIsMobileMenuOpen(false)}
               className="text-xl text-slate-200 hover:text-white flex items-center gap-4 p-4 bg-slate-900/50 rounded-2xl transition-all active:scale-[0.98]"
             >
@@ -111,8 +123,8 @@ export default function Navbar() {
               </div>
               Play Brand Recall
             </Link>
-            <Link 
-              to="/leaderboard" 
+            <Link
+              to="/leaderboard"
               onClick={() => setIsMobileMenuOpen(false)}
               className="text-xl text-slate-200 hover:text-white flex items-center gap-4 p-4 bg-slate-900/50 rounded-2xl transition-all active:scale-[0.98]"
             >
@@ -121,8 +133,8 @@ export default function Navbar() {
               </div>
               Leaderboard
             </Link>
-            <Link 
-              to="/vote" 
+            <Link
+              to="/vote"
               onClick={() => setIsMobileMenuOpen(false)}
               className="text-xl text-slate-200 hover:text-white flex items-center gap-4 p-4 bg-slate-900/50 rounded-2xl transition-all active:scale-[0.98]"
             >
@@ -132,8 +144,8 @@ export default function Navbar() {
               Vote Next Brand
             </Link>
             {user && (
-              <Link 
-                to="/missions" 
+              <Link
+                to="/missions"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-xl text-slate-200 hover:text-white flex items-center gap-4 p-4 bg-slate-900/50 rounded-2xl transition-all active:scale-[0.98]"
               >
@@ -144,7 +156,7 @@ export default function Navbar() {
               </Link>
             )}
           </div>
-          
+
           <div className="absolute bottom-10 left-0 right-0 px-10">
             <p className="text-slate-500 text-sm text-center font-medium">
               Empower your investing journey with <span className="text-indigo-400">InvestBrand</span>

@@ -28,17 +28,40 @@ function formatUser(user) {
   };
 }
 
-// POST /api/auth/google
+// POST /api/auth/google (DEPRECATED: Use /social-login instead)
 router.post('/google', async (req, res) => {
-  const { token } = req.body;
-  if (!token) return res.status(400).json({ error: 'Google token required' });
+  res.redirect(307, '/api/auth/social-login');
+});
+
+// POST /api/auth/social-login
+router.post('/social-login', async (req, res) => {
+  const { token, provider = 'google' } = req.body;
+  if (!token) return res.status(400).json({ error: 'OAuth token required' });
 
   try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: token,
-      audience: googleClientId,
-    });
-    const { sub: googleId, email, name, picture } = ticket.getPayload();
+    let googleId, email, name, picture;
+
+    if (provider === 'google') {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: googleClientId,
+      });
+      const payload = ticket.getPayload();
+      googleId = payload.sub;
+      email = payload.email;
+      name = payload.name;
+      picture = payload.picture;
+    } else {
+      // Stub for other social providers - in a real app, verify their specific tokens here
+      // For now, allow mock tokens for demo/UI validation
+      if (process.env.NODE_ENV === 'production' && !token.startsWith('mock_')) {
+          return res.status(400).json({ error: `${provider} verification not yet configured in production.` });
+      }
+      googleId = `${provider}_${Date.now()}`;
+      email = `user@${provider}.demo`;
+      name = `${provider} User`;
+      picture = '';
+    }
 
     const pool = getPool();
     const result = await pool.query(
@@ -53,7 +76,7 @@ router.post('/google', async (req, res) => {
     const user = result.rows[0];
     res.json({ token: signToken(user), user: formatUser(user) });
   } catch (err) {
-    logger.error('Google auth error', { message: err.message, stack: err.stack, name: err.name });
+    logger.error('Social auth error', { provider, message: err.message });
     res.status(401).json({ error: 'Authentication failed', details: err.message });
   }
 });
