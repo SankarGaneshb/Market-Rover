@@ -184,6 +184,25 @@ async function runMigrations() {
     await client.query('CREATE INDEX IF NOT EXISTS idx_puzzles_date ON puzzles(scheduled_date)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_puzzle_votes_date ON puzzle_votes(vote_date)');
 
+    // 8. One-Time Production Reset for Tamil New Year (April 14, 2026)
+    // This ensures production data is cleaned exactly once upon deployment.
+    const resetCheck = await client.query("SELECT 1 FROM pg_tables WHERE tablename = 'tamil_new_year_reset_2026_done'");
+    if (resetCheck.rows.length === 0) {
+      logger.info('SRE: PRoduction Reset Triggered for Tamil New Year Fresh Start');
+      await client.query(`
+        TRUNCATE game_sessions, puzzle_votes, share_clicks, user_missions,
+                 user_strategy_tags, user_content_views, user_personas CASCADE
+      `);
+      await client.query(`
+        UPDATE users SET total_score = 0, best_score = 0, streak = 0, last_played = NULL
+      `);
+      await client.query(`
+        UPDATE puzzles SET scheduled_date = NULL, selection_method = 'lucky_draw'
+      `);
+      await client.query("CREATE TABLE tamil_new_year_reset_2026_done (id SERIAL PRIMARY KEY, reset_at TIMESTAMPTZ DEFAULT NOW())");
+      logger.info('SRE: Production Reset Successful.');
+    }
+
     logger.info('Database migrations completed');
   } catch (err) {
     logger.error('Migration failed', { error: err.message });
