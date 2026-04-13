@@ -15,11 +15,11 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
     Creates and runs the CrewAI 'Council of Experts' for a given SAST/LODR filing.
     Ingests mathematical scoring (Skin in Game %, Survival Score) to ground the debate.
     """
-    
+
     # Initialize Google Gemini LLM (Required to avoid OpenAI 401 fallback)
     gemini_llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash", 
-        verbose=True, 
+        model="gemini-1.5-flash",
+        verbose=True,
         temperature=0.3,
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )

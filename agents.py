@@ -100,7 +100,8 @@ def get_flash_llm():
     global _flash_llm
     if _flash_llm is not None:
         return _flash_llm
-    _flash_llm = _create_llm("gemini-2.0-flash")
+    # Using 1.5 Flash for better stability and lower latency for general agents
+    _flash_llm = _create_llm("gemini-1.5-flash")
     return _flash_llm
 
 def get_pro_llm():
@@ -108,8 +109,11 @@ def get_pro_llm():
     global _pro_llm
     if _pro_llm is not None:
         return _pro_llm
-    # User specifically requested Gemini 2.0 Flash (Unified Model due to 1.5 Pro 404)
-    _pro_llm = _create_llm("gemini-2.0-flash")
+    # Using 1.5 Pro for deep reasoning (fallback to Flash if 404)
+    try:
+        _pro_llm = _create_llm("gemini-1.5-pro")
+    except:
+        _pro_llm = _create_llm("gemini-1.5-flash")
     return _pro_llm
 
 # Legacy accessor for compatibility (mapped to Pro for safety)

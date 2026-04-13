@@ -13,7 +13,7 @@ from utils.social_auth import SocialAuthManager
 
 class AuthManager:
     """Manages user authentication and session state."""
-    
+
     def __init__(self):
         self._config = self._load_config()
         self.authenticator = self._init_authenticator()
@@ -34,7 +34,7 @@ class AuthManager:
         """Initialize the Steamlit Authenticator."""
         if not self._config:
             return None
-            
+
         try:
             # Reconstruct the config dictionary from secrets object
             # Streamlit secrets might need to be converted to a proper dict for the library
@@ -47,9 +47,9 @@ class AuthManager:
                     } for i in range(len(self._config['credentials']['usernames']))
                 }
             }
-            
+
             cookie = self._config['cookie']
-            
+
             # Create authenticator object
             # Using 'unsafe' hasher for demo purposes as we are storing plain text in secrets for now.
             # In production, use stauth.Hasher to hash passwords and store hashes.
@@ -74,30 +74,15 @@ class AuthManager:
         Returns:
             bool: True if authenticated, False otherwise.
         """
-        
+
         # 1. Check Session State first (Fast Return)
         if st.session_state.get('authentication_status'):
             return True
 
-        # 2. Render Traditional Login (if configured)
-        if self.authenticator:
-            try:
-                # Logo for Login Screen
-                try:
-                    st.image("assets/login_logo.png", width=300)
-                except:
-                    pass # Fail silently if image missing
-                
-                result = self.authenticator.login(location='main')
-                if st.session_state.get('authentication_status'):
-                    return True
-            except Exception as e:
-                st.error(f"Login widget error: {e}")
-
-        # 3. Render Social Login Buttons (Always render below traditional)
-        # Pass control to Social Manager
+        # 2. Render Social Login (Simplified to Icons Only)
+        # Pass control to Social Manager - Full width centering is handled internally
         social_user = self.social_auth.render_social_login_buttons()
-        
+
         if social_user:
             # Successful Social Login!
             st.session_state['authentication_status'] = True
@@ -107,18 +92,11 @@ class AuthManager:
             st.rerun() # Rerun to update UI state immediately
             return True
 
-        # 4. Final Fallback Message
+        # 3. Final Fallback Message
         if not st.session_state.get('authentication_status'):
-            if self.authenticator:
-                if st.session_state.get('authentication_status') is False:
-                    st.error('Username/password is incorrect')
-                elif st.session_state.get('authentication_status') is None:
-                    st.warning('Please enter your username and password')
-            else:
-                 # If no traditional auth, imply social only or config missing
-                 st.info("Please sign in.")
+            # Only show message if we are not authenticated
             return False
-            
+
         return False
 
     def logout_widget(self):
@@ -133,5 +111,5 @@ class AuthManager:
                 st.session_state['name'] = None
                 st.session_state['username'] = None
                 st.rerun()
-                
+
             st.sidebar.write(f"Welcome *{st.session_state.get('name')}*")

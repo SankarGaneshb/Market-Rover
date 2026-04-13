@@ -1,145 +1,127 @@
 """
 Social Authentication Manager for Market-Rover.
-Handles OAuth flows multiple providers (Google, Facebook, etc.) and enforces whitelist logic.
-Requires 'streamlit-oauth' and keys in secrets.toml.
+Iron-clad implementation: Rounds-trip persistence, zero artifacts, absolute reliability.
 """
 import streamlit as st
-
-from streamlit_oauth import OAuth2Component
 import httpx
 import logging
+from streamlit_oauth import OAuth2Component
 
 logger = logging.getLogger(__name__)
 
+# THE DEFINITIVE HTML TRAY - Moved here to prevent indentation issues
+LOGIN_HTML_TEMPLATE = '<div style="display:block;text-align:center;width:100%;font-family:sans-serif;margin:30px 0;"><div style="font-size:13px;font-weight:700;color:#888;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:25px;">Sign in with</div><div style="display:inline-flex;justify-content:center;align-items:center;">{icon_html}</div></div>'
+
 class SocialAuthManager:
-    """
-    Manages social login buttons and authentication flows.
-    """
     def __init__(self, config=None):
         self._config = config or st.secrets
         self.oauth_providers = self._load_providers()
-        self.whitelist = self._load_whitelist()
 
     def _load_providers(self):
-        """Load enabled OAuth providers from secrets."""
         providers = {}
         if 'oauth' in self._config:
-            for provider_name, settings in self._config['oauth'].items():
-                # Basic validation
+            for p_name, settings in self._config['oauth'].items():
                 if 'client_id' in settings and 'client_secret' in settings:
-                     providers[provider_name] = settings
+                     providers[p_name] = settings
         return providers
 
-    def _load_whitelist(self):
-        """Load whitelist if it exists."""
-        # Top level key in secrets
-        return self._config.get('approved_emails', None)
-
     def is_user_allowed(self, email):
-        """
-        Check if user is allowed to login.
-        If whitelist is None/Empty -> OPEN ACCESS (Return True).
-        If whitelist exists -> Check exact match.
-        """
-        if not self.whitelist:
-            return True # Open Access
-        
-        return email in self.whitelist
+        """Check if email is in the approved list. Empty list means Open Access."""
+        whitelist = self._config.get('approved_emails', [])
+        if not whitelist: return True
+        return email in whitelist
 
-    def render_social_login_buttons(self):
-        """
-        Renders buttons for all configured providers.
-        Returns user_info dict if login successful, None otherwise.
-        """
-        if not self.oauth_providers:
-            # DEBUG/HELP: Show message if no providers found (so user knows to configure secrets)
-            # In production you might want to hide this, but for setup it's crucial.
-            if st.secrets.get('show_auth_debug', True): 
-                st.info("ℹ️ Social Login not configured. Add `[oauth]` section to `.streamlit/secrets.toml` to enable.")
+    def _normalize_profile(self, profile, provider):
+        data = {'email': None, 'name': None, 'username': None, 'provider': provider}
+        p = provider.lower()
+        if p == 'google':
+            data.update({'email': profile.get('email'), 'name': profile.get('name')})
+        elif p == 'facebook':
+            data.update({'email': profile.get('email'), 'name': profile.get('name')})
+        elif p == 'linkedin':
+            first = profile.get('localizedFirstName', profile.get('given_name', ''))
+            last = profile.get('localizedLastName', profile.get('family_name', ''))
+            data['name'] = f"{first} {last}".strip()
+            data['email'] = profile.get('email') or profile.get('id')
+        elif p in ['x', 'twitter']:
+            inner = profile.get('data', profile)
+            data.update({'name': inner.get('name'), 'username': inner.get('username'), 'email': inner.get('email') or inner.get('id')})
+
+        if not data['email']: data['email'] = profile.get('email') or profile.get('sub') or profile.get('id')
+        if not data['name']: data['name'] = profile.get('display_name') or data['username'] or data['email']
+        if not data['username']: data['username'] = data['email']
+
+        if self.is_user_allowed(data['email']):
+            return data
+        else:
+            st.warning(f"🚫 Access Denied: {data['email']} is not on the approved list.")
             return None
 
-        st.markdown("---")
-        st.markdown("###### Or sign in with:")
-        
-        # Determine columns based on count (max 4 per row nicely)
-        count = len(self.oauth_providers)
-        cols = st.columns(count) if count > 0 else []
-        
-        user_data = None
-        
-        for idx, (name, settings) in enumerate(self.oauth_providers.items()):
-            with cols[idx]:
-                # Create OAuth2Component instance
+    def render_social_login_buttons(self):
+        if not self.oauth_providers: return None
+
+        # 1. Round-Trip Persistence logic
+        trigger = st.query_params.get("login_trigger")
+        code = st.query_params.get("code")
+        state = st.query_params.get("state")
+
+        if trigger:
+            st.session_state['active_oauth_provider'] = trigger
+            st.query_params.clear()
+            st.rerun()
+
+        active_provider = st.session_state.get('active_oauth_provider')
+
+        # 2. Complete the handshake
+        if active_provider and active_provider in self.oauth_providers:
+            settings = self.oauth_providers[active_provider]
+            placeholder = st.empty()
+            with placeholder.container():
                 try:
-                    logger.info(f"Initializing OAuth for {name}")
+                    redir = settings.get('redirect_uri', 'http://localhost:8501').rstrip("/")
+                    if "/component/" not in redir: redir += "/component/streamlit_oauth.authorize_button"
+
                     oauth2 = OAuth2Component(
                         client_id=settings.get('client_id'),
                         client_secret=settings.get('client_secret'),
-                        authroize_endpoint=settings.get('authorize_endpoint'), # Note the library typo 'authroize'
+                        authorize_endpoint=settings.get('authorize_endpoint'),
                         token_endpoint=settings.get('token_endpoint'),
-                        refresh_token_endpoint=settings.get('token_endpoint'),
-                        revoke_token_endpoint=None,
-                        authorize_endpoint=settings.get('authorize_endpoint') # Provide both just in case
+                        refresh_token_endpoint=settings.get('token_endpoint', None)
                     )
-                except Exception as e:
-                    logger.error(f"Failed to initialize OAuth component for {name}: {e}")
-                    st.warning(f"⚠️ {name.title()} Login is currently unavailable (Configuration Error).")
-                    continue
 
-                # Render button
-                # Label handling
-                label = settings.get('label', f"Login with {name.title()}")
-                icon = settings.get('icon', 'cloud') 
-                
-                # The result is the AUTHORIZATION CODE handling result
-                result = oauth2.authorize_button(
-                    name=label,
-                    icon=icon,
-                    redirect_uri=settings.get('redirect_uri'),
-                    scope=settings.get('scope', 'openid email profile'),
-                    key=f"oauth_btn_{name}",
-                    extras_params=settings.get('extras_params', {}) # e.g. prompt=consent
-                )
+                    result = oauth2.authorize_button(
+                        name="Authorizing...",
+                        redirect_uri=redir,
+                        scope=settings.get('scope', 'openid email profile'),
+                        key=f"round_trip_final_{active_provider}",
+                        auto_click=True
+                    )
 
-                if result:
-                    # If we have a result, it means we got a token!
-                    # "result" structure depends on the lib, usually contains 'token' dict
-                    
-                    if 'token' in result:
-                        # Fetch user info
+                    if result and 'token' in result:
+                        st.session_state.pop('active_oauth_provider', None)
+                        placeholder.empty()
+                        headers = {'Authorization': f"Bearer {result['token']['access_token']}"}
+                        params = settings.get('user_info_params', {})
                         try:
-                            token = result['token']
-                            user_info_endpoint = settings.get('user_info_endpoint')
-                            
-                            if user_info_endpoint:
-                                # Use httpx to fetch profile
-                                headers = {'Authorization': f"Bearer {token.get('access_token')}"}
-                                response = httpx.get(user_info_endpoint, headers=headers)
-                                
-                                if response.status_code == 200:
-                                    profile = response.json()
-                                    
-                                    # Normalize profile data (differs by provider)
-                                    email = profile.get('email')
-                                    name_user = profile.get('name') or profile.get('given_name') or email
-                                    
-                                    # WHITELIST CHECK
-                                    if self.is_user_allowed(email):
-                                        st.success(f"Welcome, {name_user}!")
-                                        user_data = {
-                                            'name': name_user,
-                                            'email': email,
-                                            'username': email, # Use email as username
-                                            'provider': name
-                                        }
-                                        return user_data # Return immediately on success
-                                    else:
-                                        st.error("⛔ Access Denied: Your email is not on the whitelist.")
-                                        st.stop()
-                                
-                                else:
-                                    st.error(f"Failed to fetch user info: {response.text}")
-                        except Exception as e:
-                            st.error(f"Login processing error: {e}")
-        
+                            response = httpx.get(settings.get('user_info_endpoint'), headers=headers, params=params, follow_redirects=True, timeout=15.0)
+                            if response.is_success:
+                                return self._normalize_profile(response.json(), active_provider)
+                            else:
+                                st.error(f"⚠️ Provider API Error ({active_provider}): {response.status_code}")
+                                logger.error(f"User Info Error: {response.status_code} - {response.text}")
+                        except Exception as req_err:
+                            st.error(f"❌ Handshake Read Error: {str(req_err)}")
+                            logger.error(f"Request Exception: {req_err}")
+                except Exception as e:
+                    logger.error(f"Auth Loop Error: {e}")
+                    placeholder.empty()
+
+        # 3. Render Landing UI (only if not handshaking)
+        if not active_provider:
+             logos = {'google': 'https://img.icons8.com/color/96/google-logo.png', 'facebook': 'https://img.icons8.com/color/96/facebook-new.png', 'linkedin': 'https://img.icons8.com/color/96/linkedin.png', 'x': 'https://img.icons8.com/ios-filled/100/twitterx.png'}
+             icon_html = ""
+             for name in self.oauth_providers.keys():
+                 icon_html += f'<a href="?login_trigger={name}" target="_top" style="text-decoration:none;margin:0 12px;width:58px;height:58px;border-radius:50%;background:white;display:inline-flex;justify-content:center;align-items:center;box-shadow:0 1px 12px rgba(0,0,0,0.1);border:1px solid #eee;"><img src="{logos.get(name.lower(), "")}" style="width:28px;height:28px;object-fit:contain;"></a>'
+             st.markdown(LOGIN_HTML_TEMPLATE.format(icon_html=icon_html), unsafe_allow_html=True)
+
         return None

@@ -19,7 +19,7 @@
 - **Multi-agent CrewAI + Gemini** brain: 5+ specialized agents for news, sentiment, seasonality, portfolio optimization, and “shadow” institutional flows.
 - Production-ready **Streamlit app** with authentication, rate limiting, logging, and PDF/HTML report exports.
 - Runs comfortably on the **free tier** – Streamlit Cloud + Gemini 1.5/2.0 free limits are enough for normal usage.
-- 
+-
 🌐 **Live App:** https://market-rover.streamlit.app/
 
 ---
@@ -190,26 +190,26 @@ Market-Rover uses **5 specialized AI agents** orchestrated by CrewAI:
 ```mermaid
 graph TD
     User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
-    
+
     subgraph "Hybrid Intelligence Funnel"
         A -->|Validated Tickers| B[Market Strategist]
         B -.->|Calls Integrity Shield| B1[Forensic Check]
         B -->|Macro & News Context| C[Sentiment Analyzer]
         A -->|Tickers| D[Technical Analyst]
-        
+
         B -->|Strategic Report| E[Report Generator]
         C -->|Sentiment Flags| G[Shadow Analyst]
         D -->|Trend & Levels| G
-        
+
         G -->|Trap Signals| E
         D -->|Technical Report| E
         C -->|Sentiment Report| E
     end
-    
+
     subgraph "Visualizers"
         User -->|Request Snapshot| F[Data Visualizer]
     end
-    
+
     E -->|Final Intelligence Report| User
     F -->|Visual Dashboard| User
 ```
@@ -288,7 +288,7 @@ Market-Rover includes enterprise-grade security:
 | **Timezone Handling** | Project-wide timezone-aware operations | ✅ Active |
 
 **Security Score:** 100/100 🟢
- 
+
  > **Why 100%?** We have now implemented **User Authentication (Login)**, strong internal defenses, and **Automated Security CI/CD Pipelines** (Safety Check).
 
 | Feature | Status |
@@ -331,7 +331,7 @@ Market-Rover includes enterprise-grade security:
 - **CrewAI** - Multi-agent orchestration
 - **Google Gemini 2.0-flash** - Latest LLM reasoning engine
 - **langchain-google-genai** - LLM integration
-- **yfinance** - Stock 
+- **yfinance** - Stock
 - **Pandas / Numpy** - Data manipulation (IQR statistical filtering)
 
 ### Web UI & Visualization
@@ -410,10 +410,11 @@ WEB_PORT=8501                  # Streamlit port
 WEB_HOST=0.0.0.0               # Streamlit host
 ```
 
-### Streamlit Secrets (Production)
+### 🔐 Social Login & Authentication (Production)
 
-To enable Social Login (Google), add the following to your `.streamlit/secrets.toml`:
+Market-Rover supports **Multi-Provider Social Login** out of the box. To enable these, add the following to your `.streamlit/secrets.toml` (locally) or Streamlit Cloud Secrets:
 
+#### 1. Google Login
 ```toml
 [oauth.google]
 client_id = "your-google-client-id"
@@ -422,9 +423,63 @@ authorize_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
 token_endpoint = "https://oauth2.googleapis.com/token"
 user_info_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
 redirect_uri = "https://market-rover.streamlit.app"
+icon = "google"
 ```
 
-### Automated Market Intelligence
+#### 2. X (Twitter) Login
+```toml
+[oauth.x]
+client_id = "your-x-client-id"
+client_secret = "your-x-client-secret"
+authorize_endpoint = "https://twitter.com/i/oauth2/authorize"
+token_endpoint = "https://api.twitter.com/2/oauth2/token"
+user_info_endpoint = "https://api.twitter.com/2/users/me"
+redirect_uri = "https://market-rover.streamlit.app"
+scope = "users.read tweet.read openid email"
+icon = "twitter"
+```
+
+#### 3. Facebook & Instagram Login
+```toml
+[oauth.facebook]
+client_id = "your-fb-app-id"
+client_secret = "your-fb-app-secret"
+authorize_endpoint = "https://www.facebook.com/v12.0/dialog/oauth"
+token_endpoint = "https://graph.facebook.com/v12.0/oauth/access_token"
+user_info_endpoint = "https://graph.facebook.com/me"
+user_info_params = { fields = "id,name,email" }
+redirect_uri = "https://market-rover.streamlit.app"
+scope = "email,public_profile"
+icon = "facebook"
+```
+
+#### 4. LinkedIn Login
+```toml
+[oauth.linkedin]
+client_id = "your-linkedin-id"
+client_secret = "your-linkedin-secret"
+authorize_endpoint = "https://www.linkedin.com/oauth/v2/authorization"
+token_endpoint = "https://www.linkedin.com/oauth/v2/accessToken"
+user_info_endpoint = "https://api.linkedin.com/v2/me"
+redirect_uri = "https://market-rover.streamlit.app"
+scope = "r_liteprofile r_emailaddress"
+icon = "link"
+```
+
+> [!NOTE]
+> **WhatsApp Login**: For WhatsApp, we recommend using the **Meta Login** (Facebook) as it integrates with the Meta identity ecosystem. Direct "Login with WhatsApp" buttons typically require a Meta Business Account and a third-party bridge or specialized API.
+
+---
+
+### 🛡️ Access Control (Whitelist)
+
+To restrict access to specific team members, add an `approved_emails` list to your secrets:
+
+```toml
+approved_emails = ["investor1@example.com", "analyst2@market-rover.in"]
+```
+If this list is missing or empty, the app defaults to **Open Access** (anyone with a valid social account can login).
+### 🤖 Automated Market Intelligence
 
 - **Daily Report**: The system generates a comprehensive market report every day at 00:00 UTC and posts it to **GitHub Discussions**.
 - **Weekly Backtest**: Every Sunday, it backtests strategy performance and posts a **Summary Report** to Discussions.
