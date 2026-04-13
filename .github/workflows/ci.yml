@@ -171,5 +171,4 @@ jobs:
             \"task_name\": \"Market-Rover CI Failure\",
             \"instructions\": \"$MSG\",
             \"data\": { \"service\": \"market-rover\", \"action\": \"CI_TEST_FAILURE\", \"build_id\": \"${{ github.run_number }}\", \"workflow\": \"ci.yml\" }
-          }" || \
-        python scripts/sre_emergency_fallback.py "Market-Rover CI Failure" "$MSG"
+          }" || python scripts/sre_emergency_fallback.py "Market-Rover CI Failure" "$MSG"
