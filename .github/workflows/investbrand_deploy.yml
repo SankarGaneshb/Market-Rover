@@ -95,21 +95,21 @@ jobs:
 
       - name: Notify HIL on Failure
         if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          MSG="InvestBrand API Deployment failed. Build ID: ${{ github.run_number }}. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          # Try HIL Dashboard first
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
-            -d '{
-              "agent_name": "SRE Support",
-              "task_name": "InvestBrand Backend Deploy Failure",
-              "instructions": "InvestBrand API Deployment failed. Build ID: ${{ github.run_number }}. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.",
-              "data": {
-                "service": "investbrand-api",
-                "action": "DEPLOY_FAILURE",
-                "build_id": "${{ github.run_number }}",
-                "repo": "${{ github.repository }}",
-                "workflow": "investbrand_deploy.yml"
-              }
-            }'
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Backend Deploy Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"investbrand-api\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || \
+          # FALLBACK: Create GitHub Issue if HIL is unreachable
+          python scripts/sre_emergency_fallback.py "InvestBrand Backend Deploy Failure" "$MSG"
 
 
   deploy-frontend:
@@ -162,18 +162,18 @@ jobs:
 
       - name: Notify HIL on Failure
         if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          MSG="InvestBrand UI Deployment failed. Build ID: ${{ github.run_number }}. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          # Try HIL Dashboard first
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
-            -d '{
-              "agent_name": "SRE Support",
-              "task_name": "InvestBrand Frontend Deploy Failure",
-              "instructions": "InvestBrand UI Deployment failed. Build ID: ${{ github.run_number }}. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.",
-              "data": {
-                "service": "investbrand-ui",
-                "action": "DEPLOY_FAILURE",
-                "build_id": "${{ github.run_number }}",
-                "repo": "${{ github.repository }}",
-                "workflow": "investbrand_deploy.yml"
-              }
-            }'
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Frontend Deploy Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"investbrand-ui\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || \
+          # FALLBACK: Create GitHub Issue if HIL Dashboard is unreachable
+          python scripts/sre_emergency_fallback.py "InvestBrand Frontend Deploy Failure" "$MSG"

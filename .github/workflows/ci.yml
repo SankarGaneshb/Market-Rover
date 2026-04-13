@@ -159,18 +159,18 @@ jobs:
 
     - name: Notify HIL on Failure
       if: failure()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+        MSG="Market-Rover CI Build #${{ github.run_number }} failed on Python 3.13. Review the logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+        # Try HIL Dashboard first
+        curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
           -H "Content-Type: application/json" \
-          -d '{
-            "agent_name": "SRE Support",
-            "task_name": "Market-Rover CI Failure",
-            "instructions": "CI Build #${{ github.run_number }} failed on Python 3.13. Review the logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} and approve remediation.",
-            "data": {
-              "service": "market-rover",
-              "action": "CI_TEST_FAILURE",
-              "build_id": "${{ github.run_number }}",
-              "repo": "${{ github.repository }}",
-              "workflow": "ci.yml"
-            }
-          }'
+          -d "{
+            \"agent_name\": \"SRE Support\",
+            \"task_name\": \"Market-Rover CI Failure\",
+            \"instructions\": \"$MSG\",
+            \"data\": { \"service\": \"market-rover\", \"action\": \"CI_TEST_FAILURE\", \"build_id\": \"${{ github.run_number }}\", \"workflow\": \"ci.yml\" }
+          }" || \
+        # FALLBACK: Create GitHub Issue if HIL is unreachable
+        python scripts/sre_emergency_fallback.py "Market-Rover CI Failure" "$MSG"

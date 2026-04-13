@@ -74,18 +74,18 @@ jobs:
 
       - name: Notify HIL on Failure
         if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          MSG="HIL-Rover Deploy #${{ github.run_number }} failed. Review build logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          # Try the primary HIL Dashboard first
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
-            -d '{
-              "agent_name": "SRE Support",
-              "task_name": "HIL-Rover Deploy Failure",
-              "instructions": "HIL-Rover Deploy #${{ github.run_number }} failed. Review build logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.",
-              "data": {
-                "service": "hil-rover",
-                "action": "DEPLOY_FAILURE",
-                "build_id": "${{ github.run_number }}",
-                "repo": "${{ github.repository }}",
-                "workflow": "hil_rover_deploy.yml"
-              }
-            }'
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"HIL-Rover Deploy Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"hil-rover\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || \
+          # FALLBACK: Create GitHub Issue if HIL Dashboard is unreachable
+          python scripts/sre_emergency_fallback.py "HIL-Rover Deploy Failure" "$MSG"
