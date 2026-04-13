@@ -3,7 +3,7 @@ name: Deploy InvestCraft
 on:
   push:
     branches: [investcraft]
-    paths: ['investcraft/**']
+    paths: ['investbrand/**']
 
 env:
   PROJECT_ID: market-rover
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: investcraft/backend
+        working-directory: investbrand/backend
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -37,14 +37,14 @@ jobs:
     needs: deploy-backend
     defaults:
       run:
-        working-directory: investcraft/frontend
+        working-directory: investbrand/frontend
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
-      
+
       - name: Prep Nginx Proxy & Env
         run: |
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
@@ -57,3 +57,23 @@ jobs:
           gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated
+
+  notify-hil-failure:
+    name: Notify HIL Governance
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: failure()
+    steps:
+      - name: Send HIL Incident Report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MSG="⚠️ Investbrand Deployment Failure! Build #${{ github.run_number }} failed. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Investbrand Build Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"investbrand\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
