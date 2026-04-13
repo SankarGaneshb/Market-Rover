@@ -147,7 +147,7 @@ jobs:
               \"task_name\": \"InvestBrand Backend Deploy Failure\",
               \"instructions\": \"$MSG\",
               \"data\": { \"service\": \"investbrand-api\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
-            }\" || python scripts/sre_emergency_fallback.py \"InvestBrand Backend Deploy Failure\" \"$MSG\"
+            }" || python scripts/sre_emergency_fallback.py "InvestBrand Backend Deploy Failure" "$MSG"
 
 
   deploy-frontend:
@@ -240,4 +240,4 @@ jobs:
               \"task_name\": \"InvestBrand Frontend Deploy Failure\",
               \"instructions\": \"$MSG\",
               \"data\": { \"service\": \"investbrand-ui\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
-            }\" || python scripts/sre_emergency_fallback.py \"InvestBrand Frontend Deploy Failure\" \"$MSG\"
+            }" || python scripts/sre_emergency_fallback.py "InvestBrand Frontend Deploy Failure" "$MSG"
