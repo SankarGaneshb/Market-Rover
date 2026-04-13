@@ -99,6 +99,20 @@ jobs:
             --quiet
           gcloud run jobs execute investbrand-seeder --region ${{ env.REGION }} --wait || echo "Seeder job failed, check Cloud Run logs for details."
 
+      - name: Notify HIL on Success
+        if: success()
+        run: |
+          MSG="[SUCCESS] InvestBrand API Deployment landed safely! Build ID: ${{ github.run_number }}. Service is now live at us-central1."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Backend Deploy Success\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"completed\",
+              \"data\": { \"service\": \"investbrand-api\", \"action\": \"DEPLOY_SUCCESS\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
       - name: Notify HIL on Failure
         if: failure()
         env:
@@ -165,6 +179,20 @@ jobs:
           gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated
+
+      - name: Notify HIL on Success
+        if: success()
+        run: |
+          MSG="[SUCCESS] InvestBrand UI Deployment landed safely! Build ID: ${{ github.run_number }}. Frontend is updated and live."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"InvestBrand Frontend Deploy Success\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"completed\",
+              \"data\": { \"service\": \"investbrand-ui\", \"action\": \"DEPLOY_SUCCESS\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
 
       - name: Notify HIL on Failure
         if: failure()
