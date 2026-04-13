@@ -89,3 +89,18 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --port 8080
+
+      - name: Notify HIL on Failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MSG="⚠️ Pledge-Rover Deployment Failure! Build #${{ github.run_number }} failed. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Pledge-Rover Build Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"pledge-rover\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
