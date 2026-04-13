@@ -1,297 +1,81 @@
-# 🤖 Market Rover AI Agent Architecture
+# 🤖 Market-Rover Agentic AI Constitution
 
-This document serves as the **Single Source of Truth** for the Agentic AI system within Market Rover. It details the roles, responsibilities, capabilities, and interactions of each agent in the `CrewAI` assembly.
-
-> **MAINTENANCE NOTE:** This file must be updated whenever changes are made to `agents.py` or `tasks.py`.
+This document serves as the **Single Source of Truth** for the Agentic AI system within Market Rover. It details the roles, responsibilities, capabilities, and interactions of every agent in the ecosystem.
 
 ---
 
 ## 🧠 The Hybrid Intelligence Funnel
-The agents operate in a sequential pipeline designed to mimic a hedge fund's decision-making process:
-`Portfolio Manager` -> `Strategist` -> `Sentiment` -> `Technical` -> `Shadow Analyst` -> `Report Writer`
-
-```mermaid
-graph TD
-    User((User)) -->|Uploads Portfolio| A[Portfolio Manager]
-
-    subgraph "Hybrid Intelligence Funnel"
-        A -->|Validated Tickers| B[Market Strategist]
-        B -->|Macro & News Context| C[Sentiment Analyzer]
-        A -->|Tickers| D[Technical Analyst]
-
-        B -->|Strategic Report| E[Report Generator]
-        C -->|Sentiment Flags| G[Shadow Analyst]
-        D -->|Trend & Levels| G
-
-        G -->|Trap Signals| E
-        D -->|Technical Report| E
-        C -->|Sentiment Report| E
-    end
-
-    subgraph "Visualizers"
-        User -->|Request Snapshot| F[Data Visualizer]
-    end
-
-    E -->|Final Intelligence Report| User
-    F -->|Visual Dashboard| User
-```
+The agents operate in a high-fidelity pipeline mimicking a hedge fund's decision-making process:
+`Portfolio Manager` -> `Strategist` -> `Sentiment` -> `Technical Analyst` -> `Shadow Analyst` -> `Report Writer`.
 
 ---
 
-## 🕵️ Headless Execution (Automated Reports)
-
-While agents typically respond to user clicks, the **Report Generator** and **Strategist** agents also run in **Headless Mode** via GitHub Actions to generate:
-1.  **Daily Market Intelligence**: Runs `rover_tools/generate_daily_report.py`.
-2.  **Weekly Strategy Backtest**: Runs `rover_tools/batch_backtester.py`.
-
-These workflows execute the same agent logic but output directly to **GitHub Discussions** instead of the Streamlit UI.
+## 🕵️ Headless Execution (Automated Governance)
+Beyond user interaction, the **Strategist** and **SRE Agents** maintain the system autonomously through:
+1.  **Daily Market Intelligence**: Automated logic posting to GitHub Discussions.
+2.  **Federated Satellite Monitoring**: Real-time failure alerts from **Investbrand** and **Pledge-Rover** sent to the HIL Dashboard.
 
 ---
 
-## 🕵️ Agent Roster
+## 🕵️ Agent Roster (Core & Satellite)
 
-### 1. Portfolio Manager (Agent A)
-*   **Source:** `agents.py` -> `create_portfolio_manager_agent`
-*   **Role:** The Gatekeeper
-*   **Goal:** Read and process the user's stock portfolio to ensure accurate tracking.
-*   **Key Responsibilities:**
-    *   Reads `.csv` portfolio inputs.
-    *   Standardizes symbols (e.g., appending `.NS` for NSE).
-    *   Validates data integrity before passing it downstream.
-*   **Tools:** `read_portfolio`
+### 1-6. Core Analysis Crew
+*Orchestrated by Gemini 1.5-Flash (Production Standard).* 🟢
+*   **Portfolio Manager**: The Gatekeeper. Validates tickers and standardizes inputs.
+*   **Market Strategist**: The Macro-Economist. Monitors global cues (Crude, Gold, Nasdaq) and corporate actions.
+*   **Sentiment Analyzer**: The Psychologist. Classifies news as Positive/Negative/Neutral.
+*   **Technical Analyst**: The Technician. Focuses purely on Price Action, Support, and Resistance.
+*   **Shadow Analyst**: The Forensic Detective. Compares Sentiment vs. Order Flow to detect **Bull/Bear Traps**.
+*   **Report Writer**: The Editor. Synthesizes all inputs into the final Intelligence Report.
 
-### 2. Market Impact Strategist (Agent B)
-*   **Source:** `agents.py` -> `create_news_scraper_agent`
-*   **Role:** The Macro-Economist
-*   **Goal:** Identify multi-layered market risks by monitoring macro events, global cues, and specific news.
-*   **Key Responsibilities:**
-    *   **Macro Scan:** Checks Crude, Gold, Nasdaq, and USD/INR.
-    *   **Official Data:** Monitors Board Meetings, Results, and Dividends.
-    *   **Funnel Logic:** Connects global events to portfolio stocks (e.g., "Crude up -> Paints down").
-*   **Tools:**
-    *   `search_market_news` (Macro)
-    *   `get_global_cues` (Indices/Commodities)
-    *   `get_corporate_actions` (Official NSE data)
-    *   `batch_scrape_news` (Portfolio specific)
-
-### 3. Sentiment Analysis Expert (Agent C)
-*   **Source:** `agents.py` -> `create_sentiment_analyzer_agent`
-*   **Role:** The Psychologist
-*   **Goal:** Quantify market emotion (Fear vs. Greed).
-*   **Key Responsibilities:**
-    *   Classifies news sentiment as Positive, Negative, or Neutral.
-    *   **Critical Output:** Flags "Extreme Sentiment" (Panic/Euphoria) which is the primary input for the Shadow Analyst's trap detection.
-*   **Tools:** *Reasoning only context-aware Agent*
-
-### 4. Technical Market Analyst (Agent D)
-*   **Source:** `agents.py` -> `create_market_context_agent`
-*   **Role:** The CMT (Chartered Market Technician)
-*   **Goal:** Analyze Price Action, Trends, and Levels.
-*   **Key Responsibilities:**
-    *   Ignores news entirely; focuses only on the Chart.
-    *   Determines Trend (Uptrend/Downtrend) and Support/Resistance.
-    *   Provides the "Where" to the Strategist's "Why".
-*   **Tools:**
-    *   `analyze_market_context`
-    *   `batch_get_stock_data`
-
-### 5. Institutional Shadow Analyst (Agent G)
-*   **Source:** `agents.py` -> `create_shadow_analyst_agent`
-*   **Role:** The Forensic Detective
-*   **Goal:** Detect Market Traps (Accumulation/Distribution) by comparing Sentiment vs. Flow.
-*   **Key Responsibilities:**
-    *   **Silent Accumulation:** Detects when Retail is fearful (Sentiment) but Smart Money is buying (Block Deals/Support).
-    *   **Bull Traps:** Detects when Retail is euphoric but Price is hitting resistance.
-    *   Uses 'Trap Indicators' to find divergences.
-*   **Tools:**
-    *   `analyze_sector_flow_tool`
-    *   `fetch_block_deals_tool`
-    *   `batch_detect_accumulation`
-    *   `get_trap_indicator_tool`
-
-### 6. Intelligence Report Writer (Agent E)
-*   **Source:** `agents.py` -> `create_report_generator_agent`
-*   **Role:** The Editor
-*   **Goal:** Synthesize all insights into a comprehensive weekly report.
-*   **Key Responsibilities:**
-    *   Aggregates the "Intelligence Mesh" (Strategy + Technicals + Shadow).
-    *   Produces the actionable Executive Summary and Risk Highlights.
-    *   Formats the output for the Streamlit UI.
-*   **Tools:** *Reasoning only context-aware Agent*
-
-### 7. Market Data Visualizer (Agent F)
-*   **Source:** `agents.py` -> `create_visualizer_agent`
-*   **Role:** The Artist
-*   **Goal:** Generate premium visual dashboards.
-*   **Key Responsibilities:**
-    *   Creates visual market snapshots (Charts).
-    *   Visualizes Volatility and Option Chains.
+### 7-11. Satellite & SRE Crew
+*Orchestrated by Gemini 1.5-Flash and Node.js.*
+*   **Investbrand Puzzle Agent**: Generates the "Brand to Stock" gamified challenges.
+*   **Adaptive Teacher**: Contextualizes gameplay with micro-learning insights.
+*   **Operational SRE Support**: Intercepts runtime exceptions and routes critical failures to the **HIL Mission Control**.
 
 ---
 
-## 🎮 InvestBrand Agent Roster (Node.js/LangChain)
+## 📜 Global Agent Rules (Governance Framework)
 
-The following agents run autonomously within the InvestBrand Node.js backend using `@langchain/google-genai` to drive personalized gamification and micro-learning.
+### 1. The Batch Imperative
+*   **Rule**: Never iterate through stocks sequentially. Always use `Batch Tools`.
+*   **Reason**: Performance and token efficiency.
 
-### 8. Contextual Profiler Agent
-*   **Source:** `investbrand/backend/src/agents/profilerAgent.js`
-*   **Role:** The Assessor
-*   **Goal:** Determine user financial literacy through gameplay behavior.
-*   **Key Responsibilities:**
-    *   Analyzes the user's historical portfolio votes (defensive, cyclical, speculative).
-    *   Generates a Persona Tag (e.g., "Yield Hunter") and a Reading Level (beginner, intermediate, advanced).
-    *   Saves this profile to adapt future interactions.
-
-### 9. Adaptive Gamemaster Agent
-*   **Source:** `investbrand/backend/src/agents/gamemasterAgent.js`
-*   **Role:** The Orchestrator
-*   **Goal:** Keep players engaged with dynamic, procedurally generated daily challenges.
-*   **Key Responsibilities:**
-    *   Reads the user's latest voting patterns via PostgreSQL.
-    *   Formulates a counter-strategy or expansion mission (e.g., if a user votes exclusively on IT, it challenges them to research FMCG).
-    *   Enforces strict JSON schema output for seamless React UI ingestion.
-
-### 10. Contextual Teacher Agent
-*   **Source:** `investbrand/backend/src/agents/teacherAgent.js`
-*   **Role:** The Educator
-*   **Goal:** Contextualize gameplay with real-world financial literacy without blocking the user.
-*   **Key Responsibilities:**
-    *   Triggers ephemerally via `/api/puzzles/:id/insight` exactly when a puzzle is solved.
-    *   Reads the user's `user_personas.reading_level`.
-    *   Generates a 2-sentence micro-learning insight about the specific corporate brand (e.g. debt-to-equity ratio vs simple analogies).
-
-### 11. Quality Control Agent (Moderator)
-*   **Source:** `investbrand/backend/src/agents/qcAgent.js`
-*   **Role:** The Auditor
-*   **Goal:** Maintain visual and functional integrity of the game assets.
-*   **Key Responsibilities:**
-    *   Scans `puzzle_feedback` for "blurry" or "wrong" logo reports.
-    *   Autonomously disables broken puzzles by setting `is_active = false`.
-    *   Flags difficulty imbalances for manual adjustment.
-
-### 12. Operational Support Agent (SRE)
-*   **Source:** `investbrand/backend/src/agents/opsSupportAgent.js`
-*   **Role:** The System Guardian
-*   **Goal:** Intercept and analyze runtime exceptions to prevent system failure.
-*   **Key Responsibilities:**
-    *   Injected into the global `errorHandler` middleware.
-    *   Parses stack traces using Gemini to identify root causes (Database, API, Logic).
-    *   Provides actionable "developer fix" suggestions in the logs.
-    *   **HIL Escalation**: Routes complex governance or system critical decisions to the standalone **HIL Rover Console** (React-based) for human review.
-*   **KPIs:**
-    *   **Deployment Stability Score:** Target >98.5% success rate for CI/CD runs.
-    *   **Regressive Build Prevention:** Target 100%. Zero encoding or syntax regressions reaching `origin/main` (Enforced by `scripts/build_integrity_check.py`).
-    *   **Satellite Autonomy Score:** Target >99%. Independence of HIL/Pledge/InvestBrand deployments from core build failures.
-    *   **TTR (Time To Resolution):** <15 mins for production hotfixes (Autonomous SRE Mode).
-*   **Incident History (Context):**
-    *   **2026-04-12 (Global Build Failure Cluster):** Successfully resolved 10+ concurrent failures across Core, HIL, and Pledge modules. Hardened infrastructure via UTF-8 enforcement and modular CI isolation.
-    *   **2026-04-11 (Pledge-Rover):** Successfully resolved 16-failure deployment sequence by hardening Docker WORKDIR.
-
-### 13. Brand Puzzle Agent (PuzzleAgent)
-*   **Source:** `investbrand/backend/src/agents/puzzleAgent.js`
-*   **Role:** The Mystery Weaver
-*   **Goal:** Bridge the gap between consumer brands and stock market identities through gamified "Brand to Stock" challenges.
-*   **Key Responsibilities:**
-    *   **Mystery Generation:** Creates thematic "Word Cloud" associations based on company heritage, products, and culture, strictly masking identifiable names/years.
-    *   **Dynamic Evaluation:** Provides clever, directional feedback on user guesses (e.g., "Think more global" or "Right industry, wrong ticker") to guide learning without giving the answer.
-    *   **Fundamental Hint Layering**: Translates complex financial metrics (P/E, ROE) into simplified, readable "Trivia Hints" for three difficulty levels.
-    *   **Gamified Scoring**: Governs the 10/7/5 reward system, ensuring hints are balanced against potential point returns.
-
----
-
-## 📜 Global Agent Rules (The "Constitution")
-
-The following rules apply to **ALL** agents in the workspace. These are non-negotiable best practices derived from past deployment issues and performance audits.
-
-### 1. The Batch Imperative (Performance)
-*   **Rule:** **NEVER** iterate through a list of stocks one by one.
-*   **Reason:** Sequential LLM calls are too slow (30s+ per stock).
-*   **Implementation:** Always use Batch Tools (e.g., `batch_scrape_news`, `batch_get_stock_data`).
-    *   ❌ Incorrect: Loop `get_stock_data(ticker)`
-    *   ✅ Correct: Call `batch_get_stock_data([list_of_tickers])`
-
-### 2. The Low-Latency Directive (Efficiency)
-*   **Rule:** Agents have a strict `max_iter` limit (usually 3-5).
-*   **Reason:** Prevents infinite reasoning loops that burn tokens and delay response.
-*   **Implementation:**
-    *   Strategist/Context Agents: `max_iter=3`
-    *   Shadow Analyst: `max_iter=5`
-    *   **Do not loop** looking for "better" news. Synthesize what you find in step 1.
+### 2. The Low-Latency Directive
+*   **Rule**: Strict `max_iter` limit (3-5). No infinite reasoning loops.
 
 ### 3. The Ironclad Security Rule
-*   **Rule:** **NEVER** output or log API keys or raw user session data.
-*   **Reason:** Security compliance.
-*   **Implementation:**
-    *   Sanitize all LLM inputs.
-    *   Ensure `.env` acts as the only source of secrets.
+*   **Rule**: Never log or output secrets. Sanitize every agent input via `utils/security.py`.
 
-### 4. The Resilience Protocol (Error Handling)
-*   **Rule:** Agents must **fail gracefully**, not crash.
-*   **Reason:** Real market data is messy (e.g., missing Option Chains).
-*   **Implementation:**
-    *   If `Option Chain` is empty -> Fallback to `Historical Volatility`.
-    *   If `News` is empty -> Fallback to `Price Action` and note "No recent news".
-    *   **NEVER** return a raw exception trace to the user.
+### 4. The Resilience Protocol
+*   **Rule**: Fail gracefully. Fallback from Option Chains to Historical Volatility if data is missing.
 
-### 5. The Production Path Rule (Deployment)
-*   **Rule:** Verify all imports work in the production environment (Python 3.13).
-*   **Reason:** Local paths often differ from Cloud paths (`ModuleNotFoundError`).
-*   **Implementation:**
-    *   Use absolute imports from root (e.g., `from rover_tools.batch_tools` not `from ..tools`).
-    *   Run `python -m py_compile *.py` before pushing.
-    *   **JSX Entity Safety**: Always use `&gt;`, `&lt;`, and `&amp;` for characters inside JSX text nodes to prevent Vite/Rolldown compiler errors (Unexpected Token).
+### 5. The Production Standard
+*   **Rule**: Primary Brain must be **Gemini 1.5-Flash**. Verify UTF-8 compliance and Python 3.13 compatibility before every push.
 
-### 6. The "No Versioning" Rule
-*   **Rule:** Do not hardcode versions like "V2.0" or "V3.0" in the UI or docs.
-*   **Reasoning:** To keep the system clean and avoid misleading users about the underlying model version.
-*   **Implementation:** Refer to features by name (e.g., "Monthly Heatmap", "Market Visualizer").
+### 6. The Unicode Scrub Rule
+*   **Rule**: **No emojis** in `.github/workflows/`, `Dockerfile`, or `.env`. Use standard text markers like `[ALERT]`.
 
-### 7. Pre-Flight Integrity Checklist (MANDATORY)
-*   **Purpose:** To prevent "Deployment Regressions" BEFORE they hit production.
-*   **Checklist:**
-    *   [ ] **Routing Order**: Static asset mounts (`/assets`) and technical routes (`/api`) MUST be declared **ABOVE** the global catch-all in FastAPI/Express.
-    *   [ ] **MIME-Type Protection**: The global catch-all `/{path}` must explicitly exclude assets to prevent returning HTML for `.js` files (Blank Screen fix).
-    *   [ ] **Container-Safe Pathing**: Verify that file paths (e.g., `DIST_PATH`) are relative to the container `WORKDIR`, not the local Dev root.
-    *   [ ] **JSX Guardrail**: All text nodes containing `>`, `<`, or `&` MUST use HTML entities (`&gt;`, `&lt;`, `&amp;`).
-    *   [ ] **HIL Pulse**: Verify the Governance Heartbeat isn't accidentally blocked by a new auth layer or route.
+### 7. The Multi-Provider Social Governance Shield
+*   **Rule**: Maintain **Open Access** while protecting the UI.
+*   **Reason**: Clients should never see technical provider errors (e.g. "Invalid App ID").
+*   **Implementation**: If a provider uses a placeholder ID, the **Social Manager Shield** must intercept and show a friendly internal warning.
 
-### 8. The Regular Audit Rule (Maintenance)
-*   **Rule:** Conduct a full system audit **Monthly** using `FINAL_AUDIT_CHECKLIST.md`.
-*   **Reason:** Prevents "bit rot" and ensures security compliance.
-*   **Implementation:** check for outdated deps, deprecated API usage, and security gaps (secrets exposure).
-
-### 9. The Timezone Rule (IST Enforcement)
-*   **Rule:** **ALWAYS** use Indian Standard Time (IST, UTC+5:30) for all date, time, scheduling, and calendar calculations across the entire stack (Investbrand backend, frontend, and Python tools).
-*   **Reason:** Prevents day-boundary bugs where UTC server times cause streaks or daily tasks to roll over at the wrong hour for Indian users.
-*   **Implementation:** Do not use `new Date().toISOString().split('T')[0]` unless strictly converted to IST first using an offset of `+5.5 * 60 * 60 * 1000`.
+### 8. The Federated Satellite Rule
+*   **Rule**: Every satellite module (Investbrand, Pledge-Rover) MUST report failures to the central HIL Dashboard.
+*   **Reason**: Eliminates "Silent Failures" and ensures total system transparency.
 
 ---
 
 ## 📊 Agent KPI Matrix
-These KPIs are captured by `utils/metrics.py` and displayed in the **HIL Mission Control**.
-
-| Agent | Primary KPI | target | Measuring Logic |
+| Agent | Primary KPI | Target | Measuring Logic |
 | :--- | :--- | :--- | :--- |
-| **Strategist** | Funnel Integrity | >90% | Successfully runs Macro -> Official -> News. |
-| **Sentiment Analyzer** | Shift Sensitivity | < 5m | Detects shift in Fear/Greed from news spikes. |
-| **Market Context** | Technical Precision | >80% | Accuracy of identified Support/Resistance levels. |
-| **Shadow Analyst** | Divergence Alpha | >70% | Correctly identifies Smart Money when Retail Panics. |
-| **Report Generator** | Cohesion Score | >95% | Synthesis of all 4 previous agent outputs. |
-| **SRE Support** | Regressive Prevention | 100% | Zero syntax/encoding errors reaching Remote. |
-| **SRE Support** | Satellite Autonomy | >99% | Success rate of independent module deploys. |
-| **SRE Support** | TTR (Hotfix) | < 15m | Autonomous recovery time for CI failures. |
+| **Strategist** | Funnel Integrity | >90% | Successfully links Macro -> Micro news. |
+| **SRE Agent** | Deployment Stability | 100% | Zero syntax regressions reaching main. |
+| **SRE Agent** | TTR (Hotfix) | < 15m | Autonomous recovery time for CI incidents. |
 
 ---
 
-## 📋 Task Mappings (Defined in `tasks.py`)
-Understanding which Agent executes which Task is crucial.
-
-| Agent | Task Name | Function Source | Goal |
-| :--- | :--- | :--- | :--- |
-| **Portfolio Manager** | Task 1: Portfolio Retrieval | `create_portfolio_retrieval_task` | Read & validate user portfolio CSV |
-| **Strategist** | Task 2: Market Strategy | `create_market_strategy_task` | Run Hybrid Funnel (Macro -> Official -> Micro) |
-| **Sentiment Analyzer** | Task 3: Sentiment Analysis | `create_sentiment_analysis_task` | Classify market emotion (Fear/Greed) |
-| **Market Context** | Task 4: Technical Analysis | `create_technical_analysis_task` | Analyze Price Action & Trends (No News) |
-| **Shadow Analyst** | Task 5: Shadow Analysis | `create_shadow_analysis_task` | **Synergy Task**: Compare Sentiment vs Price vs Flow |
-| **Report Generator** | Task 6: Report Generation | `create_report_generation_task` | Synthesize Master Intelligence Report |
-| **Visualizer** | Snapshot Task | `create_market_snapshot_task` | Generate single-stock visual dashboard |
+**Built with CrewAI, Gemini 1.5-Flash, and Google Cloud Run.** 🚀
+*Last Unified Update: April 13, 2026*
