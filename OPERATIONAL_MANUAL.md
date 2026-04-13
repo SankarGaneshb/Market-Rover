@@ -64,9 +64,15 @@ This guide covers how to handle operational issues that require manual intervent
 **Safeguard**:
 1.  **Pre-Flight Integrity Check**: Every build starts with `scripts/build_integrity_check.py`.
 2.  **SRE Agent Escalation**: If a build fails, the **SRE Support Sentinel** (Gemini-powered) analyzes the logs and proposes a remediation to the HIL Dashboard.
+
+**🛑 Hard Lesson Learned (Payload Timeouts)**:
+*   **The Incident**: HIL-Rover (#22) failed to deploy repeatedly because `gcloud builds submit .` uploaded over 1.5 GB of historical log files and `node_modules` from the root directory to Cloud Build, triggering massive timeouts.
+*   **The Rule**: **Never deploy without a hardened `.gcloudignore` and `.dockerignore`.** Always verify that these files are explicitly blocking `*.log`, `ci_log*.txt`, `.venv`, and `node_modules/`.
+
 **Action (Developer)**:
 1.  **Run Integrity Check Locally**: `python scripts/build_integrity_check.py` to confirm fixing the regression before pushing.
-2.  **Review HIL Dashboard**: Approve SRE-proposed code or infrastructure fixes.
+2.  **Verify Payload Size**: Ensure no new massive data/log files are being accidentally tracked or uploaded to the build context.
+3.  **Review HIL Dashboard**: Approve SRE-proposed code or infrastructure fixes.
 
 ### 7. Microservice Startup Errors (Cloud Run)
 **Status**: Manual Fix Required
