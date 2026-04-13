@@ -24,7 +24,7 @@ describe('Database Integration: Puzzle Votes', () => {
         process.env.DB_HOST = process.env.DB_HOST || 'localhost';
         process.env.DB_USER = process.env.DB_USER || 'postgres';
         process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'Invest123';
-        process.env.DB_NAME = 'investcraft_test';
+        process.env.DB_NAME = 'InvestBrand_test';
 
         // Explicitly do not mock the database - connect to real Postgres test database
         pool = await initializePool();

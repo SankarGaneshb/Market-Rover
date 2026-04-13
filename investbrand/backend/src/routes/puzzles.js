@@ -8,6 +8,8 @@ const { checkMissions, calculateStrategyTags } = require('../utils/missionEngine
 const { generateUserPersona } = require('../agents/profilerAgent');
 const { generateTeacherInsight } = require('../agents/teacherAgent');
 const { generateInitialClues, evaluateGuess } = require('../agents/puzzleAgent');
+const { generateMergedPuzzleSvg } = require('../utils/imageGenerator');
+
 
 const puzzleCluesCache = {};
 
@@ -61,7 +63,7 @@ router.get('/daily', async (req, res, next) => {
         // It's a lucky draw because no community vote could select it
         result = await pool.query(
           `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-           FROM puzzles 
+           FROM puzzles
            WHERE scheduled_date IS NULL
            ORDER BY RANDOM() LIMIT 1`
         );
@@ -156,7 +158,7 @@ router.post('/vote', authenticate, async (req, res) => {
     // Asynchronously trigger gamification and AI profiler engines
     checkMissions(userId).catch(e => logger.error('Mission check failed', { error: e.message }));
     calculateStrategyTags(userId).catch(e => logger.error('Strategy calculation failed', { error: e.message }));
-    
+
     // Trigger the Agentic AI Framework Profiler (Process every vote for demonstration)
     generateUserPersona(userId).catch(e => logger.error('Profiler generation failed', { error: e.message }));
 
@@ -257,8 +259,8 @@ router.post('/:id/complete', authenticate, async (req, res) => {
     await pool.query(
       `INSERT INTO game_sessions (user_id, puzzle_id, score, moves_used, completed, time_taken, difficulty)
        VALUES ($1, $2, $3, $4, true, $5, $6)
-       ON CONFLICT (user_id, puzzle_id, difficulty) 
-       DO UPDATE SET 
+       ON CONFLICT (user_id, puzzle_id, difficulty)
+       DO UPDATE SET
          score = GREATEST(game_sessions.score, EXCLUDED.score),
          moves_used = LEAST(game_sessions.moves_used, EXCLUDED.moves_used),
          time_taken = LEAST(game_sessions.time_taken, EXCLUDED.time_taken)`,
@@ -345,7 +347,7 @@ router.post('/:id/feedback', authenticate, async (req, res) => {
     await pool.query(
       `INSERT INTO puzzle_feedback (user_id, puzzle_id, category, rating)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id, puzzle_id, category) 
+       ON CONFLICT (user_id, puzzle_id, category)
        DO UPDATE SET rating = EXCLUDED.rating, created_at = CURRENT_TIMESTAMP`,
       [userId, puzzleId, category, rating]
     );
@@ -375,10 +377,10 @@ router.get('/:id/insight', authenticate, async (req, res) => {
     }
 
     const { company_name, ticker } = p.rows[0];
-    
+
     // Generate context using LangChain Teacher Agent
     const insight = await generateTeacherInsight(userId, ticker, company_name);
-    
+
     res.json({ success: true, insight });
   } catch (err) {
     logger.error('Error fetching teacher insight', { error: err.message, puzzleId });
@@ -386,13 +388,16 @@ router.get('/:id/insight', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/puzzles/:id/clues — Gets the dynamic word cloud and clues
-router.get('/:id/clues', authenticate, async (req, res) => {
+// GET/POST /api/puzzles/:id/clues — Gets the dynamic word cloud and clues
+router.all('/:id/clues', authenticate, async (req, res) => {
   const puzzleId = parseInt(req.params.id);
-  
-  if (puzzleCluesCache[puzzleId]) {
+  const logoSvg = req.body?.logoSvg || req.query?.logoSvg;
+
+  // Use cache only if no custom logo is being requested
+  if (!logoSvg && puzzleCluesCache[puzzleId]) {
     return res.json({ success: true, clues: puzzleCluesCache[puzzleId] });
   }
+
 
   try {
     const pool = getPool();
@@ -406,10 +411,18 @@ router.get('/:id/clues', authenticate, async (req, res) => {
     }
 
     const { company_name, ticker, sector } = p.rows[0];
-    
+
     const clues = await generateInitialClues(company_name, ticker, sector);
-    puzzleCluesCache[puzzleId] = clues;
-    
+
+    // Generate the merged puzzle image (including logo if provided)
+    const mergedPuzzleSvg = generateMergedPuzzleSvg(ticker, company_name, clues.wordCloud, logoSvg);
+    clues.mergedPuzzleSvg = mergedPuzzleSvg;
+
+    if (!logoSvg) {
+        puzzleCluesCache[puzzleId] = clues;
+    }
+
+
     res.json({ success: true, clues });
   } catch (err) {
     logger.error('Error generating clues', { error: err.message, puzzleId });
@@ -429,7 +442,7 @@ router.post('/:id/guess', authenticate, async (req, res) => {
   try {
     const pool = getPool();
     const p = await pool.query(
-      `SELECT company_name, sector FROM puzzles WHERE id = $1`,
+      `SELECT company_name, ticker, sector FROM puzzles WHERE id = $1`,
       [puzzleId]
     );
 
@@ -437,11 +450,38 @@ router.post('/:id/guess', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Puzzle not found' });
     }
 
-    const { company_name, sector } = p.rows[0];
-    const feedback = await evaluateGuess(guess, company_name, sector);
-    
-    const isCorrect = feedback.startsWith('CORRECT:');
+    const { company_name, ticker, sector } = p.rows[0];
+
+    // Fallback: Simple local matching to prevent AI strictness issues
+    const normalizedGuess = guess.toLowerCase().trim();
+    const normalizedName = company_name.toLowerCase().trim();
+    const normalizedTicker = ticker.toLowerCase().trim();
+
+    let isCorrect = false;
+    let feedback = "";
+
+    if (
+      normalizedGuess === normalizedName ||
+      normalizedGuess === normalizedTicker ||
+      (normalizedGuess.length >= 3 && normalizedName.includes(normalizedGuess)) ||
+      (normalizedGuess.length >= 2 && normalizedTicker.includes(normalizedGuess))
+    ) {
+      isCorrect = true;
+      feedback = `CORRECT: Expert level analysis! You've successfully identified ${company_name}.`;
+    } else {
+      try {
+        feedback = await evaluateGuess(guess, company_name, sector);
+        isCorrect = feedback.startsWith('CORRECT:');
+      } catch (err) {
+        logger.warn('AI evaluation failed, using fallback', { error: err.message });
+        feedback = "Not quite! Try looking at the sector and metrics again.";
+      }
+    }
+
+
+
     const cleanFeedback = isCorrect ? feedback.replace('CORRECT:', '').trim() : feedback;
+
 
     res.json({ success: true, isCorrect, feedback: cleanFeedback });
   } catch (err) {

@@ -14,15 +14,15 @@ permissions:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.13'
 
     - name: Install Dependencies
       run: |
@@ -49,3 +49,21 @@ jobs:
         commit_message: "Data: Update weekly backtest registry and reports [skip ci]"
         file_pattern: data/backtest_registry.json backtest_summary.md reports/backtest_summary_*.md
         add_options: '-f'
+
+    - name: Notify HIL on Failure
+      if: failure()
+      run: |
+        curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "agent_name": "SRE Support",
+            "task_name": "Market-Rover Backtest Failure",
+            "instructions": "Weekly Strategy Backtest failed. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} and verify data sources.",
+            "data": {
+              "service": "market-rover",
+              "action": "WEEKLY_BACKTEST_FAILURE",
+              "build_id": "${{ github.run_number }}",
+              "repo": "${{ github.repository }}",
+              "workflow": "weekly_backtest.yml"
+            }
+          }'

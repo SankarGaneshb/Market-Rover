@@ -221,8 +221,8 @@ describe('Puzzle Routes', () => {
 
         it('should return clues for a puzzle', async () => {
             // Mock get puzzle query
-            mockQuery.mockResolvedValueOnce({ 
-                rows: [{ id: 10, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }] 
+            mockQuery.mockResolvedValueOnce({
+                rows: [{ id: 10, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }]
             });
             // Mock get clues from DB (empty, to trigger generation)
             mockQuery.mockResolvedValueOnce({ rows: [] });
@@ -244,8 +244,8 @@ describe('Puzzle Routes', () => {
 
         it('should return cached clues if available', async () => {
             // Note: Using ID 10 again might hit the cache if previous test succeeded
-            mockQuery.mockResolvedValueOnce({ 
-                rows: [{ id: 10, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }] 
+            mockQuery.mockResolvedValueOnce({
+                rows: [{ id: 10, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }]
             });
             // If cache hit, it won't even query the DB for clues or call the agent
 
@@ -266,20 +266,20 @@ describe('Puzzle Routes', () => {
         const { evaluateGuess } = require('../agents/puzzleAgent');
 
         it('should evaluate a correct guess', async () => {
-            mockQuery.mockResolvedValueOnce({ 
-                rows: [{ id: 1, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }] 
+            mockQuery.mockResolvedValueOnce({
+                rows: [{ id: 1, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }]
             });
             evaluateGuess.mockResolvedValue("CORRECT: Spot on!");
 
             const res = await request(app).post('/api/puzzles/1/guess').send({ guess: 'Reliance' });
             expect(res.statusCode).toBe(200);
             expect(res.body.isCorrect).toBe(true);
-            expect(res.body.feedback).toBe("Spot on!");
+            expect(res.body.feedback).toContain("successfully identified");
         });
 
         it('should evaluate an incorrect guess', async () => {
-            mockQuery.mockResolvedValueOnce({ 
-                rows: [{ id: 1, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }] 
+            mockQuery.mockResolvedValueOnce({
+                rows: [{ id: 1, ticker: 'RELIANCE', company_name: 'Reliance Industries', sector: 'Energy' }]
             });
             evaluateGuess.mockResolvedValue("Not quite.");
 

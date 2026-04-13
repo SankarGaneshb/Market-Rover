@@ -21,22 +21,22 @@ async function setupTestDb() {
         console.log(`Connected to Postgres on ${host}:${port}`);
 
         // Check if test db exists
-        const res = await client.query("SELECT 1 FROM pg_database WHERE datname='investcraft_test'");
+        const res = await client.query("SELECT 1 FROM pg_database WHERE datname='InvestBrand_test'");
 
         if (res.rowCount > 0) {
-            console.log('Dropping existing investcraft_test database...');
+            console.log('Dropping existing InvestBrand_test database...');
             // Force disconnect other clients
             await client.query(`
         SELECT pg_terminate_backend(pg_stat_activity.pid)
         FROM pg_stat_activity
-        WHERE pg_stat_activity.datname = 'investcraft_test'
+        WHERE pg_stat_activity.datname = 'InvestBrand_test'
           AND pid <> pg_backend_pid();
       `);
-            await client.query('DROP DATABASE investcraft_test');
+            await client.query('DROP DATABASE "InvestBrand_test"');
         }
 
-        console.log('Creating investcraft_test database...');
-        await client.query('CREATE DATABASE investcraft_test');
+        console.log('Creating InvestBrand_test database...');
+        await client.query('CREATE DATABASE "InvestBrand_test"');
         console.log('Test database created successfully.');
     } catch (err) {
         console.error('Error setting up test database:', err.message);

@@ -12,21 +12,24 @@ export default function PuzzleGame() {
   const navigate = useNavigate();
 
   const [gameState, setGameState] = useState('loading'); // loading, menu, playing, completed
+  const [puzzleMode, setPuzzleMode] = useState('stock'); // 'logo' or 'stock'
   const [difficulty, setDifficulty] = useState(null);
   const [currentBrand, setCurrentBrand] = useState(null);
   const [dbPuzzleId, setDbPuzzleId] = useState(null);
   const [completedToday, setCompletedToday] = useState(false);
   const [selectionMethod, setSelectionMethod] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
+  const [mergedPuzzleUrl, setMergedPuzzleUrl] = useState('');
 
   const [pieces, setPieces] = useState([]);
   const [solvedPositions, setSolvedPositions] = useState({});
   const [draggedPiece, setDraggedPiece] = useState(null);
   const [timer, setTimer] = useState(0);
   const [boardSize, setBoardSize] = useState(300);
+  const [boardHeight, setBoardHeight] = useState(300);
   const boardContainerRef = useRef(null);
+  const boardParentRef = useRef(null);
 
-  // Feedback State
   const [puzzleFeedback, setPuzzleFeedback] = useState(null);
   const [logoFeedback, setLogoFeedback] = useState(null);
   const [teacherInsight, setTeacherInsight] = useState(null);
@@ -38,7 +41,7 @@ export default function PuzzleGame() {
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
 
-  // Brand to Stock State
+  // Clues & Guessing
   const [wordCloud, setWordCloud] = useState('');
   const [clues, setClues] = useState({});
   const [currentClueIdx, setCurrentClueIdx] = useState(1);
@@ -46,6 +49,8 @@ export default function PuzzleGame() {
   const [dynamicFeedback, setDynamicFeedback] = useState('');
   const [attempts, setAttempts] = useState(0);
   const [isGuessing, setIsGuessing] = useState(false);
+  const [isJigsawCompleted, setIsJigsawCompleted] = useState(false);
+  const [isGuessPhase, setIsGuessPhase] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -55,147 +60,77 @@ export default function PuzzleGame() {
     hard: { grid: 5, pieces: 25, label: 'Hard' }
   };
 
-  // Resize listener to perfectly bound the puzzle board into the screen without scrollbars
   useEffect(() => {
     const updateSize = () => {
-      if (boardContainerRef.current) {
-        const { width, height } = boardContainerRef.current.getBoundingClientRect();
-        const size = Math.min(width - 16, height - 16, 600);
+      if (boardParentRef.current) {
+        const { width, height } = boardParentRef.current.getBoundingClientRect();
+        const size = Math.min(width - 16, height - 16, 1000);
         setBoardSize(size);
+        setBoardHeight(puzzleMode === 'stock' ? size * 0.75 : size); // 4:3 for stock
       }
     };
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
-  }, [gameState, showHint]);
+  }, [gameState, showHint, puzzleMode]);
 
   useEffect(() => {
     fetchDailyPuzzle();
   }, []);
 
   useEffect(() => {
-    if (gameState === 'playing') {
-      timerRef.current = setInterval(() => {
-        setTimer(t => t + 1);
-      }, 1000);
+    if (gameState === 'playing' && !isJigsawCompleted) {
+      if (!timerRef.current) {
+        timerRef.current = setInterval(() => setTimer(t => t + 1), 1000);
+      }
     } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [gameState]);
-
-  const getBrandColors = (brand) => {
-    const sectorColors = {
-      'IT': { light: '#0ea5e9', dark: '#0369a1' },
-      'Financials': { light: '#64748b', dark: '#1e293b' },
-      'Energy': { light: '#f59e0b', dark: '#92400e' },
-      'FMCG': { light: '#10b981', dark: '#064e3b' },
-      'Telecom': { light: '#f43f5e', dark: '#881337' },
-      'Automobile': { light: '#6366f1', dark: '#312e81' },
-      'Healthcare': { light: '#14b8a6', dark: '#0f766e' },
-      'Consumer': { light: '#8b5cf6', dark: '#4c1d95' },
-      'Infrastructure': { light: '#f97316', dark: '#9a3412' },
-      'Metals': { light: '#94a3b8', dark: '#334155' },
-      'default': { light: '#3b82f6', dark: '#1d4ed8' }
-    };
-    return sectorColors[brand?.sector] || sectorColors.default;
-  };
+  }, [gameState, isJigsawCompleted]);
 
   const fetchDailyPuzzle = async () => {
+    const timeoutId = setTimeout(() => {
+      if (gameState === 'loading') {
+        setGameState('menu');
+      }
+    }, 10000);
+
     try {
       const { data } = await axios.get('/api/puzzles/daily');
-      let matchedBrand = null;
       if (data) {
-        matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker && b.insight === data.hint);
-        if (!matchedBrand) {
-          // Fallback 1: Try finding just by ticker
-          matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker);
-        }
-        if (!matchedBrand && data.company_name) {
-          // Fallback 2: Try finding by company name or brand name (e.g. Jio vs Reliance)
-          matchedBrand = NIFTY50_BRANDS.find(b =>
-            b.company.toLowerCase().includes(data.company_name.toLowerCase()) ||
-            b.brand.toLowerCase().includes(data.company_name.toLowerCase())
-          );
-        }
         setDbPuzzleId(data.id);
         setSelectionMethod(data.selectionMethod);
         setVoteCount(data.voteCount || 0);
 
-        // Fetch the clues and word cloud for the puzzle
         try {
           const clueResponse = await axios.get(`/api/puzzles/${data.id}/clues`);
           if (clueResponse.data?.success) {
             setWordCloud(clueResponse.data.clues.wordCloud);
             setClues(clueResponse.data.clues);
+            setMergedPuzzleUrl(clueResponse.data.clues.mergedPuzzleSvg);
           }
         } catch (e) {
-          console.error("Failed to fetch clues for puzzle", data.id, e);
+          console.error("Failed to fetch clues", e);
         }
-      }
 
-      if (matchedBrand) {
+        const matchedBrand = NIFTY50_BRANDS.find(b => b.ticker === data.ticker) || NIFTY50_BRANDS[0];
         setCurrentBrand(matchedBrand);
-      } else {
-        // If API succeeded but brand still not found, or API returned empty
-        const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-        const todayInt = parseInt(todayStr);
-        const todayIndex = todayInt % NIFTY50_BRANDS.length;
-        setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
-        setDbPuzzleId(data ? data.id : null);
       }
 
       if (user) {
         setStreak(user.streak || 0);
         setScore(user.score || 0);
         setBestScore(user.bestScore || 0);
-        if (data && data.id) {
-          try {
-            const sessions = await axios.get('/api/users/me/sessions');
-            const sessionList = sessions?.data ?? [];
-            const done = Array.isArray(sessionList) && sessionList.some(s => s.puzzle_id === data.id && s.completed);
-            setCompletedToday(done);
-          } catch (e) {
-            console.error('Failed to check session status', e);
-          }
-        }
       }
-      setGameState('menu');
     } catch (err) {
       console.error('Failed to fetch daily puzzle', err);
-      const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-      const todayInt = parseInt(todayStr);
-      const todayIndex = todayInt % NIFTY50_BRANDS.length;
-      setCurrentBrand(NIFTY50_BRANDS[todayIndex]);
+      setCurrentBrand(NIFTY50_BRANDS[0]);
+    } finally {
+      clearTimeout(timeoutId);
       setGameState('menu');
-    }
-  };
-
-  const saveGameData = async (gameScore, movesUsed, timeTaken) => {
-    if (!dbPuzzleId) return;
-    try {
-      const response = await axios.post(`/api/puzzles/${dbPuzzleId}/complete`, {
-        score: gameScore,
-        movesUsed: movesUsed,
-        timeTaken: timeTaken,
-        difficulty: difficulty || 'easy'
-      });
-      const resData = response?.data ?? {};
-      if (resData.success) {
-        setStreak(resData.streak);
-        if (resData.realTotal !== undefined) {
-          setScore(resData.realTotal);
-        } else {
-          setScore(prev => prev + gameScore);
-        }
-        if (gameScore > bestScore) {
-          setBestScore(gameScore);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to save puzzle result', error);
     }
   };
 
@@ -204,9 +139,7 @@ export default function PuzzleGame() {
     setTimer(0);
     setMoves(0);
     setSolvedPositions({});
-    setShowHint(false);
-    setPuzzleFeedback(null);
-    setLogoFeedback(null);
+    setIsJigsawCompleted(false);
     setAttempts(0);
     setUserGuess('');
     setDynamicFeedback('');
@@ -215,52 +148,19 @@ export default function PuzzleGame() {
     const gridSize = difficultyLevels[diff].grid;
     const puzzlePieces = [];
     for (let i = 0; i < gridSize * gridSize; i++) {
-      puzzlePieces.push({
-        id: i,
-        correctPosition: i,
-        currentPosition: i
-      });
+      puzzlePieces.push({ id: i, correctPosition: i, currentPosition: i });
     }
+    // Shuffle
     for (let i = puzzlePieces.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      const temp = puzzlePieces[i].currentPosition;
-      puzzlePieces[i].currentPosition = puzzlePieces[j].currentPosition;
-      puzzlePieces[j].currentPosition = temp;
+      [puzzlePieces[i].currentPosition, puzzlePieces[j].currentPosition] = [puzzlePieces[j].currentPosition, puzzlePieces[i].currentPosition];
     }
     setPieces(puzzlePieces);
     setGameState('playing');
   };
 
-  const handleGuess = async (e) => {
-    if (e) e.preventDefault();
-    if (!userGuess.trim() || attempts >= 3 || isGuessing) return;
-
-    setIsGuessing(true);
-    try {
-      const { data } = await axios.post(`/api/puzzles/${dbPuzzleId}/guess`, {
-        guess: userGuess
-      });
-
-      setDynamicFeedback(data.feedback);
-      setAttempts(prev => prev + 1);
-
-      if (data.isCorrect) {
-        completeGame(moves, attempts + 1);
-      } else {
-        // Automatically show the next hint after a wrong guess
-        if (currentClueIdx < 3) {
-          setCurrentClueIdx(prev => prev + 1);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to evaluate guess', error);
-      setDynamicFeedback("Unable to check your guess right now. Please try again.");
-    } finally {
-      setIsGuessing(false);
-    }
-  };
-
   const handleDragStart = (e, piece) => {
+    if (isJigsawCompleted) return;
     e.dataTransfer.effectAllowed = 'move';
     setDraggedPiece(piece);
   };
@@ -272,35 +172,75 @@ export default function PuzzleGame() {
 
   const handleDrop = (e, targetPosition) => {
     e.preventDefault();
-    if (!draggedPiece) return;
+    if (!draggedPiece || isJigsawCompleted) return;
+
     const newPieces = [...pieces];
     const draggedPieceObj = newPieces.find(p => p.id === draggedPiece.id);
     const targetPieceObj = newPieces.find(p => p.currentPosition === targetPosition);
 
     if (draggedPieceObj && targetPieceObj && draggedPieceObj.id !== targetPieceObj.id) {
-      const tempPosition = draggedPieceObj.currentPosition;
-      draggedPieceObj.currentPosition = targetPieceObj.currentPosition;
-      targetPieceObj.currentPosition = tempPosition;
+      [draggedPieceObj.currentPosition, targetPieceObj.currentPosition] = [targetPieceObj.currentPosition, draggedPieceObj.currentPosition];
       setPieces(newPieces);
       const newMoves = moves + 1;
       setMoves(newMoves);
 
       const newSolved = {};
       newPieces.forEach(piece => {
-        if (piece.correctPosition === piece.currentPosition) {
-          newSolved[piece.id] = true;
-        }
+        if (piece.correctPosition === piece.currentPosition) newSolved[piece.id] = true;
       });
       setSolvedPositions(newSolved);
 
       if (Object.keys(newSolved).length === newPieces.length) {
-        setTimeout(() => completeGame(newMoves), 500);
+        setIsJigsawCompleted(true);
+        if (puzzleMode === 'stock') {
+          setIsGuessPhase(true);
+          setDynamicFeedback('Vision reconstructed! Now, identify the stock in the terminal clues.');
+        } else {
+          // Logo puzzle completed
+          setTimeout(() => completeGame(moves, attempts), 1000);
+        }
       }
     }
     setDraggedPiece(null);
   };
 
-  const completeGame = async (finalMoves, finalAttempts = attempts) => {
+  const handleGuess = async (e) => {
+    if (e) e.preventDefault();
+    if (!userGuess.trim() || attempts >= 3 || isGuessing) return;
+
+    setIsGuessing(true);
+    try {
+      const { data } = await axios.post(`/api/puzzles/${dbPuzzleId}/guess`, { guess: userGuess });
+      setDynamicFeedback(data.feedback);
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (data.isCorrect) {
+        setDynamicFeedback('BINGO! You identified the giant. Final Challenge: Reconstruct the Official Logo!');
+        setTimeout(() => {
+          setPuzzleMode('logo');
+          setIsJigsawCompleted(false);
+          setIsGuessPhase(false);
+          setUserGuess('');
+          // Re-generate pieces for logo
+          fetchDaily();
+        }, 1500);
+      } else {
+        if (currentClueIdx < 3) setCurrentClueIdx(prev => prev + 1);
+        if (newAttempts >= 3) {
+          setDynamicFeedback('3 unsuccessful attempts. Revealing the answer in 2 seconds...');
+          setTimeout(() => completeGame(moves, newAttempts), 2500);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to evaluate guess', error);
+      setDynamicFeedback('Unable to check your guess right now.');
+    } finally {
+      setIsGuessing(false);
+    }
+  };
+
+  const completeGame = async (finalMoves, finalAttempts) => {
     if (timerRef.current) clearInterval(timerRef.current);
     const gameScore = calculateScore(finalMoves, finalAttempts);
     setGameState('completed');
@@ -309,47 +249,36 @@ export default function PuzzleGame() {
     await saveGameData(gameScore, finalMoves, timer);
   };
 
+  const saveGameData = async (gameScore, movesUsed, timeTaken) => {
+    if (!dbPuzzleId) return;
+    try {
+      const { data } = await axios.post(`/api/puzzles/${dbPuzzleId}/complete`, {
+        score: gameScore, movesUsed, timeTaken, difficulty: difficulty || 'easy'
+      });
+      if (data?.success) {
+        setStreak(data.streak);
+        setScore(data.realTotal || score + gameScore);
+        if (gameScore > bestScore) setBestScore(gameScore);
+      }
+    } catch (e) { console.error('Failed to save result', e); }
+  };
+
   const fetchTeacherInsight = async () => {
     if (!dbPuzzleId) return;
     setIsFetchingInsight(true);
     try {
       const response = await axios.get(`/api/puzzles/${dbPuzzleId}/insight`);
-      if (response.data?.insight) {
-        setTeacherInsight(response.data.insight);
-      }
-    } catch (e) {
-      console.error('Failed to fetch AI insight', e);
-    } finally {
-      setIsFetchingInsight(false);
-    }
+      if (response.data?.insight) setTeacherInsight(response.data.insight);
+    } catch (e) { console.error('Failed AI insight', e); }
+    finally { setIsFetchingInsight(false); }
   };
 
-  const calculateScore = (finalMoves = moves, finalAttempts = attempts) => {
-    // Brand to Stock Scoring: 1st guess: 10, 2nd: 7, 3rd: 5, failure: 0
+  const calculateScore = (finalMoves, finalAttempts) => {
     let points = 0;
     if (finalAttempts === 1) points = 10;
     else if (finalAttempts === 2) points = 7;
     else if (finalAttempts === 3) points = 5;
-
-    // Scaling for InvestBrand reward system
-    return points * 100 + (difficulty ? difficultyLevels[difficulty].grid * 50 : 0);
-  };
-
-  const handleFeedback = async (category, rating) => {
-    if (!dbPuzzleId) return;
-    
-    // Optimistic UI update
-    if (category === 'puzzle') setPuzzleFeedback(rating);
-    if (category === 'logo') setLogoFeedback(rating);
-
-    try {
-      await axios.post(`/api/puzzles/${dbPuzzleId}/feedback`, {
-        category,
-        rating
-      });
-    } catch (err) {
-      console.error('Failed to submit feedback', err);
-    }
+    return points * 100 + (difficultyLevels[difficulty]?.grid * 50 || 0);
   };
 
   const formatTime = (seconds) => {
@@ -358,147 +287,38 @@ export default function PuzzleGame() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const shareScore = () => {
-    const url = `${window.location.origin}?promoter=${user?.id || ''}&ref=score`;
-    const baseMessage = `🎯 Brand to Stock!\nLearn to invest through brands you use daily.`;
-    let text = gameState === 'completed'
-      ? `${baseMessage}\n\n🔥 Streak: ${streak} days\n⏱️ ${formatTime(timer)}\n🎮 ${moves} moves\n🏆 ${calculateScore()} points\n\nSolved ${currentBrand.brand}!\n\nJoin me at: ${url}`
-      : `${baseMessage}\n\nJoin me at: ${url}`;
-
-    if (navigator.share) {
-      navigator.share({ title: 'InvestBrand - Brand to Stock', text: text, url: url });
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Invite link copied to clipboard!');
-    }
-  };
-
-  const shareLeaderboard = () => {
-    const url = `${window.location.origin}/leaderboard?promoter=${user?.id || ''}&ref=leaderboard`;
-    const text = `🎯 Brand to Stock!\nCheck out the Nifty stocks leaderboard. I'm on a ${streak} day streak!\n\nSee it here: ${url}`;
-    if (navigator.share) {
-      navigator.share({ title: 'InvestBrand Leaderboard', text: text, url: url });
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Leaderboard link copied!');
-    }
-  };
-
-  if (gameState === 'loading') {
-    return <div className="flex items-center justify-center min-h-[500px] text-white font-bold">Loading challenge...</div>;
-  }
+  if (gameState === 'loading') return <div className="flex items-center justify-center min-h-screen text-white font-bold bg-[#030014]">Loading challenge...</div>;
 
   if (gameState === 'menu') {
     return (
-      <div className="fixed inset-0 top-[65px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
-        {/* Animated Ultra-Vibrant Mesh Background */}
-        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
+      <div className="fixed inset-0 top-[65px] bg-[#030014] p-4 flex items-center justify-center overflow-hidden h-[calc(100vh-65px)]">
+         <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
           <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-indigo-600/20 blur-[150px] mix-blend-screen animate-blob" />
           <div className="absolute bottom-[-30%] left-[20%] w-[90vw] h-[90vw] rounded-full bg-cyan-600/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
         </div>
+        <div className="max-w-6xl w-full relative z-10 text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Market Puzzle</h1>
+          <p className="text-xl text-white/90 mb-8 font-medium">Reconstruct the terminal and identify the mystery stock!</p>
 
-        <div className="max-w-4xl w-full relative z-10">
-          <div className="text-center mb-4 sm:mb-6 px-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 sm:mb-4 tracking-tight">Brand to Stock</h1>
-            <p className="text-lg sm:text-xl text-white/90 mb-6 font-medium">Learn investing through brands you use daily!</p>
-            <div className="flex items-center justify-center gap-4 sm:gap-6 text-white/80 mb-6">
-              <div className="flex items-center gap-2">
-                <Zap className="text-yellow-300" size={20} />
-                <span className="font-bold">{streak} Day Streak</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="text-green-300" size={20} />
-                <span className="font-bold">{score} Total Score</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-8 mb-6 relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <Calendar className="text-blue-600 shrink-0" size={20} />
-                <span className="truncate">Today's Challenge</span>
-                {completedToday && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold ml-1.5 shrink-0">Done</span>
-                    <button 
-                      onClick={() => {
-                        setGameState('completed');
-                        fetchTeacherInsight();
-                      }}
-                      className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 transition-colors border border-indigo-100"
-                    >
-                      Review Result & Market Fact →
-                    </button>
-                  </div>
-                )}
-              </h2>
-
-              {selectionMethod === 'voted' && (
-                <div className="flex items-center gap-1.5 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-amber-200">
-                  <Zap size={14} className="fill-current" />
-                  Chosen by {voteCount} player{voteCount !== 1 ? 's' : ''}
+          <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mb-8 shadow-2xl">
+             <div className="flex justify-center gap-8 mb-8">
+                <div className="text-white">
+                   <div className="text-sm uppercase tracking-widest text-white/50 mb-1">Streak</div>
+                   <div className="text-2xl font-black">{streak} Days</div>
                 </div>
-              )}
-              {selectionMethod === 'lucky_draw' && (
-                <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-indigo-100">
-                  <Lightbulb size={14} className="fill-current" />
-                  Lucky Draw
+                <div className="text-white">
+                   <div className="text-sm uppercase tracking-widest text-white/50 mb-1">Score</div>
+                   <div className="text-2xl font-black">{score}</div>
                 </div>
-              )}
-              {selectionMethod === 'scheduled' && (
-                <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm self-start md:self-auto border border-emerald-200">
-                  <span style={{ fontSize: '14px' }}>📅</span>
-                  Scheduled
-                </div>
-              )}
-            </div>
-
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8 border border-blue-100">
-              <div className="flex items-center gap-5">
-                <div className="w-20 h-20 bg-white rounded-xl shadow-sm flex items-center justify-center p-3 border border-blue-50">
-                  <TrendingUp className="text-blue-600" size={40} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-0.5">Nifty 50 Spotlight</div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-800 leading-tight">{currentBrand?.brand}</div>
-                  <div className="text-xs sm:text-sm text-slate-500 font-medium">{currentBrand?.company}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {Object.entries(difficultyLevels).map(([key, value]) => (
-                <button
-                  key={key}
-                  onClick={() => startGame(key)}
-                  className="group bg-slate-50 hover:bg-indigo-600 text-slate-800 hover:text-white p-6 rounded-2xl font-bold transition-all border border-slate-100 hover:border-indigo-500 hover:shadow-xl relative overflow-hidden"
-                >
-                  <div className="relative z-10">
-                    <div className="text-2xl mb-1">{value.label}</div>
-                    <div className="text-xs font-medium opacity-60 group-hover:opacity-100">{value.pieces} pieces</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { icon: <Trophy className="text-yellow-500" />, label: 'Leaderboard', path: '/leaderboard' },
-              { icon: <Calendar className="text-indigo-500" />, label: 'Vote Next', path: '/vote' },
-              { icon: <Trophy className="text-amber-500" />, label: 'Share Stats', action: shareLeaderboard },
-              { icon: <Share2 className="text-blue-500" />, label: 'Invite Friends', action: shareScore }
-            ].map((btn, i) => (
-              <button
-                key={i}
-                onClick={btn.action || (() => navigate(btn.path))}
-                className="bg-white/10 backdrop-blur-md text-white py-3 px-2 rounded-xl font-bold hover:bg-white/20 transition-all border border-white/10 flex flex-col items-center gap-1 shadow-lg"
-              >
-                {btn.icon}
-                <span className="text-xs">{btn.label}</span>
-              </button>
-            ))}
+             </div>
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+               {Object.entries(difficultyLevels).map(([key, value]) => (
+                 <button key={key} onClick={() => startGame(key)} className="bg-white/10 hover:bg-white/20 text-white p-6 rounded-2xl font-bold border border-white/5 transition-all">
+                    {value.label}
+                    <div className="text-xs opacity-60">{value.pieces} pieces</div>
+                 </button>
+               ))}
+             </div>
           </div>
         </div>
       </div>
@@ -507,186 +327,35 @@ export default function PuzzleGame() {
 
   if (gameState === 'completed') {
     return (
-      <div className="fixed inset-0 top-[65px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
-        {/* Animated Ultra-Vibrant Mesh Background */}
-        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
-          <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-emerald-600/20 blur-[150px] mix-blend-screen animate-blob" />
-          <div className="absolute bottom-[-30%] left-[20%] w-[90vw] h-[90vw] rounded-full bg-teal-600/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
-        </div>
+      <div className="fixed inset-0 top-[65px] bg-[#030014] p-4 flex items-center justify-center overflow-auto h-[calc(100vh-65px)]">
+        <div className="max-w-4xl w-full bg-white rounded-[2.5rem] p-8 text-center shadow-2xl border border-white/20">
+           <div className="mb-8">
+              <div className="text-5xl mb-4">🏆</div>
+              <h2 className="text-4xl font-black text-slate-800 tracking-tight">Challenge Mastered!</h2>
+              <div className="text-indigo-600 font-bold uppercase tracking-widest text-sm mt-2">You Identified {currentBrand?.brand}</div>
+           </div>
 
-        <div className="max-w-5xl w-full h-full flex flex-col items-center justify-start sm:justify-center p-2 lg:p-4 relative z-10 overflow-y-auto hide-scroll">
-          <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] p-4 sm:p-5 lg:p-8 text-center w-full my-4 flex flex-col min-h-0 border border-white/20">
-
-            <div className="flex-shrink-0 mb-3 sm:mb-4 lg:mb-6">
-              <div className="text-3xl sm:text-4xl lg:text-5xl mb-1">🎉</div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 tracking-tight leading-none mb-1">Puzzle Solved!</h2>
-              <p className="text-[10px] sm:text-sm lg:text-base text-slate-500 font-bold uppercase tracking-widest">You discovered a Nifty investment</p>
-            </div>
-
-            <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-4 lg:gap-6 mb-4 lg:mb-6">
-
-              {/* Left Column: Brand Reveal */}
-              <div className="flex-[1.2] bg-gradient-to-br from-blue-50 to-indigo-50/30 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-5 lg:p-6 border border-indigo-100 flex flex-col items-center justify-center relative shadow-inner">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 mb-3 sm:mb-4 bg-white rounded-xl sm:rounded-2xl shadow-lg p-2 sm:p-3 lg:p-4 flex items-center justify-center flex-shrink-0 z-10 transition-transform hover:scale-105 duration-500">
-                  {currentBrand?.logoSvg ? (
-                    <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }} />
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center">
+                 <div className="w-24 h-24 mb-4" dangerouslySetInnerHTML={{ __html: currentBrand?.logoSvg }} />
+                 <h3 className="text-2xl font-black text-slate-800">{currentBrand?.brand}</h3>
+                 <p className="text-slate-500 font-medium text-sm mt-2">{currentBrand?.insight}</p>
+              </div>
+              <div className="bg-indigo-50 p-8 rounded-3xl border border-indigo-100 text-left">
+                  <div className="text-sm font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <Lightbulb size={18} /> Teacher Insight
+                  </div>
+                  {isFetchingInsight ? (
+                    <div className="animate-pulse h-20 bg-indigo-200/50 rounded-xl" />
                   ) : (
-                    <img src={currentBrand?.logoUrl} alt={currentBrand?.brand} className="max-w-full max-h-full object-contain" />
+                    <p className="text-indigo-900 font-medium leading-relaxed">{teacherInsight?.insight || 'Loading expert analysis...'}</p>
                   )}
-                </div>
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 mb-1 leading-tight text-center">{currentBrand?.brand}</h3>
-                <div className="inline-block bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] sm:text-[10px] lg:text-xs font-bold mb-3 sm:mb-4 shadow-sm">{currentBrand?.ticker}</div>
-
-                <div className="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full flex-1 relative overflow-hidden">
-                  {isFetchingInsight && (
-                    <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-4">
-                      <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
-                      <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest text-center">Teacher Agent analyzing...</p>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2 text-wrap">
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-indigo-600 font-black text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest flex-1">
-                      <Lightbulb size={12} className="animate-pulse" /> {teacherInsight ? teacherInsight.title : "Brand Insight"}
-                    </div>
-                    {teacherInsight && (
-                      <span className="text-[7px] sm:text-[8px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm flex-shrink-0">
-                        AI
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed">
-                    {teacherInsight ? teacherInsight.insight : currentBrand?.insight}
-                  </p>
-                </div>
               </div>
+           </div>
 
-              {/* Right Column: Mastery & Stats */}
-              <div className="flex-1 flex flex-col gap-4 lg:gap-6">
-
-                {/* Mastery Status Card */}
-                <div className="bg-slate-50 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-4 lg:p-5 border border-slate-100 flex items-center gap-3 sm:gap-4 relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-                  <div className="flex-shrink-0 transform scale-[1.3] lg:scale-[1.5] origin-left ml-2">
-                    {(() => {
-                      const level = getVirtuosoLevel(streak);
-                      return <GlitterBadge size="small" icon={level.icon} name={level.name} levelConfig={level} />;
-                    })()}
-                  </div>
-                  <div className="flex-1 text-left min-w-0 z-10">
-                    <div className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Mastery</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-black text-slate-800 uppercase tracking-tighter truncate leading-none mb-1.5 sm:mb-2">
-                      {getVirtuosoLevel(streak).name.split(' ')[0]}
-                    </div>
-                    {(() => {
-                      const nextLevel = getNextVirtuosoLevel(streak);
-                      if (!nextLevel) return null;
-                      return (
-                        <div className="w-full">
-                          <div className="flex justify-between text-[9px] lg:text-[10px] font-bold text-slate-500 mb-1.5 px-0.5">
-                            <span className="text-indigo-600">Next: {nextLevel.name.split(' ')[0]}</span>
-                            <span>{nextLevel.minDays - streak}d left</span>
-                          </div>
-                          <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden shadow-inner">
-                            <div
-                              className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)] transition-all duration-1000 ease-out"
-                              style={{ width: `${Math.min(100, (streak / nextLevel.minDays) * 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-3 lg:gap-4 flex-1">
-                  {[
-                    { label: 'Time', value: formatTime(timer), icon: <Clock size={18} />, bg: 'bg-blue-50', text: 'text-blue-600', labelColor: 'text-blue-400' },
-                    { label: 'Moves', value: moves, icon: <Move size={18} />, bg: 'bg-purple-50', text: 'text-purple-600', labelColor: 'text-purple-400' },
-                    { label: 'Score', value: calculateScore(), icon: <Trophy size={18} />, bg: 'bg-green-50', text: 'text-green-600', labelColor: 'text-green-400' },
-                    { label: 'Streak', value: `${streak}d`, icon: <Zap size={18} />, bg: 'bg-orange-50', text: 'text-orange-600', labelColor: 'text-orange-400' }
-                  ].map((stat, i) => (
-                    <div key={i} className={`${stat.bg} rounded-xl sm:rounded-2xl lg:rounded-[1.5rem] p-2.5 sm:p-3 lg:p-4 flex flex-col justify-center`}>
-                      <div className={`text-[8px] sm:text-[9px] lg:text-[10px] font-black uppercase ${stat.labelColor} tracking-widest mb-0.5 sm:mb-1`}>{stat.label}</div>
-                      <div className={`text-lg sm:text-xl lg:text-2xl font-black ${stat.text} flex items-center gap-1.5 sm:gap-2 leading-none whitespace-nowrap`}>
-                        {stat.icon} {stat.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Micro-Feedback Panel (Dual-Pulse) */}
-            <div className="flex-shrink-0 w-full bg-slate-50/80 backdrop-blur-sm rounded-2xl lg:rounded-[2rem] p-3 lg:p-4 mb-4 lg:mb-6 border border-slate-100/50 shadow-inner">
-              <div className="flex flex-col sm:flex-row gap-3 lg:gap-6 justify-center">
-                
-                {/* Puzzle Difficulty Feedback */}
-                <div className="flex-1 max-w-[200px] mx-auto w-full">
-                  <div className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 text-center">How was the jigsaw?</div>
-                  <div className="flex gap-1.5 lg:gap-2">
-                    {[
-                      { rating: 'too_easy', emoji: '🥱', title: 'Too Easy' },
-                      { rating: 'just_right', emoji: '👍', title: 'Just Right' },
-                      { rating: 'too_hard', emoji: '🤯', title: 'Too Hard' }
-                    ].map(btn => (
-                      <button
-                        key={btn.rating}
-                        onClick={() => handleFeedback('puzzle', btn.rating)}
-                        title={btn.title}
-                        className={`flex-1 flex flex-col items-center p-1.5 lg:p-2 rounded-xl transition-all ${puzzleFeedback === btn.rating ? 'bg-indigo-100 border-indigo-300 scale-105 shadow-sm' : 'bg-white border-slate-100 hover:bg-slate-50 hover:scale-105 shadow-sm border'} `}
-                      >
-                        <span className="text-xl lg:text-2xl leading-none mb-1">{btn.emoji}</span>
-                        {puzzleFeedback === btn.rating && <span className="text-[8px] font-bold text-indigo-600 uppercase">Thanks!</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Vertical Divider (Desktop only) */}
-                <div className="hidden sm:block w-px bg-slate-200 my-2 self-stretch" />
-
-                {/* Logo Clarity Feedback */}
-                <div className="flex-1 max-w-[200px] mx-auto w-full">
-                  <div className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 text-center">Logo Quality?</div>
-                  <div className="flex gap-1.5 lg:gap-2">
-                    {[
-                      { rating: 'clear', emoji: '🤩', title: 'Clear & Good' },
-                      { rating: 'blurry', emoji: '📉', title: 'Blurry / Low Res' },
-                      { rating: 'wrong', emoji: '🚨', title: 'Wrong Logo' }
-                    ].map(btn => (
-                      <button
-                        key={btn.rating}
-                        onClick={() => handleFeedback('logo', btn.rating)}
-                        title={btn.title}
-                        className={`flex-1 flex flex-col items-center p-1.5 lg:p-2 rounded-xl transition-all ${logoFeedback === btn.rating ? 'bg-teal-100 border-teal-300 scale-105 shadow-sm' : 'bg-white border-slate-100 hover:bg-slate-50 hover:scale-105 shadow-sm border'} `}
-                      >
-                        <span className="text-xl lg:text-2xl leading-none mb-1">{btn.emoji}</span>
-                        {logoFeedback === btn.rating && <span className="text-[8px] font-bold text-teal-700 uppercase">Thanks!</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Bottom Actions Row */}
-            <div className="flex-shrink-0 grid grid-cols-2 sm:grid-cols-4 gap-2 lg:gap-3">
-              <button onClick={() => navigate('/vote')} className="bg-indigo-600 text-white py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
-                <Calendar size={16} /> Vote Next
-              </button>
-              <button onClick={shareLeaderboard} className="bg-slate-100 text-slate-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
-                <Trophy size={16} /> Share Leaderboard
-              </button>
-              <button onClick={shareScore} className="bg-indigo-50 text-indigo-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2">
-                <Share2 size={16} /> Share Record
-              </button>
-              <button onClick={() => setGameState('menu')} className="bg-slate-100 text-slate-600 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl font-black text-xs lg:text-sm hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
-                <RotateCcw size={16} /> Play Again
-              </button>
-            </div>
-          </div>
+           <button onClick={() => setGameState('menu')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-xl">
+             Play Next Challenge
+           </button>
         </div>
       </div>
     );
@@ -695,210 +364,108 @@ export default function PuzzleGame() {
   const gridSize = difficultyLevels[difficulty]?.grid || 3;
 
   return (
-    <div className="fixed inset-0 top-[65px] bg-[#030014] font-sans overflow-hidden" style={{ height: "calc(100dvh - 65px)" }}>
-      {/* Animated Ultra-Vibrant Mesh Background */}
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none transform scale-110">
-        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-blue-600/20 blur-[150px] mix-blend-screen animate-blob" />
-        <div className="absolute bottom-[-30%] left-[20%] w-[90vw] h-[90vw] rounded-full bg-indigo-600/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
-      </div>
-
-      <div className="relative z-10 p-2 sm:p-4 w-full max-w-4xl mx-auto h-full flex flex-col min-h-0">
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 mb-2 text-white flex items-center justify-between gap-2 shadow-sm shrink-0 border border-white/5">
-          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
-            <h2 className="text-sm sm:text-base font-black tracking-tight flex items-center gap-1.5 shrink-0">
-              <Trophy size={16} className="text-yellow-400" /> Solve It!
-            </h2>
-            <div className="flex items-center gap-2.5 sm:gap-3 text-[10px] sm:text-xs font-bold bg-white/10 px-2 py-1 rounded-lg">
-              <span className="flex items-center gap-1 shrink-0"><Clock size={12} /> {formatTime(timer)}</span>
-              <span className="flex items-center gap-1 shrink-0"><Move size={12} /> {moves}</span>
-              <span className="flex items-center gap-1 shrink-0"><Zap size={12} className="text-orange-400" /> {streak}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button 
-              onClick={() => setShowHint(!showHint)} 
-              className="px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-lg flex items-center gap-2 transition font-bold text-[10px] sm:text-xs border border-indigo-500/20"
-            >
-              <Eye size={14} /> <span className="hidden xs:inline">Hint</span>
-            </button>
-            <button 
-              onClick={() => setGameState('menu')} 
-              className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg transition-colors active:scale-90"
-              aria-label="Exit Game"
-            >
-              <X size={20} />
-            </button>
-          </div>
+    <div className="fixed inset-0 top-[65px] bg-[#030014] p-2 sm:p-4 flex items-center justify-center overflow-hidden h-[calc(100vh-65px)]">
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-blue-600/10 blur-[150px] animate-blob" />
+          <div className="absolute bottom-[-30%] left-[20%] w-[90vw] h-[90vw] rounded-full bg-indigo-600/10 blur-[150px] animate-blob animation-delay-4000" />
         </div>
 
-        <div className="bg-white rounded-2xl p-3 shadow-2xl flex-1 flex flex-col min-h-0 relative">
-          {showHint && (
-            <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
-              <button onClick={() => setShowHint(false)} className="absolute top-4 right-4 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition">
-                <X size={20} className="text-slate-600" />
-              </button>
-              <div className="w-full max-w-xs aspect-square p-8 bg-white rounded-3xl shadow-xl border border-slate-100 flex items-center justify-center relative">
-                {currentBrand?.logoSvg ? (
-                  <div className="w-full h-full opacity-40 grayscale" dangerouslySetInnerHTML={{ __html: currentBrand.logoSvg }} />
-                ) : (
-                  <img src={currentBrand?.logoUrl} alt="Hint" className="max-w-full max-h-full object-contain opacity-40 grayscale" />
-                )}
-                <div className="absolute inset-0 border-2 border-indigo-500/20 border-dashed rounded-3xl pointer-events-none" />
+        <div ref={boardParentRef} className="max-w-6xl w-full h-full flex flex-col items-center justify-center relative z-10">
+           <div className="w-full flex items-center justify-between mb-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/5 shadow-xl text-white">
+              <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest"><Clock size={16}/> {formatTime(timer)}</div>
+                 <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest"><Move size={16}/> {moves}</div>
               </div>
-            </div>
-          )}
+              <button onClick={() => setGameState('menu')} className="p-2 hover:bg-white/10 rounded-xl transition-colors"><X size={24}/></button>
+           </div>
 
-          <div className="mb-2 text-center">
-            <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-              Progress: {Object.keys(solvedPositions).length} / {pieces.length}
-            </div>
-          </div>
+           <div className="relative flex-1 w-full flex flex-col md:flex-row gap-4 min-h-0 items-center justify-center">
 
-          <div ref={boardContainerRef} className="flex-1 w-full min-h-0 relative flex flex-col md:flex-row items-center justify-center gap-4">
-            {/* Word Cloud Clue */}
-            <div className="w-full md:w-1/3 bg-slate-50 p-4 rounded-xl shadow-inner flex flex-col">
-              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Word Cloud Clue</div>
-              <div className="flex-1 flex flex-wrap gap-2 items-center justify-center p-2">
-                {wordCloud.split(',').map((word, i) => (
-                  <span key={i} className={`font-bold px-2 py-1 rounded-lg ${i % 2 === 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'}`} style={{ fontSize: `${Math.max(10, 24 - i * 3)}px` }}>
-                    {word.trim()}
-                  </span>
-                ))}
-              </div>
-
-              {/* Hints */}
-              <div className="mt-4 border-t border-slate-100 pt-4">
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hints Revealed: {currentClueIdx}/3</div>
-                <div className="space-y-2">
-                  {[1, 2, 3].map(idx => (
-                    <div key={idx} className={`p-2 rounded-lg text-xs leading-tight transition-all duration-500 ${idx <= currentClueIdx ? 'bg-white border border-slate-100 text-slate-600 opacity-100' : 'bg-slate-100 text-slate-300 opacity-50 select-none'}`}>
-                      {idx <= currentClueIdx ? clues[`clue${idx}`] : `Hint ${idx} (hidden)`}
+              <div className="w-full md:w-1/4 flex flex-col gap-4 order-2 md:order-1">
+                 <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-xl overflow-hidden">
+                    <div className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4 flex items-center gap-2"><TrendingUp size={14} /> Terminal Intelligence</div>
+                    <div className="space-y-3">
+                       {[1, 2, 3].map(idx => (
+                         <div key={idx} className={`p-4 rounded-2xl text-xs leading-relaxed transition-all ${idx <= currentClueIdx ? 'bg-indigo-600/30 border border-indigo-500/30 text-indigo-50' : 'bg-white/5 text-white/20 border-transparent'}`}>
+                            <div className="font-black uppercase tracking-tighter text-[9px] mb-1 opacity-60">Phase {idx} Clue</div>
+                            {idx <= currentClueIdx ? clues[`clue${idx}`] : 'Locked'}
+                         </div>
+                       ))}
                     </div>
-                  ))}
-                </div>
+                 </div>
+
+                 {isGuessPhase && (
+                    <div className="bg-white/5 backdrop-blur-md p-4 rounded-3xl border border-indigo-500/30 shadow-xl animate-in fade-in slide-in-from-left-5">
+                       <div className="text-[9px] font-black text-indigo-300 uppercase tracking-widest mb-2 px-2 flex items-center gap-2"><Lightbulb size={12}/> Identify Brand</div>
+                       <form onSubmit={handleGuess} className="relative">
+                          <input
+                             value={userGuess}
+                             onChange={e => setUserGuess(e.target.value)}
+                             placeholder="Stock name..."
+                             className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-4 py-2 text-white text-xs placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+                          />
+                          <button type="submit" disabled={isGuessing} className="absolute right-1 top-1 bottom-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 rounded-lg font-black text-[10px] transition-all">
+                             {isGuessing ? "..." : "GO"}
+                          </button>
+                       </form>
+                    </div>
+                 )}
               </div>
-            </div>
 
-            {/* Puzzle Board */}
-            <div className="relative">
-              <div
-                className="grid shadow-inner bg-slate-50 rounded-xl"
-                style={{
-                  gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                  width: boardSize,
-                  height: boardSize,
-                  padding: '6px'
-                }}
-              >
-                {Array.from({ length: gridSize * gridSize }).map((_, position) => {
-                  const piece = pieces.find(p => p.currentPosition === position);
-                  if (!piece) return null;
+              <div className="flex-1 w-full h-full flex flex-col items-center justify-center order-1 md:order-2">
+                 <div
+                    ref={boardContainerRef}
+                    className="grid bg-slate-900/50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                    style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)`, gridTemplateRows: `repeat(${gridSize}, 1fr)`, width: boardSize, height: boardHeight, gap: '0px', padding: '0px' }}
+                   >
+                    {pieces.map((piece, positionIdx) => {
+                      const actualPiece = pieces.find(p => p.currentPosition === positionIdx);
+                      const isSolved = solvedPositions[actualPiece.id];
+                      const row = Math.floor(actualPiece.correctPosition / gridSize);
+                      const col = actualPiece.correctPosition % gridSize;
 
-                  const row = Math.floor(piece.correctPosition / gridSize);
-                  const col = piece.correctPosition % gridSize;
-                  const isSolved = solvedPositions[piece.id];
-
-                  return (
-                    <div
-                      key={position}
-                      className={`relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing transition-all duration-300 border border-slate-100/30 ${isSolved ? 'shadow-inner' : 'hover:scale-[1.02] hover:z-50 hover:shadow-2xl'}`}
-                      style={{ aspectRatio: '1', touchAction: 'none' }}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, piece)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, position)}
-                    >
-                      <div className="absolute inset-0 bg-white">
-                        <div
-                          className={`absolute inset-0 ${isSolved ? 'opacity-100' : 'opacity-90'}`}
-                          style={{
-                            backgroundImage: `url("/mystery_stock_puzzle.png")`,
-                            backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
-                            backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
-                            backgroundRepeat: 'no-repeat',
-                            pointerEvents: "none"
-                          }}
-                        />
-                      </div>
-                      {isSolved && (
-                        <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-0.5 shadow-sm animate-in zoom-in">
-                          <Award size={10} />
+                      return (
+                        <div key={positionIdx} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, positionIdx)} className={`relative flex items-center justify-center overflow-hidden transition-all duration-300 ${!isJigsawCompleted ? 'hover:z-10 hover:scale-[1.02]' : ''}`} style={{ width: '100%', height: '100%' }}>
+                           <div draggable onDragStart={(e) => handleDragStart(e, actualPiece)} className={`absolute inset-0 cursor-grab active:cursor-grabbing ${isSolved ? 'opacity-100' : 'opacity-90'}`} style={{
+                             backgroundImage: `url("${mergedPuzzleUrl}")`,
+                             backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
+                             backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
+                             backgroundRepeat: 'no-repeat'
+                           }} />
+                           {isSolved && <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-1 shadow-2xl"><Award size={10}/></div>}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      )
+                    })}
+                 </div>
+
+                 {isGuessPhase && (
+                   <div className="w-full max-w-lg mt-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                      <form onSubmit={handleGuess} className="relative">
+                         <input value={userGuess} onChange={e => setUserGuess(e.target.value)} placeholder="Analyze the word cloud. Identify the stock..." className="w-full bg-slate-900/80 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-2xl" />
+                         <button type="submit" disabled={isGuessing} className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl font-black text-sm transition-all shadow-lg">{isGuessing ? "Refining..." : "Guess!"}</button>
+                      </form>
+                      {dynamicFeedback && <div className="mt-4 p-4 bg-indigo-600/20 border border-indigo-500/30 rounded-2xl text-center text-indigo-300 font-bold text-sm animate-pulse">📢 {dynamicFeedback}</div>}
+                      <div className="flex justify-between mt-2 px-2 text-[10px] font-black uppercase text-white/30 tracking-widest">
+                         <span>Attempts: {attempts}/3</span>
+                         <span className="text-indigo-400">Reward Potential: {calculateScore(moves, attempts+1)} pts</span>
+                      </div>
+                   </div>
+                 )}
               </div>
-
-              {/* Dynamic Guessing Overlay / Feedback UI */}
-              <form onSubmit={handleGuess} className="mt-4 flex flex-col gap-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={userGuess}
-                    onChange={(e) => setUserGuess(e.target.value)}
-                    placeholder="Identify this company and its stock..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
-                    disabled={attempts >= 3 || isGuessing}
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-4 rounded-lg text-xs font-black hover:bg-indigo-700 transition-all disabled:opacity-50"
-                    disabled={!userGuess.trim() || attempts >= 3 || isGuessing}
-                  >
-                    {isGuessing ? "Thinking..." : "Guess!"}
-                  </button>
-                </div>
-                {dynamicFeedback && (
-                  <div className={`text-xs p-2 rounded-lg font-medium leading-tight animate-in fade-in slide-in-from-top-1 ${dynamicFeedback.toLowerCase().includes('good try') || dynamicFeedback.toLowerCase().includes('not quite') ? 'bg-amber-50 text-amber-700 border border-amber-100' : 'bg-indigo-50 text-indigo-700'}`}>
-                    📣 {dynamicFeedback}
-                  </div>
-                )}
-                <div className="flex justify-between items-center px-1">
-                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Attempts: {attempts}/3</div>
-                  {attempts < 3 && !isGuessing && (
-                    <div className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">
-                      Possible Score: {calculateScore(moves, attempts + 1)} pts
-                    </div>
-                  )}
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div className="mt-3 text-center text-slate-400 text-xs font-bold uppercase tracking-widest shrink-0">
-            Drag pieces to solve
-          </div>
+           </div>
         </div>
-      </div>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          /* GUARANTEED ZERO SCROLLBAR: Force layout strictly visually */
-          * { -ms-overflow-style: none; scrollbar-width: none; }
-          *::-webkit-scrollbar { display: none !important; }
-          body, html { overflow: hidden !important; height: 100dvh !important; margin: 0; padding: 0; }
-          
-          /* Utility hide scroll for inner flex containers */
-          .hide-scroll {
-            -ms-overflow-style: none; 
-            scrollbar-width: none; 
-          }
-          .hide-scroll::-webkit-scrollbar { 
-            display: none !important; 
-          }
-          
-          /* Animated Mesh Gradient Blobs */
+
+        <style dangerouslySetInnerHTML={{ __html: `
           @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
             66% { transform: translate(-20px, 20px) scale(0.9); }
             100% { transform: translate(0px, 0px) scale(1); }
           }
-          .animate-blob {
-            animation: blob 15s infinite alternate ease-in-out;
-          }
-          .animation-delay-2000 { animation-delay: 2s; }
+          .animate-blob { animation: blob 15s infinite alternate ease-in-out; }
           .animation-delay-4000 { animation-delay: 4s; }
+          *::-webkit-scrollbar { display: none; }
+          * { scrollbar-width: none; }
         `}} />
     </div>
   );

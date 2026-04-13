@@ -36,7 +36,7 @@ async function initializePool() {
     config = {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'investcraft',
+      database: process.env.DB_NAME || 'InvestBrand',
       user: process.env.DB_USER || 'postgresql',
       password: process.env.DB_PASSWORD || 'Postgresql12#',
       max: 5,
@@ -91,25 +91,25 @@ async function runMigrations() {
 
     // 4. Index/Constraint Cleanup - Aggressive Legacy Removal
     await client.query(`
-      DO $$ 
-      DECLARE r record; 
-      BEGIN 
+      DO $$
+      DECLARE r record;
+      BEGIN
         -- Drop all unique constraints on puzzle_votes except the PK
-        FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = 'puzzle_votes'::regclass AND contype = 'u' LOOP 
-          EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS ' || quote_ident(r.conname) || ' CASCADE'; 
+        FOR r IN SELECT conname FROM pg_constraint WHERE conrelid = 'puzzle_votes'::regclass AND contype = 'u' LOOP
+          EXECUTE 'ALTER TABLE puzzle_votes DROP CONSTRAINT IF EXISTS ' || quote_ident(r.conname) || ' CASCADE';
         END LOOP;
 
         -- Drop all unique indices on puzzle_votes that are NOT backing a constraint
-        FOR r IN SELECT i.relname AS index_name 
-                 FROM pg_class t 
-                 JOIN pg_index ix ON t.oid = ix.indrelid 
-                 JOIN pg_class i ON i.oid = ix.indexrelid 
-                 WHERE t.relname = 'puzzle_votes' 
-                   AND ix.indisunique = true 
-                   AND ix.indisprimary = false 
-                   AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid = ix.indexrelid) 
-        LOOP 
-          EXECUTE 'DROP INDEX IF EXISTS ' || quote_ident(r.index_name) || ' CASCADE'; 
+        FOR r IN SELECT i.relname AS index_name
+                 FROM pg_class t
+                 JOIN pg_index ix ON t.oid = ix.indrelid
+                 JOIN pg_class i ON i.oid = ix.indexrelid
+                 WHERE t.relname = 'puzzle_votes'
+                   AND ix.indisunique = true
+                   AND ix.indisprimary = false
+                   AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid = ix.indexrelid)
+        LOOP
+          EXECUTE 'DROP INDEX IF EXISTS ' || quote_ident(r.index_name) || ' CASCADE';
         END LOOP;
 
         -- Explicitly drop the rogue_idx if the loop missed it for some reason
@@ -155,14 +155,14 @@ async function runMigrations() {
     await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS mission_def JSONB');
     await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS unlocked_reward VARCHAR(100)');
 
-    
+
     await client.query('CREATE TABLE IF NOT EXISTS user_strategy_tags (user_id INTEGER REFERENCES users(id), tag VARCHAR(100), calculated_at TIMESTAMPTZ DEFAULT NOW())');
     await client.query('ALTER TABLE user_strategy_tags ADD COLUMN IF NOT EXISTS calculation_date DATE DEFAULT CURRENT_DATE');
     await client.query('ALTER TABLE user_strategy_tags ADD COLUMN IF NOT EXISTS voting_pattern JSONB');
     try { await client.query('ALTER TABLE user_strategy_tags ADD CONSTRAINT user_strategy_date_key UNIQUE(user_id, calculation_date)'); } catch (e) { }
 
     await client.query('CREATE TABLE IF NOT EXISTS user_content_views (user_id INTEGER REFERENCES users(id), content_id VARCHAR(100), viewed_at TIMESTAMPTZ DEFAULT NOW())');
-    
+
     await client.query('CREATE TABLE IF NOT EXISTS user_personas (user_id INTEGER PRIMARY KEY REFERENCES users(id), profile_summary TEXT, embedding JSONB, last_updated TIMESTAMPTZ DEFAULT NOW())');
     await client.query('ALTER TABLE user_personas ADD COLUMN IF NOT EXISTS primary_tag VARCHAR(100)');
     await client.query('ALTER TABLE user_personas ADD COLUMN IF NOT EXISTS reading_level VARCHAR(50)');

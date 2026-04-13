@@ -1,6 +1,9 @@
 const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
 const logger = require('../utils/logger');
 
+// HIL Rover Configuration
+const HIL_ROVER_URL = process.env.HIL_ROVER_URL || 'https://hil-rover-9514347926.us-central1.run.app';
+
 let aiLlmClient = null;
 
 function getLLMClient() {
@@ -29,7 +32,7 @@ async function analyzeError(err, req) {
     const errBody = req.body ? JSON.stringify(req.body) : "No body";
 
     const analysisPrompt = `You are the InvestBrand Operational Support Agent (SRE).
-A system error has occurred in the backend. 
+A system error has occurred in the backend.
 
 ERROR DETAILS:
 - Message: ${err.message || "Unknown error"}
@@ -51,7 +54,7 @@ Respond ONLY with a JSON object:
 }`;
 
     const response = await aiLlm.invoke(analysisPrompt);
-    
+
     // Check for response.content and ensure it is treated as a string
     let rawContent = "";
     if (response && response.content) {
@@ -68,19 +71,53 @@ Respond ONLY with a JSON object:
       .replace(/```/g, '')
       .trim();
 
+    let analysis;
     try {
-      return JSON.parse(cleanContent);
+      analysis = JSON.parse(cleanContent);
     } catch (e) {
       logger.warn('Ops Agent: Falling back to string analysis');
-      return { 
-        rootCause: "Parsing error", 
-        mitigation: "Check server logs for detailed trace", 
-        severity: "high" 
+      analysis = {
+        rootCause: "Parsing error",
+        mitigation: "Check server logs for detailed trace",
+        severity: "high"
       };
     }
+
+    // HUD ESCALATION: If severity is high, push to HIL-Rover Command Center
+    if (analysis.severity === 'high' || analysis.severity === 'critical') {
+      try {
+        const hilResponse = await fetch(`${HIL_ROVER_URL}/api/requests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent_name: "InvestBrand SRE",
+            task_name: `Runtime Error: ${req.path}`,
+            instructions: `Critical failure detected. Root Cause: ${analysis.rootCause}. Mitigation: ${analysis.mitigation}`,
+            data: {
+              error: err.message,
+              route: req.method + ' ' + req.path,
+              fix: analysis.developerFix,
+              severity: analysis.severity,
+              timestamp: new Date().toISOString()
+            }
+          })
+        });
+
+        if (hilResponse.ok) {
+          logger.info('HIL HUD Notify: Escalated critical error to Mission Control.');
+        } else {
+          logger.warn('HIL HUD Notify: Command Center rejected the request.', { status: hilResponse.status });
+        }
+      } catch (hilErr) {
+        logger.warn('HIL HUD Notify: Failed to reach Command Center.', { error: hilErr.message });
+      }
+    }
+
+    return analysis;
+
   } catch (agentErr) {
-    logger.error('Ops Support Agent failed to analyze error', { 
-      errorMessage: agentErr.message 
+    logger.error('Ops Support Agent failed to analyze error', {
+      errorMessage: agentErr.message
     });
     return null;
   }

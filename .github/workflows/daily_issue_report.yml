@@ -16,7 +16,7 @@ env:
 jobs:
   daily-report:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -42,3 +42,21 @@ jobs:
       with:
         commit_message: "Docs: Update daily market intelligence report [skip ci]"
         file_pattern: daily_report.md
+
+    - name: Notify HIL on Failure
+      if: failure()
+      run: |
+        curl -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "agent_name": "SRE Support",
+            "task_name": "Market-Rover Daily Report Failure",
+            "instructions": "Daily Issue Report Generation failed. Review logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} to prevent downtime.",
+            "data": {
+              "service": "market-rover",
+              "action": "DAILY_REPORT_FAILURE",
+              "build_id": "${{ github.run_number }}",
+              "repo": "${{ github.repository }}",
+              "workflow": "daily_issue_report.yml"
+            }
+          }'

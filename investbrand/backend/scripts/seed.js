@@ -20,9 +20,9 @@ function getPool() {
   return new Pool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'investcraft',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
+    database: process.env.DB_NAME || 'InvestBrand',
+    user: process.env.DB_USER || 'postgresql',
+    password: process.env.DB_PASSWORD || 'Postgresql12#',
   });
 }
 
@@ -117,4 +117,3 @@ async function seed() {
 }
 
 seed();
-
