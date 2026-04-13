@@ -65,7 +65,7 @@ jobs:
 
       - name: Build & Push Container
         run: |
-          gcloud builds submit . --dockerfile hil_rover/Dockerfile --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          gcloud builds submit . --config hil_rover/cloudbuild.yaml --substitutions=_SERVICE_NAME=${{ env.SERVICE_NAME }},COMMIT_SHA=${{ github.sha }}
 
       - name: Deploy to Cloud Run
         run: |
