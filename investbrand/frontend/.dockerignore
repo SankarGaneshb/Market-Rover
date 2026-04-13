@@ -2,7 +2,7 @@
 node_modules/
 build/
 coverage/
-.env
+# .env is removed from ignore to allow Google/Firebase keys to reach build
 .DS_Store
 *.log
 coverage_report.txt
