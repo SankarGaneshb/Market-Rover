@@ -49,13 +49,24 @@ router.get('/daily', async (req, res, next) => {
       }
 
       if (chosenBrandId) {
-        // Try to find a puzzle with that brand_id that hasn't been played yet
+        // PRIORITY 1: Look for a NEW puzzle for the voted brand
         result = await pool.query(
           `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
            FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL ORDER BY RANDOM() LIMIT 1`,
           [chosenBrandId]
         );
         puzzleMatch = result.rows[0];
+
+        // PRIORITY 2: If exhausted, RECYCLE the least-recent puzzle for the same voted brand
+        if (!puzzleMatch) {
+          logger.info(`Puzzles: Community voted for ${chosenBrandId} but all assets played. Recycling least-recent puzzle.`);
+          result = await pool.query(
+            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
+             FROM puzzles WHERE brand_id = $1 ORDER BY scheduled_date ASC NULLS FIRST LIMIT 1`,
+            [chosenBrandId]
+          );
+          puzzleMatch = result.rows[0];
+        }
       }
 
       // Fall back to a random puzzle if no votes or no puzzle found for the voted brand_id
