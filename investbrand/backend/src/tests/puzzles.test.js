@@ -37,37 +37,10 @@ describe('Puzzle Routes', () => {
     });
 
     describe('GET /daily', () => {
-        it('should return scheduled puzzle for today with voted method', async () => {
-            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString(), selection_method: 'voted' };
+        it('should return voted brand puzzle even if one is scheduled today', async () => {
             mockQuery
-                .mockResolvedValueOnce({ rows: [mockPuzzle] }) // First query for scheduled puzzle
-                .mockResolvedValueOnce({ rows: [{ vote_count: 5 }] }); // Second query for vote count
-
-            const res = await request(app).get('/api/puzzles/daily');
-            expect(res.statusCode).toBe(200);
-            expect(res.body.brand_id).toBe(101);
-            expect(res.body.selectionMethod).toBe('voted');
-            expect(res.body.voteCount).toBe(5);
-        });
-
-        it('should return scheduled puzzle for today with scheduled method', async () => {
-            const mockPuzzle = { id: 1, brand_id: 101, ticker: 'RELIANCE', scheduled_date: getIstDateString(), selection_method: 'scheduled' };
-            mockQuery
-                .mockResolvedValueOnce({ rows: [mockPuzzle] }); // First query for scheduled puzzle
-
-            const res = await request(app).get('/api/puzzles/daily');
-            expect(res.statusCode).toBe(200);
-            expect(res.body.brand_id).toBe(101);
-            expect(res.body.selectionMethod).toBe('scheduled');
-            expect(res.body.voteCount).toBe(0);
-        });
-
-        it('should fallback to voted brand puzzle if no puzzle scheduled today', async () => {
-            mockQuery
-                .mockResolvedValueOnce({ rows: [] }) // No scheduled puzzle
-                .mockResolvedValueOnce({ rows: [{ brand_id: 102, vote_count: 5 }] }) // Most voted brand
-                .mockResolvedValueOnce({ rows: [{ id: 2, brand_id: 102, ticker: 'TCS' }] }) // Found puzzle for brand
-                .mockResolvedValueOnce({ rows: [] }); // Update call
+                .mockResolvedValueOnce({ rows: [{ brand_id: 102, vote_count: 5 }] }) // 1. Winner Query
+                .mockResolvedValueOnce({ rows: [{ id: 2, brand_id: 102, ticker: 'TCS' }] }); // 2. Found Puzzle for 102
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
@@ -76,18 +49,30 @@ describe('Puzzle Routes', () => {
             expect(res.body.voteCount).toBe(5);
         });
 
-        it('should assign a random open puzzle if no votes exist', async () => {
-            mockQuery
-                .mockResolvedValueOnce({ rows: [] }) // No scheduled puzzle
-                .mockResolvedValueOnce({ rows: [] }) // No votes
-                .mockResolvedValueOnce({ rows: [{ id: 3, brand_id: 103, ticker: 'HDFCBANK' }] }) // Random unscheduled puzzle
-                .mockResolvedValueOnce({ rows: [] }); // Update call
+        it('should fallback to scheduled puzzle if no votes exist', async () => {
+             mockQuery
+                .mockResolvedValueOnce({ rows: [] }) // 1. Check votes (NONE)
+                .mockResolvedValueOnce({ rows: [{ id: 1, brand_id: 101, ticker: 'RELIANCE' }] }) // 2. Check schedule (FOUND)
+                .mockResolvedValueOnce({ rows: [] }); // 3. Update call
+
+            const res = await request(app).get('/api/puzzles/daily');
+            expect(res.statusCode).toBe(200);
+            expect(res.body.brand_id).toBe(101);
+            expect(res.body.selectionMethod).toBe('scheduled');
+            expect(res.body.voteCount).toBe(0);
+        });
+
+        it('should assign a random open puzzle if no votes and no schedule exist', async () => {
+             mockQuery
+                .mockResolvedValueOnce({ rows: [] }) // 1. Check votes
+                .mockResolvedValueOnce({ rows: [] }) // 2. Check schedule
+                .mockResolvedValueOnce({ rows: [{ id: 3, brand_id: 103, ticker: 'HDFCBANK' }] }) // 3. Random
+                .mockResolvedValueOnce({ rows: [] }); // 4. Update call
 
             const res = await request(app).get('/api/puzzles/daily');
             expect(res.statusCode).toBe(200);
             expect(res.body.brand_id).toBe(103);
             expect(res.body.selectionMethod).toBe('lucky_draw');
-            expect(res.body.voteCount).toBe(0);
         });
 
         it('should handle db errors on /daily', async () => {

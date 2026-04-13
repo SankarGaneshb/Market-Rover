@@ -115,25 +115,6 @@ router.get('/daily', async (req, res, next) => {
   }
 });
 
-    if (puzzleMatch) {
-      res.json({
-        ...puzzleMatch,
-        selectionMethod: finalSelectionMethod,
-        voteCount: finalVoteCount
-      });
-    } else {
-      logger.warn('No daily puzzle found (table might be empty)', { today });
-      res.json(null);
-    }
-  } catch (err) {
-    logger.error('Error fetching daily puzzle', {
-      error: err.message,
-      stack: err.stack,
-      today
-    });
-    res.status(500).json({ error: `Failed to fetch puzzle: ${err.message}` });
-  }
-});
 
 // POST /api/puzzles/vote - Vote for tomorrow's puzzle brand
 router.post('/vote', authenticate, async (req, res) => {
