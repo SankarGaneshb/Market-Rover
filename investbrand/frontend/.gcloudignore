@@ -1,0 +1,9 @@
+.git
+node_modules/
+build/
+coverage/
+.env
+.DS_Store
+*.log
+coverage_report.txt
+local_coverage.txt
