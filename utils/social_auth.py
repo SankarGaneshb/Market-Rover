@@ -21,19 +21,21 @@ class SocialAuthManager:
         providers = {}
         if 'oauth' in self._config:
             for p_name, settings in self._config['oauth'].items():
-                c_id = settings.get('client_id', '')
-                # GOVERNANCE: Hide providers that are not yet production-ready
-                if c_id and "test-id" not in c_id.lower():
+                if 'client_id' in settings and 'client_secret' in settings:
                      providers[p_name] = settings
         return providers
+
+    def is_user_allowed(self, email):
+        """Check if email is in the approved list. Empty list means Open Access."""
+        whitelist = self._config.get('approved_emails', [])
+        if not whitelist: return True
+        return email in whitelist
 
     def _normalize_profile(self, profile, provider):
         data = {'email': None, 'name': None, 'username': None, 'provider': provider}
         p = provider.lower()
-        if p == 'google':
-            data.update({'email': profile.get('email'), 'name': profile.get('name')})
-        elif p == 'facebook':
-            data.update({'email': profile.get('email'), 'name': profile.get('name')})
+        if p == 'google': data.update({'email': profile.get('email'), 'name': profile.get('name')})
+        elif p == 'facebook': data.update({'email': profile.get('email'), 'name': profile.get('name')})
         elif p == 'linkedin':
             first = profile.get('localizedFirstName', profile.get('given_name', ''))
             last = profile.get('localizedLastName', profile.get('family_name', ''))
@@ -47,19 +49,27 @@ class SocialAuthManager:
         if not data['name']: data['name'] = profile.get('display_name') or data['username'] or data['email']
         if not data['username']: data['username'] = data['email']
 
-        # OPEN ACCESS: Automatically approve all social users
         logger.info(f"✨ New Social Login: {data['name']} ({data['email']}) via {provider}")
         return data
 
     def render_social_login_buttons(self):
         if not self.oauth_providers: return None
 
-        # 1. Round-Trip Persistence logic
+        # 1. Capture the Round-Trip or Trigger
         trigger = st.query_params.get("login_trigger")
-        if trigger:
-            st.session_state['active_oauth_provider'] = trigger
-            st.query_params.clear()
-            st.rerun()
+        if trigger and trigger in self.oauth_providers:
+            settings = self.oauth_providers[trigger]
+            c_id = settings.get('client_id', '')
+
+            # THE SAFETY SHIELD: Stop redirection if ID is still a test placeholder
+            if "test-id" in c_id.lower():
+                st.query_params.clear()
+                st.warning(f"🛡️ **Governance Check**: Identity Verification is currently pending for **{trigger.upper()}**. Please use **Google** for now.")
+                st.session_state.pop('active_oauth_provider', None)
+            else:
+                st.session_state['active_oauth_provider'] = trigger
+                st.query_params.clear()
+                st.rerun()
 
         active_provider = st.session_state.get('active_oauth_provider')
 
