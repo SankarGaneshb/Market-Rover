@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 app = FastAPI(title="HIL Rover API")
 
 # Path to built React frontend inside container
-DIST_PATH = "../frontend/dist"
+DIST_PATH = os.environ.get("HIL_FRONTEND_PATH", "../frontend/dist")
 
 # Enable CORS
 app.add_middleware(

@@ -35,9 +35,20 @@ function loadBrands() {
   console.log(`Loading brands from: ${brandsFilePath}`);
 
   const content = fs.readFileSync(brandsFilePath, 'utf8');
+  // Use a safer matching strategy that handles JS objects with trailing commas
   const jsonMatch = content.match(/export const NIFTY50_BRANDS = (\[[\s\S]*\]);/);
   if (!jsonMatch) throw new Error('Could not parse brands.js');
-  return JSON.parse(jsonMatch[1]);
+
+  // Convert JS array string into a format Node.js can safely evaluate
+  try {
+     return eval(`(${jsonMatch[1]})`);
+  } catch (e) {
+     console.error('Eval failed, falling back to JSON.parse cleaning...');
+     const cleaned = jsonMatch[1]
+       .replace(/,\s*([\]}])/g, '$1') // remove trailing commas
+       .replace(/\/\/.*/g, ''); // remove comments
+     return JSON.parse(cleaned);
+  }
 }
 
 async function seed() {

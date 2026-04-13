@@ -58,6 +58,11 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Sync Core Dependencies
+        run: |
+          cp agents.py config.py hil_rover/
+          cp -r rover_tools utils scripts hil_rover/
+
       - name: Build & Push Container
         run: |
           gcloud builds submit . --config hil_rover/cloudbuild.yaml --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} || \

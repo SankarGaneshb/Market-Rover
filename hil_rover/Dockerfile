@@ -25,18 +25,19 @@ COPY scripts/ ./scripts/
 
 # Copy entire backend directory
 COPY hil_rover/backend/ ./backend/
-
-# Create data directory for persistent logs
 RUN mkdir -p /app/data && chmod 777 /app/data
 
 # Copy frontend build output from stage 1
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 # Expose Cloud Run port
 EXPOSE 8080
 ENV PORT=8080
 # Set PYTHONPATH so internal imports from root (scripts, agents) work
 ENV PYTHONPATH=/app
+
+# Point to frontend
+ENV HIL_FRONTEND_PATH=/app/frontend/dist
 
 # Run from /app/backend so 'src' is findable
 WORKDIR /app/backend
