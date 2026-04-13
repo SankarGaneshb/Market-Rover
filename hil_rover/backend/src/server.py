@@ -4,13 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
+import aiofiles
 import json
 import os
 import uuid
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 
-# HIL-Rover Version: 4.2.1-Hardened (Deploy-Force: 2026-04-12 18:15 IST)
+# HIL-Rover Version: 4.2.2-Hardened (Deploy-Force: 2026-04-13 14:40 IST)
 app = FastAPI(title="HIL Rover API")
 
 # Path to built React frontend inside container
@@ -24,22 +25,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 1. SHARED LOGIC
+# 1. ASYNC SHARED LOGIC
 DATA_FILE = os.environ.get("HIL_DATA_PATH", "/app/data/hil_requests.json")
 
-def load_requests():
+async def load_requests_async():
     if not os.path.exists(DATA_FILE):
         return []
     try:
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    except:
+        async with aiofiles.open(DATA_FILE, "r") as f:
+            content = await f.read()
+            return json.loads(content)
+    except Exception as e:
+        print(f"SRE ERROR: Failed to load requests: {e}")
         return []
 
-def save_requests(requests):
+async def save_requests_async(requests):
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    with open(DATA_FILE, "w") as f:
-        json.dump(requests, f, indent=4)
+    async with aiofiles.open(DATA_FILE, "w") as f:
+        await f.write(json.dumps(requests, indent=4))
 
 class HILDecision(BaseModel):
     decision: str
@@ -78,8 +81,6 @@ async def get_brain_manifest():
 
 @app.get("/api/kpi-leaderboard")
 async def get_kpi_leaderboard():
-    # In a production app, we would query the metrics/agent_kpis_YYYY-MM-DD.jsonl
-    # For now, we return the unified KPI target map
     return [
         {"agent": "Strategist", "kpi": "Funnel Integrity", "score": 94, "target": 90, "status": "Above Target"},
         {"agent": "Shadow Analyst", "kpi": "Divergence Alpha", "score": 82, "target": 70, "status": "Above Target"},
@@ -89,42 +90,45 @@ async def get_kpi_leaderboard():
 
 @app.get("/api/requests")
 async def get_all_requests():
-    return load_requests()
+    return await load_requests_async()
 
 @app.post("/api/requests/{request_id}/process")
 async def process_request(request_id: str, decision: HILDecision):
-    requests = load_requests()
+    requests = await load_requests_async()
     updated = False
     for r in requests:
         if r["id"] == request_id:
             r["status"] = decision.decision
             r["decision"] = decision.decision
             r["comments"] = decision.comments
-            r["processed_at"] = datetime.now().isoformat()
+            r["processed_at"] = datetime.now(timezone.utc).isoformat()
             updated = True
             break
 
     if not updated:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    save_requests(requests)
+    await save_requests_async(requests)
     return {"status": "success"}
 
 @app.get("/api/stats")
 async def get_stats():
-    requests = load_requests()
+    requests = await load_requests_async()
     total = len(requests)
-    approved = len([r for r in requests if r["status"] == "APPROVED"])
-    rejected = len([r for r in requests if r["status"] == "REJECTED"])
-    pending = len([r for r in requests if r["status"] == "PENDING"])
+    approved = len([r for r in requests if r.get("status") == "APPROVED"])
+    rejected = len([r for r in requests if r.get("status") == "REJECTED"])
+    pending = len([r for r in requests if r.get("status") == "PENDING"]) or 0
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     sla_breaches = 0
     for r in requests:
-        if r["status"] == "PENDING":
-            created_at = datetime.fromisoformat(r["created_at"])
-            if now - created_at > timedelta(days=1):
-                sla_breaches += 1
+        if r.get("status") == "PENDING":
+            try:
+                created_at = datetime.fromisoformat(r["created_at"])
+                if now - created_at > timedelta(hours=24):
+                    sla_breaches += 1
+            except:
+                pass
 
     return {
         "total": total,
@@ -141,31 +145,21 @@ async def health():
 
 @app.post("/api/requests")
 async def create_request(request: Request):
-    """
-    Experimental: Allows external systems (like CI) to push an HIL request.
-    """
     try:
         new_data = await request.json()
-
-        # Validation
         if not new_data.get("agent_name") or not new_data.get("task_name"):
             return JSONResponse(status_code=400, content={"error": "Missing agent_name or task_name"})
 
-        requests_list = load_requests()
-
-        # Generate ID if missing
+        requests_list = await load_requests_async()
         if not new_data.get("id"):
             new_data["id"] = f"EXT-{int(time.time())}"
-
         if not new_data.get("status"):
             new_data["status"] = "PENDING"
-
         if not new_data.get("created_at"):
             new_data["created_at"] = datetime.now(timezone.utc).isoformat()
 
         requests_list.append(new_data)
-        save_requests(requests_list)
-
+        await save_requests_async(requests_list)
         return {"status": "success", "id": new_data["id"]}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -177,8 +171,7 @@ if os.path.exists(os.path.join(DIST_PATH, "assets")):
 # 4. CATCH-ALL FOR REACT SPA (LOWEST PRIORITY)
 @app.get("/{path:path}")
 async def catch_all(path: str):
-    # This route will only be reached if no API or Asset route matches
     index_file = os.path.join(DIST_PATH, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
-    return {"status": "Mission Control initializing... please refresh in 30s"}
+    return {"status": "Mission Control initializing... please refresh in 10s"}

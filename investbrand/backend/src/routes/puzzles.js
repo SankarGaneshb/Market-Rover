@@ -40,11 +40,12 @@ router.get('/daily', async (req, res, next) => {
       const votedBrandId = voteResult.rows[0].brand_id;
       finalVoteCount = parseInt(voteResult.rows[0].vote_count, 10);
 
-      // Look for a fresh puzzle for the winner
+      // Look for a fresh or future-scheduled puzzle for the winner
       const winnerPuzzleResult = await pool.query(
         `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method, scheduled_date
-         FROM puzzles WHERE brand_id = $1 AND (scheduled_date = $2 OR scheduled_date IS NULL)
-         ORDER BY (scheduled_date = $2) DESC, RANDOM() LIMIT 1`,
+         FROM puzzles
+         WHERE brand_id = $1 AND (scheduled_date = $2 OR scheduled_date IS NULL OR scheduled_date > $2)
+         ORDER BY (scheduled_date = $2) DESC, (scheduled_date IS NULL) DESC, RANDOM() LIMIT 1`,
         [votedBrandId, today]
       );
 

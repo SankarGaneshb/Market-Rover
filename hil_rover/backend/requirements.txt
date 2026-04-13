@@ -14,3 +14,4 @@ nsepython>=2.97
 beautifulsoup4~=4.13.4
 duckduckgo_search>=8.1.1
 matplotlib>=3.10.8
+aiofiles>=23.2.1

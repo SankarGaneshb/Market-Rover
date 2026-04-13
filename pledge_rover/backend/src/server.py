@@ -1,15 +1,13 @@
 import os
 import uvicorn
-from fastapi import FastAPI
+import signal
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
-from fastapi import Request
 from src.routes import api_router
 from src.config.database import init_db, close_db
-from src.utils.ops_support import analyze_error
-
-import signal
+from src.utils.ops_support import analyze_error_async, analyze_error
 
 # --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
 _original_signal = signal.signal
@@ -22,7 +20,7 @@ signal.signal = _safe_signal
 
 app = FastAPI(
     title="Pledge Rover API",
-    version="1.0.0",
+    version="1.0.1-Hardened",
     description="The signal institutions had. Now yours."
 )
 
@@ -30,9 +28,14 @@ app = FastAPI(
 async def global_exception_handler(request: Request, exc: Exception):
     """
     Global SRE Guardian for Pledge Rover.
-    Captures crashes and provides AI diagnostics.
+    Captures crashes and provides AI diagnostics asynchronously.
     """
-    analysis = analyze_error(exc, context="pledge_rover_api")
+    try:
+        analysis = await analyze_error_async(exc, context="pledge_rover_api")
+    except:
+        # Fallback to sync if async logic fails
+        analysis = analyze_error(exc) if 'analyze_error' in globals() else None
+
     return JSONResponse(
         status_code=500,
         content={
@@ -41,9 +44,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
-# CORS Middleware (similar to InvestBrand)
+# CORS Middleware
 ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "*").split(",")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -52,10 +54,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Health check endpoint for Cloud Run
 @app.get("/health")
 async def health_check():
-    """Cloud Run health check endpoint"""
     return {"status": "ok", "service": "Pledge Rover API"}
 
 @app.on_event("startup")
@@ -63,16 +63,12 @@ async def startup_event():
     from dotenv import load_dotenv
     load_dotenv()
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
-    
     try:
         await init_db()
         from src.data.seed import seed_data
         await seed_data()
-        print("DATABASE: Initialization and seeding successful.")
     except Exception as e:
-        # LOG AND PROCEED: This allows the port to bind so we can see logs
         print(f"DATABASE: FAILED to initialize. Error: {str(e)}")
-        print("ALERT: The app will start but database features may fail until connection is fixed.")
 
     try:
         from src.data.scan_manager import ScanManager
@@ -82,33 +78,33 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    print("--- PLEDGE ROVER BACKEND SHUTTING DOWN ---")
     try:
         await close_db()
-    except Exception as e:
-        print(f"DATABASE: Error during shutdown. Error: {str(e)}")
+    except:
+        pass
 
 app.include_router(api_router, prefix="/api")
 
-# Serve React static assets in production if they exist
-# In local development, Vite handles this on port 5173
+# Serve React static assets in production
 dist_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "../frontend/dist")
 assets_path = os.path.join(dist_folder, "assets")
+
 if os.path.isdir(assets_path):
     print(f"Mounting static frontend from {dist_folder}")
     app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
-else:
-    print(f"WARNING: Static assets directory NOT found at {assets_path}. Skipping mount.")
-    
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # Fallback to index.html for client-side routing
-        file_path = os.path.join(dist_folder, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(dist_folder, "index.html"))
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    # This catch-all route handles the React SPA routing with deep link support.
+    file_path = os.path.join(dist_folder, full_path)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+
+    index_file = os.path.join(dist_folder, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"status": "Pledge Rover initializing... please refresh."}
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    print(f"Pledge Rover API starting on port {port}")
     uvicorn.run("src.server:app", host="0.0.0.0", port=port, reload=False)
