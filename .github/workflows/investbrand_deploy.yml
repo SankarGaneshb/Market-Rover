@@ -97,7 +97,7 @@ jobs:
             --max-retries 0 \
             --task-timeout 300 \
             --quiet
-          gcloud run jobs execute investbrand-seeder --region ${{ env.REGION }} --wait || echo "Seeder job failed, check Cloud Run logs for details."
+          gcloud run jobs execute investbrand-seeder --region ${{ env.REGION }} --wait
 
       - name: Notify HIL on Success
         if: success()
