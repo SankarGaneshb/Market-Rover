@@ -20,109 +20,100 @@ router.get('/daily', async (req, res, next) => {
   logger.info(`Puzzles: Fetching daily puzzle for date: ${today}`);
 
   try {
-    let result = await pool.query(
-      'SELECT * FROM puzzles WHERE scheduled_date = $1',
+    // 1. Check if we have active VOTES for today
+    const voteResult = await pool.query(
+      `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
+       FROM puzzle_votes
+       WHERE vote_date = $1
+       GROUP BY brand_id
+       ORDER BY vote_count DESC, first_vote ASC
+       LIMIT 1`,
       [today]
     );
 
-    logger.info(`Puzzles: Query result rows: ${result.rows.length}`);
-    let puzzleMatch = result.rows[0];
+    let puzzleMatch = null;
     let finalVoteCount = 0;
     let finalSelectionMethod = 'lucky_draw';
 
-    // If no puzzle is scheduled for TODAY, handle the logic to find one based on votes
+    // 2. If community VOTED, they take absolute priority
+    if (voteResult.rows[0]) {
+      const votedBrandId = voteResult.rows[0].brand_id;
+      finalVoteCount = parseInt(voteResult.rows[0].vote_count, 10);
+
+      // Look for a fresh puzzle for the winner
+      const winnerPuzzleResult = await pool.query(
+        `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method, scheduled_date
+         FROM puzzles WHERE brand_id = $1 AND (scheduled_date = $2 OR scheduled_date IS NULL)
+         ORDER BY (scheduled_date = $2) DESC, RANDOM() LIMIT 1`,
+        [votedBrandId, today]
+      );
+
+      if (winnerPuzzleResult.rows[0]) {
+        puzzleMatch = winnerPuzzleResult.rows[0];
+        finalSelectionMethod = 'voted';
+
+        // If this winner wasn't officially scheduled for today yet, update it now
+        if (puzzleMatch.scheduled_date !== today) {
+          await pool.query(
+            `UPDATE puzzles SET scheduled_date = $1, selection_method = 'voted' WHERE id = $2`,
+            [today, puzzleMatch.id]
+          );
+        }
+      }
+    }
+
+    // 3. If no community vote, check for an existing assignment (seeder or previous lucky_draw)
     if (!puzzleMatch) {
-      // Find the most voted brand_id for TODAY
-      const voteResult = await pool.query(
-        `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
-         FROM puzzle_votes
-         WHERE vote_date = $1
-         GROUP BY brand_id
-         ORDER BY vote_count DESC, first_vote ASC
-         LIMIT 1`,
+      const existingResult = await pool.query(
+        'SELECT * FROM puzzles WHERE scheduled_date = $1 LIMIT 1',
         [today]
       );
 
-      let chosenBrandId = null;
-      let finalVoteCount = 0;
-
-      if (voteResult.rows.length > 0) {
-        // MULTI-TIER DEMOCRATIC POOL: Check top 5 voted brands for fresh content
-        const topVotes = await pool.query(
-          `SELECT brand_id, COUNT(*) as vote_count, MIN(created_at) as first_vote
-           FROM puzzle_votes
-           WHERE vote_date = $1
-           GROUP BY brand_id
-           ORDER BY vote_count DESC, first_vote ASC
-           LIMIT 5`,
-          [today]
-        );
-
-        for (const vote of topVotes.rows) {
-          const freshPuzzle = await pool.query(
-            `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-             FROM puzzles WHERE brand_id = $1 AND scheduled_date IS NULL LIMIT 1`,
-            [vote.brand_id]
-          );
-
-          if (freshPuzzle.rows[0]) {
-            puzzleMatch = freshPuzzle.rows[0];
-            chosenBrandId = vote.brand_id;
-            finalVoteCount = parseInt(vote.vote_count, 10);
-            finalSelectionMethod = 'voted';
-            logger.info(`Puzzles: Community vote honored for brand ${chosenBrandId} (Rank #${topVotes.rows.indexOf(vote) + 1} with ${finalVoteCount} votes).`);
-            break;
-          } else {
-            logger.warn(`Puzzles: Community voted for brand ${vote.brand_id} but no fresh assets available. Checking next rank...`);
-          }
-        }
-      }
-
-      // Fall back to a random puzzle ONLY if no voted brands have fresh content
-      if (!puzzleMatch) {
-        logger.info('Puzzles: No voted brands have fresh content or no votes cast. Falling back to Lucky Draw.');
-        result = await pool.query(
-          `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
-           FROM puzzles
-           WHERE scheduled_date IS NULL
-           ORDER BY RANDOM() LIMIT 1`
-        );
-        puzzleMatch = result.rows[0];
-      }
-
-      // If we found a puzzle because it was explicitly voted for today
-      if (chosenBrandId && puzzleMatch && puzzleMatch.brand_id === chosenBrandId) {
-        finalSelectionMethod = 'voted';
-        finalVoteCount = parseInt(voteResult.rows[0].vote_count, 10);
-      }
-
-      // Schedule the chosen puzzle for today and stamp its selection method
-      if (puzzleMatch) {
-        const assignedMethod = finalSelectionMethod; // 'voted' or 'lucky_draw'
-        await pool.query(
-          `UPDATE puzzles SET scheduled_date = $1, selection_method = $2 WHERE id = $3`,
-          [today, assignedMethod, puzzleMatch.id]
-        );
-        puzzleMatch.selection_method = assignedMethod;
-      }
-    } else {
-      // Puzzle already assigned for today — trust the stored selection_method
-      const storedMethod = puzzleMatch.selection_method || 'lucky_draw';
-
-      if (storedMethod === 'voted') {
-        // It was voted — look up the vote count
-        const checkVote = await pool.query(
-          `SELECT COUNT(*) as vote_count FROM puzzle_votes WHERE brand_id = $1 AND vote_date = $2`,
-          [puzzleMatch.brand_id, today]
-        );
-        finalVoteCount = parseInt(checkVote.rows[0]?.vote_count || 0, 10);
-        finalSelectionMethod = 'voted';
-      } else {
-        // 'scheduled' (seeder pre-planned) or 'lucky_draw' (random runtime pick)
-        finalSelectionMethod = storedMethod;
+      if (existingResult.rows[0]) {
+        puzzleMatch = existingResult.rows[0];
+        finalSelectionMethod = puzzleMatch.selection_method || 'scheduled';
         finalVoteCount = 0;
       }
     }
+
+    // 4. Ultimate Fallback: Perform a new Lucky Draw if the day is empty
+    if (!puzzleMatch) {
+      const fallbackResult = await pool.query(
+        `SELECT id, brand_id, brand_name, company_name, ticker, logo_url, difficulty, sector, hint, selection_method
+         FROM puzzles
+         WHERE scheduled_date IS NULL
+         ORDER BY RANDOM() LIMIT 1`
+      );
+
+      if (fallbackResult.rows[0]) {
+        puzzleMatch = fallbackResult.rows[0];
+        finalSelectionMethod = 'lucky_draw';
+        await pool.query(
+          `UPDATE puzzles SET scheduled_date = $1, selection_method = 'lucky_draw' WHERE id = $2`,
+          [today, puzzleMatch.id]
+        );
+      }
+    }
+
+    if (puzzleMatch) {
+      res.json({
+        ...puzzleMatch,
+        selectionMethod: finalSelectionMethod,
+        voteCount: finalVoteCount
+      });
+    } else {
+      logger.warn('No daily puzzle found (table might be empty)', { today });
+      res.json(null);
+    }
+  } catch (err) {
+    logger.error('Error fetching daily puzzle', {
+      error: err.message,
+      stack: err.stack,
+      today
+    });
+    res.status(500).json({ error: `Failed to fetch puzzle: ${err.message}` });
+  }
+});
 
     if (puzzleMatch) {
       res.json({
