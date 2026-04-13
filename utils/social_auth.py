@@ -21,7 +21,9 @@ class SocialAuthManager:
         providers = {}
         if 'oauth' in self._config:
             for p_name, settings in self._config['oauth'].items():
-                if 'client_id' in settings and 'client_secret' in settings:
+                c_id = settings.get('client_id', '')
+                # GOVERNANCE: Hide providers that are not yet production-ready
+                if c_id and "test-id" not in c_id.lower():
                      providers[p_name] = settings
         return providers
 
