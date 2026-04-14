@@ -23,7 +23,7 @@ def show_hil_tab():
 
     st.divider()
 
-    tabs = st.tabs(["📥 Pending Review", "✅ History & Audit"])
+    tabs = st.tabs(["📥 Pending Review", "🌟 Qualitative Insights", "✅ History & Audit"])
 
     # --- PENDING REVIEW ---
     with tabs[0]:
@@ -68,8 +68,33 @@ def show_hil_tab():
                             st.toast(f"Request {req['id']} Rejected.", icon="⚠️")
                             st.rerun()
 
-    # --- HISTORY ---
+    # --- QUALITATIVE INSIGHTS ---
     with tabs[1]:
+        feedback = get_requests(request_type="QUALITATIVE_FEEDBACK")
+        if not feedback:
+            st.info("No strategic feedback or success stories recorded yet.")
+            if st.button("🌟 Seed Test Feedback (Debug)"):
+                from utils.hil_manager import create_hil_request
+                create_hil_request(
+                    "Teacher Agent",
+                    "High Engagement Alert",
+                    {"engagement_score": 0.98, "brand": "TCS"},
+                    "User spent 45s reading lore. Suggest expanding this content type.",
+                    request_type="QUALITATIVE_FEEDBACK",
+                    sentiment="Positive",
+                    topic="SUCCESS"
+                )
+                st.rerun()
+        else:
+            for item in feedback:
+                sentiment_emoji = "🟢" if item.get('sentiment') == 'Positive' else "🔵"
+                with st.expander(f"{sentiment_emoji} {item['agent_name']}: {item['task_name']}", expanded=True):
+                    st.markdown(f"**Topic:** `{item.get('topic', 'Insight')}`")
+                    st.write(item.get('user_feedback', 'Agent-synthesized insight based on interaction patterns.'))
+                    st.caption(f"Recommendation: {item['instructions']}")
+
+    # --- HISTORY ---
+    with tabs[2]:
         history = [r for r in get_requests() if r["status"] != "PENDING"]
         if not history:
             st.info("No approval history found.")

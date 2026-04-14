@@ -59,7 +59,8 @@ function App() {
     }
   };
 
-  const pendingRequests = requests.filter(r => r.status === 'PENDING');
+  const pendingRequests = requests.filter(r => r.status === 'PENDING' && r.request_type !== 'QUALITATIVE_FEEDBACK');
+  const feedbackItems = requests.filter(r => r.request_type === 'QUALITATIVE_FEEDBACK');
 
   if (loading && !stats) return <div className="dashboard-container"><h1>Initializing Core...</h1></div>;
 
@@ -77,6 +78,7 @@ function App() {
         <button className={`tab-btn ${activeTab === 'governance' ? 'active' : ''}`} onClick={() => setActiveTab('governance')}>🛡️ Governance Gate</button>
         <button className={`tab-btn ${activeTab === 'brain' ? 'active' : ''}`} onClick={() => setActiveTab('brain')}>🧠 Agent Brain</button>
         <button className={`tab-btn ${activeTab === 'kpis' ? 'active' : ''}`} onClick={() => setActiveTab('kpis')}>📈 Agent KPIs</button>
+        <button className={`tab-btn ${activeTab === 'feedback' ? 'active' : ''}`} onClick={() => setActiveTab('feedback')}>🌟 Success & Feedback</button>
         <button className={`tab-btn ${activeTab === 'health' ? 'active' : ''}`} onClick={() => setActiveTab('health')}>⚙️ System Health</button>
       </nav>
 
@@ -195,6 +197,47 @@ function App() {
                   </div>
               </div>
             ))}
+          </div>
+        </main>
+      )}
+
+      {activeTab === 'feedback' && (
+        <main>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+            <h2>🌟 Qualitative Insights & User Feedback</h2>
+            <div style={{fontSize: '0.9rem', color: 'var(--accent-green)'}}>● Collecting Live Feedback</div>
+          </div>
+
+          <div className="request-grid">
+            {feedbackItems.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">🌟</div>
+                <h3>No Strategic Feedback Yet</h3>
+                <p>Agents are waiting for user interaction data to synthesize improvements.</p>
+              </div>
+            ) : (
+              feedbackItems.map(item => (
+                <div key={item.id} className="request-card" style={{borderLeft: `4px solid ${item.severity === 'high' ? 'var(--accent-red)' : (item.sentiment === 'Positive' ? 'var(--accent-green)' : 'var(--accent-blue)')}`}}>
+                  <div className="card-header">
+                    <span className="agent-badge" style={{background: item.sentiment === 'Positive' ? 'var(--accent-green)' : 'var(--accent-blue)'}}>
+                      {item.topic || 'Insight'}
+                    </span>
+                    <span className="timestamp">{new Date(item.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <h3 className="task-name">{item.agent_name}: {item.task_name}</h3>
+                  <p style={{fontSize: '0.9rem', opacity: 0.8, marginBottom: '1rem'}}>
+                    {item.user_feedback || 'Agent-synthesized success story based on recent performance metrics.'}
+                  </p>
+                  <div className="instructions" style={{borderColor: item.sentiment === 'Positive' ? 'var(--accent-green)' : 'var(--accent-blue)', background: 'rgba(255, 255, 255, 0.05)'}}>
+                    <strong>HIL Task:</strong> {item.instructions}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div style={{marginTop: '3rem', padding: '2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', textAlign: 'center'}}>
+             <p style={{opacity: 0.6, fontSize: '0.9rem'}}>This mission-critical tab captures qualitative data and user sentiment to drive agentic evolution.</p>
           </div>
         </main>
       )}

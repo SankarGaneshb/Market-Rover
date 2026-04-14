@@ -73,9 +73,24 @@ async def get_health_stats():
 async def get_brain_manifest():
     return {
         "agents": [
-            {"name": "Strategist", "role": "Macro Analysis", "max_iter": 3, "status": "Idling"},
-            {"name": "Shadow Analyst", "role": "Technical Edge", "max_iter": 5, "status": "Analyzing NSE"},
-            {"name": "SRE Support", "role": "Governance Gate", "max_iter": 3, "status": "Optimizing API"}
+            # MARKET-ROVER (8)
+            {"name": "Portfolio Manager", "role": "Portfolio Processing", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Market Strategist", "role": "Macro & News", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Sentiment Expert", "role": "Psychological Edge", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Technical Analyst", "role": "Price Action", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Report Writer", "role": "Intelligence Sync", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Data Visualizer", "role": "Graphing Engine", "platform": "Market-Rover", "status": "Active"},
+            {"name": "Shadow Analyst", "role": "Institutional Flow", "platform": "Market-Rover", "status": "Analyzing NSE"},
+            {"name": "Timing Analyst", "role": "Contextual Timing", "platform": "Market-Rover", "status": "Active"},
+            # INVESTBRAND (5)
+            {"name": "Game Master", "role": "Puzzle Orchestration", "platform": "InvestBrand", "status": "Active"},
+            {"name": "Brand Profiler", "role": "Entity Mapping", "platform": "InvestBrand", "status": "Active"},
+            {"name": "Teacher Agent", "role": "Financial Literacy", "platform": "InvestBrand", "status": "Active"},
+            {"name": "QC Agent", "role": "Asset Validation", "platform": "InvestBrand", "status": "Active"},
+            {"name": "Ops Support SRE", "role": "Runtime Governance", "platform": "InvestBrand", "status": "Active"},
+            # PLEDGE ROVER (2)
+            {"name": "Pledge Council", "role": "Risk Assessment", "platform": "Pledge Rover", "status": "Active"},
+            {"name": "Data Harvester", "role": "BSE/NSE Scraping", "platform": "Pledge Rover", "status": "Active"}
         ]
     }
 

@@ -100,7 +100,7 @@ ISSUE_OWNERS = {
     'MarketData': ['SankarGaneshb'],
     'Investbrand': ['SankarGaneshb', 'Jayasreesankarganesh'],
     'PledgeRover': ['SankarGaneshb'],
-    'HILRover': ['SankarGaneshb'],
+    'HILRover': ['SankarGaneshb', 'Jayasreesankarganesh'],
 }
 
 # Label rules: substring -> label

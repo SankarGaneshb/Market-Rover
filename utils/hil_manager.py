@@ -19,7 +19,7 @@ def _save_requests(requests):
     with open(DATA_FILE, "w", encoding='utf-8') as f:
         json.dump(requests, f, indent=4)
 
-def create_hil_request(agent_name, task_name, data, instructions=None):
+def create_hil_request(agent_name, task_name, data, instructions=None, request_type=None, sentiment=None, topic=None, user_feedback=None):
     """
     Creates a new HIL request and saves it.
     """
@@ -39,20 +39,26 @@ def create_hil_request(agent_name, task_name, data, instructions=None):
         "expires_at": expires_at,
         "decision": None,
         "comments": None,
-        "processed_at": None
+        "processed_at": None,
+        "request_type": request_type,
+        "sentiment": sentiment,
+        "topic": topic,
+        "user_feedback": user_feedback
     }
 
     requests.append(new_request)
     _save_requests(requests)
     return new_request["id"]
 
-def get_requests(status=None):
+def get_requests(status=None, request_type=None):
     """
     Returns filtered HIL requests.
     """
     requests = _load_requests()
     if status:
-        return [r for r in requests if r["status"] == status]
+        requests = [r for r in requests if r["status"] == status]
+    if request_type:
+        requests = [r for r in requests if r.get("request_type") == request_type]
     return requests
 
 def process_request(request_id, status, comments=None):
