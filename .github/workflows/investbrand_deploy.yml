@@ -206,14 +206,15 @@ jobs:
           echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
           cat nginx.conf
 
-      - name: Build & Push Frontend
+      - name: Build Frontend (GCP Remote)
         run: |
-          docker build \
-            --build-arg "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" \
-            -t gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} .
-          gcloud auth configure-docker gcr.io --quiet
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
-      - run: |
+          gcloud builds submit . \
+            --config cloudbuild.yaml \
+            --substitutions="_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},_SERVICE_NAME=${{ env.FRONTEND_SERVICE }}" \
+            --substitutions="COMMIT_SHA=${{ github.sha }}"
+
+      - name: Deploy Frontend
+        run: |
           gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated
