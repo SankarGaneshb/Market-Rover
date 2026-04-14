@@ -47,10 +47,10 @@ describe('Auth Routes', () => {
         jest.clearAllMocks();
     });
 
-    it('should return 400 if google token is missing', async () => {
-        const res = await request(app).post('/api/auth/google').send({});
+    it('should return 400 if oAuth token is missing', async () => {
+        const res = await request(app).post('/api/auth/social-login').send({});
         expect(res.statusCode).toBe(400);
-        expect(res.body.error).toBe('Google token required');
+        expect(res.body.error).toBe('OAuth token required');
     });
 
     it('should authenticate user and return jwt token', async () => {
@@ -64,7 +64,7 @@ describe('Auth Routes', () => {
         };
         mockQuery.mockResolvedValue({ rows: [mockDbUser] });
 
-        const res = await request(app).post('/api/auth/google').send({ token: 'valid-token' });
+        const res = await request(app).post('/api/auth/social-login').send({ token: 'valid-token' });
         expect(res.statusCode).toBe(200);
         expect(res.body.token).toBeDefined();
         expect(res.body.user.email).toBe('test@test.com');
@@ -73,7 +73,7 @@ describe('Auth Routes', () => {
     it('should handle invalid google token gracefully', async () => {
         mockVerifyIdToken.mockRejectedValue(new Error('Invalid token'));
 
-        const res = await request(app).post('/api/auth/google').send({ token: 'invalid-token' });
+        const res = await request(app).post('/api/auth/social-login').send({ token: 'invalid-token' });
         expect(res.statusCode).toBe(401);
         expect(res.body.error).toBe('Authentication failed');
     });
@@ -107,5 +107,31 @@ describe('Auth Routes', () => {
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toBe(401);
+    });
+
+    it('should handle other social providers in non-production', async () => {
+        const mockDbUser = { id: 2, name: 'facebook User', email: 'user@facebook.demo' };
+        mockQuery.mockResolvedValue({ rows: [mockDbUser] });
+
+        const res = await request(app)
+            .post('/api/auth/social-login')
+            .send({ token: 'any-token', provider: 'facebook' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.user.name).toBe('facebook User');
+    });
+
+    it('should redirect deprecated /google route', async () => {
+        const res = await request(app).post('/api/auth/google');
+        expect(res.statusCode).toBe(307);
+        expect(res.headers.location).toBe('/api/auth/social-login');
+    });
+
+    it('should return 401 on /me if token is invalid', async () => {
+        const res = await request(app)
+            .get('/api/auth/me')
+            .set('Authorization', 'Bearer invalid.token.here');
+        expect(res.statusCode).toBe(401);
+        expect(res.body.error).toBe('Invalid token');
     });
 });

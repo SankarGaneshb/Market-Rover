@@ -223,7 +223,7 @@ export default function PuzzleGame() {
           setIsGuessPhase(false);
           setUserGuess('');
           // Re-generate pieces for logo
-          fetchDaily();
+          fetchDailyPuzzle();
         }, 1500);
       } else {
         if (currentClueIdx < 3) setCurrentClueIdx(prev => prev + 1);

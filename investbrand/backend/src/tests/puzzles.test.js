@@ -29,7 +29,14 @@ describe('Puzzle Routes', () => {
 
     beforeEach(() => {
         mockQuery = jest.fn();
-        getPool.mockReturnValue({ query: mockQuery });
+        const mockClient = {
+            query: mockQuery,
+            release: jest.fn()
+        };
+        getPool.mockReturnValue({
+            query: mockQuery,
+            connect: jest.fn().mockResolvedValue(mockClient)
+        });
     });
 
     afterEach(() => {

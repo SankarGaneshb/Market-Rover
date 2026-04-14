@@ -44,14 +44,20 @@ export default function Home() {
 
         <div className="flex flex-col items-center gap-6">
           <button
-            onClick={() => user ? navigate('/play') : null}
-            className={`${user ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-slate-800/50 cursor-not-allowed border border-white/5'} text-white text-xl font-black px-12 py-5 rounded-[2rem] transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-3 transform hover:scale-105 active:scale-95`}
+            onClick={() => {
+              if (user) {
+                navigate('/play');
+              } else {
+                document.getElementById('social-access')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className={`${user ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-slate-800/80 hover:bg-slate-700/60 border border-white/10'} text-white text-xl font-black px-12 py-5 rounded-[2rem] transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-3 transform hover:scale-105 active:scale-95`}
           >
             {user ? "Continue Journey →" : <><Play size={24} fill="currentColor" /> Play Now</>}
           </button>
 
           {!user && (
-            <div className="mt-8 bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md animate-in zoom-in-95 duration-500">
+            <div id="social-access" className="mt-8 bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md animate-in zoom-in-95 duration-500">
               <h3 className="text-white font-bold text-lg mb-6 flex items-center justify-center gap-2">
                 <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-white/20"></span>
                 Social Identity Access

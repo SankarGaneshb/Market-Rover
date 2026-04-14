@@ -239,7 +239,7 @@ export default function Vote() {
                                                     `}
                                             >
                                                 {(isPlayed || isVoted) && (
-                                                    <div className={`absolute top-0 right-0 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg z-10 
+                                                    <div className={`absolute top-0 right-0 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg z-10
                                                         ${isVoted ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                                         {isVoted ? 'Voted' : 'Played'}
                                                     </div>
@@ -357,7 +357,6 @@ export default function Vote() {
                     </div>
 
                 </div>
-                )}
             </div>
         </div>
     );
