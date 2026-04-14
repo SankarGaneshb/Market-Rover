@@ -35,7 +35,7 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 def load_errors_in_range(start_date: datetime, end_date: datetime):
     """Load and aggregate errors for the given date range (inclusive start, exclusive end)."""
     out = []
-    
+
     current = start_date
     while current < end_date:
         date_str = current.strftime("%Y-%m-%d")
@@ -48,7 +48,7 @@ def load_errors_in_range(start_date: datetime, end_date: datetime):
                     except Exception:
                         continue
         current += timedelta(days=1)
-        
+
     return out
 
 
@@ -79,7 +79,7 @@ def aggregate(errors: list):
         for it in items:
             if it.get('user_id'):
                 users.add(it.get('user_id'))
-        
+
         # Find latest timestamp
         timestamps = [it.get('ts') for it in items if it.get('ts')]
         last_seen = max(timestamps) if timestamps else datetime.now(timezone.utc).isoformat()
@@ -95,6 +95,23 @@ def aggregate(errors: list):
     # Impact Score: occurrences * unique_users
     for item in summary:
         item['impact_score'] = item['occurrences'] * max(1, item['unique_users'])
+
+        # TRIAGE LOGIC: Identify owners and labels
+        sig = item['signature']
+        item['owners'] = []
+        item['labels'] = []
+
+        for kw, owners in ISSUE_OWNERS.items():
+            if kw.lower() in sig.lower():
+                item['owners'].extend(owners)
+
+        for kw, lbl in LABEL_RULES.items() if isinstance(LABEL_RULES, dict) else LABEL_RULES:
+            if kw.lower() in sig.lower():
+                item['labels'].append(lbl)
+
+        # Deduplicate
+        item['owners'] = list(set(item['owners']))
+        item['labels'] = list(set(item['labels']))
 
     summary.sort(key=lambda x: x['impact_score'], reverse=True)
     return summary
@@ -132,17 +149,20 @@ def post_to_slack(summary: list, webhook: str, frequency: str):
         sig = item['signature']
         users = item['unique_users']
         occ = item['occurrences']
-        
+
         # Extract location if possible
         sample = item.get('sample', {})
         context = sample.get('context', {})
         loc = context.get('location', 'Unknown')
 
+        owners_str = ", ".join(item.get('owners', [])) or "Unassigned"
+        labels_str = " ".join([f"`{l}`" for l in item.get('labels', [])])
+
         blocks.append({
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"*{i}. {sig}*\nLocation: `{loc}` | Users impacted: `{users}` | Count: `{occ}`"
+                "text": f"*{i}. {sig}*\nLocation: `{loc}` | Impact: `{users}` users | Count: `{occ}`\nAssignee: `{owners_str}` | Labels: {labels_str}"
             }
         })
 
@@ -153,7 +173,7 @@ def post_to_slack(summary: list, webhook: str, frequency: str):
         })
 
     payload = {"blocks": blocks}
-    
+
     try:
         r = requests.post(webhook, json=payload, timeout=10)
         return r.status_code == 200
@@ -187,19 +207,22 @@ def send_email_report(summary: list, frequency: str, recipients: list):
             <th>Issue Signature</th>
             <th>Occurrences</th>
             <th>Users Affected</th>
+            <th>Assignees</th>
         </tr>
     """
-    
+
     for item in summary[:10]:
+        owners = ", ".join(item.get('owners', [])) or "None"
         html += f"""
         <tr>
             <td>{item['signature'][:100]}...</td>
             <td>{item['occurrences']}</td>
             <td>{item['unique_users']}</td>
+            <td>{owners}</td>
         </tr>
         """
     html += "</table>"
-    
+
     msg.attach(MIMEText(html, 'html'))
 
     try:
@@ -217,51 +240,51 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--frequency', choices=['daily', 'weekly', 'monthly'], default='daily')
     parser.add_argument('--email', help='Comma-separated email recipients', default='')
-    
+
     args = parser.parse_args()
-    
+
     # Calculate date range
     from datetime import timezone
     today = datetime.now(timezone.utc).date()
-    # End date is usually "tomorrow" midnght to capture full "today", 
+    # End date is usually "tomorrow" midnght to capture full "today",
     # but metrics files are by date.
     # Logic: "Daily" = Yesterday's full logs (completed day) or Last 24h?
     # Safer: "Daily" = Today logs so far + Yesterday
-    
+
     # Simplified Logic:
     # Daily = Look at (Now - 1 day) to Now
     # Weekly = Look at (Now - 7 days) to Now
     # Monthly = Look at (Now - 30 days) to Now
-    
+
     end_date = datetime(today.year, today.month, today.day) + timedelta(days=1) # Midnight tomorrow
-    
+
     if args.frequency == 'daily':
         start_date = end_date - timedelta(days=1)
     elif args.frequency == 'weekly':
         start_date = end_date - timedelta(days=7)
     else:
         start_date = end_date - timedelta(days=30)
-        
+
     print(f"Aggregating errors from {start_date.date()} to {end_date.date()} ({args.frequency})...")
-    
+
     errors = load_errors_in_range(start_date, end_date)
     summary = aggregate(errors)
-    
+
     print(f"Found {len(summary)} unique issues.")
-    
+
     # Save Report
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     out_file = REPORTS_DIR / f"report_{args.frequency}_{ts}.json"
     with out_file.open('w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2)
     print(f"Saved: {out_file}")
-    
+
     # Slack
     webhook = os.getenv('SLACK_WEBHOOK')
     if webhook:
         if post_to_slack(summary, webhook, args.frequency):
             print("✅ Slack notification sent.")
-            
+
     # Email
     if args.email:
         recipients = [e.strip() for e in args.email.split(',')]

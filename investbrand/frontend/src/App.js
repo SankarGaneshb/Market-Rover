@@ -38,10 +38,13 @@ function PrivateRoute({ children }) {
 }
 
 export default function App() {
-  const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '9514347926-lm36bs6ks9o6rl6bs5hac2cj9ptp9q4c.apps.googleusercontent.com';
+  const envId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const GOOGLE_CLIENT_ID = (envId && envId !== "undefined" && envId !== "null" && envId.trim() !== "")
+    ? envId
+    : '9514347926-lm36bs6ks9o6rl6bs5hac2cj9ptp9q4c.apps.googleusercontent.com';
 
-  if (!process.env.REACT_APP_GOOGLE_CLIENT_ID) {
-    console.warn("WARNING: REACT_APP_GOOGLE_CLIENT_ID is undefined. Using fallback ID.");
+  if (!envId || envId === "undefined" || envId === "null" || envId.trim() === "") {
+    console.warn("WARNING: REACT_APP_GOOGLE_CLIENT_ID is missing or invalid. Using safety fallback ID.");
   }
 
   return (

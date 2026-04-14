@@ -113,51 +113,47 @@ class SocialAuthManager:
         # 2. Render Login UI
         st.markdown("""
             <style>
-            .social-container {
+            .social-outer {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 20px;
+                justify-content: center;
                 padding: 40px 20px;
-                background: linear-gradient(145deg, #1e1e26, #2a2a35);
-                border-radius: 24px;
-                border: 1px solid rgba(255,255,255,0.05);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-                margin: 20px auto;
-                max-width: 500px;
+                background: linear-gradient(135deg, #0f0f15 0%, #1a1a25 100%);
+                border-radius: 32px;
+                border: 1px solid rgba(255,255,255,0.08);
+                box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+                margin: 40px auto;
+                max-width: 550px;
+                text-align: center;
             }
-            .social-header {
+            .social-header-small {
                 font-family: 'Inter', sans-serif;
                 font-size: 11px;
                 font-weight: 800;
-                color: #5d5d70;
-                letter-spacing: 2px;
+                color: #6366f1;
+                letter-spacing: 3px;
                 text-transform: uppercase;
-                margin-bottom: 5px;
+                margin-bottom: 8px;
             }
-            .social-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-                margin-top: 10px;
+            .social-title {
+                font-size: 28px;
+                font-weight: 900;
+                color: white;
+                margin-bottom: 24px;
+                letter-spacing: -0.5px;
             }
-            .platform-card {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-                padding: 15px;
-                background: rgba(255,255,255,0.03);
-                border-radius: 16px;
-                transition: background 0.3s;
-            }
-            .platform-card:hover {
-                background: rgba(255,255,255,0.08);
+            .platform-label {
+                font-size: 10px;
+                font-weight: 700;
+                color: #888;
+                margin-top: 8px;
+                text-transform: uppercase;
             }
             </style>
-            <div class="social-container">
-                <div class="social-header">Institutional Access</div>
-                <div style="font-size: 22px; font-weight: 700; color: white; margin-bottom: 10px;">Connect your account</div>
+            <div class="social-outer">
+                <div class="social-header-small">Mission Intelligence</div>
+                <div class="social-title">Connect your Social ID</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -170,15 +166,18 @@ class SocialAuthManager:
             {'id': 'x', 'name': 'X', 'icon': 'https://img.icons8.com/ios-filled/100/ffffff/x-logo.png'}
         ]
 
-        # Centered layout for buttons
-        cols = st.columns([1, 6, 1])[1]
-        with cols:
-            sub_cols = st.columns(len(platforms))
+        # Use st.columns for even distribution
+        # Adding a bit of padding cols
+        main_cols = st.columns([1, 10, 1])
+        with main_cols[1]:
+            btn_cols = st.columns(len(platforms))
             for i, p in enumerate(platforms):
-                with sub_cols[i]:
-                    st.image(p['icon'], width=38)
-                    if st.button("Login", key=f"login_{p['id']}", use_container_width=True):
+                with btn_cols[i]:
+                    st.image(p['icon'], use_container_width=True)
+                    if st.button("Connect", key=f"login_{p['id']}", use_container_width=True):
                         st.session_state['active_oauth_provider'] = p['id']
                         st.rerun()
+
+        st.markdown('<div style="margin-bottom: 100px;"></div>', unsafe_allow_html=True)
 
         return None

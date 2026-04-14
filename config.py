@@ -58,10 +58,10 @@ THOUSAND_CRORE = 10_000_000_000
 def convert_to_crores(amount: float) -> str:
     """
     Convert amount to Crores format.
-    
+
     Args:
         amount: Amount in regular units
-        
+
     Returns:
         Formatted string in Crores
     """
@@ -77,10 +77,10 @@ def convert_to_crores(amount: float) -> str:
 def ensure_nse_suffix(symbol: str) -> str:
     """
     Ensure stock symbol has .NS suffix for NSE.
-    
+
     Args:
         symbol: Stock symbol
-        
+
     Returns:
         Symbol with .NS suffix
     """
@@ -93,11 +93,14 @@ def ensure_nse_suffix(symbol: str) -> str:
 # Issue triage defaults
 # Mapping of keyword -> list of GitHub usernames to assign
 ISSUE_OWNERS = {
-    'Visualizer': ['data-team'],
-    'OptionChain': ['derivatives-team'],
-    'Gemini': ['ml-team'],
-    'Network': ['infra-team'],
-    'MarketData': ['data-team'],
+    'Visualizer': ['SankarGaneshb'],
+    'OptionChain': ['SankarGaneshb'],
+    'Gemini': ['SankarGaneshb'],
+    'Network': ['SankarGaneshb'],
+    'MarketData': ['SankarGaneshb'],
+    'Investbrand': ['SankarGaneshb', 'Jayasreesankarganesh'],
+    'PledgeRover': ['SankarGaneshb'],
+    'HILRover': ['SankarGaneshb'],
 }
 
 # Label rules: substring -> label
@@ -106,6 +109,9 @@ LABEL_RULES = [
     ('OptionChain', 'area:options'),
     ('nse_option', 'area:options'),
     ('Gemini', 'area:llm'),
+    ('Investbrand', 'module:investbrand'),
+    ('PledgeRover', 'module:pledgerover'),
+    ('HILRover', 'module:hilrover'),
     ('timeout', 'type:timeout'),
     ('ConnectionError', 'type:network'),
     ('ValueError', 'type:data'),
