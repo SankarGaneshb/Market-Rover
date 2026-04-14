@@ -207,10 +207,11 @@ jobs:
           cat nginx.conf
 
       - name: Build Frontend (GCP Remote)
+        working-directory: investbrand/frontend
         run: |
           gcloud builds submit . \
             --config cloudbuild.yaml \
-            --substitutions="_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},_SERVICE_NAME=${{ env.FRONTEND_SERVICE }},COMMIT_SHA=${{ github.sha }}"
+            --substitutions="_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},_SERVICE_NAME=${{ env.FRONTEND_SERVICE }},_IMAGE_TAG=gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
 
       - name: Deploy Frontend
         run: |

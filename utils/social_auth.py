@@ -167,17 +167,28 @@ class SocialAuthManager:
         ]
 
         # Use st.columns for even distribution
-        # Adding a bit of padding cols
-        main_cols = st.columns([1, 10, 1])
+        main_cols = st.columns([1, 12, 1])
         with main_cols[1]:
+            # Create two rows if needed, but 5 columns should fit on wide layout
             btn_cols = st.columns(len(platforms))
             for i, p in enumerate(platforms):
                 with btn_cols[i]:
-                    st.image(p['icon'], use_container_width=True)
-                    if st.button("Connect", key=f"login_{p['id']}", use_container_width=True):
-                        st.session_state['active_oauth_provider'] = p['id']
-                        st.rerun()
+                    is_available = p['id'] in self.oauth_providers
 
-        st.markdown('<div style="margin-bottom: 100px;"></div>', unsafe_allow_html=True)
+                    # Tooltip for status
+                    status_text = "Click to Login" if is_available else "Coming Soon"
+
+                    st.image(p['icon'], use_container_width=True)
+
+                    if is_available:
+                        if st.button("Login", key=f"login_{p['id']}", use_container_width=True, type="primary"):
+                            st.session_state['active_oauth_provider'] = p['id']
+                            st.rerun()
+                    else:
+                        st.button("Setup", key=f"login_{p['id']}", use_container_width=True, disabled=True)
+
+                    st.markdown(f'<div class="platform-label">{p["name"]}</div>', unsafe_allow_html=True)
+
+        st.markdown('<div style="margin-bottom: 50px;"></div>', unsafe_allow_html=True)
 
         return None

@@ -3,8 +3,8 @@ steps:
   args: [
     'build',
     '--build-arg', 'REACT_APP_GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID}',
-    '-t', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA',
+    '-t', '${_IMAGE_TAG}',
     '.'
   ]
 images:
-- 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+- '${_IMAGE_TAG}'
