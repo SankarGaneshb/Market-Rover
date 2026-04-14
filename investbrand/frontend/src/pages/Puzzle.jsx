@@ -228,8 +228,15 @@ export default function PuzzleGame() {
       } else {
         if (currentClueIdx < 3) setCurrentClueIdx(prev => prev + 1);
         if (newAttempts >= 3) {
-          setDynamicFeedback('3 unsuccessful attempts. Revealing the answer in 2 seconds...');
-          setTimeout(() => completeGame(moves, newAttempts), 2500);
+          setDynamicFeedback(`Final Attempt failed. The answer was ${currentBrand?.brand}! Now, reconstruct the official brand logo.`);
+          setTimeout(() => {
+            setPuzzleMode('logo');
+            setIsJigsawCompleted(false);
+            setIsGuessPhase(false);
+            setUserGuess('');
+            // Start the logo jigsaw phase regardless of success/failure in guessing
+            fetchDailyPuzzle();
+          }, 2500);
         }
       }
     } catch (error) {
@@ -427,10 +434,11 @@ export default function PuzzleGame() {
                       return (
                         <div key={positionIdx} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, positionIdx)} className={`relative flex items-center justify-center overflow-hidden transition-all duration-300 ${!isJigsawCompleted ? 'hover:z-10 hover:scale-[1.02]' : ''}`} style={{ width: '100%', height: '100%' }}>
                            <div draggable onDragStart={(e) => handleDragStart(e, actualPiece)} className={`absolute inset-0 cursor-grab active:cursor-grabbing ${isSolved ? 'opacity-100' : 'opacity-90'}`} style={{
-                             backgroundImage: `url("${mergedPuzzleUrl}")`,
+                             backgroundImage: `url("${puzzleMode === 'logo' ? currentBrand?.logoUrl : mergedPuzzleUrl}")`,
                              backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
                              backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
-                             backgroundRepeat: 'no-repeat'
+                             backgroundRepeat: 'no-repeat',
+                             backgroundColor: puzzleMode === 'logo' ? 'white' : 'transparent'
                            }} />
                            {isSolved && <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-1 shadow-2xl"><Award size={10}/></div>}
                         </div>
