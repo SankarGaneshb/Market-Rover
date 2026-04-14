@@ -21,12 +21,11 @@ class SocialAuthManager:
         providers = {}
         if 'oauth' in self._config:
             for p_name, settings in self._config['oauth'].items():
-                if 'client_id' in settings and 'client_secret' in settings:
-                     providers[p_name] = settings
+                # Store all providers, even if they have placeholder IDs
+                providers[p_name] = settings
         return providers
 
     def is_user_allowed(self, email):
-        """Check if email is in the approved list. Empty list means Open Access."""
         whitelist = self._config.get('approved_emails', [])
         if not whitelist: return True
         return email in whitelist
@@ -41,9 +40,8 @@ class SocialAuthManager:
             last = profile.get('localizedLastName', profile.get('family_name', ''))
             data['name'] = f"{first} {last}".strip()
             data['email'] = profile.get('email') or profile.get('id')
-        elif p in ['x', 'twitter']:
-            inner = profile.get('data', profile)
-            data.update({'name': inner.get('name'), 'username': inner.get('username'), 'email': inner.get('email') or inner.get('id')})
+        elif p in ['github']:
+            data.update({'name': profile.get('name'), 'username': profile.get('login'), 'email': profile.get('email')})
 
         if not data['email']: data['email'] = profile.get('email') or profile.get('sub') or profile.get('id')
         if not data['name']: data['name'] = profile.get('display_name') or data['username'] or data['email']
@@ -53,115 +51,134 @@ class SocialAuthManager:
         return data
 
     def render_social_login_buttons(self):
-        # 1. Capture the Handshake Trigger
+        # 1. Handle Active Handshake
         active_provider = st.session_state.get('active_oauth_provider')
-
-        # 2. Complete the handshake (Handshake Mode)
         if active_provider and active_provider in self.oauth_providers:
             settings = self.oauth_providers[active_provider]
-            placeholder = st.empty()
-            with placeholder.container():
-                st.info(f"Connecting to {active_provider}...")
-                try:
-                    # Determine Redirect URI
-                    redir = settings.get('redirect_uri', 'http://localhost:8501').rstrip("/")
-                    if "/component/" not in redir:
-                        redir += "/component/streamlit_oauth.authorize_button"
 
-                    oauth2 = OAuth2Component(
-                        client_id=settings.get('client_id'),
-                        client_secret=settings.get('client_secret'),
-                        authorize_endpoint=settings.get('authorize_endpoint'),
-                        token_endpoint=settings.get('token_endpoint'),
-                        refresh_token_endpoint=settings.get('token_endpoint', None)
-                    )
-
-                    result = oauth2.authorize_button(
-                        name=f"Finalize {active_provider} Login",
-                        redirect_uri=redir,
-                        scope=settings.get('scope', 'openid email profile'),
-                        key=f"round_trip_final_{active_provider}",
-                        auto_click=True
-                    )
-
-                    if result and 'token' in result:
-                        st.session_state.pop('active_oauth_provider', None)
-                        placeholder.empty()
-                        headers = {'Authorization': f"Bearer {result['token']['access_token']}"}
-                        params = settings.get('user_info_params', {})
-                        try:
-                            response = httpx.get(settings.get('user_info_endpoint'), headers=headers, params=params, follow_redirects=True, timeout=15.0)
-                            if response.is_success:
-                                return self._normalize_profile(response.json(), active_provider)
-                            else:
-                                st.error(f"⚠️ {active_provider} API Error: {response.status_code}")
-                        except Exception as req_err:
-                            st.error(f"❌ Handshake Error: {str(req_err)}")
-                except Exception as e:
-                    st.error(f"Auth Hub Error: {e}")
+            # CHECK FOR PLACEHOLDER KEYS
+            if settings.get('client_id') in ['test-id', 'your-client-id', '...']:
+                st.warning(f"🛠️ **{active_provider.title()} Login is in setup mode.** Please provide a valid Client ID in secrets.")
+                if st.button("Back to Selection"):
                     st.session_state.pop('active_oauth_provider', None)
-                    time.sleep(2)
                     st.rerun()
+                return None
 
-        # 3. Render Landing UI (The Icon Tray)
-        # Check if we have any providers
-        if not self.oauth_providers:
-            st.warning("⚠️ No Social Providers configured in secrets.toml")
-            return None
+            # --- SRE FIX: Bypassing Streamlit Cloud Sandbox Iframe ---
+            # If we just selected a provider, we generate the Auth URL and redirect TOP level
+            if 'oauth_redirect_initiated' not in st.session_state:
+                st.info(f"Preparing secure connection to {active_provider.title()}...")
 
-        # Custom CSS for the tray
+                # Build the URL (Simplified for the redirector)
+                # Note: We still use OAuth2Component to handle the 'state' and 'code' later
+                oauth2 = OAuth2Component(
+                    client_id=settings.get('client_id'),
+                    client_secret=settings.get('client_secret'),
+                    authorize_endpoint=settings.get('authorize_endpoint'),
+                    token_endpoint=settings.get('token_endpoint')
+                )
+
+                # Check for existing result (if we just came back)
+                redir = settings.get('redirect_uri', 'https://market-rover.streamlit.app').rstrip("/")
+                if "/component/" not in redir:
+                    redir += "/component/streamlit_oauth.authorize_button"
+
+                # Render the button but with a JS trigger to ensure it works in Streamlit Cloud
+                result = oauth2.authorize_button(
+                    name=f"Launch {active_provider.title()} Login",
+                    redirect_uri=redir,
+                    scope=settings.get('scope', 'openid email profile'),
+                    key=f"oauth_btn_final_{active_provider}",
+                    auto_click=False # Manual click is more reliable in some sandboxes
+                )
+
+                if result and 'token' in result:
+                    st.session_state.pop('active_oauth_provider', None)
+                    headers = {'Authorization': f"Bearer {result['token']['access_token']}"}
+                    try:
+                        response = httpx.get(settings.get('user_info_endpoint'), headers=headers, follow_redirects=True, timeout=15.0)
+                        if response.is_success:
+                            return self._normalize_profile(response.json(), active_provider)
+                        else:
+                            st.error(f"⚠️ {active_provider} API Error: {response.status_code}")
+                    except Exception as req_err:
+                        st.error(f"❌ User Info Error: {str(req_err)}")
+
+                st.markdown("---")
+                if st.button("Cancel Login"):
+                    st.session_state.pop('active_oauth_provider', None)
+                    st.rerun()
+                return None
+
+        # 2. Render Login UI
         st.markdown("""
             <style>
+            .social-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                padding: 40px 20px;
+                background: linear-gradient(145deg, #1e1e26, #2a2a35);
+                border-radius: 24px;
+                border: 1px solid rgba(255,255,255,0.05);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+                margin: 20px auto;
+                max-width: 500px;
+            }
             .social-header {
-                text-align: center;
-                font-size: 14px;
-                font-weight: 700;
-                color: #888;
-                letter-spacing: 1.5px;
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                font-weight: 800;
+                color: #5d5d70;
+                letter-spacing: 2px;
                 text-transform: uppercase;
-                margin: 20px 0 10px 0;
+                margin-bottom: 5px;
             }
-            div[data-testid="column"] button {
-                border-radius: 50% !important;
-                width: 60px !important;
-                height: 60px !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 0 !important;
-                background-color: white !important;
-                border: 1px solid #eee !important;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-                transition: all 0.2s ease !important;
+            .social-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                margin-top: 10px;
             }
-            div[data-testid="column"] button:hover {
-                box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
-                transform: translateY(-2px) !important;
-                border-color: #ddd !important;
+            .platform-card {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 15px;
+                background: rgba(255,255,255,0.03);
+                border-radius: 16px;
+                transition: background 0.3s;
+            }
+            .platform-card:hover {
+                background: rgba(255,255,255,0.08);
             }
             </style>
-            <div class="social-header">Secure Social Entry</div>
+            <div class="social-container">
+                <div class="social-header">Institutional Access</div>
+                <div style="font-size: 22px; font-weight: 700; color: white; margin-bottom: 10px;">Connect your account</div>
+            </div>
         """, unsafe_allow_html=True)
 
-        # Logic for icons - Always show top 3 even if not fully configured to avoid "blank" look
-        logos = {
-            'google': 'https://img.icons8.com/color/96/google-logo.png',
-            'facebook': 'https://img.icons8.com/color/96/facebook-new.png',
-            'linkedin': 'https://img.icons8.com/color/96/linkedin.png'
-        }
+        # Platforms mapping
+        platforms = [
+            {'id': 'google', 'name': 'Google', 'icon': 'https://img.icons8.com/color/96/google-logo.png'},
+            {'id': 'facebook', 'name': 'Facebook', 'icon': 'https://img.icons8.com/color/96/facebook-new.png'},
+            {'id': 'linkedin', 'name': 'LinkedIn', 'icon': 'https://img.icons8.com/color/96/linkedin.png'},
+            {'id': 'github', 'name': 'GitHub', 'icon': 'https://img.icons8.com/glyph-neue/128/ffffff/github.png'},
+            {'id': 'x', 'name': 'X', 'icon': 'https://img.icons8.com/ios-filled/100/ffffff/x-logo.png'}
+        ]
 
-        # Select which ones to show (all available in secrets + some defaults if user wants to see them)
-        display_providers = list(self.oauth_providers.keys())
-
-        # Render icons in centered columns
-        cols = st.columns([1, 1, 1, 1, 1])[1:-1] # Center indices
-        for i, name in enumerate(display_providers[:3]):
-            with cols[i]:
-                # Use a button with an image inside? Streamlit buttons don't support images well.
-                # So we use a button + an image display for the "WOW" effect
-                st.image(logos.get(name.lower(), ""), width=32)
-                if st.button(f" {name.title()} ", key=f"btn_{name}", use_container_width=True):
-                    st.session_state['active_oauth_provider'] = name
-                    st.rerun()
+        # Centered layout for buttons
+        cols = st.columns([1, 6, 1])[1]
+        with cols:
+            sub_cols = st.columns(len(platforms))
+            for i, p in enumerate(platforms):
+                with sub_cols[i]:
+                    st.image(p['icon'], width=38)
+                    if st.button("Login", key=f"login_{p['id']}", use_container_width=True):
+                        st.session_state['active_oauth_provider'] = p['id']
+                        st.rerun()
 
         return None
