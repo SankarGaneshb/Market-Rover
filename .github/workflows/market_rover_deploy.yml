@@ -53,6 +53,13 @@ jobs:
         run: |
           pytest tests/ -v --tb=short
 
+      - name: Market-Rover Startup Integrity Check
+        run: |
+          export PYTHONPATH=$PYTHONPATH:.
+          # Try importing the app to verify all dependencies and module loads pass
+          python -c "from src.server import app; print('[OK] Market-Rover App loaded successfully')"
+
+
       - name: Upload coverage to Codecov
         if: always()
         uses: codecov/codecov-action@v5

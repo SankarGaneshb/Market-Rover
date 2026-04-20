@@ -39,6 +39,13 @@ jobs:
         working-directory: pledge_rover/backend
         run: pytest -v
 
+      - name: Pledge-Rover Startup Integrity Check
+        run: |
+          export PYTHONPATH=$PYTHONPATH:.
+          # Try importing the app to verify all dependencies and module loads pass
+          python -c "from pledge_rover.backend.src.server import app; print('[OK] Pledge-Rover App loaded successfully')"
+
+
   lint-frontend:
     name: Frontend Lint
     runs-on: ubuntu-latest
@@ -95,4 +102,5 @@ jobs:
       - name: Notify HIL on Failure
         if: failure()
         run: |
+          pip install requests --quiet
           python scripts/log_build_failure.py "Pledge-Rover Deployment" "${{ github.run_id }}" "Deployment failure detected in Docker build or Cloud Run step."
