@@ -16,11 +16,11 @@
 ## Why Market-Rover?
 
 - Built **for Indian markets**: Nifty, Sensex, sector indices, NSE symbols, and block deals – not generic US-only tooling.
-- **Multi-agent CrewAI + Gemini** brain: 5+ specialized agents for news, sentiment, seasonality, portfolio optimization, and “shadow” institutional flows.
-- Production-ready **Streamlit app** with authentication, rate limiting, logging, and PDF/HTML report exports.
-- Runs comfortably on the **free tier** – Streamlit Cloud + Gemini 1.5/2.0 free limits are enough for normal usage.
--
-🌐 **Live App:** https://market-rover.streamlit.app/
+- **Enterprise v5 Stack**: Decoupled **FastAPI Backend** and **React 19 (Vite) Frontend** for maximum performance and scalability.
+- **LangGraph Intelligence**: 10+ specialized nodes orchestrated via **Gemini 2.0-Flash** for news, sentiment, seasonality, MTC technicals, and forensic signals.
+- **Production-ready**: Hosted on Google Cloud Run with unified **PostgreSQL (Cloud SQL)** and CI/CD coverage gates (70%).
+
+🌐 **Live v5 UI:** https://market-rover-ui-9514347926.us-central1.run.app/
 
 ---
 
@@ -28,25 +28,24 @@
 
 ### Prerequisites
 
-- Python 3.13 (Strict requirement for CrewAI compatibility)
+- Python 3.13 (Global requirement for multi-module parity)
 - Google Gemini API key ([Get free key](https://makersuite.google.com/app/apikey))
 
-### Quick Start (Local in 1 Minute)
+### Local Development (v5)
 
+#### 1. Backend (FastAPI)
 ```bash
-# 1. Clone repository
-cd Market-Rover
-
-# 2. Install dependencies
+cd market_rover/backend
 pip install -r requirements.txt
+# Set GOOGLE_API_KEY and DATABASE_URL in .env
+python src/server.py
+```
 
-# 3. Set up environment
-copy .env.example .env
-# Edit .env and add: GOOGLE_API_KEY=your_key_here
-
-# 4. Run the app
-streamlit run app.py
-# Opens at http://localhost:8501
+#### 2. Frontend (React)
+```bash
+cd market_rover/frontend
+npm install
+npm run dev
 ```
 
 ---
@@ -215,11 +214,12 @@ graph TD
 ```
 
 **Key Technologies:**
-- **CrewAI**: Multi-agent orchestration
-- **Google Gemini 1.5 Flash**: LLM for reasoning & analysis
-- **yfinance**: Free NSE/BSE stock data
-- **Newspaper3k**: Web scraping engine
-- **Streamlit + Plotly**: Interactive web UI
+- **LangGraph**: Stateful, multi-node orchestration
+- **FastAPI**: High-performance async backend
+- **React 19 + Vite**: Modern, responsive frontend
+- **Google Gemini 2.0 Flash**: Core LLM reasoning engine
+- **PostgreSQL (Cloud SQL)**: Consolidated database for all modules
+- **yfinance / nselib**: Real-time Asian & Indian market data
 
 ## 📊 Usage Guide
 
@@ -331,7 +331,7 @@ Market-Rover includes enterprise-grade security:
 - **CrewAI** - Multi-agent orchestration
 - **Google Gemini 2.0-flash** - Latest LLM reasoning engine
 - **langchain-google-genai** - LLM integration
-- **yfinance** - Stock
+- **Python 3.13** - Universal production standard
 - **Pandas / Numpy** - Data manipulation (IQR statistical filtering)
 
 ### Web UI & Visualization
@@ -626,7 +626,7 @@ Personal use. Ensure compliance with data source terms of service:
 
 **Market-Rover** - Your intelligent stock companion 🚀
 
-*Last Updated: February 23, 2026*
+*Last Updated: April 18, 2026 (v5 Cloud-Native Migration)*
 
 ---
 

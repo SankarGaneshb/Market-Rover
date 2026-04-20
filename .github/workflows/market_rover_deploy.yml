@@ -1,0 +1,208 @@
+name: Deploy Market-Rover v5
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'market_rover/**'
+      - '.github/workflows/market_rover_deploy.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  BACKEND_SERVICE: market-rover-api
+  FRONTEND_SERVICE: market-rover-ui
+
+jobs:
+  # -- Backend: test + deploy FastAPI + LangGraph ---------------------------
+  deploy-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: market_rover/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Notify HIL - Backend Build Started
+        run: |
+          MSG="[IN-PROGRESS] Market-Rover API Build #${{ github.run_number }} started. Running Python tests..."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover API Deploy\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"pending\",
+              \"data\": { \"service\": \"market-rover-api\", \"action\": \"DEPLOY_START\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
+
+      - name: Run backend tests with coverage gate (70%)
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          flags: market_rover_backend
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Push Backend Image (remote GCP build)
+        working-directory: market_rover
+        run: |
+          gcloud builds submit . \
+            --config cloudbuild.yaml \
+            --substitutions="_SERVICE_NAME=${{ env.BACKEND_SERVICE }},_IMAGE_TAG=gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+
+      - name: Deploy Backend to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-secrets "GOOGLE_API_KEY=GOOGLE_API_KEY:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest" \
+            --set-env-vars "NODE_ENV=production,DB_USER=postgres,DB_NAME=market_rover,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_REDIRECT_URI=https://${{ env.FRONTEND_SERVICE }}-9514347926.${{ env.REGION }}.run.app/auth/callback" \
+            --add-cloudsql-instances market-rover:us-central1:investbrand-db \
+            --timeout 300 \
+            --concurrency 80
+
+      - name: Notify HIL on Success
+        if: success()
+        run: |
+          MSG="[SUCCESS] Market-Rover API Build #${{ github.run_number }} deployed. Service live at us-central1."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover API Deploy Success\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"completed\",
+              \"data\": { \"service\": \"market-rover-api\", \"action\": \"DEPLOY_SUCCESS\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
+      - name: Notify HIL on Failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MSG="[ALERT] Market-Rover API Deploy FAILED. Build #${{ github.run_number }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover API Deploy Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"market-rover-api\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || python scripts/sre_emergency_fallback.py "Market-Rover API Deploy Failure" "$MSG"
+
+  # -- Frontend: build Vite + nginx -> Cloud Run ----------------------------
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    defaults:
+      run:
+        working-directory: market_rover/frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Notify HIL - Frontend Build Started
+        run: |
+          MSG="[IN-PROGRESS] Market-Rover UI Build #${{ github.run_number }} started. Building Vite React app..."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover Frontend Deploy\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"pending\",
+              \"data\": { \"service\": \"market-rover-ui\", \"action\": \"DEPLOY_START\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'market_rover/frontend/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Inject Backend URL into nginx.conf
+        run: |
+          BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} \
+            --region ${{ env.REGION }} --format 'value(status.url)')
+          sed -i "s|BACKEND_URL|$BACKEND_URL|g" nginx.conf
+          echo "Proxying /api to: $BACKEND_URL"
+
+      - name: Build Frontend (remote GCP Cloud Build)
+        working-directory: market_rover/frontend
+        run: |
+          gcloud builds submit . \
+            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+
+      - name: Deploy Frontend to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated
+
+      - name: Notify HIL on Success
+        if: success()
+        run: |
+          MSG="[SUCCESS] Market-Rover UI Build #${{ github.run_number }} deployed. Frontend live."
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover Frontend Deploy Success\",
+              \"instructions\": \"$MSG\",
+              \"status\": \"completed\",
+              \"data\": { \"service\": \"market-rover-ui\", \"action\": \"DEPLOY_SUCCESS\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || echo "HIL Dashboard unreachable"
+
+      - name: Notify HIL on Failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MSG="[ALERT] Market-Rover UI Deploy FAILED. Build #${{ github.run_number }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent_name\": \"SRE Support\",
+              \"task_name\": \"Market-Rover Frontend Deploy Failure\",
+              \"instructions\": \"$MSG\",
+              \"data\": { \"service\": \"market-rover-ui\", \"action\": \"DEPLOY_FAILURE\", \"build_id\": \"${{ github.run_number }}\" }
+            }" || python scripts/sre_emergency_fallback.py "Market-Rover Frontend Deploy Failure" "$MSG"

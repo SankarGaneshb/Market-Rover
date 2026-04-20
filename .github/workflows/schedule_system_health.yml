@@ -1,4 +1,4 @@
-name: Issue Report Scheduler
+﻿name: Issue Report Scheduler
 
 on:
   schedule:
@@ -55,7 +55,7 @@ jobs:
         # Determine frequency (use input or default to daily for cron)
         FREQ="${{ inputs.frequency || 'daily' }}"
         EMAIL="${{ inputs.email }}"
-        
+
         echo "Running $FREQ report..."
         python scripts/report_system_errors.py --frequency "$FREQ" --email "$EMAIL"
 

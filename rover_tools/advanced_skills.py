@@ -3,6 +3,8 @@ Advanced CrewAI Tools for Market Rover Agents
 """
 from crewai.tools import tool
 import json
+import yfinance as yf
+import pandas as pd
 from datetime import datetime
 from utils.logger import get_logger
 
@@ -62,9 +64,30 @@ def detect_technical_patterns_tool(ticker: str) -> str:
     Input: Stock ticker (e.g., INFY.NS)
     """
     try:
-        # A real implementation would download data via yfinance and run Ta-Lib functions
-        # Mocking for architectural setup
-        return f"Pattern Detection for {ticker}: RSI (14) at 55. MACD shows mild bullish crossover. No divergence detected."
+        data = yf.download(ticker, period="1mo", interval="1d", progress=False)
+        if data.empty:
+             return f"No technical data for {ticker}"
+
+        # Simple RSI (14)
+        delta = data['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs)).iloc[-1]
+
+        # MACD (12, 26, 9)
+        exp1 = data['Close'].ewm(span=12, adjust=False).mean()
+        exp2 = data['Close'].ewm(span=26, adjust=False).mean()
+        macd = exp1 - exp2
+        signal = macd.ewm(span=9, adjust=False).mean()
+
+        crossover = "No Crossover"
+        if macd.iloc[-1] > signal.iloc[-1] and macd.iloc[-2] <= signal.iloc[-2]:
+            crossover = "BULLISH CROSSOVER"
+        elif macd.iloc[-1] < signal.iloc[-1] and macd.iloc[-2] >= signal.iloc[-2]:
+            crossover = "BEARISH CROSSOVER"
+
+        return f"Pattern Detection for {ticker}: RSI (14) at {rsi:.2f}. MACD is {crossover}."
     except Exception as e:
          logger.error(f"Error in detect_technical_patterns_tool: {e}")
          return f"Failed to detect technical patterns for {ticker}."
@@ -160,12 +183,33 @@ def fetch_options_skew_tool(ticker: str) -> str:
 @tool("calculate_mtc_score_tool")
 def calculate_mtc_score_tool(ticker: str) -> str:
     """
-    Calculates the Multi-Timeframe Concordance (MTC) score across 15m, 1h, and Daily.
+    Calculates the Multi-Timeframe Concordance (MTC) score across 1h and Daily.
     Input: Stock ticker (e.g., INFY.NS)
     """
     try:
-        # Elite logic: If trends align, MTC = 100. If conflicting, MTC = 0.
-        return f"MTC Score for {ticker}: 85/100. Daily (UP), 1h (UP), 15m (NEUTRAL). High-conviction entry pending 15m breakout."
+        # Fetch Daily and 1h data
+        d_data = yf.download(ticker, period="1mo", interval="1d", progress=False)
+        h_data = yf.download(ticker, period="5d", interval="1h", progress=False)
+
+        if d_data.empty or h_data.empty:
+            return f"MTC Score for {ticker}: Insufficient Data"
+
+        # Check Trend (Price > 20EMA)
+        d_trend = d_data['Close'].iloc[-1] > d_data['Close'].ewm(span=20).mean().iloc[-1]
+        h_trend = h_data['Close'].iloc[-1] > h_data['Close'].ewm(span=20).mean().iloc[-1]
+
+        score = 0
+        if d_trend and h_trend:
+            score = 100
+            status = "STRONG BUY CONCORDANCE"
+        elif not d_trend and not h_trend:
+            score = 100
+            status = "STRONG SELL CONCORDANCE"
+        else:
+            score = 50
+            status = "CONFLICTING TRENDS"
+
+        return f"MTC Score for {ticker}: {score}/100. Status: {status}."
     except Exception as e:
         logger.error(f"Error in calculate_mtc_score_tool: {e}")
         return f"Failed to calculate MTC score for {ticker}."

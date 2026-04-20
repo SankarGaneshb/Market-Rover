@@ -16,7 +16,7 @@ Run this checklist before marking any significant task as "Completed".
     - [ ] Is the Investment Disclaimer visible in new tabs?
 
 3.  **Code Consistency**
-    - [ ] Did you verify imports work in `Python 3.11/3.13` (Prod)?
+    - [ ] Did you verify imports work in **Python 3.13** (Global Standard)?
     - [ ] Are new files correctly placed in `rover_tools/` or `tabs/`?
 
 4.  **Audit Trail**
@@ -27,5 +27,6 @@ Run this checklist before marking any significant task as "Completed".
 
 6.  **CI/CD & Infrastructure Stability**
     - [ ] **CRITICAL**: No emojis or non-standard Unicode in `.github/workflows/`, `Dockerfile`, or `.env`.
-    - [ ] Peg Python dependencies to versions with verified 3.13 wheels (e.g. pandas 2.2.3+).
+    - [ ] **MANDATORY**: Run `python scripts/build_integrity_check.py` and ensure the output is `[SUCCESS]`.
+    - [ ] Ensure all Dockerfiles (including satellite modules) use `python:3.13-slim`.
     - [ ] Ensure `Notify HIL on Failure` step is present and traceable.

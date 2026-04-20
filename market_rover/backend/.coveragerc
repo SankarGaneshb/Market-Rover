@@ -1,0 +1,14 @@
+[run]
+source = src
+omit =
+    # Legacy Streamlit-era database config — not used in FastAPI mode.
+    # Replaced by src/utils/db_manager.py (asyncpg). Excluded from coverage.
+    src/config/database.py
+    src/config/__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    except ImportError:

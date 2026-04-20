@@ -1,4 +1,4 @@
-name: Validate Issue Assignees
+﻿name: Validate Issue Assignees
 
 on:
   workflow_dispatch:

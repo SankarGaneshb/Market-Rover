@@ -7,8 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from src.routes import api_router
 from src.config.database import init_db, close_db
-from src.utils.ops_support import analyze_error_async, analyze_error
-
+from src.utils.ops_support import analyze_error_async
 # --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
 _original_signal = signal.signal
 def _safe_signal(sig, handler):
@@ -33,8 +32,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     try:
         analysis = await analyze_error_async(exc, context="pledge_rover_api")
     except:
-        # Fallback to sync if async logic fails
-        analysis = analyze_error(exc) if 'analyze_error' in globals() else None
+        analysis = None
 
     return JSONResponse(
         status_code=500,

@@ -1,4 +1,4 @@
-name: Daily Issue Report
+﻿name: Daily Issue Report
 
 on:
   schedule:

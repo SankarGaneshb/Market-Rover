@@ -8,7 +8,7 @@ Pledge Rover is an institutional-grade module within the Market Rover intelligen
 
 Unlike the US markets where pledging is rare, Promoter Pledging in India is a major corporate funding mechanism. Identifying the nuances between "Growth Pledging" (expanding infrastructure) and "Survival Pledging" (to avoid margin calls) is critical. Pledge Rover acts as your automated research desk for exactly this problem.
 
-## System Architecture 
+## System Architecture
 
 Pledge Rover has three main tiers, mimicking the battle-tested architecture of InvestBrand and perfectly suited for **Google Cloud Run**:
 
@@ -20,7 +20,7 @@ Built using Python (FastAPI/LangGraph/CrewAI), this is an AI pipeline consisting
 - **The Skeptic**: Evaluates the narrative. It challenges the Actuary by parsing Annual Reports (MD&A) and issues a Final Synthesis on true intent.
 
 ### 2. The API Layer (Backend Integration)
-The application leverages a `FastAPI` server configured specifically to deploy seamlessly onto Google Cloud Run. It mimics the familiar `src/routes`, `src/config`, and `src/data` folder structures you used in InvestBrand. 
+The application leverages a `FastAPI` server configured specifically to deploy seamlessly onto Google Cloud Run. It mimics the familiar `src/routes`, `src/config`, and `src/data` folder structures you used in InvestBrand.
 
 ### 3. The Front-End Experience
 A React (Vite) + Tailwind CSS application featuring a "Trust & Speed" design aesthetic—deep navy corporate blues with fast electric cyan highlights. It provides the **Market Dashboard** and the **Target Intelligence Profile** which visualizes the Agentic debate log explicitly.
@@ -33,7 +33,7 @@ cd pledge_rover/backend
 pip install -r requirements.txt
 uvicorn src.server:app --reload --port 8080
 ```
-This requires Python 3.10+. If deploying to Cloud Run, simply wrap this in a Dockerfile with `uvicorn src.server:app --host 0.0.0.0 --port $PORT`.
+This requires **Python 3.13**. All components of Pledge Rover follow the [Global AI Constitution](../../AI_AGENTS.md). For Cloud Run deployment, the Dockerfile is standardized on `python:3.13-slim`.
 
 ### Frontend (React / Vite)
 ```bash

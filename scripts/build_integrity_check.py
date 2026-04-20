@@ -49,6 +49,75 @@ def check_python_syntax():
         print("[PASS] Python Syntax: All files compiled successfully.")
     return success
 
+import re
+
+def check_no_emojis():
+    """Verify no emojis exist in prohibited files (workflows, Dockerfiles, .env)."""
+    prohibited_patterns = [
+        ".github/workflows/*.yml",
+        "Dockerfile",
+        "**/*/Dockerfile",
+        ".env",
+        ".env.example"
+    ]
+
+    # Range covering common emojis and pictographs
+    # We allow standard ASCII and some Latin-1, but block specifically identified emojis in rules
+    emoji_pattern = re.compile(r'[^\x00-\x7F]')
+
+    success = True
+    base_path = Path(".")
+
+    files_to_check = []
+    for pattern in prohibited_patterns:
+        files_to_check.extend(list(base_path.glob(pattern)))
+
+    for file_path in files_to_check:
+        if not file_path.is_file(): continue
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                matches = emoji_pattern.findall(content)
+                if matches:
+                    # Filter out non-emoji but non-ASCII characters if necessary,
+                    # but for this repo, the rule is strict about standard text markers.
+                    print(f"[FAIL] Unicode Rule: {file_path} contains prohibited characters: {' '.join(set(matches))}")
+                    success = False
+                else:
+                    print(f"[PASS] Unicode Rule: {file_path} is emoji-free.")
+        except Exception as e:
+            print(f"[SKIP] Unicode Rule: Could not read {file_path}: {e}")
+
+    return success
+
+def check_docker_python_version():
+    """Ensure all Dockerfiles use Python 3.13."""
+    success = True
+    base_path = Path(".")
+    docker_files = list(base_path.glob("**/Dockerfile")) + list(base_path.glob("Dockerfile"))
+
+    # Requirement: python:3.13...
+    version_pattern = re.compile(r'FROM\s+python:(?!3\.13)[\d.]+')
+
+    for df in set(docker_files):
+        if not df.is_file(): continue
+        try:
+            content = df.read_text(encoding='utf-8')
+            if "python:" in content and not "python:3.13" in content:
+                # Find exactly what version it is using for the error message
+                match = version_pattern.search(content)
+                current_v = match.group(0) if match else "Unknown"
+                print(f"[FAIL] Docker Rule: {df} uses incorrect Python version ({current_v}). MUST remain 3.13.")
+                success = True # Set to False once we are ready to enforce strictly, but for audit let's identify all.
+                # Actually, rule says strict requirement.
+                success = False
+            elif "python:3.13" in content:
+                print(f"[PASS] Docker Rule: {df} uses Python 3.13.")
+        except Exception as e:
+            print(f"[SKIP] Docker Rule: Could not read {df}: {e}")
+
+    return success
+
 def check_utf8_compliance():
     """Ensure no hidden non-UTF8 bytes in critical infrastructure files."""
     critical_files = [
@@ -78,12 +147,14 @@ def main():
     v_yaml = check_yaml_syntax()
     v_py = check_python_syntax()
     v_utf = check_utf8_compliance()
+    v_emoji = check_no_emojis()
+    v_docker = check_docker_python_version()
 
-    if all([v_yaml, v_py, v_utf]):
+    if all([v_yaml, v_py, v_utf, v_emoji, v_docker]):
         print("\n[SUCCESS] BUILD INTEGRITY VERIFIED. SAFE TO PUSH.")
         sys.exit(0)
     else:
-        print("\n[FAILURE] BUILD INTEGRITY FAILED. DO NOT PUSH.")
+        print("\n[FAILURE] BUILD INTEGRITY FAILED. PROHIBITED CHARACTERS OR VERSION MISMATCH DETECTED.")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -148,7 +148,7 @@ To configure:
 
 **Streamlit Community Cloud Free Tier**:
 - ✅ 1 GB RAM
-- ✅ 1 CPU core  
+- ✅ 1 CPU core
 - ✅ Unlimited apps (public repos)
 - ✅ Built-in authentication
 - ✅ HTTPS included
@@ -172,7 +172,7 @@ Beyond the main Streamlit app, Market-Rover utilizes specialized microservices f
 ### 6.2 Automatic Deployment
 These services are automatically built and deployed via **GitHub Actions** when changes are pushed to their respective directories:
 - `investbrand/` -> Deploy to Cloud Run (Node 20)
-- `pledge_rover/` -> Deploy to Cloud Run (Python 3.11)
+- `pledge_rover/` -> Deploy to Cloud Run (Python 3.13)
 
 ### 6.3 Manual Deployment (Optional)
 If you need to deploy manually from your local machine:

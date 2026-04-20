@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           cache: 'pip'
           cache-dependency-path: 'pledge_rover/backend/requirements.txt'
 
@@ -88,6 +88,8 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
+            --add-cloudsql-instances market-rover:us-central1:investbrand-db \
+            --set-env-vars "PR_DB_NAME=pledge_rover,PR_DB_USER=postgres,PR_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db" \
             --port 8080
 
       - name: Notify HIL on Failure

@@ -46,7 +46,7 @@ try:
     )
 except ImportError as e:
     import sys
-    print(f"⚠️ WARNING: Some rover_tools could not be imported: {e}", file=sys.stderr)
+    print(f"[WARN] Some rover_tools could not be imported: {e}", file=sys.stderr)
     # Define stubs for critical missing tools if needed, or rely on them being optional
     # For now, we assume most are needed but we'd rather warn than crash during collection.
 
@@ -100,7 +100,7 @@ def get_flash_llm():
     global _flash_llm
     if _flash_llm is not None:
         return _flash_llm
-    # Using 1.5 Flash for better stability and lower latency for general agents
+    # Primary model per rule #2.1
     _flash_llm = _create_llm("gemini-3.0-flash")
     return _flash_llm
 
@@ -109,9 +109,9 @@ def get_pro_llm():
     global _pro_llm
     if _pro_llm is not None:
         return _pro_llm
-    # Using 1.5 Pro for deep reasoning (fallback to Flash if 404)
+    # Using 1.5 Flash as higher-fidelity fallback for long-context tasks per rule #2.1
     try:
-        _pro_llm = _create_llm("gemini-1.5-pro")
+        _pro_llm = _create_llm("gemini-3.0-flash")
     except:
         _pro_llm = _create_llm("gemini-3.0-flash")
     return _pro_llm

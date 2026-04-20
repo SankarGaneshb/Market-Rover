@@ -11,6 +11,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(() => Date.now());
   const [activeTab, setActiveTab] = useState('governance');
+  const [provisionLog, setProvisionLog] = useState(null);
+  const [provisioning, setProvisioning] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -80,6 +82,7 @@ function App() {
         <button className={`tab-btn ${activeTab === 'kpis' ? 'active' : ''}`} onClick={() => setActiveTab('kpis')}>📈 Agent KPIs</button>
         <button className={`tab-btn ${activeTab === 'feedback' ? 'active' : ''}`} onClick={() => setActiveTab('feedback')}>🌟 Success & Feedback</button>
         <button className={`tab-btn ${activeTab === 'health' ? 'active' : ''}`} onClick={() => setActiveTab('health')}>⚙️ System Health</button>
+        <button className={`tab-btn ${activeTab === 'infra' ? 'active' : ''}`} onClick={() => setActiveTab('infra')}>🏗️ Infrastructure</button>
       </nav>
 
       {activeTab === 'governance' && (
@@ -279,6 +282,97 @@ function App() {
       <footer style={{marginTop: '4rem', opacity: 0.3, fontSize: '0.8rem', textAlign: 'center'}}>
         &copy; 2026 Market-Rover Ecosystem | Autonomous Governance Protocol
       </footer>
+
+      {activeTab === 'infra' && (
+        <main>
+          <h2 style={{marginBottom: '0.5rem'}}>Infrastructure Provisioning</h2>
+          <p style={{color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem'}}>
+            Creates the <code>market_rover</code>, <code>pledge_rover</code>, and <code>hil_rover</code> databases
+            on the shared <strong>investbrand-db</strong> Cloud SQL instance and applies all schemas.
+            Safe to run multiple times — fully idempotent.
+          </p>
+
+          <button
+            id="btn-provision"
+            className="btn-approve"
+            style={{maxWidth: '320px', fontSize: '1rem', padding: '0.9rem 2rem', marginBottom: '2rem'}}
+            disabled={provisioning}
+            onClick={async () => {
+              setProvisioning(true);
+              setProvisionLog(null);
+              try {
+                const res = await fetch(`${API_BASE}/provision`, { method: 'POST' });
+                const data = await res.json();
+                setProvisionLog(data);
+              } catch (e) {
+                setProvisionLog({ status: 'error', log: [], errors: [String(e)] });
+              } finally {
+                setProvisioning(false);
+              }
+            }}
+          >
+            {provisioning ? 'Provisioning...' : 'Provision All Databases'}
+          </button>
+
+          {provisionLog && (
+            <div style={{
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: `1px solid ${provisionLog.status === 'done' ? 'var(--accent-green)' : 'var(--accent-amber)'}`
+            }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                marginBottom: '1.25rem'
+              }}>
+                <span style={{
+                  background: provisionLog.status === 'done' ? 'var(--accent-green)' : 'var(--accent-amber)',
+                  color: '#000', borderRadius: '6px', padding: '0.2rem 0.75rem',
+                  fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase'
+                }}>
+                  {provisionLog.status}
+                </span>
+                <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>
+                  Provision completed
+                </span>
+              </div>
+
+              <div style={{marginBottom: '1rem'}}>
+                <strong style={{fontSize: '0.85rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.05em'}}>Log</strong>
+                <ul style={{marginTop: '0.5rem', listStyle: 'none', padding: 0}}>
+                  {provisionLog.log.map((entry, i) => (
+                    <li key={i} style={{
+                      padding: '0.4rem 0',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      fontSize: '0.9rem',
+                      color: 'var(--accent-green)'
+                    }}>
+                      {entry}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {provisionLog.errors.length > 0 && (
+                <div>
+                  <strong style={{fontSize: '0.85rem', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.05em'}}>Errors</strong>
+                  <ul style={{marginTop: '0.5rem', listStyle: 'none', padding: 0}}>
+                    {provisionLog.errors.map((err, i) => (
+                      <li key={i} style={{
+                        padding: '0.4rem 0',
+                        fontSize: '0.85rem',
+                        color: 'var(--accent-red)'
+                      }}>
+                        {err}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+      )}
     </div>
   );
 }

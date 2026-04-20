@@ -7,12 +7,14 @@ on:
       - 'investbrand/**'
       - 'pledge_rover/**'
       - 'hil_rover/**'
+      - 'market_rover/**'
   pull_request:
     branches: [ main, develop ]
     paths-ignore:
       - 'investbrand/**'
       - 'pledge_rover/**'
       - 'hil_rover/**'
+      - 'market_rover/**'
   schedule:
     # 03:30 UTC = 09:00 AM IST (Monday to Friday)
     - cron: '30 3 * * 1-5'
@@ -63,10 +65,10 @@ jobs:
     - name: Lint with flake8
       run: |
         # Stop build if there are Python syntax errors or undefined names
-        # Exclude pledge_rover and investbrand - they have their own isolated CI pipelines
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=pledge_rover,investbrand
+        # Exclude satellite modules - they have their own isolated CI pipelines
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=pledge_rover,investbrand,market_rover
         # Exit-zero treats all errors as warnings
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics --exclude=pledge_rover,investbrand
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics --exclude=pledge_rover,investbrand,market_rover
 
     - name: Run tests
       run: |
@@ -74,13 +76,13 @@ jobs:
 
     - name: Test imports
       run: |
-        python -c "from crew_engine import create_crew; print('✅ Crew imports OK')"
-        python -c "from utils.mock_data import mock_generator; print('✅ Mock data imports OK')"
-        python -c "from utils.report_visualizer import ReportVisualizer; print('✅ Visualizer imports OK')"
+        python -c "from crew_engine import create_crew; print('[OK] Crew imports OK')"
+        python -c "from utils.mock_data import mock_generator; print('[OK] Mock data imports OK')"
+        python -c "from utils.report_visualizer import ReportVisualizer; print('[OK] Visualizer imports OK')"
 
     - name: Validate configuration
       run: |
-        python -c "import config; print('✅ Config loaded successfully')"
+        python -c "import config; print('[OK] Config loaded successfully')"
 
     - name: Validate issue assignees/labels
       env:
@@ -92,12 +94,12 @@ jobs:
     - name: Check code structure
       run: |
         echo "Checking project structure..."
-        test -f main.py && echo "✅ main.py exists" || true
-        test -f app.py && echo "✅ app.py exists" || true
-        test -f crew_engine.py && echo "✅ crew_engine.py exists" || true
-        test -f config.py && echo "✅ config.py exists" || true
-        test -d utils && echo "✅ utils/ directory exists" || true
-        test -d rover_tools && echo "✅ rover_tools/ directory exists" || true
+        test -f main.py && echo "[OK] main.py exists" || true
+        test -f app.py && echo "[OK] app.py exists" || true
+        test -f crew_engine.py && echo "[OK] crew_engine.py exists" || true
+        test -f config.py && echo "[OK] config.py exists" || true
+        test -d utils && echo "[OK] utils/ directory exists" || true
+        test -d rover_tools && echo "[OK] rover_tools/ directory exists" || true
 
     - name: Generate test coverage report
       run: |

@@ -41,7 +41,7 @@ export default function App() {
   const envId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
   const GOOGLE_CLIENT_ID = (envId && envId !== "undefined" && envId !== "null" && envId.trim() !== "")
     ? envId
-    : '9514347926-lm36bs6ks9o6rl6bs5hac2cj9ptp9q4c.apps.googleusercontent.com';
+    : '';
 
   if (!envId || envId === "undefined" || envId === "null" || envId.trim() === "") {
     console.warn("WARNING: REACT_APP_GOOGLE_CLIENT_ID is missing or invalid. Using safety fallback ID.");
