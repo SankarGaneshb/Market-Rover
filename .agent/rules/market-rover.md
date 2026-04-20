@@ -10,7 +10,7 @@ This document defines **how Gemini is used inside the Market‑Rover repository 
 
 ## 1. Scope & Purpose
 
-- This file applies **only to the Market‑Rover workspace** (this repository) and is not intended as a global Gemini config for other projects. [file:2]  
+- This file applies **only to the Market‑Rover workspace** (this repository) and is not intended as a global Gemini config for other projects. [file:2]
 - It is the **single source of truth** for:
   - Which Gemini models to use.
   - How agents should reason, respond, and respect data/tool boundaries.
@@ -24,8 +24,8 @@ Whenever `agents.py`, `tasks.py`, or Gemini integration logic changes, update th
 
 ### 2.1 Primary model
 
-- **Default LLM:** `google-gemini-2.0-flash` (or the latest equivalent configured via `langchain-google-genai`). [file:2]  
-- **Fallback / long-context model:** `google-gemini-1.5-flash` for longer reasoning tasks (e.g., detailed portfolio reports). [file:2]
+- **Default LLM:** `google-gemini-3.0-flash` (or the latest equivalent configured via `langchain-google-genai`). [file:2]
+- **Fallback / long-context model:** `google-gemini-3.0-flash` for longer reasoning tasks (e.g., detailed portfolio reports). [file:2]
 
 ### 2.2 API keys & environment
 

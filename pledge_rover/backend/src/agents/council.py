@@ -18,7 +18,7 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
 
     # Initialize Google Gemini LLM (Required to avoid OpenAI 401 fallback)
     gemini_llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemini-3.0-flash",
         verbose=True,
         temperature=0.3,
         google_api_key=os.getenv("GOOGLE_API_KEY")

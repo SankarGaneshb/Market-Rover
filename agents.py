@@ -101,7 +101,7 @@ def get_flash_llm():
     if _flash_llm is not None:
         return _flash_llm
     # Using 1.5 Flash for better stability and lower latency for general agents
-    _flash_llm = _create_llm("gemini-1.5-flash")
+    _flash_llm = _create_llm("gemini-3.0-flash")
     return _flash_llm
 
 def get_pro_llm():
@@ -113,7 +113,7 @@ def get_pro_llm():
     try:
         _pro_llm = _create_llm("gemini-1.5-pro")
     except:
-        _pro_llm = _create_llm("gemini-1.5-flash")
+        _pro_llm = _create_llm("gemini-3.0-flash")
     return _pro_llm
 
 # Legacy accessor for compatibility (mapped to Pro for safety)

@@ -10,7 +10,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3.0-flash',
       maxOutputTokens: 500,
       temperature: 0.1, // Low temperature for consistent analysis
       apiKey: process.env.GOOGLE_API_KEY
@@ -32,21 +32,21 @@ async function runQualityCheck() {
   try {
     // 1. Fetch aggregate feedback for active puzzles
     const feedbackQuery = `
-      SELECT 
-        p.id as puzzle_id, 
-        p.brand_name, 
-        p.ticker, 
-        f.category, 
-        f.rating, 
+      SELECT
+        p.id as puzzle_id,
+        p.brand_name,
+        p.ticker,
+        f.category,
+        f.rating,
         COUNT(*) as count
       FROM puzzle_feedback f
       JOIN puzzles p ON f.puzzle_id = p.id
       WHERE p.is_active = true
       GROUP BY p.id, p.brand_name, p.ticker, f.category, f.rating
     `;
-    
+
     const feedbackRes = await pool.query(feedbackQuery);
-    
+
     if (feedbackRes.rows.length === 0) {
       logger.info("QC Agent: No new feedback to process.");
       return { success: true, actions: [] };
@@ -75,7 +75,7 @@ async function runQualityCheck() {
     // 3. Let the Agent analyze the grouped feedback
     for (const puzzleId in organized) {
       const data = organized[puzzleId];
-      
+
       const analysisPrompt = `You are the InvestBrand Quality Control Agent.
 Analyze the following user feedback for the puzzle "${data.brand}" (${data.ticker}).
 
@@ -106,11 +106,11 @@ Respond ONLY with a JSON object:
         .replace(/```/g, '')
         .trim();
 
-      
+
       try {
         const decision = JSON.parse(cleanContent);
 
-        
+
         if (decision.shouldDisable) {
           logger.warn(`QC Agent: DISABLING puzzle ${data.ticker} due to: ${decision.rationale}`);
           await pool.query('UPDATE puzzles SET is_active = false WHERE id = $1', [puzzleId]);

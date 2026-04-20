@@ -12,7 +12,7 @@ function getLLMClient() {
   }
   if (!llm) {
     llm = new ChatGoogleGenerativeAI({
-      model: "gemini-1.5-flash",
+      model: "gemini-3.0-flash",
 
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.8,
@@ -33,10 +33,10 @@ async function generateDailyMission(userId) {
 
   try {
     const aiLlm = getLLMClient();
-    
+
     // 1. Fetch recent sectors to contextualize the mission
     const historyQuery = `
-      SELECT p.sector 
+      SELECT p.sector
       FROM puzzle_votes pv
       JOIN puzzles p ON p.brand_id = pv.brand_id
       WHERE pv.user_id = $1
@@ -44,7 +44,7 @@ async function generateDailyMission(userId) {
       LIMIT 10;
     `;
     const res = await pool.query(historyQuery, [userId]);
-    
+
     // Fallback if no history yet
     let contextStr = "The user is completely new with no voting history. Give them an introductory mission.";
     if (res.rows.length > 0) {
@@ -58,10 +58,10 @@ async function generateDailyMission(userId) {
       You are an expert game designer constructing a personalized stock market educational mission for a player.
       Context: ${contextStr}
 
-      Generate a single daily mission for the player. 
-      CRITICAL: Ensure the title is unique and creative (e.g. "Sector Samurai", "Mid-Cap Maverick", "Dividend Detective"). 
+      Generate a single daily mission for the player.
+      CRITICAL: Ensure the title is unique and creative (e.g. "Sector Samurai", "Mid-Cap Maverick", "Dividend Detective").
       Avoid generic titles like "Market Explorer" unless the user is completely new.
-      
+
       You must respond ONLY with a valid Raw JSON object (no markdown block formatting) matching exactly this schema:
       {
         "id": "dynamic_daily",
@@ -74,7 +74,7 @@ async function generateDailyMission(userId) {
 
 
     logger.info(`Gamemaster Agent: Orchestrating daily mission for user ${userId}...`);
-    
+
     // We append the JSON instruction strongly
     const llmResponse = await aiLlm.invoke(systemPrompt);
     const rawContent = llmResponse?.content || "";
@@ -83,11 +83,11 @@ async function generateDailyMission(userId) {
       .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim();
-    
+
     const missionData = JSON.parse(cleanJsonStr);
 
     logger.info(`Gamemaster Agent successfully orchestrated mission: ${missionData.title}`);
-    
+
     return missionData;
 
   } catch (err) {

@@ -22,11 +22,11 @@ def analyze_error(error: Exception, context: str = "general") -> Optional[Dict[s
     try:
         genai.configure(api_key=api_key)
         # Standardize on gemini-1.5-flash for speed/reliability in SRE tasks
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-3.0-flash')
 
         error_msg = str(error)
         error_type = type(error).__name__
-        
+
         prompt = f"""You are the Market-Rover Operational Support Agent (SRE).
 A system error has occurred in the {context} phase.
 
@@ -48,11 +48,11 @@ Respond ONLY with a JSON object:
 }}"""
 
         response = model.generate_content(prompt)
-        
+
         # Robust Parsing
         raw_content = response.text if hasattr(response, 'text') else str(response)
         clean_content = raw_content.strip().replace('```json', '').replace('```', '').strip()
-        
+
         try:
             return json.loads(clean_content)
         except json.JSONDecodeError:

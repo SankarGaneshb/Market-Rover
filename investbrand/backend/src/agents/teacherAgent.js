@@ -11,7 +11,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3.0-flash',
 
       maxOutputTokens: 200,
       temperature: 0.7,
@@ -72,7 +72,7 @@ You must reply with ONLY a pure JSON object in the exact following structure wit
       .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim();
-    
+
     logger.info(`Teacher Agent: Success for ${ticker}`);
 
     try {

@@ -11,7 +11,7 @@ function getLLMClient() {
   }
   if (!llm) {
     llm = new ChatGoogleGenerativeAI({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.0-flash",
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.8,
     });

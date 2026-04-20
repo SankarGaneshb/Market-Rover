@@ -21,7 +21,7 @@ async def analyze_error_async(error: Exception, context: str = "general") -> Opt
     try:
         # Note: We use the synchronous genai call inside a thread if async client isn't configured,
         # but here we'll simulate the async flow for FastAPI readiness.
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-3.0-flash')
         error_msg = str(error)
         error_type = type(error).__name__
 

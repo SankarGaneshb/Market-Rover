@@ -20,7 +20,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 ## 🕵️ Agent Roster (Core & Satellite)
 
 ### 1-6. Core Analysis Crew
-*Orchestrated by Gemini 1.5-Flash (Production Standard).* 🟢
+*Orchestrated by Gemini 3.0-Flash (Production Standard).* 🟢
 *   **Portfolio Manager**: The Gatekeeper. Validates tickers and standardizes inputs.
 *   **Market Strategist**: The Macro-Economist. Monitors global cues (Crude, Gold, Nasdaq) and corporate actions.
 *   **Sentiment Analyzer**: The Psychologist. Classifies news as Positive/Negative/Neutral.
@@ -29,7 +29,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *   **Report Writer**: The Editor. Synthesizes all inputs into the final Intelligence Report.
 
 ### 7-11. Satellite & SRE Crew
-*Orchestrated by Gemini 1.5-Flash and Node.js.*
+*Orchestrated by Gemini 3.0-Flash and Node.js.*
 *   **Investbrand Puzzle Agent**: Generates the "Brand to Stock" gamified challenges.
 *   **Adaptive Teacher**: Contextualizes gameplay with micro-learning insights.
 *   **Operational SRE Support**: Intercepts runtime exceptions and routes critical failures to the **HIL Mission Control**.
@@ -52,7 +52,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *   **Rule**: Fail gracefully. Fallback from Option Chains to Historical Volatility if data is missing.
 
 ### 5. The Production Standard
-*   **Rule**: Primary Brain must be **Gemini 1.5-Flash**. Verify UTF-8 compliance and Python 3.13 compatibility before every push.
+*   **Rule**: Primary Brain must be **Gemini 3.0-Flash**. Verify UTF-8 compliance and Python 3.13 compatibility before every push.
 
 ### 6. The Unicode Scrub Rule
 *   **Rule**: **No emojis** in `.github/workflows/`, `Dockerfile`, or `.env`. Use standard text markers like `[ALERT]`.
@@ -77,5 +77,5 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 
 ---
 
-**Built with CrewAI, Gemini 1.5-Flash, and Google Cloud Run.** 🚀
+**Built with CrewAI, Gemini 3.0-Flash, and Google Cloud Run.** 🚀
 *Last Unified Update: April 13, 2026*

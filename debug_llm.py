@@ -23,21 +23,21 @@ def test_gemini():
     except Exception as e:
         print(f"❌ Error listing models: {e}")
 
-    print("\nTesting Generation with 'gemini-1.5-flash'...")
+    print("\nTesting Generation with 'gemini-3.0-flash'...")
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-3.0-flash')
         response = model.generate_content("Hello, are you working?")
         print(f"✅ Response: {response.text}")
     except Exception as e:
-        print(f"❌ Failed 'gemini-1.5-flash': {e}")
-        
-    print("\nTesting Generation with 'models/gemini-1.5-flash' (explicit prefix)...")
+        print(f"❌ Failed 'gemini-3.0-flash': {e}")
+
+    print("\nTesting Generation with 'models/gemini-3.0-flash' (explicit prefix)...")
     try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        model = genai.GenerativeModel('models/gemini-3.0-flash')
         response = model.generate_content("Hello, are you working?")
         print(f"✅ Response: {response.text}")
     except Exception as e:
-        print(f"❌ Failed 'models/gemini-1.5-flash': {e}")
+        print(f"❌ Failed 'models/gemini-3.0-flash': {e}")
 
 if __name__ == "__main__":
     test_gemini()

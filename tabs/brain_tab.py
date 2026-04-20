@@ -13,7 +13,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Portfolio Manager",
         "emoji": "📁",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Read and process user's stock portfolio from CSV.",
         "tools": ["read_portfolio", "calculate_portfolio_risk_tool"],
         "status": "Active",
@@ -23,7 +23,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Market Impact Strategist",
         "emoji": "🌐",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Monitor macro events, global cues (Crude/Gold), corporate actions & news.",
         "tools": ["search_market_news", "get_global_cues", "get_corporate_actions",
                   "announce_regime_tool", "log_pivot_tool", "check_accounting_fraud",
@@ -35,7 +35,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Sentiment Analysis Expert",
         "emoji": "🎭",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Classify news sentiment (Fear/Greed) and detect contrarian traps.",
         "tools": ["analyze_retail_sentiment_tool"],
         "status": "Active",
@@ -45,7 +45,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Technical Market Analyst",
         "emoji": "📊",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Analyze Nifty/BankNifty price action, trends, and support/resistance levels.",
         "tools": ["analyze_market_context", "batch_get_stock_data", "detect_technical_patterns_tool"],
         "status": "Active",
@@ -55,7 +55,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Intelligence Report Writer",
         "emoji": "📝",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Generate comprehensive weekly stock intelligence report with risk highlights.",
         "tools": ["fetch_historical_context_tool"],
         "status": "Active",
@@ -65,7 +65,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Market Data Visualizer",
         "emoji": "🎨",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Generate premium visual dashboards with derivative analysis.",
         "tools": ["generate_market_snapshot", "generate_sector_heatmap_tool"],
         "status": "Active",
@@ -75,7 +75,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Institutional Shadow Analyst",
         "emoji": "🕵️",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Detect market traps (Accumulation/Distribution) by comparing Sentiment vs Flow.",
         "tools": ["analyze_sector_flow_tool", "fetch_block_deals_tool", "batch_detect_accumulation",
                   "get_trap_indicator_tool", "read_past_predictions_tool", "save_prediction_tool",
@@ -87,7 +87,7 @@ MARKET_ROVER_AGENTS = [
         "role": "Traditional Timing Analyst",
         "emoji": "🪔",
         "platform": "Market-Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Identify culturally significant investing windows via Indian calendars & astrology.",
         "tools": ["fetch_subha_muhurtham_tool", "analyze_traditional_calendar_tool"],
         "status": "Active",
@@ -100,7 +100,7 @@ INVESTBRAND_AGENTS = [
         "role": "Game Master",
         "emoji": "🎮",
         "platform": "InvestBrand",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Orchestrate daily brand puzzle challenges and track player streaks.",
         "tools": ["daily_puzzle_scheduler", "streak_tracker"],
         "status": "Active",
@@ -110,7 +110,7 @@ INVESTBRAND_AGENTS = [
         "role": "Brand Profiler",
         "emoji": "🏷️",
         "platform": "InvestBrand",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Build rich brand profiles linking NSE tickers to logos, sectors & trivia.",
         "tools": ["brand_data_fetcher", "ticker_mapper"],
         "status": "Active",
@@ -120,7 +120,7 @@ INVESTBRAND_AGENTS = [
         "role": "Teacher Agent",
         "emoji": "🎓",
         "platform": "InvestBrand",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Explain brand-to-stock connections using simplified financial concepts.",
         "tools": ["explainer_tool", "quiz_generator"],
         "status": "Active",
@@ -130,7 +130,7 @@ INVESTBRAND_AGENTS = [
         "role": "QC Agent",
         "emoji": "✅",
         "platform": "InvestBrand",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Validate logo assets and brand data quality before publishing puzzles.",
         "tools": ["logo_validator", "data_quality_checker"],
         "status": "Active",
@@ -140,7 +140,7 @@ INVESTBRAND_AGENTS = [
         "role": "Ops Support Agent",
         "emoji": "🛠️",
         "platform": "InvestBrand",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Monitor game infrastructure and diagnose runtime errors automatically.",
         "tools": ["log_analyzer", "error_classifier", "alert_dispatcher"],
         "status": "Active",
@@ -153,7 +153,7 @@ PLEDGE_ROVER_AGENTS = [
         "role": "Pledge Council",
         "emoji": "🛡️",
         "platform": "Pledge Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Analyze promoter pledging data and score contagion risk across companies.",
         "tools": ["bse_pledge_fetcher", "nse_pledge_fetcher", "contagion_scorer"],
         "status": "Active",
@@ -163,7 +163,7 @@ PLEDGE_ROVER_AGENTS = [
         "role": "Data Harvester",
         "emoji": "🌾",
         "platform": "Pledge Rover",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3.0-flash",
         "goal": "Collect and normalize raw shareholding & pledging data from BSE/NSE sources.",
         "tools": ["bse_scraper", "nse_scraper", "data_normalizer"],
         "status": "Active",
@@ -323,8 +323,8 @@ def show_brain_tab():
                     icon = "🤖"
 
                 st.markdown(f"""
-                **{time_str}** {icon} **{e_type}** ({role})  
-                _{detail}_  
+                **{time_str}** {icon} **{e_type}** ({role})
+                _{detail}_
                 `{ticker}`
                 <hr style="margin: 5px 0">
                 """, unsafe_allow_html=True)
@@ -338,13 +338,13 @@ def show_brain_tab():
         **Regime Router (Strategist)**:
         - `DEFENSIVE` if **VIX > 22** OR **Crude > $95** OR **USD/INR > 84.5**
         - `GROWTH` otherwise.
-        
+
         **Shadow Learning (Shadow Analyst)**:
         - If `Last Prediction` == `False` → **Confidence Penalty -20%**
-        
+
         **InvestBrand QC Gate**:
         - Logo validated → Puzzle published. Failed QC → flagged for manual review.
-        
+
         **Pledge Rover Council**:
         - Contagion Risk Score ≥ 70 → 🔴 High Risk alert raised.
         """)
