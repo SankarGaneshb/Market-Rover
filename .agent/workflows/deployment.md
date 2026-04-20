@@ -18,6 +18,12 @@ Streamlit Cloud deploys automatically on push. This workflow ensures that push i
 3.  **Pre-Flight Safety Check**
     - [ ] **Dependencies**: Run `pip freeze > requirements.txt` if needed.
     - [ ] **Imports**: Verify no "local-only" imports.
+    - [ ] **Deps Drift**: If modifying a satellite module that uses shared tools from `rover_tools/`, `utils/`, or `scripts/`, confirm the dependency exists in **that module's own `requirements.txt`**.
+    - [ ] **Startup Integrity**: After installing a satellite's deps, verify the app loads:
+        ```bash
+        python -c "from <module>.backend.src.server import app; print('[OK]')"
+        ```
+
 
 4.  **Compilation Check**
     // turbo
