@@ -161,16 +161,5 @@ jobs:
 
     - name: Notify HIL on Failure
       if: failure()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        MSG="Market-Rover CI Build #${{ github.run_number }} failed on Python 3.13. Review the logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
-        # Try HIL Dashboard first; FALLBACK: Create GitHub Issue if HIL is unreachable
-        curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
-          -H "Content-Type: application/json" \
-          -d "{
-            \"agent_name\": \"SRE Support\",
-            \"task_name\": \"Market-Rover CI Failure\",
-            \"instructions\": \"$MSG\",
-            \"data\": { \"service\": \"market-rover\", \"action\": \"CI_TEST_FAILURE\", \"build_id\": \"${{ github.run_number }}\", \"workflow\": \"ci.yml\" }
-          }" || python scripts/sre_emergency_fallback.py "Market-Rover CI Failure" "$MSG"
+        python scripts/log_build_failure.py "Market-Rover Core CI" "${{ github.run_id }}" "Failure in Python 3.13 tests or build integrity check."
