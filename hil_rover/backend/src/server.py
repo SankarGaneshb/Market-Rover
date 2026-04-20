@@ -46,8 +46,9 @@ async def _create_pool() -> asyncpg.Pool:
         db_pass   = os.getenv("PR_DB_PASSWORD", os.getenv("DB_PASSWORD", ""))
         db_name   = os.getenv("HIL_DB_NAME", "hil_rover")
         if conn_name:
-            socket = f"/cloudsql/{conn_name}/.s.PGSQL.5432"
-            database_url = f"postgresql://{db_user}:{db_pass}@/{db_name}?host={socket}"
+            socket_dir = f"/cloudsql/{conn_name}"
+            database_url = f"postgresql://{db_user}:{db_pass}@/{db_name}?host={socket_dir}"
+
         else:
             # local dev fallback
             database_url = f"postgresql://{db_user}:{db_pass}@localhost:5432/{db_name}"
@@ -83,7 +84,9 @@ async def close_pool():
 
 @app.on_event("startup")
 async def on_startup():
-    await get_pool()
+    print("[HIL] Mission Control starting up...")
+    # Pool will be initialized lazily on first request to avoid blocking port bind
+
 
 
 @app.on_event("shutdown")
@@ -116,14 +119,17 @@ class HILDecision(BaseModel):
 # ── SRE audit ─────────────────────────────────────────────────────────────────
 
 
-from scripts.sre_sentinel import run_sre_sentinel
+# from scripts.sre_sentinel import run_sre_sentinel (Moved to handler)
+
 
 
 @app.post("/api/sre/audit")
 async def trigger_sre_audit():
     try:
+        from scripts.sre_sentinel import run_sre_sentinel
         run_sre_sentinel()
         return {"status": "Audit successful", "message": "SRE Support has scanned the infrastructure."}
+
     except Exception as e:
         return {"status": "Error", "message": str(e)}
 
@@ -298,10 +304,10 @@ async def get_kpi_leaderboard():
         # Target is <= 1 hour (3600 seconds)
         stats = await conn.fetchrow("""
             SELECT
-                AVG(EXTRACT(EPOCH FROM (processed_at - created_at))) as avg_ttr_secs,
+                AVG(EXTRACT(EPOCH FROM (processed_at - created_at))) FILTER (WHERE processed_at IS NOT NULL) as avg_ttr_secs,
                 COUNT(*) FILTER (WHERE status = 'PENDING' AND created_at < NOW() - INTERVAL '1 hour') as overdue_count
             FROM hil_requests
-            WHERE agent_name = 'SRE Support' AND processed_at IS NOT NULL
+            WHERE agent_name = 'SRE Support'
         """)
 
         if stats:

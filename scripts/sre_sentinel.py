@@ -2,11 +2,16 @@
 SRE Sentinel Task: Simulates a system audit.
 If latency > threshold, the agent will propose an infrastructure fix.
 """
-from agents import create_sre_support_agent
-from rover_tools.sre_tools import propose_system_remediation
+# from agents import create_sre_support_agent (Moved to function)
+# from rover_tools.sre_tools import propose_system_remediation (Moved to function)
+
 
 def run_sre_sentinel():
+    from agents import create_sre_support_agent
+    from rover_tools.sre_tools import propose_system_remediation
+
     # Simulate a system check
+
     # In production, this would read from Cloud Run Metrics / performance.log
     print("SRE SENTINEL: Auditing System Health...")
 
