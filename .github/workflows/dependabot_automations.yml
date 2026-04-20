@@ -1,4 +1,4 @@
-﻿name: Dependabot Automation
+name: Dependabot Automation
 
 on:
   pull_request:
@@ -33,3 +33,28 @@ jobs:
       env:
         PR_URL: ${{ github.event.pull_request.html_url }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Notify HIL - Auto-merged
+      if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+      run: |
+        python scripts/notify_dependabot_to_hil.py \
+          --pr-number "${{ github.event.pull_request.number }}" \
+          --pr-title "${{ github.event.pull_request.title }}" \
+          --pr-url "${{ github.event.pull_request.html_url }}" \
+          --update-type "${{ steps.metadata.outputs.update-type }}" \
+          --is-auto-merged
+      env:
+        PYTHONPATH: .
+        HIL_ROVER_URL: ${{ secrets.HIL_ROVER_URL }}
+
+    - name: Notify HIL - Manual Review Required
+      if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }}
+      run: |
+        python scripts/notify_dependabot_to_hil.py \
+          --pr-number "${{ github.event.pull_request.number }}" \
+          --pr-title "${{ github.event.pull_request.title }}" \
+          --pr-url "${{ github.event.pull_request.html_url }}" \
+          --update-type "${{ steps.metadata.outputs.update-type }}"
+      env:
+        PYTHONPATH: .
+        HIL_ROVER_URL: ${{ secrets.HIL_ROVER_URL }}

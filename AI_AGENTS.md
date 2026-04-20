@@ -59,7 +59,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *Orchestrated by Gemini 3.0-Flash and Node.js.*
 *   **Investbrand Puzzle Agent**: Generates the "Brand to Stock" gamified challenges.
 *   **Adaptive Teacher**: Contextualizes gameplay with micro-learning insights.
-*   **Operational SRE Support**: Intercepts runtime exceptions and routes critical failures to the **HIL Mission Control**.
+*   **Operational SRE Support**: Intercepts runtime exceptions, manages **Dependabot Governance**, and routes critical failures to the **HIL Mission Control**.
 
 ---
 
@@ -103,7 +103,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 | :--- | :--- | :--- | :--- |
 | **Strategist** | Funnel Integrity | >90% | Successfully links Macro -> Micro news. |
 | **SRE Agent** | Deployment Stability | 100% | Zero syntax regressions reaching main. |
-| **SRE Agent** | TTR (Hotfix) | < 15m | Autonomous recovery time for CI incidents. |
+| **SRE Agent** | TTR (Hotfix) | <= 1h | Autonomous recovery time for CI incidents. |
 
 ---
 

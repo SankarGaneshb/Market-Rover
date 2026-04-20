@@ -10,6 +10,9 @@ import time
 from datetime import datetime, timezone, timedelta
 import asyncpg
 import json
+import httpx
+
+# HIL-Rover Version: 4.4.0 — PostgreSQL persistence + GitHub Reactor
 
 # HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investbrand-db:hil_rover)
 app = FastAPI(title="HIL Rover API")
@@ -277,7 +280,7 @@ async def get_brain_manifest():
             {"name": "Brand Profiler",     "role": "Entity Mapping",          "platform": "InvestBrand",   "status": "Active"},
             {"name": "Teacher Agent",      "role": "Financial Literacy",      "platform": "InvestBrand",   "status": "Active"},
             {"name": "QC Agent",           "role": "Asset Validation",        "platform": "InvestBrand",   "status": "Active"},
-            {"name": "Ops Support SRE",    "role": "Runtime Governance",      "platform": "InvestBrand",   "status": "Active"},
+            {"name": "Ops Support SRE",    "role": "Runtime & Dependency Governance", "platform": "InvestBrand",   "status": "Active"},
             {"name": "Pledge Council",     "role": "Risk Assessment",         "platform": "Pledge Rover",  "status": "Active"},
             {"name": "Data Harvester",     "role": "BSE/NSE Scraping",        "platform": "Pledge Rover",  "status": "Active"},
         ]
@@ -286,11 +289,44 @@ async def get_brain_manifest():
 
 @app.get("/api/kpi-leaderboard")
 async def get_kpi_leaderboard():
+    pool = await get_pool()
+    sre_score = 98
+    sre_status = "Optimal"
+
+    async with pool.acquire() as conn:
+        # Calculate TTR for SRE Support tasks (requests created and processed)
+        # Target is <= 1 hour (3600 seconds)
+        stats = await conn.fetchrow("""
+            SELECT
+                AVG(EXTRACT(EPOCH FROM (processed_at - created_at))) as avg_ttr_secs,
+                COUNT(*) FILTER (WHERE status = 'PENDING' AND created_at < NOW() - INTERVAL '1 hour') as overdue_count
+            FROM hil_requests
+            WHERE agent_name = 'SRE Support' AND processed_at IS NOT NULL
+        """)
+
+        if stats:
+            avg_ttr = stats["avg_ttr_secs"] or 0
+            overdue = stats["overdue_count"] or 0
+
+            # Penalty for high average TTR (> 1 hour)
+            if avg_ttr > 3600:
+                sre_score -= min(30, int((avg_ttr - 3600) / 600)) # -1 point for every 10 mins over
+
+            # Massive penalty for currently unresolved build failures exceeding 1 hour
+            if overdue > 0:
+                sre_score -= (overdue * 15)
+
+            sre_score = max(0, sre_score)
+
+            if sre_score < 60: sre_status = "Critical"
+            elif sre_score < 85: sre_status = "Warning"
+            elif sre_score < 95: sre_status = "Near Target"
+
     return [
         {"agent": "Strategist",    "kpi": "Funnel Integrity",   "score": 94, "target": 90, "status": "Above Target"},
         {"agent": "Shadow Analyst","kpi": "Divergence Alpha",    "score": 82, "target": 70, "status": "Above Target"},
         {"agent": "Market Context","kpi": "Technical Precision", "score": 78, "target": 80, "status": "Near Target"},
-        {"agent": "SRE Support",   "kpi": "SLA Governance",      "score": 98, "target": 95, "status": "Optimal"},
+        {"agent": "SRE Support",   "kpi": "SLA Governance",      "score": sre_score, "target": 95, "status": sre_status},
     ]
 
 # ── HIL Request queue (PostgreSQL-backed) ──────────────────────────────────────
@@ -347,7 +383,60 @@ async def process_request(request_id: str, decision: HILDecision):
         """, decision.decision, decision.comments, request_id)
         if result == "UPDATE 0":
             raise HTTPException(status_code=404, detail="Request not found")
+
+        # REACTIVE ENGINE: If approved, execute the corresponding agentic action
+        if decision.decision == "APPROVED":
+            # Fetch request details to check for Handovers
+            req = await conn.fetchrow("SELECT * FROM hil_requests WHERE id = $1", request_id)
+            if req and "Dependency Guard" in req["agent_name"]:
+                await _handle_dependabot_merge(req)
+
     return {"status": "success"}
+
+
+async def _handle_dependabot_merge(req: asyncpg.Record):
+    """
+    Hands over the approved dependency update to the SRE Agent's automated merge engine.
+    """
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        print("[HIL REACTOR] Error: GITHUB_TOKEN not set. Cannot merge PR.")
+        return
+
+    try:
+        data = json.loads(req["data"]) if isinstance(req["data"], str) else req["data"]
+        pr_url = data.get("pr_url")
+        if not pr_url:
+            return
+
+        # Extract repo and PR number (e.g., https://github.com/user/repo/pull/123)
+        parts = pr_url.split("/")
+        owner = parts[-4]
+        repo  = parts[-3]
+        pr_num = parts[-1]
+
+        print(f"[HIL REACTOR] SRE Agent initiating merge for {owner}/{repo} PR #{pr_num}...")
+
+        async with httpx.AsyncClient() as client:
+            merge_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_num}/merge"
+            headers = {
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            # We use 'squash' as default for clean history
+            resp = await client.put(merge_url, headers=headers, json={
+                "merge_method": "squash",
+                "commit_title": f"HIL APPROVED: {req['task_name']}",
+                "commit_message": f"Human-In-The-Loop approval granted via Mission Control. Comments: {req.get('comments', 'None')}"
+            })
+
+            if resp.status_code == 200:
+                print(f"[HIL REACTOR] Successfully merged PR #{pr_num}.")
+            else:
+                print(f"[HIL REACTOR] Failed to merge PR #{pr_num}: {resp.text}")
+
+    except Exception as e:
+        print(f"[HIL REACTOR] Unexpected error during merge handover: {e}")
 
 
 @app.get("/api/stats")
