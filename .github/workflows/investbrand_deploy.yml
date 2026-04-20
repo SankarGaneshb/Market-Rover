@@ -136,6 +136,7 @@ jobs:
       - name: Notify HIL on Failure
         if: failure()
         run: |
+          pip install requests --quiet
           python scripts/log_build_failure.py "InvestBrand Backend Deploy" "${{ github.run_id }}" "Failure in API unit tests, build, or deploy step."
 
 
@@ -225,4 +226,5 @@ jobs:
       - name: Notify HIL on Failure
         if: failure()
         run: |
+          pip install requests --quiet
           python scripts/log_build_failure.py "InvestBrand UI Deploy" "${{ github.run_id }}" "Failure in Frontend tests, asset optimization, or Cloud Run deploy."

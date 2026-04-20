@@ -22,7 +22,7 @@ def analyze_error(error: Exception, context: str = "general") -> Optional[Dict[s
     try:
         genai.configure(api_key=api_key)
         # Standardize on gemini-1.5-flash for speed/reliability in SRE tasks
-        model = genai.GenerativeModel('gemini-3.0-flash')
+        model = genai.GenerativeModel('gemini-3-flash-preview')
 
         error_msg = str(error)
         error_type = type(error).__name__

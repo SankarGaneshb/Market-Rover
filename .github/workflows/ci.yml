@@ -162,4 +162,5 @@ jobs:
     - name: Notify HIL on Failure
       if: failure()
       run: |
+        pip install requests --quiet
         python scripts/log_build_failure.py "Market-Rover Core CI" "${{ github.run_id }}" "Failure in Python 3.13 tests or build integrity check."

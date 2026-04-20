@@ -101,7 +101,7 @@ def get_flash_llm():
     if _flash_llm is not None:
         return _flash_llm
     # Primary model per rule #2.1
-    _flash_llm = _create_llm("gemini-3.0-flash")
+    _flash_llm = _create_llm("gemini-3-flash-preview")
     return _flash_llm
 
 def get_pro_llm():
@@ -111,9 +111,9 @@ def get_pro_llm():
         return _pro_llm
     # Using 1.5 Flash as higher-fidelity fallback for long-context tasks per rule #2.1
     try:
-        _pro_llm = _create_llm("gemini-3.0-flash")
+        _pro_llm = _create_llm("gemini-3-flash-preview")
     except:
-        _pro_llm = _create_llm("gemini-3.0-flash")
+        _pro_llm = _create_llm("gemini-3-flash-preview")
     return _pro_llm
 
 # Legacy accessor for compatibility (mapped to Pro for safety)

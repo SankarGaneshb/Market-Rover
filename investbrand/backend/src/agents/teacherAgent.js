@@ -11,7 +11,7 @@ function getLLMClient() {
   }
   if (!aiLlmClient) {
     aiLlmClient = new ChatGoogleGenerativeAI({
-      model: 'gemini-3.0-flash',
+      model: 'gemini-3-flash-preview',
 
       maxOutputTokens: 200,
       temperature: 0.7,
