@@ -96,6 +96,10 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *   **Rule**: Every satellite module (Investbrand, Pledge-Rover) MUST report failures to the central HIL Dashboard.
 *   **Reason**: Eliminates "Silent Failures" and ensures total system transparency.
 
+### 9. The Cloud SQL DSN Standard
+*   **Rule**: Avoid top-level `Connector()` instantiation. Use manual, socket-based DSN construction.
+*   **Reason**: Ensures servers can be imported/audited without credentials during the build phase.
+
 ---
 
 ## 📊 Agent KPI Matrix
@@ -108,4 +112,4 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 ---
 
 **Built with LangGraph, FastAPI, Gemini 3-Flash-Preview, and Google Cloud Run.** [OK]
-*Last Unified Update: April 20, 2026 (v5 Migration Model Update)*
+*Last Unified Update: April 21, 2026 (Green-on-Arrival Hardening)*

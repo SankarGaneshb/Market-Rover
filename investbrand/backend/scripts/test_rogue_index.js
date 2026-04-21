@@ -3,7 +3,7 @@ const { initializePool } = require('../src/config/database');
 const { Client } = require('pg');
 
 async function testLegacySchema() {
-    process.env.DB_NAME = 'investcraft_test';
+    process.env.DB_NAME = 'InvestBrand_test';
 
     const client = new Client({
         host: process.env.DB_HOST || 'localhost',
@@ -15,8 +15,8 @@ async function testLegacySchema() {
 
     try {
         await client.connect();
-        await client.query('DROP DATABASE IF EXISTS investcraft_test');
-        await client.query('CREATE DATABASE investcraft_test');
+        await client.query('DROP DATABASE IF EXISTS "InvestBrand_test"');
+        await client.query('CREATE DATABASE "InvestBrand_test"');
         await client.end();
 
         const testClient = new Client({
@@ -24,7 +24,7 @@ async function testLegacySchema() {
             port: parseInt(process.env.DB_PORT) || 5432,
             user: process.env.DB_USER || 'postgres',
             password: process.env.DB_PASSWORD || 'Invest123',
-            database: 'investcraft_test',
+            database: 'InvestBrand_test',
         });
 
         await testClient.connect();

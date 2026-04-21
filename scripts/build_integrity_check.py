@@ -140,6 +140,37 @@ def check_utf8_compliance():
             success = False
     return success
 
+def check_deep_imports():
+    """Verify core application entry points can load (detects missing deps/broken paths)."""
+    success = True
+    # We test with a dummy PYTHONPATH to simulate the various rover contexts
+    repo_root = os.getcwd()
+
+    # 1. Market-Rover Core
+    market_path = os.path.join(repo_root, "market_rover", "backend")
+    env = os.environ.copy()
+    env["PYTHONPATH"] = f"{market_path};{repo_root}"
+    try:
+        subprocess.check_call([sys.executable, "-c", "import sys; from src.server import app; print('[OK] Market-Rover Server Load')"],
+                              env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        print("[PASS] Deep Import: Market-Rover backend entry point is valid.")
+    except Exception:
+        print("[FAIL] Deep Import: Market-Rover backend is broken or missing dependencies.")
+        success = False
+
+    # 2. Pledge-Rover Core
+    pledge_path = os.path.join(repo_root, "pledge_rover", "backend")
+    env["PYTHONPATH"] = f"{pledge_path};{repo_root}"
+    try:
+        subprocess.check_call([sys.executable, "-c", "from src.server import app; print('[OK] Pledge-Rover Server Load')"],
+                              env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        print("[PASS] Deep Import: Pledge-Rover backend entry point is valid.")
+    except Exception:
+        print("[FAIL] Deep Import: Pledge-Rover backend is broken or missing dependencies.")
+        success = False
+
+    return success
+
 def main():
     print("[SAFEGUARD] Market-Rover Pre-Flight Build Integrity Check")
     print("="*50)
@@ -149,8 +180,9 @@ def main():
     v_utf = check_utf8_compliance()
     v_emoji = check_no_emojis()
     v_docker = check_docker_python_version()
+    v_imports = check_deep_imports()
 
-    if all([v_yaml, v_py, v_utf, v_emoji, v_docker]):
+    if all([v_yaml, v_py, v_utf, v_emoji, v_docker, v_imports]):
         print("\n[SUCCESS] BUILD INTEGRITY VERIFIED. SAFE TO PUSH.")
         sys.exit(0)
     else:

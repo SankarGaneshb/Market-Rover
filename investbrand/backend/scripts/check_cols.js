@@ -5,7 +5,7 @@ async function check() {
         port: 5432,
         user: 'postgres',
         password: 'Invest123',
-        database: 'investcraft_test'
+        database: 'InvestBrand_test'
     });
     try {
         await client.connect();

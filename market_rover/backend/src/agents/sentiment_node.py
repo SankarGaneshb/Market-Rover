@@ -1,6 +1,6 @@
 import os
+import yfinance as yf
 from src.state import AgentState
-from rover_tools.advanced_skills import analyze_retail_sentiment_tool
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
