@@ -3,15 +3,17 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/market-rover-api:$COMMIT_SHA'
+      - '${_IMAGE_TAG}'
       - '-f'
       - 'Dockerfile'
       - '--build-arg'
       - 'BUILDKIT_INLINE_CACHE=1'
+      - '--label'
+      - 'service=${_SERVICE_NAME}'
       - '.'
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/market-rover-api:$COMMIT_SHA']
+    args: ['push', '${_IMAGE_TAG}']
 images:
-  - 'gcr.io/$PROJECT_ID/market-rover-api:$COMMIT_SHA'
+  - '${_IMAGE_TAG}'
 options:
   logging: CLOUD_LOGGING_ONLY

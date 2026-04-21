@@ -3,6 +3,7 @@ steps:
   args: [
     'build',
     '--build-arg', 'REACT_APP_GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID}',
+    '--label', 'service=${_SERVICE_NAME}',
     '-t', '${_IMAGE_TAG}',
     '.'
   ]
