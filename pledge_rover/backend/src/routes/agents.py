@@ -1,9 +1,9 @@
 import asyncio
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
-from src.data.scan_manager import ScanManager
-from src.agents.council import run_council
-from src.agents.harvester import ExchangeHarvester
+from ..data.scan_manager import ScanManager
+from ..agents.council import run_council
+from ..agents.harvester import ExchangeHarvester
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ class TriggerRequest(BaseModel):
 
 async def perform_scan_background(filing_text: str = None):
     """Background task to run the Agentic Council and persist results to SQL."""
-    from src.config.database import async_session
-    from src.data.models import Promoter, AnalysisRun
+    from ..config.database import async_session
+    from ..data.models import Promoter, AnalysisRun
     from sqlalchemy import select, update
     import json
 
@@ -34,11 +34,11 @@ async def perform_scan_background(filing_text: str = None):
                 filing_text = f"BASELINE SCAN: {symbol} ({company_name}) - Checking for off-market shadow entity movements."
 
         ScanManager.set_status("scanning", f"The Council of Experts is analyzing {symbol}...")
-        
+
         # 2. Run Agentic Suite
         # In a real app, we'd fetch metrics from the DB to ground the agents
         result = await run_council(filing_text)
-        
+
         # 3. Persist Results (SQL Transaction)
         async with async_session() as session:
             async with session.begin():
@@ -46,7 +46,7 @@ async def perform_scan_background(filing_text: str = None):
                 stmt = select(Promoter).where(Promoter.symbol == symbol)
                 db_result = await session.execute(stmt)
                 promoter = db_result.scalars().first()
-                
+
                 if not promoter:
                     promoter = Promoter(symbol=symbol, company_name=company_name)
                     session.add(promoter)
@@ -54,7 +54,7 @@ async def perform_scan_background(filing_text: str = None):
 
                 # Update Promoter Governance Score
                 promoter.governance_score = result.get("governance_score", 5.0)
-                
+
                 # Create Analysis Run
                 analysis = AnalysisRun(
                     promoter_id=promoter.id,
@@ -64,7 +64,7 @@ async def perform_scan_background(filing_text: str = None):
                     governance_score_calc=result.get("governance_score", 5.0)
                 )
                 session.add(analysis)
-            
+
             await session.commit()
 
         # 4. Finalize Status
@@ -78,13 +78,13 @@ async def trigger_council(request: TriggerRequest, background_tasks: BackgroundT
     """Manually trigger the AI Council scan process."""
     if ScanManager.is_scanning():
         return {"status": "scanning", "message": "An active scan is already in progress."}
-    
+
     # Set to scanning first
     ScanManager.set_status("scanning", "Scanning for latest information...")
-    
+
     # Run the heavy agentic pipeline in background
     background_tasks.add_task(perform_scan_background, request.filing_text)
-    
+
     return {
         "status": "scanning",
         "message": "Scanning for latest information...",

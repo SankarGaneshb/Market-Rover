@@ -1,6 +1,6 @@
 from sqlalchemy import select
-from src.config.database import async_session, engine
-from src.data.models import Promoter, Base
+from ..config.database import async_session, engine
+from .models import Promoter, Base
 
 async def seed_data():
     """Seeds the initial promoter data into the SQL database."""
@@ -34,6 +34,6 @@ async def seed_data():
             for p_data in initial_promoters:
                 promoter = Promoter(**p_data)
                 session.add(promoter)
-            
+
         await session.commit()
     print("Seeding complete.")

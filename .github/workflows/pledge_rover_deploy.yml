@@ -40,10 +40,11 @@ jobs:
         run: pytest -v
 
       - name: Pledge-Rover Startup Integrity Check
+        working-directory: pledge_rover/backend
         run: |
           export PYTHONPATH=$PYTHONPATH:.
           # Try importing the app to verify all dependencies and module loads pass
-          python -c "from pledge_rover.backend.src.server import app; print('[OK] Pledge-Rover App loaded successfully')"
+          python -c "from src.server import app; print('[OK] Pledge-Rover App loaded successfully')"
 
 
   lint-frontend:

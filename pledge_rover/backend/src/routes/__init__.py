@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.routes import health, promoters, pledges, agents
+from . import health, promoters, pledges, agents
 
 api_router = APIRouter()
 

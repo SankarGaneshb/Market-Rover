@@ -5,9 +5,9 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
-from src.routes import api_router
-from src.config.database import init_db, close_db
-from src.utils.ops_support import analyze_error_async
+from .routes import api_router
+from .config.database import init_db, close_db
+from .utils.ops_support import analyze_error_async
 # --- SIGNAL SHIELD: Prevent libraries from crashing threads ---
 _original_signal = signal.signal
 def _safe_signal(sig, handler):
@@ -63,13 +63,13 @@ async def startup_event():
     print("--- PLEDGE ROVER BACKEND STARTING UP ---")
     try:
         await init_db()
-        from src.data.seed import seed_data
+        from .data.seed import seed_data
         await seed_data()
     except Exception as e:
         print(f"DATABASE: FAILED to initialize. Error: {str(e)}")
 
     try:
-        from src.data.scan_manager import ScanManager
+        from .data.scan_manager import ScanManager
         ScanManager.set_status("idle", "System ready.")
     except Exception as e:
         print(f"SCAN_MANAGER: Failed to initialize. Error: {str(e)}")

@@ -17,6 +17,9 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Install Dependencies
+      run: pip install requests --quiet
+
     - name: Dependabot metadata
       id: metadata
       uses: dependabot/fetch-metadata@v2

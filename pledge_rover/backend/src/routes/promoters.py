@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from sqlalchemy import select
-from src.config.database import async_session
-from src.data.models import Promoter
+from ..config.database import async_session
+from ..data.models import Promoter
 from pydantic import BaseModel
 
 router = APIRouter()
