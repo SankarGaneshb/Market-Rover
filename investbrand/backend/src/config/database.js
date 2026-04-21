@@ -1,37 +1,31 @@
 const { Pool } = require('pg');
-const { Connector } = require('@google-cloud/cloud-sql-connector');
 const logger = require('../utils/logger');
 
 let pool;
-const connector = new Connector();
 
 async function initializePool() {
   const isProduction = process.env.NODE_ENV === 'production';
   let config;
 
   if (isProduction) {
-    logger.info('Initializing production database connection via Cloud SQL Connector', {
-      instance: process.env.CLOUD_SQL_CONNECTION_NAME,
+    const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
+    const socketPath = process.env.DB_HOST || (connName ? `/cloudsql/${connName}` : undefined);
+
+    logger.info('Initializing production database connection via Unix socket', {
+      socketPath,
+      instance: connName,
       database: process.env.IC_DB_NAME || process.env.DB_NAME
     });
 
-    try {
-      const clientOpts = await connector.getOptions({
-        instanceConnectionName: process.env.CLOUD_SQL_CONNECTION_NAME,
-        ipType: 'PUBLIC',
-      });
-
-      config = {
-        ...clientOpts,
-        user: process.env.IC_DB_USER || process.env.DB_USER,
-        password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
-        database: process.env.IC_DB_NAME || process.env.DB_NAME,
-        max: 20,
-      };
-    } catch (err) {
-      logger.error('Failed to get Cloud SQL Connector options', { error: err.message });
-      throw err;
-    }
+    config = {
+      host: socketPath,
+      user: process.env.IC_DB_USER || process.env.DB_USER,
+      password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD,
+      database: process.env.IC_DB_NAME || process.env.DB_NAME,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 30000,
+    };
   } else {
     config = {
       host: process.env.DB_HOST || 'localhost',

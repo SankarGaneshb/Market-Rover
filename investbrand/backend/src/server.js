@@ -1,4 +1,4 @@
-const VERSION = '1.1.0-connector-fix';
+const VERSION = '1.2.0-socket-fix';
 console.log(`--- BACKEND STARTING UP (v${VERSION}) ---`);
 const express = require('express');
 const cors = require('cors');
@@ -34,7 +34,7 @@ app.use(compression());
 app.use(cors({
   origin: (origin, callback) => {
     const allowed = process.env.FRONTEND_URL?.split(',') || [];
-    // In production, if FRONTEND_URL is set, restrict to it. 
+    // In production, if FRONTEND_URL is set, restrict to it.
     // Otherwise, allow same-origin/internal requests or any during debug.
     if (!origin || allowed.indexOf(origin) !== -1 || allowed.length === 0 || process.env.NODE_ENV !== 'production') {
       callback(null, true);

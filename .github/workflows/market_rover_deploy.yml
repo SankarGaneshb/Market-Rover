@@ -94,8 +94,7 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-secrets "GOOGLE_API_KEY=GOOGLE_API_KEY:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest" \
-            --set-env-vars "NODE_ENV=production,DB_USER=postgres,DB_NAME=market_rover,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_REDIRECT_URI=https://${{ env.FRONTEND_SERVICE }}-9514347926.${{ env.REGION }}.run.app/auth/callback" \
+            --set-env-vars "NODE_ENV=production,DB_USER=postgres,DB_NAME=market_rover,DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }},GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }},GOOGLE_REDIRECT_URI=https://${{ env.FRONTEND_SERVICE }}-9514347926.${{ env.REGION }}.run.app/auth/callback" \
             --add-cloudsql-instances market-rover:us-central1:investbrand-db \
             --timeout 300 \
             --concurrency 80
