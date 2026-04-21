@@ -26,8 +26,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
+# Copy shared dependencies needed for agent nodes
+COPY rover_tools/ ./rover_tools/
+COPY utils/ ./utils/
+COPY agents.py config.py ./
+
 # Copy full backend directory (preserves src package structure)
 COPY backend/ ./backend/
+
+# Set PYTHONPATH to root /app so shared modules are importable
+ENV PYTHONPATH=/app
 
 # Copy React build from stage 1 into backend static dir
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist

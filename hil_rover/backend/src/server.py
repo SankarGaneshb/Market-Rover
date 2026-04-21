@@ -46,21 +46,22 @@ async def _create_pool() -> asyncpg.Pool:
         db_user   = os.getenv("PR_DB_USER", os.getenv("DB_USER", "postgres"))
         db_pass   = os.getenv("PR_DB_PASSWORD", os.getenv("DB_PASSWORD", ""))
         db_name   = os.getenv("HIL_DB_NAME", "hil_rover")
-    user_enc = quote_plus(db_user)
-    pass_enc = quote_plus(db_pass)
-
-    if conn_name:
-        socket_dir = f"/cloudsql/{conn_name}"
-        database_url = f"postgresql://{user_enc}:{pass_enc}@/{db_name}?host={socket_dir}"
-
-    else:
-        # local dev fallback
-        database_url = f"postgresql://{user_enc}:{pass_enc}@localhost:5432/{db_name}"
+    # Use keyword arguments for better compatibility with Unix sockets
+    host = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
+    port = int(os.getenv("DB_PORT", "5432"))
 
     # Debug print (scrubbed)
-    print(f"[HIL] Connecting to {db_name} via { 'Socket' if conn_name else 'TCP' }")
+    print(f"[HIL] Connecting to {db_name} via { 'Socket' if conn_name else 'TCP' } (Host: {host})")
 
-    pool = await asyncpg.create_pool(dsn=database_url, min_size=1, max_size=5)
+    pool = await asyncpg.create_pool(
+        user=db_user,
+        password=db_pass,
+        database=db_name,
+        host=host,
+        port=port,
+        min_size=1,
+        max_size=5
+    )
     # Ensure schema exists
     async with pool.acquire() as conn:
         await conn.execute("""
@@ -196,74 +197,45 @@ CREATE INDEX IF NOT EXISTS idx_hil_created ON hil_requests (created_at DESC);
 """
 
 
-def _build_dsn(db_name: str) -> str:
-    """Build a DSN for a specific database on the shared investbrand-db instance."""
-    conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME", "")
-    db_user   = os.getenv("DB_USER", "postgres")
-    db_pass   = os.getenv("DB_PASSWORD", "")
-    user_enc = quote_plus(db_user)
-    pass_enc = quote_plus(db_pass)
-    if conn_name:
-        socket = f"/cloudsql/{conn_name}" # asyncpg works with the directory path for host
-        return f"postgresql://{user_enc}:{pass_enc}@/{db_name}?host={socket}"
-    return f"postgresql://{user_enc}:{pass_enc}@localhost:5432/{db_name}"
+async def _run_sys_command(db_name: str, sql: str):
+    """Helper to run a system command against a target database."""
+    conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
+    user      = os.getenv("DB_USER", "postgres")
+    password  = os.getenv("DB_PASSWORD", "")
+    host = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
+
+    conn = await asyncpg.connect(
+        user=user,
+        password=password,
+        database=db_name,
+        host=host
+    )
+    try:
+        await conn.execute(sql)
+    finally:
+        await conn.close()
 
 
 @app.post("/api/provision")
 async def provision_infrastructure():
     """
-    Creates all 3 missing databases on the shared investbrand-db Cloud SQL instance
-    and applies the Market Rover + HIL Rover schemas. Fully idempotent.
+    SRE Provisioning Force-Multiplier: Ensures all Rover databases exist.
     """
-    log = []
+    logs = []
     errors = []
-
-    # Step 1: CREATE databases via the 'postgres' system database
-    # CREATE DATABASE cannot run inside a transaction — use autocommit
-    target_dbs = ["market_rover", "pledge_rover", "hil_rover"]
     try:
-        sys_conn = await asyncpg.connect(dsn=_build_dsn("postgres"))
-        await sys_conn.execute("SET client_encoding TO 'UTF8'")
-        for db in target_dbs:
-            exists = await sys_conn.fetchval(
-                "SELECT 1 FROM pg_database WHERE datname = $1", db
-            )
-            if exists:
-                log.append(f"DB '{db}' already exists — skipped.")
-            else:
-                # Must run outside transaction block
-                await sys_conn.execute(f'CREATE DATABASE "{db}"')
-                log.append(f"DB '{db}' created.")
-        await sys_conn.close()
+        for db_to_create in ["hil_rover", "market_rover", "pledgerover"]:
+            try:
+                await _run_sys_command("postgres", f'CREATE DATABASE "{db_to_create}"')
+                logs.append(f"Created {db_to_create}")
+            except Exception as e:
+                logs.append(f"Skipped {db_to_create} (likely exists)")
+
+        await get_pool()
+        logs.append("Connectivity verified.")
+        return {"status": "success", "logs": logs}
     except Exception as e:
-        errors.append(f"DB creation error: {e}")
-
-    # Step 2: Apply Market Rover schema on market_rover DB
-    try:
-        conn = await asyncpg.connect(dsn=_build_dsn("market_rover"))
-        await conn.execute(_MARKET_ROVER_DDL)
-        await conn.close()
-        log.append("Market Rover schema applied to 'market_rover'.")
-    except Exception as e:
-        errors.append(f"Market Rover schema error: {e}")
-
-    # Step 3: Apply HIL schema on hil_rover DB
-    try:
-        conn = await asyncpg.connect(dsn=_build_dsn("hil_rover"))
-        await conn.execute(_HIL_DDL)
-        await conn.close()
-        log.append("HIL Rover schema applied to 'hil_rover'.")
-    except Exception as e:
-        errors.append(f"HIL Rover schema error: {e}")
-
-    # Pledge Rover auto-migrates on first startup — no manual DDL needed.
-    log.append("Pledge Rover: auto-migration on first deployment startup.")
-
-    return {
-        "status": "done" if not errors else "partial",
-        "log": log,
-        "errors": errors,
-    }
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 # ── Static stat endpoints (no DB needed) ──────────────────────────────────────

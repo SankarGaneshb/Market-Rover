@@ -17,8 +17,16 @@ WORKDIR /app
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
+# Copy shared dependencies needed for agent nodes
+COPY rover_tools/ ./rover_tools/
+COPY utils/ ./utils/
+COPY agents.py config.py ./
+
 # Copy entire backend directory to preserve structure (config, src, etc.)
 COPY backend/ ./backend/
+
+# Set PYTHONPATH to root /app so shared modules are importable
+ENV PYTHONPATH=/app
 
 # Copy frontend build output from stage 1 into the backend container
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist

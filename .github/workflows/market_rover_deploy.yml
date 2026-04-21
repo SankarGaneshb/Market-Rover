@@ -18,9 +18,6 @@ jobs:
   # -- Backend: test + deploy FastAPI + LangGraph ---------------------------
   deploy-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: market_rover/backend
 
     steps:
       - uses: actions/checkout@v4
@@ -44,18 +41,26 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
+        working-directory: market_rover/backend
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-asyncio pytest-cov
 
       - name: Run backend tests with coverage gate (70%)
+        working-directory: market_rover/backend
         run: |
           pytest tests/ -v --tb=short
 
-      - name: Market-Rover Startup Integrity Check
+      - name: Sync Core Dependencies (for check and build)
         run: |
-          export PYTHONPATH=$PYTHONPATH:.
+          cp agents.py config.py market_rover/
+          cp -r rover_tools utils scripts market_rover/
+
+      - name: Market-Rover Startup Integrity Check
+        working-directory: market_rover/backend
+        run: |
+          export PYTHONPATH=$PYTHONPATH:.:..
           # Try importing the app to verify all dependencies and module loads pass
           python -c "from src.server import app; print('[OK] Market-Rover App loaded successfully')"
 

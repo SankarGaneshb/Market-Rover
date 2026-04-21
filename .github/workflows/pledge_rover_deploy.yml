@@ -39,10 +39,15 @@ jobs:
         working-directory: pledge_rover/backend
         run: pytest -v
 
+      - name: Sync Core Dependencies (for check and build)
+        run: |
+          cp agents.py config.py pledge_rover/
+          cp -r rover_tools utils scripts pledge_rover/
+
       - name: Pledge-Rover Startup Integrity Check
         working-directory: pledge_rover/backend
         run: |
-          export PYTHONPATH=$PYTHONPATH:.
+          export PYTHONPATH=$PYTHONPATH:.:..
           # Try importing the app to verify all dependencies and module loads pass
           python -c "from src.server import app; print('[OK] Pledge-Rover App loaded successfully')"
 
@@ -83,6 +88,11 @@ jobs:
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Sync Core Dependencies
+        run: |
+          cp agents.py config.py pledge_rover/
+          cp -r rover_tools utils scripts pledge_rover/
 
       - name: Build & Push Container
         working-directory: pledge_rover

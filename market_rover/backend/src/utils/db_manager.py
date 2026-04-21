@@ -18,29 +18,25 @@ class DBManager:
 
     async def connect(self):
         if not self.pool:
-            if not self.dsn:
-                # Fallback to building DSN from individual env vars (Cloud Run standard)
-                conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
-                user      = os.getenv("DB_USER", "postgres")
-                password  = os.getenv("DB_PASSWORD", "")
-                db_name   = os.getenv("DB_NAME", "market_rover")
-
-                user_enc = quote_plus(user)
-                pass_enc = quote_plus(password)
-
-                if conn_name:
-                    socket_dir = f"/cloudsql/{conn_name}"
-                    self.dsn = f"postgresql://{user_enc}:{pass_enc}@/{db_name}?host={socket_dir}"
-                    logger.info(f"Building Cloud SQL Socket DSN for {db_name}")
-                else:
-                    host = os.getenv("DB_HOST", "localhost")
-                    port = os.getenv("DB_PORT", "5432")
-                    self.dsn = f"postgresql://{user_enc}:{pass_enc}@{host}:{port}/{db_name}"
-                    logger.info(f"Building TCP DSN for {db_name} on {host}")
+            conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
+            user      = os.getenv("DB_USER", "postgres")
+            password  = os.getenv("DB_PASSWORD", "")
+            db_name   = os.getenv("DB_NAME", "market_rover")
+            host      = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
+            port      = int(os.getenv("DB_PORT", "5432"))
 
             try:
-                self.pool = await asyncpg.create_pool(dsn=self.dsn)
-                logger.info("Successfully connected to PostgreSQL Pool.")
+                if self.dsn:
+                    self.pool = await asyncpg.create_pool(dsn=self.dsn)
+                else:
+                    self.pool = await asyncpg.create_pool(
+                        user=user,
+                        password=password,
+                        database=db_name,
+                        host=host,
+                        port=port
+                    )
+                logger.info(f"Successfully connected to PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
             except Exception as e:
                 logger.error(f"PostgreSQL Connection Error: {e}")
                 raise
