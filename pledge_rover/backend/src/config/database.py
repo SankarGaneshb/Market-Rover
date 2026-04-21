@@ -19,7 +19,8 @@ if is_production:
 
     # Manual DSN for asyncpg via unix socket
     # Pattern: postgresql://user:pass@/dbname?host=/cloudsql/conn_name/.s.PGSQL.5432
-    prod_url = f"postgresql+asyncpg://{db_user}:{db_pass}@/{db_name}?host={socket}"
+    from urllib.parse import quote
+    prod_url = f"postgresql+asyncpg://{quote(db_user)}:{quote(db_pass)}@/{quote(db_name)}?host={quote(socket)}"
 
     engine = create_async_engine(
         prod_url,

@@ -13,8 +13,11 @@ function getPool() {
     const dbName = process.env.DB_NAME || 'investbrand';
 
     // Pattern mirrors pledge_rover & market_rover DSN standard
+    // We use encodeURIComponent to ensure special characters in passwords don't break the DSN URL
     const socket = `/cloudsql/${connName}/.s.PGSQL.5432`;
-    const connectionString = `postgresql://${dbUser}:${dbPass}@/${dbName}?host=${socket}`;
+    const encodedUser = encodeURIComponent(dbUser);
+    const encodedPass = encodeURIComponent(dbPass);
+    const connectionString = `postgresql://${encodedUser}:${encodedPass}@/${dbName}?host=${encodeURIComponent(socket)}`;
 
     console.log(`Connecting via Standard DSN: ${connName}`);
     return new Pool({

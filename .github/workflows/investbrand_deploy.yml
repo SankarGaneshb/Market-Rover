@@ -121,7 +121,7 @@ jobs:
           gcloud run deploy ${{ env.BACKEND_SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
             --region ${{ env.REGION }} --platform managed --allow-unauthenticated \
-            --set-env-vars "NODE_ENV=production,IC_DB_NAME=investbrand,IC_DB_USER=postgres,IC_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+            --set-env-vars "NODE_ENV=production,IC_DB_NAME=investbrand,IC_DB_USER=postgres,IC_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investbrand-db,IC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }},GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" \
             --add-cloudsql-instances market-rover:us-central1:investbrand-db
 
       - name: Force DB Sync (Seeding)
