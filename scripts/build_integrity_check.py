@@ -143,30 +143,40 @@ def check_utf8_compliance():
 def check_deep_imports():
     """Verify core application entry points can load (detects missing deps/broken paths)."""
     success = True
-    # We test with a dummy PYTHONPATH to simulate the various rover contexts
     repo_root = os.getcwd()
 
     # 1. Market-Rover Core
     market_path = os.path.join(repo_root, "market_rover", "backend")
     env = os.environ.copy()
-    env["PYTHONPATH"] = f"{market_path};{repo_root}"
+    # Use os.pathsep (':' on Linux, ';' on Windows) for cross-platform compatibility
+    env["PYTHONPATH"] = f"{market_path}{os.pathsep}{repo_root}"
     try:
         subprocess.check_call([sys.executable, "-c", "import sys; from src.server import app; print('[OK] Market-Rover Server Load')"],
-                              env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                               env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         print("[PASS] Deep Import: Market-Rover backend entry point is valid.")
-    except Exception:
-        print("[FAIL] Deep Import: Market-Rover backend is broken or missing dependencies.")
+    except subprocess.CalledProcessError as e:
+        print(f"[FAIL] Deep Import: Market-Rover backend is broken or missing dependencies.")
+        if e.stderr:
+            print(f"Diagnostics: {e.stderr.decode().strip()}")
+        success = False
+    except Exception as e:
+        print(f"[FAIL] Deep Import: Market-Rover backend check error: {str(e)}")
         success = False
 
     # 2. Pledge-Rover Core
     pledge_path = os.path.join(repo_root, "pledge_rover", "backend")
-    env["PYTHONPATH"] = f"{pledge_path};{repo_root}"
+    env["PYTHONPATH"] = f"{pledge_path}{os.pathsep}{repo_root}"
     try:
         subprocess.check_call([sys.executable, "-c", "from src.server import app; print('[OK] Pledge-Rover Server Load')"],
-                              env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                               env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         print("[PASS] Deep Import: Pledge-Rover backend entry point is valid.")
-    except Exception:
-        print("[FAIL] Deep Import: Pledge-Rover backend is broken or missing dependencies.")
+    except subprocess.CalledProcessError as e:
+        print(f"[FAIL] Deep Import: Pledge-Rover backend is broken or missing dependencies.")
+        if e.stderr:
+            print(f"Diagnostics: {e.stderr.decode().strip()}")
+        success = False
+    except Exception as e:
+        print(f"[FAIL] Deep Import: Pledge-Rover backend check error: {str(e)}")
         success = False
 
     return success

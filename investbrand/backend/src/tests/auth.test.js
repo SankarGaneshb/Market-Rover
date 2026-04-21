@@ -41,9 +41,12 @@ describe('Auth Routes', () => {
         mockQuery = jest.fn();
         getPool.mockReturnValue({ query: mockQuery });
         process.env.JWT_SECRET = 'test-secret';
+        this.originalNodeEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'development';
     });
 
     afterEach(() => {
+        process.env.NODE_ENV = this.originalNodeEnv;
         jest.clearAllMocks();
     });
 

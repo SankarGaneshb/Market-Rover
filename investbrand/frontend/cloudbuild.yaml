@@ -1,3 +1,7 @@
+substitutions:
+  _GOOGLE_CLIENT_ID: ""
+  _SERVICE_NAME: "investbrand-ui"
+  _IMAGE_TAG: "gcr.io/market-rover/investbrand-ui:latest"
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [

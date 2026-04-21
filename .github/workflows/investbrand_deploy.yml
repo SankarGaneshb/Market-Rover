@@ -79,7 +79,7 @@ jobs:
           DB_PORT: 5432
           DB_USER: postgres
           DB_PASSWORD: Invest123
-        run: npm run test:integration
+        run: npm run test:integration || (python ../../scripts/log_build_failure.py "InvestBrand Integration Tests" "${{ github.run_id }}" "Integration tests failed - check DB logs." && exit 1)
 
       - uses: google-github-actions/auth@v2
         with:
@@ -227,4 +227,4 @@ jobs:
         if: failure()
         run: |
           pip install requests --quiet
-          python scripts/log_build_failure.py "InvestBrand UI Deploy" "${{ github.run_id }}" "Failure in Frontend tests, asset optimization, or Cloud Run deploy."
+          python ../../scripts/log_build_failure.py "InvestBrand UI Deploy" "${{ github.run_id }}" "Failure in Frontend tests, asset optimization, or Cloud Run deploy."

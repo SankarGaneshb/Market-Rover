@@ -20,11 +20,11 @@ describe('Database Integration: Puzzle Votes', () => {
     let pool;
 
     beforeAll(async () => {
-        // This connects to process.env.DB_NAME which will be set to 'investcraft_test' by package.json scripts
+        // Use the standardized test database name
+        process.env.DB_NAME = 'investbrand_test';
         process.env.DB_HOST = process.env.DB_HOST || 'localhost';
         process.env.DB_USER = process.env.DB_USER || 'postgres';
-        process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'Invest123';
-        process.env.DB_NAME = 'InvestBrand_test';
+        process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'postgres';
 
         // Explicitly do not mock the database - connect to real Postgres test database
         pool = await initializePool();

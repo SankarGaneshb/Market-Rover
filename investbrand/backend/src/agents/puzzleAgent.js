@@ -6,16 +6,17 @@ require("dotenv").config();
 let llm = null;
 
 function getLLMClient() {
-  if (!process.env.GOOGLE_API_KEY) {
-    throw new Error("GOOGLE_API_KEY is missing from environment variables.");
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    logger.warn("GOOGLE_API_KEY is missing. AI features will use fallbacks.");
+    return null;
   }
   if (!llm) {
     llm = new ChatGoogleGenerativeAI({
-      model: "gemini-3-flash-preview",
-      apiKey: process.env.GOOGLE_API_KEY,
+      model: "gemini-1.5-flash",
+      apiKey: apiKey,
       temperature: 0.8,
     });
-
   }
   return llm;
 }
@@ -26,6 +27,9 @@ function getLLMClient() {
 async function generateInitialClues(companyName, ticker, sector) {
   try {
     const aiLlm = getLLMClient();
+    if (!aiLlm) {
+      throw new Error("LLM client not initialized (missing API key)");
+    }
     const systemPrompt = `
       You are an expert game designer creating a "Guess the Stock" puzzle for: ${companyName} (${ticker}) in the ${sector} sector.
 
@@ -64,6 +68,9 @@ async function generateInitialClues(companyName, ticker, sector) {
 async function evaluateGuess(userGuess, actualCompanyName, actualSector) {
   try {
     const aiLlm = getLLMClient();
+    if (!aiLlm) {
+      throw new Error("LLM client not initialized (missing API key)");
+    }
     const systemPrompt = `
       You are the Game Master in a "Guess the Stock" game.
       The actual company is: ${actualCompanyName} (Sector: ${actualSector}).

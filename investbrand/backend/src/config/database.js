@@ -36,10 +36,10 @@ async function initializePool() {
     config = {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'InvestBrand',
-      user: process.env.DB_USER || 'postgresql',
-      password: process.env.DB_PASSWORD || 'Postgresql12#',
-      max: 5,
+      database: process.env.DB_NAME || 'investbrand',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      max: 10,
     };
   }
 
