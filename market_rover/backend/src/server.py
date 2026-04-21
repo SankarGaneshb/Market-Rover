@@ -117,19 +117,14 @@ async def google_callback(request: Request):
         })
         tokens = token_res.json()
         if "error" in tokens:
-            error_msg = f"OAUTH ERROR [{datetime.now()}]: {tokens.get('error_description', tokens.get('error'))}\n"
-            print(error_msg)
-            os.makedirs("logs", exist_ok=True)
-            with open("logs/auth_debug.log", "a") as f:
-                f.write(error_msg)
+            error_msg = f"OAUTH ERROR [{datetime.now()}]: {tokens.get('error_description', tokens.get('error'))}"
+            logger.error(error_msg)
             return JSONResponse(status_code=400, content=tokens)
 
         user_res = await client.get("https://www.googleapis.com/oauth2/v3/userinfo", headers={"Authorization": f"Bearer {tokens['access_token']}"})
         user_info = user_res.json()
-        success_msg = f"AUTH SUCCESS [{datetime.now()}]: {user_info.get('email')}\n"
-        print(success_msg)
-        with open("logs/auth_debug.log", "a") as f:
-            f.write(success_msg)
+        success_msg = f"AUTH SUCCESS [{datetime.now()}]: {user_info.get('email')}"
+        logger.info(success_msg)
         return {"handle": user_info.get("email"), "name": user_info.get("name"), "provider": "Google"}
 
 @app.post("/api/auth/x/callback")

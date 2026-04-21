@@ -21,11 +21,21 @@ LOOKBACK_DAYS = int(os.getenv("LOOKBACK_DAYS", "7"))
 PORTFOLIO_FILE = os.getenv("PORTFOLIO_FILE", "Portfolio.csv")
 
 # Report Settings
-REPORT_DIR = PROJECT_ROOT / os.getenv("REPORT_DIR", "reports")
+# In production (Cloud Run), /app is read-only. Use /tmp instead for ephemeral files.
+if os.getenv("K_SERVICE"): # Standard Cloud Run env var
+    REPORT_DIR = Path("/tmp/reports")
+else:
+    REPORT_DIR = PROJECT_ROOT / os.getenv("REPORT_DIR", "reports")
+
 CONVERT_TO_CRORES = os.getenv("CONVERT_TO_CRORES", "true").lower() == "true"
 
-# Create reports directory if it doesn't exist
-REPORT_DIR.mkdir(parents=True, exist_ok=True)
+# Create reports directory if it doesn't exist (Defensive check)
+try:
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    # Fallback to /tmp if still failing
+    REPORT_DIR = Path("/tmp/reports")
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
 # NSE Stock Symbol Settings
 NSE_SUFFIX = ".NS"
@@ -40,12 +50,20 @@ MAX_PARALLEL_STOCKS = int(os.getenv("MAX_PARALLEL_STOCKS", "5"))
 RATE_LIMIT_DELAY = float(os.getenv("RATE_LIMIT_DELAY", "1.0"))
 
 # Web UI Settings (Market-Rover 2.0)
-UPLOAD_DIR = PROJECT_ROOT / os.getenv("UPLOAD_DIR", "uploads")
+if os.getenv("K_SERVICE"):
+    UPLOAD_DIR = Path("/tmp/uploads")
+else:
+    UPLOAD_DIR = PROJECT_ROOT / os.getenv("UPLOAD_DIR", "uploads")
+
 WEB_PORT = int(os.getenv("WEB_PORT", "8501"))
 WEB_HOST = os.getenv("WEB_HOST", "0.0.0.0")
 
 # Create upload directory if it doesn't exist
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    UPLOAD_DIR = Path("/tmp/uploads")
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # News Sources
 MONEYCONTROL_BASE_URL = "https://www.moneycontrol.com"
