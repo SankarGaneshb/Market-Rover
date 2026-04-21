@@ -8,6 +8,10 @@ on:
       - 'pledge_rover/**'
       - 'hil_rover/**'
       - 'market_rover/**'
+      - '.github/workflows/investbrand_deploy.yml'
+      - '.github/workflows/pledge_rover_deploy.yml'
+      - '.github/workflows/hil_rover_deploy.yml'
+      - '.github/workflows/market_rover_deploy.yml'
   pull_request:
     branches: [ main, develop ]
     paths-ignore:
@@ -15,6 +19,10 @@ on:
       - 'pledge_rover/**'
       - 'hil_rover/**'
       - 'market_rover/**'
+      - '.github/workflows/investbrand_deploy.yml'
+      - '.github/workflows/pledge_rover_deploy.yml'
+      - '.github/workflows/hil_rover_deploy.yml'
+      - '.github/workflows/market_rover_deploy.yml'
   schedule:
     # 03:30 UTC = 09:00 AM IST (Monday to Friday)
     - cron: '30 3 * * 1-5'
