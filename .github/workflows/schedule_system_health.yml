@@ -60,7 +60,7 @@ jobs:
         python scripts/report_system_errors.py --frequency "$FREQ" --email "$EMAIL"
 
     - name: Upload Report Artifact
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: issue-report
         path: reports/*.json
