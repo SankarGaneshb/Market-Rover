@@ -11,6 +11,9 @@ from src.utils.db_manager import db
 import httpx
 import jwt
 from datetime import datetime, timedelta
+import asyncio
+import yfinance as yf
+import pandas as pd
 
 # Load environment variables (API Keys, DB URLs)
 load_dotenv()
@@ -42,6 +45,9 @@ graph = create_market_rover_graph()
 class AnalysisRequest(BaseModel):
     tickers: List[str]
     discoverable_handle: str
+
+# In-memory task store for async processing
+active_tasks = {}
 
 @app.get("/")
 async def root():
@@ -143,27 +149,115 @@ async def facebook_callback(request: Request):
 
 @app.post("/api/analyze")
 async def analyze_portfolio(request: AnalysisRequest):
+    """
+    Submits a batch portfolio analysis asynchronously.
+    Returns a task_id that can be polled for results.
+    """
+    session_id = "session_" + os.urandom(8).hex()
+
+    async def run_analysis(tickers, handle, task_id):
+        try:
+            initial_state = {
+                "tickers": tickers,
+                "discoverable_handle": handle,
+                "session_id": task_id,
+                "celebrations": [],
+                "feedback_prompts": [],
+                "sentiment_data": [],
+                "technical_data": [],
+                "traditional_insights": [],
+                "dividend_data": [],
+                "sector_data": [],
+                "errors": []
+            }
+            config = {"configurable": {"thread_id": handle}}
+            # Actually run LangGraph
+            final_state = await graph.ainvoke(initial_state, config)
+            active_tasks[task_id] = {"status": "completed", "result": final_state}
+
+            # Store overall stance in LTM for shadow discovery
+            if "traditional_insights" in final_state and len(final_state["traditional_insights"]) > 0:
+                await db.connect()
+                # Dummy storage or basic aggregation from the parallel outputs
+                summary = f"Analyzed {len(tickers)} tickers successfully."
+                await db.store_memory(handle, "PORTFOLIO", "COMPLETED", summary)
+
+        except Exception as e:
+            active_tasks[task_id] = {"status": "failed", "error": str(e)}
+
+    active_tasks[session_id] = {"status": "processing"}
+    asyncio.create_task(run_analysis(request.tickers, request.discoverable_handle, session_id))
+
+    return {"message": "Analysis started asynchronously", "task_id": session_id}
+
+@app.get("/api/analyze/status/{task_id}")
+async def get_analyze_status(task_id: str):
+    if task_id not in active_tasks:
+        return JSONResponse(status_code=404, content={"error": "Task not found"})
+    return active_tasks[task_id]
+
+@app.get("/api/shadow")
+async def get_shadow_signals(user_handle: str):
+    """Extract and format shadow_signals natively from agent_memory_ltm."""
     try:
-        # Initial State
-        initial_state = {
-            "tickers": request.tickers,
-            "discoverable_handle": request.discoverable_handle,
-            "session_id": "session_" + os.urandom(8).hex(),
-            "celebrations": [],
-            "feedback_prompts": [],
-            "sentiment_data": [],
-            "technical_data": [],
-            "traditional_insights": [],
-            "dividend_data": [],
-            "sector_data": [],
-            "errors": []
-        }
+        await db.connect()
+        history = await db.get_forecast_history(user_handle)
 
-        # Run the LangGraph
-        config = {"configurable": {"thread_id": request.discoverable_handle}}
-        final_state = await graph.ainvoke(initial_state, config)
+        # Format the LTM into shadow signals format
+        signals = []
+        for r in history:
+            signals.append({
+                "ticker": r["ticker"],
+                "stance": r["stance"],
+                "logic": r["logic_summary"],
+                "timestamp": r["analysis_date"].isoformat() if r["analysis_date"] else None
+            })
 
-        return final_state
+        return {"user_handle": user_handle, "shadow_signals": signals}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/api/calendar")
+async def get_traditional_calendar():
+    """Expose traditional_insights (Muhurtham, Seasonality) from LangGraph or static cache."""
+    # For now, return the baseline 2026/2027 mapping logic
+    calendar_data = [
+        {"month": "January 2026", "event": "Budget Positioning", "type": "Buy"},
+        {"month": "February 2026", "event": "Post-Budget Rally", "type": "Sell"},
+        {"month": "April 2026", "event": "Earnings Season Volatility", "type": "Accumulate"},
+        {"month": "October 2026", "event": "Muhurtham Window", "type": "Buy"},
+        {"month": "January 2027", "event": "Pre-Election Year Run", "type": "Hold"}
+    ]
+    return {"status": "success", "calendar": calendar_data}
+
+@app.get("/api/heatmap/{ticker}")
+async def get_monthly_heatmap(ticker: str):
+    """Implement endpoint leveraging yfinance to compute a monthly returns matrix."""
+    try:
+        ticker_obj = yf.Ticker(ticker)
+        history = ticker_obj.history(period="3y")
+        if history.empty:
+            return JSONResponse(status_code=404, content={"error": "No data found for ticker"})
+
+        history['Year'] = history.index.year
+        history['Month'] = history.index.month
+        history['Month_Name'] = history.index.strftime('%b')
+
+        # Calculate monthly returns
+        monthly_data = history.resample('ME').last()
+        monthly_data['Return'] = monthly_data['Close'].pct_change() * 100
+
+        # Pivot table for heatmap matrix
+        heatmap = {}
+        for idx, row in monthly_data.dropna().iterrows():
+            year_str = str(idx.year)
+            month_str = idx.strftime('%b')
+            if year_str not in heatmap:
+                heatmap[year_str] = {}
+            # Keep precision to 2 decimal places
+            heatmap[year_str][month_str] = round(row['Return'], 2)
+
+        return {"ticker": ticker, "heatmap": heatmap}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 

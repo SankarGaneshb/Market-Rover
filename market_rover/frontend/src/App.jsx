@@ -208,22 +208,42 @@ const App = () => {
         tickers: tickers.split(',').map(t => t.trim()),
         discoverable_handle: socialIdentity.handle
       });
-      setReport(data.final_report || '');
-      setTraditionalInsights(data.traditional_insights || []);
-      setFindings([
-        ...(data.technical_data || []),
-        ...(data.dividend_data || []),
-        ...(data.forensic_reports || []),
-        ...(data.shadow_signals || []).map(s => ({ type: 'SHADOW', message: s }))
-      ]);
-      if (data.celebrations?.some(c => c.type === 'FINAL_CONFETTI_BURST')) {
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 5000);
-      }
+
+      // Async polling mechanism
+      const taskId = data.task_id;
+      const pollTimer = setInterval(async () => {
+        try {
+          const res = await api.get(`/api/analyze/status/${taskId}`);
+          if (res.data.status === 'completed') {
+            clearInterval(pollTimer);
+            const result = res.data.result;
+            setReport(result.final_report || '');
+            setTraditionalInsights(result.traditional_insights || []);
+            setFindings([
+              ...(result.technical_data || []),
+              ...(result.dividend_data || []),
+              ...(result.forensic_reports || []),
+              ...(result.shadow_signals || []).map(s => ({ type: 'SHADOW', message: s }))
+            ]);
+            if (result.celebrations?.some(c => c.type === 'FINAL_CONFETTI_BURST')) {
+              setShowConfetti(true);
+              setTimeout(() => setShowConfetti(false), 5000);
+            }
+            setIsAnalyzing(false);
+          } else if (res.data.status === 'failed') {
+            clearInterval(pollTimer);
+            setReport('Analysis failed: ' + res.data.error);
+            setIsAnalyzing(false);
+          }
+        } catch (err) {
+          clearInterval(pollTimer);
+          setReport('Error polling analysis status.');
+          setIsAnalyzing(false);
+        }
+      }, 2000);
     } catch (e) {
-      setReport('Analysis failed. Check the backend connection.');
+      setReport('Analysis failed to start. Check the backend connection.');
       console.error('runAnalysis:', e);
-    } finally {
       setIsAnalyzing(false);
     }
   };
@@ -242,8 +262,8 @@ const App = () => {
   const fetchShadow = useCallback(async () => {
     setShadowLoading(true);
     try {
-      const res = await api.get(`/api/shadow/${socialIdentity.handle}`);
-      setShadowSignals(res.data);
+      const res = await api.get(`/api/shadow?user_handle=${socialIdentity.handle}`);
+      setShadowSignals(res.data.shadow_signals || []);
     } catch (e) { console.error('fetchShadow:', e); }
     finally { setShadowLoading(false); }
   }, [socialIdentity.handle]);
@@ -253,12 +273,19 @@ const App = () => {
   const fetchCalendar = useCallback(async () => {
     if (calLoaded) return;
     try {
-      const [mRes, sRes] = await Promise.all([
-        api.get('/api/calendar/muhurtham/2026'),
-        api.get('/api/calendar/seasonal')
-      ]);
-      setMuhurthamWindows(mRes.data.windows || []);
-      setSeasonalPatterns(sRes.data.patterns || []);
+      const res = await api.get('/api/calendar');
+
+      // Adapt the unified calendar format to split arrays
+      const calData = res.data.calendar || [];
+      const windows = calData.filter(c => c.type === 'Buy' || c.type === 'Sell').map(w => ({
+          name: w.event, date: w.month, note: w.type + ' action recommended.'
+      }));
+      const seasonals = calData.filter(c => c.type === 'Accumulate' || c.type === 'Hold').map(s => ({
+          season: s.event, months: s.month, note: s.type + ' logic applies.'
+      }));
+
+      setMuhurthamWindows(windows);
+      setSeasonalPatterns(seasonals);
       setCalLoaded(true);
     } catch (e) { console.error('fetchCalendar:', e); }
   }, [calLoaded]);
