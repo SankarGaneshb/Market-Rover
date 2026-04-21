@@ -7,13 +7,18 @@ function getPool() {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
-    const socketPath = process.env.DB_HOST || `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`;
-    console.log(`Connecting via socket: ${socketPath}`);
+    const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
+    const dbUser = process.env.DB_USER || 'postgres';
+    const dbPass = process.env.DB_PASSWORD || '';
+    const dbName = process.env.DB_NAME || 'investbrand';
+
+    // Pattern mirrors pledge_rover & market_rover DSN standard
+    const socket = `/cloudsql/${connName}/.s.PGSQL.5432`;
+    const connectionString = `postgresql://${dbUser}:${dbPass}@/${dbName}?host=${socket}`;
+
+    console.log(`Connecting via Standard DSN: ${connName}`);
     return new Pool({
-      host: socketPath,
-      database: process.env.DB_NAME || 'postgres',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD,
+      connectionString,
     });
   }
 

@@ -357,6 +357,61 @@ async def create_request(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/alerts/gcp")
+async def handle_gcp_alert(request: Request):
+    """
+    Bridge between GCP Monitoring Webhooks and HIL Rover requests.
+    Converts complex GCP incident payloads into human-readable review tasks.
+    """
+    try:
+        data = await request.json()
+        incident = data.get("incident", {})
+
+        if not incident:
+            return {"status": "ignored", "message": "No incident data found"}
+
+        incident_id = incident.get("incident_id", f"GCP-{int(time.time())}")
+        summary = incident.get("summary", "Unknown GCP Incident")
+        url = incident.get("url", "#")
+        resource_name = incident.get("resource_name", "GCP Resource")
+
+        # Build the HIL Request
+        hil_id = f"ALERT-{incident_id}"
+        instructions = f"GCP ALERT: {summary}\n\nResource: {resource_name}\nIncident URL: {url}"
+
+        payload = {
+            "id": hil_id,
+            "agent_name": "GCP Sentinel",
+            "task_name": "Infrastructure Incident Review",
+            "instructions": instructions,
+            "status": "PENDING",
+            "data": incident
+        }
+
+        # Reuse internal logic
+        from fastapi import BackgroundTasks
+        # We don't have BackgroundTasks here, but we can call create_request logic
+        # For simplicity, we just insert into DB directly or mock a request
+
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO hil_requests
+                    (id, agent_name, task_name, instructions, status, data, created_at)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                ON CONFLICT (id) DO UPDATE SET
+                    instructions = EXCLUDED.instructions
+            """, hil_id, payload["agent_name"], payload["task_name"],
+                payload["instructions"], payload["status"], json.dumps(payload["data"]))
+
+        print(f"[HIL ALERT] GCP Incident {incident_id} escalated to Mission Control.")
+        return {"status": "success", "id": hil_id}
+
+    except Exception as e:
+        print(f"[HIL ALERT ERROR] Failed to parse GCP alert: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @app.post("/api/requests/{request_id}/process")
 async def process_request(request_id: str, decision: HILDecision):
     pool = await get_pool()
