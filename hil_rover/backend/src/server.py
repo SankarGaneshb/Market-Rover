@@ -11,6 +11,7 @@ from datetime import datetime, timezone, timedelta
 import asyncpg
 import json
 import httpx
+from urllib.parse import quote_plus
 
 # HIL-Rover Version: 4.4.0 — PostgreSQL persistence + GitHub Reactor
 
@@ -45,13 +46,20 @@ async def _create_pool() -> asyncpg.Pool:
         db_user   = os.getenv("PR_DB_USER", os.getenv("DB_USER", "postgres"))
         db_pass   = os.getenv("PR_DB_PASSWORD", os.getenv("DB_PASSWORD", ""))
         db_name   = os.getenv("HIL_DB_NAME", "hil_rover")
-        if conn_name:
-            socket_dir = f"/cloudsql/{conn_name}"
-            database_url = f"postgresql://{db_user}:{db_pass}@/{db_name}?host={socket_dir}"
+    user_enc = quote_plus(db_user)
+    pass_enc = quote_plus(db_pass)
 
-        else:
-            # local dev fallback
-            database_url = f"postgresql://{db_user}:{db_pass}@localhost:5432/{db_name}"
+    if conn_name:
+        socket_dir = f"/cloudsql/{conn_name}"
+        database_url = f"postgresql://{user_enc}:{pass_enc}@/{db_name}?host={socket_dir}"
+
+    else:
+        # local dev fallback
+        database_url = f"postgresql://{user_enc}:{pass_enc}@localhost:5432/{db_name}"
+
+    # Debug print (scrubbed)
+    print(f"[HIL] Connecting to {db_name} via { 'Socket' if conn_name else 'TCP' }")
+
     pool = await asyncpg.create_pool(dsn=database_url, min_size=1, max_size=5)
     # Ensure schema exists
     async with pool.acquire() as conn:
@@ -193,10 +201,12 @@ def _build_dsn(db_name: str) -> str:
     conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME", "")
     db_user   = os.getenv("DB_USER", "postgres")
     db_pass   = os.getenv("DB_PASSWORD", "")
+    user_enc = quote_plus(db_user)
+    pass_enc = quote_plus(db_pass)
     if conn_name:
-        socket = f"/cloudsql/{conn_name}/.s.PGSQL.5432"
-        return f"postgresql://{db_user}:{db_pass}@/{db_name}?host={socket}"
-    return f"postgresql://{db_user}:{db_pass}@localhost:5432/{db_name}"
+        socket = f"/cloudsql/{conn_name}" # asyncpg works with the directory path for host
+        return f"postgresql://{user_enc}:{pass_enc}@/{db_name}?host={socket}"
+    return f"postgresql://{user_enc}:{pass_enc}@localhost:5432/{db_name}"
 
 
 @app.post("/api/provision")
