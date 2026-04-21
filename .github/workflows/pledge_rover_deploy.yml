@@ -5,6 +5,11 @@ on:
     branches: [ main ]
     paths:
       - 'pledge_rover/**'
+      - 'rover_tools/**'
+      - 'utils/**'
+      - 'scripts/**'
+      - 'agents.py'
+      - 'config.py'
       - '.github/workflows/pledge_rover_deploy.yml'
   workflow_dispatch:
 

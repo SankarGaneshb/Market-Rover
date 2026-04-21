@@ -5,6 +5,11 @@ on:
     branches: [ main ]
     paths:
       - 'market_rover/**'
+      - 'rover_tools/**'
+      - 'utils/**'
+      - 'scripts/**'
+      - 'agents.py'
+      - 'config.py'
       - '.github/workflows/market_rover_deploy.yml'
   workflow_dispatch:
 
