@@ -102,6 +102,9 @@ jobs:
       - name: Build & Push Container
         working-directory: pledge_rover
         run: |
+          # Introduce staggered start to avoid GCP 429 Quota Exhaustion
+          echo "Staggering build start (25s delay)..."
+          sleep 25
           gcloud builds submit . --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
       - name: Deploy to Cloud Run

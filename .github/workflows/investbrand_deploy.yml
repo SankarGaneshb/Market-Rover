@@ -88,7 +88,11 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - uses: google-github-actions/setup-gcloud@v2
       - name: Build & Push Backend
-        run: gcloud builds submit investbrand/backend --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+        run: |
+          # Introduce staggered start to avoid GCP 429 Quota Exhaustion
+          echo "Staggering build start (45s delay)..."
+          sleep 45
+          gcloud builds submit investbrand/backend --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
 
 
       - run: |
