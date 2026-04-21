@@ -88,12 +88,28 @@ jobs:
       - name: Build and Push Backend Image (remote GCP build)
         working-directory: market_rover
         run: |
-          # Introduce staggered start to avoid GCP 429 Quota Exhaustion
-          echo "Staggering build start (5s delay)..."
-          sleep 5
-          gcloud builds submit . \
+          echo "Submitting build asynchronously..."
+          BUILD_ID=$(gcloud builds submit . \
+            --async \
             --config cloudbuild.yaml \
-            --substitutions="_SERVICE_NAME=${{ env.BACKEND_SERVICE }},_IMAGE_TAG=gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+            --substitutions="_SERVICE_NAME=${{ env.BACKEND_SERVICE }},_IMAGE_TAG=gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}" \
+            --format="value(id)")
+
+          echo "Build submitted with ID: $BUILD_ID"
+          echo "Polling for completion every 20 seconds to respect API quotas..."
+
+          while true; do
+            STATUS=$(gcloud builds describe $BUILD_ID --format="value(status)")
+            echo "Current Status: $STATUS"
+            if [[ "$STATUS" == "SUCCESS" ]]; then
+              echo "Build Succeeded!"
+              break
+            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "INTERNAL_ERROR" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
+              echo "Build Failed with status: $STATUS"
+              exit 1
+            fi
+            sleep 20
+          done
 
       - name: Deploy Backend to Cloud Run
         run: |

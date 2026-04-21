@@ -89,10 +89,27 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Build & Push Backend
         run: |
-          # Introduce staggered start to avoid GCP 429 Quota Exhaustion
-          echo "Staggering build start (45s delay)..."
-          sleep 45
-          gcloud builds submit investbrand/backend --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+          echo "Submitting build asynchronously..."
+          BUILD_ID=$(gcloud builds submit investbrand/backend \
+            --async \
+            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} \
+            --format="value(id)")
+
+          echo "Build submitted with ID: $BUILD_ID"
+          echo "Polling for completion every 20 seconds..."
+
+          while true; do
+            STATUS=$(gcloud builds describe $BUILD_ID --format="value(status)")
+            echo "Current Status: $STATUS"
+            if [[ "$STATUS" == "SUCCESS" ]]; then
+              echo "Build Succeeded!"
+              break
+            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "INTERNAL_ERROR" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
+              echo "Build Failed with status: $STATUS"
+              exit 1
+            fi
+            sleep 20
+          done
 
 
       - run: |
