@@ -11,11 +11,16 @@ async function initializePool() {
     const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
     const dbUser = process.env.IC_DB_USER || process.env.DB_USER || 'postgres';
     const dbPass = process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD || '';
-    const dbName = process.env.IC_DB_NAME || process.env.DB_NAME || 'investbrand';
+    const dbName = process.env.IC_DB_NAME || process.env.DB_NAME || 'postgres';
 
-    // Pattern mirrors pledge_rover & market_rover DSN standard
-    // We use encodeURIComponent to ensure special characters in passwords don't break the DSN URL
     const socket = `/cloudsql/${connName}`;
+    logger.info('Initializing production database connection', {
+      instance: connName,
+      socket_path: socket,
+      database: dbName,
+      user: dbUser
+    });
+
     config = {
       user: dbUser,
       password: dbPass,
@@ -29,9 +34,9 @@ async function initializePool() {
     config = {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'investbrand',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
+      database: process.env.IC_DB_NAME || process.env.DB_NAME || 'investbrand',
+      user: process.env.IC_DB_USER || process.env.DB_USER || 'postgres',
+      password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD || 'postgres',
       max: 10,
     };
   }

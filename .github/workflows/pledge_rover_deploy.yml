@@ -132,7 +132,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances market-rover:us-central1:investcraft-db \
-            --set-env-vars "PR_DB_NAME=pledge_rover,PR_DB_USER=postgres,PR_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db" \
+            --set-env-vars "PR_DB_NAME=postgres,PR_DB_USER=postgres,PR_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},CLOUD_SQL_CONNECTION_NAME=market-rover:us-central1:investcraft-db" \
             --port 8080
 
       - name: Notify HIL on Failure

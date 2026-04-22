@@ -8,9 +8,10 @@ function getPool() {
 
   if (isProduction) {
     const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
-    const dbUser = process.env.DB_USER || 'postgres';
-    const dbPass = process.env.DB_PASSWORD || '';
-    const dbName = process.env.DB_NAME || 'investbrand';
+    // Align with API's preference for IC_DB_* variables
+    const dbUser = process.env.IC_DB_USER || process.env.DB_USER || 'postgres';
+    const dbPass = process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD || '';
+    const dbName = process.env.IC_DB_NAME || process.env.DB_NAME || 'postgres';
 
     const socket = `/cloudsql/${connName}`;
     const config = {
@@ -21,16 +22,19 @@ function getPool() {
       max: 10,
     };
 
-    console.log(`[SEEDER] Connecting via Unix socket: ${socket}`);
+    console.log(`[SEEDER] Connecting to Cloud SQL instance: ${connName}`);
+    console.log(`[SEEDER] Using Unix socket path: ${socket}`);
+    console.log(`[SEEDER] Database: ${dbName}, User: ${dbUser}`);
+
     return new Pool(config);
   }
 
   return new Pool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'InvestBrand',
-    user: process.env.DB_USER || 'postgresql',
-    password: process.env.DB_PASSWORD || 'Postgresql12#',
+    database: process.env.IC_DB_NAME || process.env.DB_NAME || 'InvestBrand',
+    user: process.env.IC_DB_USER || process.env.DB_USER || 'postgresql',
+    password: process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD || 'Postgresql12#',
   });
 }
 

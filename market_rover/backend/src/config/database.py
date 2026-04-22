@@ -35,10 +35,11 @@ async def _create_pool() -> asyncpg.Pool:
         conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME", "")
         db_user   = os.getenv("DB_USER", "postgres")
         db_pass   = os.getenv("DB_PASSWORD", "")
-        db_name   = os.getenv("DB_NAME", "market_rover")
+        db_name   = os.getenv("DB_NAME", "postgres")
         socket    = f"/cloudsql/{conn_name}"
         # URL encode credentials and path to prevent "Invalid URL" or DSN parsing errors
         from urllib.parse import quote
+        logger.info(f"Connecting to Cloud SQL (asyncpg) | Instance: {conn_name} | Socket: {socket} | DB: {db_name}")
         database_url = f"postgresql://{quote(db_user)}:{quote(db_pass)}@/{quote(db_name)}?host={quote(socket)}"
 
     logger.info("Initialising asyncpg pool...")

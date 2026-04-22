@@ -14,12 +14,13 @@ if is_production:
     print(f"Initializing connection to Cloud SQL (ASYNC) via DSN: {conn_name}")
     db_user = os.environ.get("PR_DB_USER", os.environ.get("DB_USER", "postgres"))
     db_pass = os.environ.get("PR_DB_PASSWORD", os.environ.get("DB_PASSWORD", ""))
-    db_name = os.environ.get("PR_DB_NAME", os.environ.get("DB_NAME", "pledgerover"))
+    db_name = os.environ.get("PR_DB_NAME", os.environ.get("DB_NAME", "postgres"))
     socket = f"/cloudsql/{conn_name}"
 
     # Manual DSN for asyncpg via unix socket
     # Pattern: postgresql://user:pass@/dbname?host=/cloudsql/conn_name
     from urllib.parse import quote
+    print(f"Connecting to Cloud SQL (Pledge-Rover) | Instance: {conn_name} | Socket: {socket} | DB: {db_name}")
     prod_url = f"postgresql+asyncpg://{quote(db_user)}:{quote(db_pass)}@/{quote(db_name)}?host={quote(socket)}"
 
     engine = create_async_engine(
