@@ -24,6 +24,7 @@ Streamlit Cloud deploys automatically on push. This workflow ensures that push i
         python -c "from <module>.backend.src.server import app; print('[OK]')"
         ```
     - [ ] **No Connector at Import**: Ensure no `google-cloud-sql-connector` is instantiated at the top-level of any file. This allows build-time imports to pass without credentials.
+    - [ ] **DB Robustness**: Ensure database connection strings use `urllib.parse.quote_plus()` for all credentials (user/password). **MANDATORY**: For Unix sockets, provide only the directory path as the host (e.g., `?host=/cloudsql/conn`).
     - [ ] **Context Sync**: If modifying a satellite, ensure its `.github/workflows/` includes a `Sync Core Dependencies` step.
 
 

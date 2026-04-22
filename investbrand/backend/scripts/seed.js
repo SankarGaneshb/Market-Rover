@@ -14,7 +14,7 @@ function getPool() {
 
     // Pattern mirrors pledge_rover & market_rover DSN standard
     // We use encodeURIComponent to ensure special characters in passwords don't break the DSN URL
-    const socket = `/cloudsql/${connName}/.s.PGSQL.5432`;
+    const socket = `/cloudsql/${connName}`;
     const encodedUser = encodeURIComponent(dbUser);
     const encodedPass = encodeURIComponent(dbPass);
     const connectionString = `postgresql://${encodedUser}:${encodedPass}@/${dbName}?host=${encodeURIComponent(socket)}`;

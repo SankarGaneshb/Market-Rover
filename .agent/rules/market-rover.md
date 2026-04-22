@@ -32,3 +32,21 @@ Whenever `agents.py`, `tasks.py`, or Gemini integration logic changes, update th
 - Required env var in `.env` (local): [file:2]
   ```bash
   GOOGLE_API_KEY=your_gemini_api_key_here
+  ```
+
+---
+
+## 3. Green-on-Arrival (GoA) Standards
+
+To maintain build stability, all code changes MUST adhere to these GoA rules:
+
+1. **Database Robustness**:
+   - Never use `google-cloud-sql-connector` at the top level of a module.
+   - Always URL-encode database credentials using `urllib.parse.quote_plus` in DSN construction.
+   - For Cloud SQL Unix sockets, use the directory path (e.g., `/cloudsql/INSTANCE_NAME`) as the host; do NOT append `.s.PGSQL.5432` as the driver adds it automatically.
+2. **Import Integrity**:
+   - Every satellite module (e.g., `investbrand`) must be import-verifiable without environment variables or credentials.
+   - Always run the "Startup Integrity" check: `python -c "from <module>.backend.src.server import app"`.
+3. **Dependency Sync**:
+   - When tools in `rover_tools/` are updated, ensure satellite rovers' `requirements.txt` and Dockerfiles are updated to match.
+   - Use absolute imports (e.g., `from rover_tools.logger import ...`) and ensure `PYTHONPATH` includes the app root.
