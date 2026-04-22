@@ -15,7 +15,7 @@ from urllib.parse import quote_plus
 
 # HIL-Rover Version: 4.4.0 — PostgreSQL persistence + GitHub Reactor
 
-# HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investbrand-db:hil_rover)
+# HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investcraft-db:hil_rover)
 app = FastAPI(title="HIL Rover API")
 
 DIST_PATH = os.environ.get("HIL_FRONTEND_PATH", "../frontend/dist")

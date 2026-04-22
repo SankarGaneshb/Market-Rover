@@ -59,7 +59,7 @@
 #### **v5 Cloud-Native Migration (April 2026)**
 - ✅ **Decoupled Architecture**: FastAPI async backend + React 19 Frontend.
 - ✅ **LangGraph Engine**: 10-node stateful intelligence graph (Retrieval -> Strategist -> 6 Parallel Nodes -> Shadow -> Reporting).
-- ✅ **Database Consolidation**: Unified all 4 modules (Market-Rover, Investbrand, Pledge-Rover, HIL-Rover) to a single shared **Cloud SQL (investbrand-db)**.
+- ✅ **Database Consolidation**: Unified all 4 modules (Market-Rover, Investbrand, Pledge-Rover, HIL-Rover) to a single shared **Cloud SQL (investcraft-db)**.
 - ✅ **Infrastructure Provisioning**: HIL-Rover `/api/provision` endpoint for idempotent schema management.
 - ✅ **CI/CD Isolation**: Hardened workflows with `paths-ignore` and isolated module pipelines.
 - ✅ **Test Coverage Gate**: Mandatory **70% coverage** threshold enforced in CI (Current: **78.32%**).

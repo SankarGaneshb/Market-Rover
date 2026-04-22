@@ -288,7 +288,7 @@ function App() {
           <h2 style={{marginBottom: '0.5rem'}}>Infrastructure Provisioning</h2>
           <p style={{color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem'}}>
             Creates the <code>market_rover</code>, <code>pledge_rover</code>, and <code>hil_rover</code> databases
-            on the shared <strong>investbrand-db</strong> Cloud SQL instance and applies all schemas.
+            on the shared <strong>investcraft-db</strong> Cloud SQL instance and applies all schemas.
             Safe to run multiple times — fully idempotent.
           </p>
 

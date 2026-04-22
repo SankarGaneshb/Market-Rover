@@ -75,7 +75,7 @@
 | Backend API | `market-rover-api` | `https://market-rover-api-9514347926.us-central1.run.app` |
 | Frontend UI | `market-rover-ui` | `https://market-rover-ui-9514347926.us-central1.run.app` |
 
-Cloud SQL Instance: `market-rover:us-central1:investbrand-db` (shared instance — already exists)
+Cloud SQL Instance: `market-rover:us-central1:investcraft-db` (shared instance — already exists)
 
 ---
 
