@@ -8,10 +8,15 @@ const logger = require('../utils/logger');
 const googleClientId = process.env.IC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
 
+const jwtSecret = process.env.JWT_SECRET || process.env.GOOGLE_CLIENT_SECRET || 'dev-hide-in-prod';
+
 function signToken(user) {
+  if (!jwtSecret || jwtSecret === 'dev-hide-in-prod') {
+    logger.warn('JWT_SECRET is missing or using dev default. Authentication will be insecure.');
+  }
   return jwt.sign(
     { userId: user.id, email: user.email },
-    process.env.JWT_SECRET,
+    jwtSecret,
     { expiresIn: '7d' }
   );
 }
@@ -88,7 +93,7 @@ router.get('/me', async (req, res) => {
     return res.status(401).json({ error: 'No token provided' });
   }
   try {
-    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+    const decoded = jwt.verify(authHeader.split(' ')[1], jwtSecret);
     const pool = getPool();
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
     if (!result.rows[0]) return res.status(401).json({ error: 'User not found' });
