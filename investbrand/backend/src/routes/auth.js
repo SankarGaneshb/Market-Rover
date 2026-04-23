@@ -10,6 +10,14 @@ const googleClient = new OAuth2Client(googleClientId);
 
 const jwtSecret = process.env.JWT_SECRET || process.env.GOOGLE_CLIENT_SECRET || 'dev-hide-in-prod';
 
+console.log('--- AUTH SECRETS CHECK ---');
+console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+console.log('Final jwtSecret length:', jwtSecret?.length);
+if (jwtSecret === 'dev-hide-in-prod') {
+  console.log('WARNING: Using insecure fallback for jwtSecret');
+}
+
 function signToken(user) {
   if (!jwtSecret || jwtSecret === 'dev-hide-in-prod') {
     logger.warn('JWT_SECRET is missing or using dev default. Authentication will be insecure.');

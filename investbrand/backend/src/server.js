@@ -12,6 +12,7 @@ console.log('--- ENV CHECK ---');
 console.log('PORT:', process.env.PORT);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('DB_NAME:', process.env.IC_DB_NAME || process.env.DB_NAME);
+console.log('JWT_SECRET_DEBUG:', !!process.env.JWT_SECRET);
 
 const { initializePool } = require('./config/database');
 const routes = require('./routes');
