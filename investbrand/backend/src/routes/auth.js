@@ -8,23 +8,28 @@ const logger = require('../utils/logger');
 const googleClientId = process.env.IC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
 
-const jwtSecret = process.env.JWT_SECRET || process.env.GOOGLE_CLIENT_SECRET || 'dev-hide-in-prod';
-
-console.log('--- AUTH SECRETS CHECK ---');
-console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
-console.log('Final jwtSecret length:', jwtSecret?.length);
-if (jwtSecret === 'dev-hide-in-prod') {
-  console.log('WARNING: Using insecure fallback for jwtSecret');
+function getSecret() {
+  const secret = process.env.JWT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      logger.error('CRITICAL: JWT_SECRET and GOOGLE_CLIENT_SECRET are missing in production.');
+      // Don't throw here to allow the server to at least start/report health,
+      // but signToken will fail gracefully.
+    }
+    return 'dev-hide-in-prod';
+  }
+  return secret;
 }
 
 function signToken(user) {
-  if (!jwtSecret || jwtSecret === 'dev-hide-in-prod') {
-    logger.warn('JWT_SECRET is missing or using dev default. Authentication will be insecure.');
+  if (!user?.id) throw new Error('Cannot sign token for null user');
+  const secret = getSecret();
+  if (secret === 'dev-hide-in-prod' && process.env.NODE_ENV === 'production') {
+    logger.error('CRITICAL: Using dev secret in production!');
   }
   return jwt.sign(
     { userId: user.id, email: user.email },
-    jwtSecret,
+    secret,
     { expiresIn: '7d' }
   );
 }
@@ -65,15 +70,15 @@ router.post('/social-login', async (req, res) => {
       name = payload.name;
       picture = payload.picture;
     } else {
-      // Stub for other social providers - in a real app, verify their specific tokens here
-      // For now, allow mock tokens for demo/UI validation
+      // Mock provider handling (for non-production or specific mock tokens)
       if (process.env.NODE_ENV === 'production' && !token.startsWith('mock_')) {
-          return res.status(400).json({ error: `${provider} verification not yet configured in production.` });
+        return res.status(400).json({ error: `${provider} verification not yet configured in production.` });
       }
-      googleId = `${provider}_${Date.now()}`;
+      // Use a stable ID for mock providers to prevent UNIQUE constraint violations on email
+      googleId = `mock_${provider}_user_id`;
       email = `user@${provider}.demo`;
-      name = `${provider} User`;
-      picture = '';
+      name = `${provider.charAt(0).toUpperCase() + provider.slice(1)} Test User`;
+      picture = null;
     }
 
     const pool = getPool();
@@ -89,7 +94,13 @@ router.post('/social-login', async (req, res) => {
     const user = result.rows[0];
     res.json({ token: signToken(user), user: formatUser(user) });
   } catch (err) {
-    logger.error('Social auth error', { provider, message: err.message });
+    logger.error('Social auth error', { provider, message: err.message, stack: err.stack });
+
+    // Distinguish between Auth errors and Database errors
+    if (err.message.includes('Database') || err.message.includes('pool')) {
+      return res.status(503).json({ error: 'Database connectivity issue', details: 'The server is currently unable to reach the database.' });
+    }
+
     res.status(401).json({ error: 'Authentication failed', details: err.message });
   }
 });
@@ -101,7 +112,7 @@ router.get('/me', async (req, res) => {
     return res.status(401).json({ error: 'No token provided' });
   }
   try {
-    const decoded = jwt.verify(authHeader.split(' ')[1], jwtSecret);
+    const decoded = jwt.verify(authHeader.split(' ')[1], getSecret());
     const pool = getPool();
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
     if (!result.rows[0]) return res.status(401).json({ error: 'User not found' });

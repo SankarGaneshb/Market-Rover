@@ -94,48 +94,47 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`InvestBrand API explicitly listening on 0.0.0.0:${PORT}`);
-  logger.info(`InvestBrand API starting on port ${PORT}`, {
-    node_env: process.env.NODE_ENV,
-    port: PORT,
-    host: '0.0.0.0'
-  });
+const startServer = async () => {
+  try {
+    // 1. Initialize Database (Awaited to prevent race conditions)
+    await initializePool();
+    logger.info('Database pool and migrations initialized successfully');
+    isDbReady = true;
 
-  // Database initialization happens in the background with retry logic
-  const startDb = async (retries = 5) => {
-    while (retries > 0) {
-      try {
-        await initializePool();
-        logger.info('Database pool and migrations initialized successfully');
-        isDbReady = true;
-        dbError = null;
-        return;
-      } catch (err) {
-        retries -= 1;
-        logger.error(`DATABASE INIT FAILED (Retries left: ${retries}):`, {
-          error: err.message,
-          stack: err.stack,
-          code: err.code
-        });
-        dbError = err.message;
-        if (retries === 0) {
-          logger.error('FATAL: Could not connect to database after maximum retries. Exiting.');
-          process.exit(1); // Force Cloud Run to restart the container
-        }
-        await new Promise(res => setTimeout(res, 5000)); // wait 5 seconds before retrying
-      }
+    // 2. Start Listening
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`InvestBrand API explicitly listening on 0.0.0.0:${PORT}`);
+      logger.info(`InvestBrand API live on port ${PORT}`, {
+        node_env: process.env.NODE_ENV,
+        port: PORT
+      });
+    });
+
+    // 3. Graceful Shutdown
+    process.on('SIGTERM', () => {
+      logger.info('SIGTERM received: closing server');
+      server.close(() => {
+        logger.info('Server closed. Exiting.');
+        process.exit(0);
+      });
+    });
+
+  } catch (err) {
+    logger.error('FATAL STARTUP ERROR:', {
+      error: err.message,
+      stack: err.stack,
+      code: err.code
+    });
+    dbError = err.message;
+    // We exit in production to force Cloud Run to restart the container
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
     }
-  };
+  }
+};
 
-  startDb();
-});
+if (require.main === module) {
+  startServer();
+}
 
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received: closing server');
-  server.close(() => {
-    process.exit(0);
-  });
-});
-
-// Nodemon Trigger: Hard-reloading server to mount GOOGLE_API_KEY from .env
+module.exports = app; // Export for testing and integrity checks
