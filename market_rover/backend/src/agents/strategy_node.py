@@ -1,4 +1,5 @@
 import os
+import asyncio
 from src.state import AgentState
 from rover_tools.global_market_tool import get_global_cues_data
 from src.utils.logger import get_logger
@@ -11,12 +12,12 @@ async def strategy_node(state: AgentState) -> dict:
     Maps the 'Quadratic Regime' (Goldilocks/Reflation/Stagflation/Deflation).
     Triggers 'Wow Factor' celebrations for positive regime breakthroughs.
     """
-    logger.info("Executing Strategy Node...")
+    logger.info("Executing Strategy Node (Async)...")
 
     # 1. Macro Analysis Logic (Quadratic Mapping)
     try:
-        # Calls the data-driven function to get VIX, DXY, 10Y Yields
-        macro_cues = get_global_cues_data()
+        # Calls the data-driven function (wrapped in thread to avoid blocking)
+        macro_cues = await asyncio.to_thread(get_global_cues_data)
         vix = macro_cues.get('vix', 20)
         dxy = macro_cues.get('dxy', 100)
         yield_10y = macro_cues.get('yield_10y', 3.5)

@@ -1,4 +1,5 @@
 import os
+import asyncio
 from src.state import AgentState
 from rover_tools.shadow_tools import analyze_sector_flow_tool
 from rover_tools.ticker_resources import NIFTY_50_SECTOR_MAP
@@ -11,11 +12,11 @@ async def sector_node(state: AgentState) -> dict:
     Node: Sector Rotator (Parallel)
     Maps tickers to sectors and identifies 'Leading vs Lagging' flows.
     """
-    logger.info("Executing Sector Rotator Node...")
+    logger.info("Executing Sector Rotator Node (Async)...")
     tickers = state.get("tickers", [])
 
-    # 1. Analyze Sector Flows using existing tool
-    sector_flow_res = analyze_sector_flow_tool()
+    # 1. Analyze Sector Flows using existing tool (wrapped in thread)
+    sector_flow_res = await asyncio.to_thread(analyze_sector_flow_tool)
 
     # 2. Map Tickers to Sectors
     ticker_map = {}

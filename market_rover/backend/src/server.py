@@ -1,6 +1,22 @@
 import os
+import sys
+from pathlib import Path
 import uvicorn
 from fastapi import FastAPI, Request
+
+# --- Path Hardening (Ensure root-level rover_tools are discoverable) ---
+# If in Docker, root is /app. Locally, it's the repo root.
+CURRENT_DIR = Path(__file__).resolve().parent
+if (CURRENT_DIR.parent / "src").exists() and (CURRENT_DIR.parent.parent / "backend").exists():
+    # We are in backend/src/
+    ROOT_DIR = CURRENT_DIR.parent.parent.parent
+else:
+    # Fallback or different structure
+    ROOT_DIR = CURRENT_DIR.parent.parent.parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
