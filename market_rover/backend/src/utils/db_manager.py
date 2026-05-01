@@ -53,6 +53,19 @@ class DBManager:
                             max_size=20
                         )
                     logger.info(f"Successfully connected to PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
+
+                    # Ensure schema is initialized
+                    try:
+                        schema_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'schema.sql')
+                        if os.path.exists(schema_path):
+                            with open(schema_path, 'r', encoding='utf-8') as f:
+                                schema_sql = f.read()
+                            async with self.pool.acquire() as conn:
+                                await conn.execute(schema_sql)
+                            logger.info("Database schema initialized automatically.")
+                    except Exception as e:
+                        logger.error(f"Failed to auto-initialize schema: {e}")
+
                 except Exception as e:
                     logger.error(f"PostgreSQL Connection Error: {e}")
                     raise
