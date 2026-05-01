@@ -42,6 +42,25 @@ async def get_x_auth_url():
     )
     return {"url": url}
 
+@router.get("/linkedin/url")
+async def get_linkedin_auth_url():
+    client_id = os.getenv("LI_CLIENT_ID", "test-id")
+    url = (
+        "https://www.linkedin.com/oauth/v2/authorization?response_type=code"
+        f"&client_id={client_id}&redirect_uri={GOOGLE_REDIRECT_URI}"
+        "&scope=r_liteprofile%20r_emailaddress&state=linkedin"
+    )
+    return {"url": url}
+
+@router.get("/facebook/url")
+async def get_facebook_auth_url():
+    client_id = os.getenv("FB_CLIENT_ID", "test-id")
+    url = (
+        f"https://www.facebook.com/v12.0/dialog/oauth?client_id={client_id}"
+        f"&redirect_uri={GOOGLE_REDIRECT_URI}&scope=email,public_profile&state=facebook"
+    )
+    return {"url": url}
+
 
 @router.post("/google/callback")
 async def google_callback(request: Request):
@@ -53,7 +72,7 @@ async def google_callback(request: Request):
 
     # Dev bypass
     if code == "mock_code":
-        return {"handle": "dev.analyst@market-rover.com", "name": "Dev Analyst", "provider": "Local"}
+        return {"handle": "dev.analyst@market-rover.com", "name": "Dev Analyst", "provider": "Social Hub"}
 
     async with httpx.AsyncClient() as client:
         token_res = await client.post("https://oauth2.googleapis.com/token", data={

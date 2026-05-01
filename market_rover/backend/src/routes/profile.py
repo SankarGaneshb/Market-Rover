@@ -41,7 +41,7 @@ async def get_profile(user_handle: str):
     try:
         await db.connect()
         persona = await db.get_user_persona(user_handle)
-        return {"user_handle": user_handle, "persona": persona or "Not Set"}
+        return {"user_handle": user_handle, "persona": persona or "Neutral"}
     except Exception as e:
         logger.error(f"get_profile failed: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})

@@ -24,6 +24,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.server import app
+from src.utils.db_manager import db
 
 client = TestClient(app)
 
@@ -68,26 +69,23 @@ def test_forecast_returns_list():
             "analysis_date": MagicMock(isoformat=MagicMock(return_value="2026-04-15T10:00:00"))
         }
     ]
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock()
-        mock_db.get_forecast_history = AsyncMock(return_value=mock_rows)
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "get_forecast_history", AsyncMock(return_value=mock_rows)):
         res = client.get("/api/forecasts/test@gmail.com")
         assert res.status_code == 200
         assert isinstance(res.json(), list)
 
 
 def test_forecast_empty_history():
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock()
-        mock_db.get_forecast_history = AsyncMock(return_value=[])
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "get_forecast_history", AsyncMock(return_value=[])):
         res = client.get("/api/forecasts/nobody@gmail.com")
         assert res.status_code == 200
         assert res.json() == []
 
 
 def test_forecast_db_error_returns_500():
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock(side_effect=Exception("DB down"))
+    with patch.object(db, "connect", AsyncMock(side_effect=Exception("DB down"))):
         res = client.get("/api/forecasts/test@gmail.com")
         assert res.status_code == 500
 
@@ -128,8 +126,7 @@ def test_heatmap_already_has_ns():
 
 def test_heatmap_exception_returns_500():
     # Test profile DB error path
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock(side_effect=Exception("db crash"))
+    with patch.object(db, "connect", AsyncMock(side_effect=Exception("db crash"))):
         res = client.get("/api/profile/crash@test.com")
         assert res.status_code == 500
 
@@ -140,25 +137,22 @@ def test_heatmap_exception_returns_500():
 
 def test_profile_get_no_db():
     """GET /api/profile/<handle> — DB error handled gracefully."""
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock(side_effect=Exception("no db"))
+    with patch.object(db, "connect", AsyncMock(side_effect=Exception("no db"))):
         res = client.get("/api/profile/test@gmail.com")
         assert res.status_code == 500
 
 
 def test_profile_get_success():
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock()
-        mock_db.get_user_persona = AsyncMock(return_value="The Hunter")
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "get_user_persona", AsyncMock(return_value="The Hunter")):
         res = client.get("/api/profile/hunter@gmail.com")
         assert res.status_code == 200
         assert res.json()["persona"] == "The Hunter"
 
 
 def test_profile_get_no_persona():
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock()
-        mock_db.get_user_persona = AsyncMock(return_value=None)
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "get_user_persona", AsyncMock(return_value=None)):
         res = client.get("/api/profile/new@gmail.com")
         assert res.status_code == 200
         # server.py returns "Neutral" when persona is None
@@ -166,9 +160,8 @@ def test_profile_get_no_persona():
 
 
 def test_profile_save_persona():
-    with patch("src.server.db") as mock_db:
-        mock_db.connect = AsyncMock()
-        mock_db.set_user_persona = AsyncMock()
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "set_user_persona", AsyncMock()):
         res = client.post(
             "/api/profile",
             json={"user_handle": "user@gmail.com", "persona": "The Hunter"}
@@ -347,10 +340,15 @@ def test_root_endpoint():
 
 
 def test_health_endpoint():
-    res = client.get("/health")
-    assert res.status_code == 200
-    # server.py returns "stable"
-    assert res.json()["status"] == "stable"
+    mock_pool = MagicMock()
+    mock_pool.acquire.return_value.__aenter__ = AsyncMock()
+    mock_pool.acquire.return_value.__aexit__ = AsyncMock()
+
+    with patch.object(db, "connect", AsyncMock()), \
+         patch.object(db, "pool", mock_pool):
+        res = client.get("/health")
+        assert res.status_code == 200
+        assert res.json()["status"] == "stable"
 
 
 def test_docs_reachable():
