@@ -62,20 +62,6 @@ async def root():
         "docs": "/docs"
     }
 
-@app.get("/api/auth/google/url")
-async def get_google_auth_url():
-    import urllib.parse
-    encoded_redirect = urllib.parse.quote(GOOGLE_REDIRECT_URI)
-    url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        f"?response_type=code&client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={encoded_redirect}&scope=openid%20email%20profile"
-        "&access_type=offline&prompt=select_account&state=google"
-    )
-    print(f"OAUTH DEBUG: Generated URL -> {url}")
-    return {"url": url}
-
-@app.get("/api/auth/x/url")
 @app.get("/health")
 async def health_check():
     """Liveness probe including DB check."""
