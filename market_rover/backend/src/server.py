@@ -1,6 +1,11 @@
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables IMMEDIATELY to ensure all imports see them
+load_dotenv()
+
 import uvicorn
 from fastapi import FastAPI, Request
 
@@ -19,7 +24,6 @@ if str(ROOT_DIR) not in sys.path:
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
 from src.market_rover_graph import create_market_rover_graph
 from pydantic import BaseModel
 from typing import List, Optional
@@ -31,9 +35,7 @@ import asyncio
 import yfinance as yf
 import pandas as pd
 
-# Load environment variables (API Keys, DB URLs)
-load_dotenv()
-
+# Initialize the Graphite
 app = FastAPI(
     title="Market-Rover Core API",
     version="5.0.0-LangGraph",

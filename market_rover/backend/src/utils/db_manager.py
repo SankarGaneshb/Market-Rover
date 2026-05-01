@@ -16,32 +16,33 @@ class DBManager:
     def __init__(self):
         self.pool = None
         self._lock = asyncio.Lock()
-        self.dsn = os.getenv("DATABASE_URL")
 
     async def connect(self):
         async with self._lock:
             if not self.pool:
-                try:
-                    if self.dsn:
-                        logger.info("Connecting to PostgreSQL using DSN...")
-                        self.pool = await asyncpg.create_pool(dsn=self.dsn)
-                    else:
-                        user      = os.getenv("DB_USER", "postgres")
-                        password  = os.getenv("DB_PASSWORD", "")
-                        db_name   = os.getenv("DB_NAME", "market_rover")
-                        conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME") # e.g. project:region:instance
+                # Fetch env vars inside connect to pick up dynamic changes/dotenv
+                dsn       = os.getenv("DATABASE_URL")
+                conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
+                user      = os.getenv("DB_USER", "postgres")
+                password  = os.getenv("DB_PASSWORD", "")
+                db_name   = os.getenv("DB_NAME", "market_rover")
+                db_host   = os.getenv("DB_HOST", "localhost")
+                db_port   = os.getenv("DB_PORT", "5432")
 
+                try:
+                    if dsn:
+                        logger.info("Connecting to PostgreSQL using DSN...")
+                        self.pool = await asyncpg.create_pool(dsn=dsn)
+                    else:
                         # GoA Rule: Always URL-encode database credentials in DSN-like construction
                         encoded_user = quote_plus(user)
                         encoded_password = quote_plus(password)
 
-                        host      = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
-                        port      = int(os.getenv("DB_PORT", "5432"))
+                        host = f"/cloudsql/{conn_name}" if conn_name else db_host
+                        port = int(db_port)
 
                         logger.info(f"Connecting to PostgreSQL (Host: {host})...")
 
-                        # We pass individual args to create_pool, which is safe.
-                        # But we use the encoded values for the log or if we were building a DSN.
                         self.pool = await asyncpg.create_pool(
                             user=user,
                             password=password,
