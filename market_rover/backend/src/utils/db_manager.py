@@ -1,4 +1,5 @@
 import os
+import asyncio
 import asyncpg
 from urllib.parse import quote_plus
 from datetime import datetime
@@ -13,33 +14,47 @@ class DBManager:
     """
 
     def __init__(self):
-        self.dsn = os.getenv("DATABASE_URL")
         self.pool = None
+        self._lock = asyncio.Lock()
+        self.dsn = os.getenv("DATABASE_URL")
 
     async def connect(self):
-        if not self.pool:
-            conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
-            user      = os.getenv("DB_USER", "postgres")
-            password  = os.getenv("DB_PASSWORD", "")
-            db_name   = os.getenv("DB_NAME", "market_rover")
-            host      = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
-            port      = int(os.getenv("DB_PORT", "5432"))
+        async with self._lock:
+            if not self.pool:
+                try:
+                    if self.dsn:
+                        logger.info("Connecting to PostgreSQL using DSN...")
+                        self.pool = await asyncpg.create_pool(dsn=self.dsn)
+                    else:
+                        user      = os.getenv("DB_USER", "postgres")
+                        password  = os.getenv("DB_PASSWORD", "")
+                        db_name   = os.getenv("DB_NAME", "market_rover")
+                        conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME") # e.g. project:region:instance
 
-            try:
-                if self.dsn:
-                    self.pool = await asyncpg.create_pool(dsn=self.dsn)
-                else:
-                    self.pool = await asyncpg.create_pool(
-                        user=user,
-                        password=password,
-                        database=db_name,
-                        host=host,
-                        port=port
-                    )
-                logger.info(f"Successfully connected to PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
-            except Exception as e:
-                logger.error(f"PostgreSQL Connection Error: {e}")
-                raise
+                        # GoA Rule: Always URL-encode database credentials in DSN-like construction
+                        encoded_user = quote_plus(user)
+                        encoded_password = quote_plus(password)
+
+                        host      = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
+                        port      = int(os.getenv("DB_PORT", "5432"))
+
+                        logger.info(f"Connecting to PostgreSQL (Host: {host})...")
+
+                        # We pass individual args to create_pool, which is safe.
+                        # But we use the encoded values for the log or if we were building a DSN.
+                        self.pool = await asyncpg.create_pool(
+                            user=user,
+                            password=password,
+                            database=db_name,
+                            host=host,
+                            port=port,
+                            min_size=5,
+                            max_size=20
+                        )
+                    logger.info(f"Successfully connected to PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
+                except Exception as e:
+                    logger.error(f"PostgreSQL Connection Error: {e}")
+                    raise
 
     async def log_activity(self, user_handle: str, action: str, platform: str = "WEB"):
         """Logs user login/interaction events."""

@@ -329,8 +329,19 @@ async def get_forecasts(user_handle: str):
 
 @app.get("/health")
 async def health_check():
+    """Liveness probe including DB check."""
+    db_status = "healthy"
+    try:
+        await db.connect()
+        async with db.pool.acquire() as conn:
+            await conn.execute("SELECT 1")
+    except Exception as e:
+        logger.error(f"Health check DB failure: {e}")
+        db_status = f"unhealthy: {str(e)}"
+
     return {
-        "status": "stable",
+        "status": "stable" if db_status == "healthy" else "degraded",
+        "database": db_status,
         "engine": "LangGraph",
         "python_version": "3.13"
     }

@@ -15,4 +15,5 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+# Use sed to replace the placeholder BACKEND_URL with the environment variable at runtime
+CMD ["/bin/sh", "-c", "sed -i \"s|BACKEND_URL|$BACKEND_URL|g\" /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
