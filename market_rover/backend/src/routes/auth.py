@@ -22,13 +22,19 @@ GOOGLE_REDIRECT_URI  = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:5173")
 @router.get("/google/url")
 async def get_google_auth_url():
     import urllib.parse
-    encoded_redirect = urllib.parse.quote(GOOGLE_REDIRECT_URI)
-    url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        f"?response_type=code&client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={encoded_redirect}&scope=openid%20email%20profile"
-        "&access_type=offline&prompt=select_account&state=google"
-    )
+
+    params = {
+        "response_type": "code",
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "select_account",
+        "state": "google"
+    }
+
+    query_string = urllib.parse.urlencode(params)
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{query_string}"
     return {"url": url}
 
 @router.get("/x/url")
