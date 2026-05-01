@@ -13,8 +13,8 @@ from src.utils.logger import get_logger
 router = APIRouter()
 logger = get_logger(__name__)
 
-GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
 # Standardize redirect URI to 5173 for local, overridden in prod
 GOOGLE_REDIRECT_URI  = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:5173")
 
