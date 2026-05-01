@@ -34,13 +34,7 @@ class DBManager:
                         logger.info("Connecting to PostgreSQL using DSN...")
                         self.pool = await asyncpg.create_pool(dsn=dsn)
                     else:
-                        # GoA Rule: Always URL-encode database credentials in DSN-like construction
-                        encoded_user = quote_plus(user)
-                        encoded_password = quote_plus(password)
-
                         host = f"/cloudsql/{conn_name}" if conn_name else db_host
-                        port = int(db_port)
-
                         logger.info(f"Connecting to PostgreSQL (Host: {host})...")
 
                         self.pool = await asyncpg.create_pool(
@@ -48,27 +42,54 @@ class DBManager:
                             password=password,
                             database=db_name,
                             host=host,
-                            port=port,
+                            port=int(db_port),
                             min_size=5,
                             max_size=20
                         )
-                    logger.info(f"Successfully connected to PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
 
-                    # Ensure schema is initialized
-                    try:
-                        schema_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'schema.sql')
-                        if os.path.exists(schema_path):
-                            with open(schema_path, 'r', encoding='utf-8') as f:
-                                schema_sql = f.read()
-                            async with self.pool.acquire() as conn:
-                                await conn.execute(schema_sql)
-                            logger.info("Database schema initialized automatically.")
-                    except Exception as e:
-                        logger.error(f"Failed to auto-initialize schema: {e}")
-
+                    # GoA Standard: Ensure all tables are provisioned on first connection
+                    await self._provision_tables()
+                    logger.info(f"Successfully connected and provisioned PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
                 except Exception as e:
                     logger.error(f"PostgreSQL Connection Error: {e}")
                     raise
+
+    async def _provision_tables(self):
+        """Ensures all required tables exist in the public schema."""
+        async with self.pool.acquire() as conn:
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS public.user_profiles (
+                    user_id TEXT PRIMARY KEY,
+                    persona TEXT DEFAULT 'Neutral',
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS public.agent_memory_ltm (
+                    user_id TEXT NOT NULL,
+                    ticker TEXT NOT NULL,
+                    stance TEXT NOT NULL,
+                    logic_summary TEXT,
+                    analysis_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (user_id, ticker)
+                );
+
+                CREATE TABLE IF NOT EXISTS public.user_activity_log (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    action_type TEXT NOT NULL,
+                    platform TEXT DEFAULT 'WEB',
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS public.social_shares (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    platform TEXT NOT NULL,
+                    content_type TEXT NOT NULL,
+                    recipient_count INTEGER DEFAULT 1,
+                    share_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
 
     async def log_activity(self, user_handle: str, action: str, platform: str = "WEB"):
         """Logs user login/interaction events."""
@@ -112,21 +133,12 @@ class DBManager:
 
     async def set_user_persona(self, user_handle: str, persona: str):
         """Saves the user's investor persona (e.g., Hunter, Defender)."""
-        # Ensure table exists first (Lightweight idempotent check)
-        setup_query = """
-            CREATE TABLE IF NOT EXISTS public.user_profiles (
-                user_id TEXT PRIMARY KEY,
-                persona TEXT DEFAULT 'Neutral',
-                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """
         query = """
             INSERT INTO public.user_profiles (user_id, persona, last_updated)
             VALUES ($1, $2, CURRENT_TIMESTAMP)
             ON CONFLICT (user_id) DO UPDATE SET persona = $2, last_updated = CURRENT_TIMESTAMP
         """
         async with self.pool.acquire() as conn:
-            await conn.execute(setup_query)
             await conn.execute(query, user_handle, persona)
 
     async def get_user_persona(self, user_handle: str):
