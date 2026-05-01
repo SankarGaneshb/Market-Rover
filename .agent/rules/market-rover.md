@@ -44,9 +44,14 @@ To maintain build stability, all code changes MUST adhere to these GoA rules:
    - Never use `google-cloud-sql-connector` at the top level of a module.
    - Always URL-encode database credentials using `urllib.parse.quote_plus` in DSN construction.
    - For Cloud SQL Unix sockets, use the directory path (e.g., `/cloudsql/INSTANCE_NAME`) as the host; do NOT append `.s.PGSQL.5432` as the driver adds it automatically.
-2. **Import Integrity**:
+   - **Lazy-Loading**: DB Connections MUST use lazy-loading (`asyncio.Lock()`) and NEVER initialize at the global module level to avoid `Errno 111` race conditions during Cloud Run secret injection.
+2. **Import Integrity & Route Shadowing**:
    - Every satellite module (e.g., `investbrand`) must be import-verifiable without environment variables or credentials.
    - Always run the "Startup Integrity" check: `python -c "from <module>.backend.src.server import app"`.
+   - When modularizing API routes, aggressively delete old inline endpoints in the main server file to prevent silent `NameError` route shadowing.
 3. **Dependency Sync**:
    - When tools in `rover_tools/` are updated, ensure satellite rovers' `requirements.txt` and Dockerfiles are updated to match.
    - Use absolute imports (e.g., `from rover_tools.logger import ...`) and ensure `PYTHONPATH` includes the app root.
+4. **Proxy & Auth Compliance**:
+   - **Nginx**: Never use `proxy_set_header Host $host;` when proxying from an Nginx container to a `.run.app` service, as it causes SNI mismatches (502 Bad Gateway).
+   - **OAuth**: Always use `urllib.parse.urlencode()` for generating OAuth Redirect URIs instead of string concatenation or `.quote()`, to ensure strict Google security compliance.
