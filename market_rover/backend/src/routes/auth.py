@@ -33,7 +33,7 @@ async def get_google_auth_url():
         "state": "google"
     }
 
-    query_string = urllib.parse.urlencode(params)
+    query_string = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
     url = f"https://accounts.google.com/o/oauth2/v2/auth?{query_string}"
     return {"url": url}
 
