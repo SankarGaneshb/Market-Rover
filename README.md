@@ -24,6 +24,16 @@
 
 ---
 
+## 🏛️ System Architecture (HLD)
+
+Market-Rover features an enterprise-grade multi-agent architecture built on **LangGraph**, **FastAPI**, **Gemini 3.0 Flash**, and **Google Cloud Run**:
+
+[![Market-Rover High Level Design (HLD) Architecture](assets/market_rover_hld.png)](HLD.md)
+
+> 📘 **Detailed Architecture Specs**: For full details on our 10 LangGraph nodes, security shields, tool integrations, and database design, view our [High-Level Design Specification (HLD.md)](HLD.md) and [Technical Architecture Guide (ARCHITECTURE.md)](ARCHITECTURE.md).
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

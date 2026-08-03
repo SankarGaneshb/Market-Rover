@@ -1,48 +1,57 @@
-# 🚀 Market-Rover System Design – High Level Design (HLD)
+# 🚀 Market-Rover Ecosystem – High Level Design (HLD) v5
 
-This document presents the **High Level Design (HLD) System Architecture** for **Market-Rover**, an AI-powered stock intelligence and portfolio research platform built for the Indian equity markets (Nifty, Sensex, Sector Indices, and Option Chains).
+This document details the complete **High Level Design (HLD) System Architecture** for the entire **Market-Rover Ecosystem**, encompassing **Market-Rover v5 (FastAPI + React 19)**, **Market-Rover Streamlit App**, **HIL Rover (Mission Control)**, **Pledge-Rover**, **Ownerise**, **Investbrand**, **Self-SRE Governance**, and the **Observability Metrics Engine**.
 
 ---
 
 ## 📊 High-Level Design (HLD) Diagram
 
-![Market-Rover High Level Design Architecture](assets/market_rover_hld.png)
+![Market-Rover v5 Ecosystem High Level Design Architecture](assets/market_rover_hld.png)
 
 ---
 
-## 🏗️ Architectural Component Breakdown
+## 🏗️ Ecosystem & Architectural Breakdown
 
-### 1. User Layer (Ingestion & Entry Points)
-* **User Interfaces**:
-  * **Streamlit UI (`app.py`)**: Interactive web dashboard for portfolio uploads and live report viewing.
-  * **React 19 Frontend**: Decoupled v5 SPA UI built with Vite and TailwindCSS.
-  * **HIL Mission Control**: Human-in-the-Loop administrative dashboard for monitoring system health and SRE alerts.
-  * **CLI & API**: Headless triggers via FastAPI endpoints and script runners.
-* **Input Types**:
-  * Portfolio CSV files (`Portfolio.csv` / `portfolio_example.csv`).
-  * Indian equity ticker symbols (`.NS` / `.BO`).
-  * Watchlist queries and natural language market prompts.
+### 1. User & Interface Layer
+* **Market-Rover Streamlit (`app.py` & `tabs/`)**: Classic Streamlit multi-page interface for portfolio research, interactive heatmaps, benchmark comparisons, and historical report browsing.
+* **Market-Rover v5 React UI (`market_rover/frontend`)**: Enterprise decoupled single-page application built with React 19, Vite, TailwindCSS, and shadcn UI components.
+* **HIL Mission Control UI (`hil_rover/frontend`)**: Human-in-the-Loop admin dashboard providing real-time telemetry, agent intervention controls, failure inspection, and SRE alerts.
+* **Pledge-Rover UI (`pledge_rover/frontend`)**: Dedicated interface for tracking corporate promoter share pledge ratios, margin call risks, and insider pledge trends.
+* **Investbrand UI (`investbrand/frontend`)**: Gamified stock discovery platform featuring "Brand-to-Stock" puzzle challenges, AI word clouds, and micro-learning cards.
+* **Ownerise UI (`ownerise/backend`)**: Institutional vs. insider ownership analytics interface tracking quarterly holding changes and promoter accumulation.
 
-### 2. Frontend & Ingestion Layer
-* **FastAPI Gateway & Streamlit Engine**: Routes incoming requests, streams real-time execution progress, and manages state.
-* **Input Validation & Sanitization**:
-  * **CSV Validation**: Validates tickers, portfolio weights, and column formatting.
-  * **Unicode Scrubbing**: Sanitizes emojis, special markers, and unhandled characters across input buffers.
-  * **Error Toasting**: Intercepts runtime provider warnings without interrupting user workflows.
+---
 
-### 3. Backend & Agentic Core (LangGraph Engine)
-* **API Gateway & Security**: Handles authentication, rate limiting, request routing, and Web Application Firewall (WAF) filtering.
-* **LangGraph State Engine**: Stateful parallel execution engine replacing linear funnels for low-latency multi-agent reasoning.
-* **Session & Memory Service**: Maintains user preferences, portfolio context, risk tolerance, and historical query states.
-* **Context & Symbol Standardizer**: Automatically appends `.NS` (National Stock Exchange) or `.BO` (BSE) suffixes to raw Indian stock tickers.
+### 2. Frontend & API Gateway Layer
+* **Streamlit Runtime Engine**: Python session management, CSV file upload handler, and reactive tab renderer.
+* **Market-Rover v5 FastAPI Gateway (`market_rover/backend`)**: Asynchronous, high-concurrency REST & WebSocket API gateway handling authentication, CORS, rate limiting, and request routing.
+* **Satellite API Gateways**:
+  * `hil_rover/backend`: Mission Control WebSocket & REST telemetry server.
+  * `pledge_rover/backend`: Promoter pledge data ingestion and risk alert API.
+  * `investbrand/backend`: Gamified challenge generator and brand mapping API.
+  * `ownerise/backend`: Insider transaction & holding changes query API.
+* **Input Validation & Security**:
+  * **CSV Validation**: Validates tickers, portfolio weights, and column structure.
+  * **Unicode Scrubbing**: Sanitizes emojis, special characters, and shell control sequences.
+  * **OAuth & CORS Security Shield**: Enforces Google OAuth redirect compliance and proxy host checks.
 
-### 4. AI Processing & Agent Roster
-* **Safety & Policy (Input)**: Input sanitization, prompt injection prevention, and Unicode scrubbing.
+---
+
+### 3. Backend & Agentic Core (LangGraph v5)
+* **API Gateway & WAF Security**: OAuth, rate limiting, and security shields (`utils/security.py`).
+* **LangGraph v5 Stateful Graph Engine**: Asynchronous state management orchestrating 10 parallel nodes with shared graph state (`state.py`).
+* **Session & Memory Ledger**: Maintains portfolio context, user profiles (`data/user_profiles.json`), reasoning memory (`data/memory.json`), and decision logs (`data/autonomy_events.json`).
+* **Context & Symbol Standardizer**: Converts raw Indian stock tickers to `.NS` (National Stock Exchange) or `.BO` (BSE) conventions automatically.
+
+---
+
+### 4. AI Processing, Agents & Self-SRE
+* **Safety & Policy Layer**: Input sanitization, prompt injection detection, and Unicode/emoji scrubbing.
 * **Model Router**: Intelligently routes calls to **Gemini 3.0 Flash** or **Gemini 3 Flash Preview** based on context depth, speed requirements, and task complexity.
 * **10 Core LangGraph Agent Nodes**:
-  1. **Retrieval Node**: Gatekeeper validating symbols and fetching historical OHLCV data via `yfinance`.
+  1. **Retrieval Node**: Symbol gatekeeper validating tickers and fetching historical OHLCV data via `yfinance`.
   2. **Strategy Node**: Macro-economic regime classifier (analyzing VIX, DXY, US 10Y Yields into Goldilocks/Panic regimes).
-  3. **Sentiment Node**: Parses latest market news via `Newspaper3k` and calculates fear/greed sentiment scores.
+  3. **Sentiment Node**: Parses news articles via `Newspaper3k` and calculates fear/greed sentiment scores.
   4. **Technical Node**: Calculates Triple Concordance (MTC) and identifies key support/resistance levels.
   5. **Traditional Node**: Evaluates seasonal patterns and **Muhurtham Trading** windows.
   6. **Dividend Node**: Analyzes yield quality, payout trends, and corporate action impacts.
@@ -50,27 +59,45 @@ This document presents the **High Level Design (HLD) System Architecture** for *
   8. **Forensic Node**: Audit engine identifying fundamental outliers, accounting red flags, and self-corrections.
   9. **Shadow Node**: Combines technical and sentiment signals to detect **Institutional Bull/Bear Traps**.
   10. **Reporting Node**: Synthesizes multi-agent outputs, generates Markdown summaries, and formats JSON for UI rendering.
-* **Safety & Policy (Output)**: Output schema validation, red-flag sanitization, and compliance auditing.
+* **Satellite Agents & Self-SRE Crew**:
+  * **Self-SRE Support Agent**: Autonomous SRE agent that intercepts runtime exceptions, manages Dependabot PRs, auto-fixes CI regressions, and routes critical failures to the HIL Dashboard.
+  * **Investbrand Puzzle Agent**: Generates brand-to-stock challenges and adaptive word clouds.
+  * **Pledge Tracker Agent**: Evaluates promoter pledge volatility and high-margin risk flags.
+  * **Ownerise Insider Agent**: Monitors insider buying/selling patterns and FII/DII holding changes.
 
-### 5. Tools, Data Sources & Satellites
-* **Rover Tools (Agent Actions)**:
+---
+
+### 5. Tools, Data Sources & Federated Satellites
+* **Rover Batch Tools (`rover_tools/`)**:
   * `batch_scrape_news`: Parallel news scraping via `Newspaper3k` and Google Search API.
   * `batch_get_stock_data`: Parallel price & volume retrieval via `yfinance`.
-  * `fetch_block_deals`: Tracks institutional bulk and block deals on NSE/BSE.
+  * `fetch_block_deals`: Tracks institutional bulk and block deals on NSE/BSE via `nselib`.
   * Technical Indicators & MTC calculator.
 * **Data & Storage**:
-  * **Cloud SQL (PostgreSQL)**: Connected via Unix socket DSNs with lazy-loading (`asyncio.Lock()`).
-  * `/reports` Directory: Storage for generated JSON and Markdown research reports.
+  * **Cloud SQL (PostgreSQL)**: Connected via Unix socket DSNs with `asyncio.Lock()` lazy loading to prevent `Errno 111` race conditions.
+  * `/reports` Directory: Permanent storage for generated JSON and Markdown research reports.
   * `metrics/*.jsonl`: Structured crash logs (`errors_*.jsonl`), daily latency, and workflow metric streams.
 * **Federated Satellites**:
-  * **Investbrand Rover**: Gamified stock discovery challenges.
-  * **Pledge-Rover**: Promoters' share pledge tracking.
+  * **HIL Rover**: Centralized SRE failure telemetry hub.
+  * **Pledge-Rover**, **Investbrand**, **Ownerise**.
   * **GitHub Actions Cron Jobs**: Automated daily issue reports and weekly backtests posted to GitHub Discussions.
 
-### 6. Response & Report Delivery
-* **Streaming Synthesis**: Real-time task progress and step-by-step agent updates delivered to the UI.
+---
+
+### 6. Agent Performance Metrics & Observability
+* **Observability Metrics Engine**:
+  * `metrics/errors_YYYY-MM-DD.jsonl`: Structured JSON records capturing full stack traces, user variables, and agent execution states during failures.
+  * `metrics/metrics_YYYY-MM-DD.json`: Measures latency averages, token consumption, and daily API call volume.
+  * `metrics/workflow_events_*.jsonl`: Logs high-level logic events (*Consistency Checks*, *Emergency Overrides*).
+* **HIL Mission Control Telemetry**: Real-time error rates, SRE alerts, and failure recovery metrics.
+* **JSON Autonomy Ledger**: Tracks agent memory (`memory.json`), reasoning pivots, and decision logs (`autonomy_events.json`).
+
+---
+
+### 7. Response & Report Delivery
+* **Streaming UI Updates**: Real-time task progress and step-by-step agent updates delivered to the UI.
 * **Formatted Outputs**: Executive Summary, Technical Level Tables, Traps/Shadow Signals, and PDF/MD/JSON Reports.
-* **Delivery Targets**: Streamlit Dashboard, HIL Mission Control, and GitHub Discussions.
+* **Delivery Targets**: Market-Rover v5 React UI, Streamlit Dashboard, HIL Mission Control, and GitHub Discussions.
 
 ---
 
@@ -78,52 +105,56 @@ This document presents the **High Level Design (HLD) System Architecture** for *
 
 | Category | Component / Strategy | Description |
 | :--- | :--- | :--- |
-| **Observability** | `metrics/errors_*.jsonl` & `logs/` | Real-time crash metrics with full trace context, user variables, and log rotation. |
-| **SRE & Governance** | Hotfix Agent & Dependabot | Autonomous exception interception and automated dependency management. |
+| **Self-SRE & Governance** | Self-SRE Support Agent | Intercepts runtime crashes, manages Dependabot PRs, auto-fixes CI regressions, and notifies HIL. |
+| **Observability** | `metrics/` & HIL Telemetry | Crash metrics with full stack traces, latency tracking, and workflow event streams. |
+| **Federated Satellite Mesh** | HIL, Pledge, Investbrand, Ownerise | Federated microservices reporting failure events to HIL Mission Control. |
 | **Performance** | The Batch Imperative | Enforces batch API calls across tickers instead of sequential iteration. |
-| **Database Resilience** | Lazy-Loading DB Connections | Eliminates `Errno 111` race conditions during Cloud Run secret injection. |
-| **GoA Parity** | Green-on-Arrival Standards | Strict Python 3.13 compatibility, UTF-8 compliance, and build integrity scripts. |
+| **Database Resilience** | Lazy-Loading DB Connections | `asyncio.Lock()` lazy-loading eliminating `Errno 111` race conditions during secret injection. |
+| **GoA Parity** | Green-on-Arrival Standards | Strict Python 3.13 compatibility, UTF-8 compliance, and build integrity scripts (`build_integrity_check.py`). |
 
 ---
 
-## 🔁 End-To-End Request Flow
+## 🔁 End-To-End Ecosystem Request Flow
 
 ```
 [User Request / CSV Upload]
           │
           ▼
-[Streamlit / React UI] ──▶ [FastAPI Gateway]
-                                 │
-                                 ▼
-                    [Symbol Validation & Retrieval Node]
-                                 │
-                                 ▼
-                     [Macro Strategy Node]
-                                 │
-      ┌──────────────────────────┼──────────────────────────┐
-      ▼                          ▼                          ▼
-[Sentiment Node]        [Technical Node]          [Forensic/Sector Nodes]
-      │                          │                          │
-      └──────────────────────────┼──────────────────────────┘
-                                 │
-                                 ▼
-                     [Shadow Trap Detector]
-                                 │
-                                 ▼
-                 [Gemini LLM Synthesis & Tools]
-                                 │
-                                 ▼
-                       [Report Synthesizer]
-                                 │
-                                 ▼
-                     [Formatted UI / PDF Output]
+[Streamlit UI / v5 React UI / Satellite UIs]
+          │
+          ▼
+[FastAPI Gateway (v5 / Satellites)] ──▶ [Self-SRE & Metrics Engine]
+          │                                        │
+          ▼                                        ▼
+[Symbol Validation & Retrieval Node]      [HIL Mission Control]
+          │
+          ▼
+[Macro Strategy Node]
+          │
+    ┌─────┴──────────────────────────┬──────────────────────────┐
+    ▼                                ▼                          ▼
+[Sentiment Node]            [Technical Node]          [Forensic/Sector Nodes]
+    │                                │                          │
+    └──────────────────────────┬─────┴──────────────────────────┘
+                               │
+                               ▼
+                   [Shadow Trap Detector]
+                               │
+                               ▼
+               [Gemini LLM Synthesis & Tools]
+                               │
+                               ▼
+               [Report Synthesizer & Metrics Log]
+                               │
+                               ▼
+                   [Formatted UI Output]
 ```
 
 ---
 
 ## 💡 Key Architectural Takeaways
 
-1. **Stateful Parallel Multi-Agent Intelligence**: Built on LangGraph to execute analytical nodes concurrently, significantly reducing report generation latency.
-2. **Powered by Gemini 3.0 Flash**: Delivers rapid, context-aware financial reasoning tailored for Indian stock market dynamics.
-3. **Institutional Trap Detection**: Shadow Node merges technical levels with sentiment score divergence to spot institutional bull/bear traps.
-4. **Production Hardened (GoA)**: Designed with Green-on-Arrival standards, lazy-loaded database sockets, and federated satellite failure reporting.
+1. **Complete Ecosystem Integration**: Unifies Market-Rover v5 (FastAPI + React 19), Market-Rover Streamlit, HIL Rover, Pledge-Rover, Ownerise, and Investbrand.
+2. **Stateful LangGraph Engine**: 10 parallel nodes running concurrently with shared graph state for low-latency financial reasoning.
+3. **Self-SRE & HIL Mission Control**: Autonomous exception handling, automated Dependabot management, and real-time SRE failure alerts routed to HIL.
+4. **Comprehensive Agent Metrics Engine**: Structured crash logging (`errors_*.jsonl`), daily latency tracking, and autonomy event ledgers (`autonomy_events.json`).

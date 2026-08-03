@@ -1,6 +1,14 @@
 # Market-Rover Technical Architecture
 
-This document details the internal architecture of Market-Rover, focusing on its component structure, operational workflows, and multi-agent orchestration.
+This document details the internal architecture of Market-Rover, focusing on its component structure, operational workflows, and multi-agent orchestration. For the complete enterprise system design blueprint, see [HLD.md](HLD.md).
+
+---
+
+## 🖼️ High-Level System Design (HLD)
+
+![Market-Rover High Level System Design](assets/market_rover_hld.png)
+
+> 📘 **Full HLD Specification**: For an in-depth component-by-component breakdown of our LangGraph engine, security layers, tool integrations, and performance optimizations, refer to the [High-Level Design Specification (HLD.md)](HLD.md).
 
 ---
 
@@ -29,7 +37,7 @@ graph TB
         CrewEngine[Crew Engine\n(crew_engine.py)]:::core
         Agents[Agent Definitions\n(agents.py)]:::core
         Tasks[Task Definitions\n(tasks.py)]:::core
-        
+
         CrewEngine --> Agents
         CrewEngine --> Tasks
     end
@@ -58,16 +66,16 @@ graph TB
     %% Connections
     UI -- "1. Trigger Analysis" --> CrewEngine
     Tabs -- "Read Reports" --> Reports
-    
+
     CrewEngine -- "2. Orchestrate" --> Tools
     Agents -- "Uses" --> Tools
-    
+
     Tools -- "Fetch Data" --> ExternalServices
     Tools -- "Fetch Data" --> YF
     Tools -- "Fetch Data" --> Search
-    
+
     Agents -- "Reasoning" --> LLM
-    
+
     CrewEngine -- "3. Save Output" --> Reports
     Utils -- "Track" --> Logs
 
@@ -83,18 +91,18 @@ In addition to the user-driven loop, Market-Rover runs autonomous jobs on GitHub
 ```mermaid
 graph LR
     Cron[GitHub Cron Schedule]
-    
+
     subgraph Daily [Daily Issue Report]
         Cron -->|00:00 UTC| D_Job[generate_daily_report.py]
         D_Job -->|Markdown| D_Disc[GitHub Discussion]
     end
-    
+
     subgraph Weekly [Weekly Backtest]
         Cron -->|Sunday| W_Job[batch_backtester.py]
         W_Job -->|Summary MD| W_Disc[GitHub Discussion]
         W_Job -->|JSON| Registry[backtest_registry.json]
     end
-    
+
     subgraph Maint [Maintenance]
         Dep[Dependabot] -->|PR| AutoMerge[Auto-Merge Workflow]
     end
@@ -114,7 +122,7 @@ flowchart TD
     Validate{Validate CSV}
     Error[Show Error Toast]
     InitCrew[Initialize MarketRoverCrew]
-    
+
     subgraph ExecutionLoop [Execution "Loop"]
         Kickoff[Crew.kickoff()]
         Task1[Task 1: Portfolio Retrieval]
@@ -124,7 +132,7 @@ flowchart TD
         Task5[Task 5: Shadow Analysis]
         Task6[Task 6: Report Generation]
     end
-    
+
     Save[Save Report to /reports]
     Parse[Parse JSON Output]
     Display[Render Streamlit UI]
@@ -136,7 +144,7 @@ flowchart TD
     Validate -- Invalid --> Error
     Validate -- Valid --> InitCrew
     InitCrew --> Kickoff
-    
+
     %% The Loop Flow
     Kickoff --> Task1
     Task1 --> Task2
@@ -144,7 +152,7 @@ flowchart TD
     Task3 --> Task4
     Task4 --> Task5
     Task5 --> Task6
-    
+
     Task6 --> Save
     Save --> Parse
     Parse --> Display
