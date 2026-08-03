@@ -38,7 +38,7 @@ jobs:
       - name: Sync Core Dependencies (for check)
         run: |
           cp agents.py config.py hil_rover/
-          cp -r rover_tools utils scripts hil_rover/
+          cp -r rover_tools utils scripts ownerise hil_rover/
 
       - name: HIL-Rover Startup Integrity Check
         run: |

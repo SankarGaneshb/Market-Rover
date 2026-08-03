@@ -29,6 +29,7 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 # Copy shared dependencies needed for agent nodes
 COPY rover_tools/ ./rover_tools/
 COPY utils/ ./utils/
+COPY ownerise/ ./ownerise/
 COPY agents.py config.py ./
 
 # Copy full backend directory (preserves src package structure)

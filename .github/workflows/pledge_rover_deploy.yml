@@ -47,7 +47,7 @@ jobs:
       - name: Sync Core Dependencies (for check and build)
         run: |
           cp agents.py config.py pledge_rover/
-          cp -r rover_tools utils scripts pledge_rover/
+          cp -r rover_tools utils scripts ownerise pledge_rover/
 
       - name: Pledge-Rover Startup Integrity Check
         working-directory: pledge_rover/backend
@@ -97,7 +97,7 @@ jobs:
       - name: Sync Core Dependencies
         run: |
           cp agents.py config.py pledge_rover/
-          cp -r rover_tools utils scripts pledge_rover/
+          cp -r rover_tools utils scripts ownerise pledge_rover/
 
       - name: Build & Push Container
         working-directory: pledge_rover

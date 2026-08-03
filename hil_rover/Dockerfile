@@ -22,6 +22,7 @@ COPY agents.py config.py ./
 COPY rover_tools/ ./rover_tools/
 COPY utils/ ./utils/
 COPY scripts/ ./scripts/
+COPY ownerise/ ./ownerise/
 
 # Copy entire backend directory
 COPY hil_rover/backend/ ./backend/

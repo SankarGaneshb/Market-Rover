@@ -55,7 +55,7 @@ jobs:
       - name: Sync Core Dependencies (for check and build)
         run: |
           cp agents.py config.py market_rover/
-          cp -r rover_tools utils scripts market_rover/
+          cp -r rover_tools utils scripts ownerise market_rover/
 
       - name: Run backend tests with coverage gate (70%)
         working-directory: market_rover/backend
