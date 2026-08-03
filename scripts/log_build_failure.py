@@ -42,13 +42,22 @@ def log_failure_to_hil(workflow_name: str, run_id: str, error_context: str = "Un
             timeout=10
         )
 
-        if response.status_code == 200:
+        if response.status_code in (200, 201, 202):
             print(f"✅ SRE Alert dispatched to HIL Dashboard. Request ID: {payload['id']}")
         else:
-            print(f"❌ Failed to dispatch SRE alert: {response.status_code} - {response.text}")
+            print(f"❌ Failed to dispatch SRE alert to HIL API ({response.status_code}). Triggering Emergency Fallback...")
+            _trigger_emergency_fallback(workflow_name, run_id, error_context)
 
     except Exception as e:
-        print(f"❌ Network Error dispatching HIL alert: {e}")
+        print(f"❌ Network Error dispatching HIL alert ({e}). Triggering Emergency Fallback...")
+        _trigger_emergency_fallback(workflow_name, run_id, error_context)
+
+def _trigger_emergency_fallback(workflow_name, run_id, error_context):
+    try:
+        from sre_emergency_fallback import create_emergency_issue
+        create_emergency_issue(f"CI Build Failure: {workflow_name}", f"Run ID: {run_id}\nContext: {error_context}")
+    except Exception as fb_err:
+        print(f"❌ Emergency Fallback failed: {fb_err}")
 
 if __name__ == "__main__":
     # Basic CLI usage for CI steps:

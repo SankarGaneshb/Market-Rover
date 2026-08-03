@@ -43,7 +43,7 @@ jobs:
       - name: Notify HIL - Build Started
         run: |
           MSG="[IN-PROGRESS] InvestBrand API Build #${{ github.run_number }} has started. Initializing environment and database tests..."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -153,7 +153,7 @@ jobs:
         if: success()
         run: |
           MSG="[SUCCESS] InvestBrand API Deployment landed safely! Build ID: ${{ github.run_number }}. Service is now live at us-central1."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -182,7 +182,7 @@ jobs:
       - name: Notify HIL - UI Build Started
         run: |
           MSG="[IN-PROGRESS] InvestBrand UI Build #${{ github.run_number }} has started. Optimizing assets and preparing Cloud Run deployment..."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -243,7 +243,7 @@ jobs:
         if: success()
         run: |
           MSG="[SUCCESS] InvestBrand UI Deployment landed safely! Build ID: ${{ github.run_number }}. Frontend is updated and live."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",

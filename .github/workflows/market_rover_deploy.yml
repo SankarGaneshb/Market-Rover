@@ -30,7 +30,7 @@ jobs:
       - name: Notify HIL - Backend Build Started
         run: |
           MSG="[IN-PROGRESS] Market-Rover API Build #${{ github.run_number }} started. Running Python tests..."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -132,7 +132,7 @@ jobs:
         if: success()
         run: |
           MSG="[SUCCESS] Market-Rover API Build #${{ github.run_number }} deployed. Service live at us-central1."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -148,7 +148,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MSG="[ALERT] Market-Rover API Deploy FAILED. Build #${{ github.run_number }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -171,7 +171,7 @@ jobs:
       - name: Notify HIL - Frontend Build Started
         run: |
           MSG="[IN-PROGRESS] Market-Rover UI Build #${{ github.run_number }} started. Building Vite React app..."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -222,7 +222,7 @@ jobs:
         if: success()
         run: |
           MSG="[SUCCESS] Market-Rover UI Build #${{ github.run_number }} deployed. Frontend live."
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
@@ -238,7 +238,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MSG="[ALERT] Market-Rover UI Deploy FAILED. Build #${{ github.run_number }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",

@@ -103,7 +103,7 @@ jobs:
         run: |
           MSG="HIL-Rover Deploy #${{ github.run_number }} failed. Review build logs at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
           # Try the primary HIL Dashboard first
-          curl -s -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
+          curl -s -f -X POST "https://hil-rover-9514347926.us-central1.run.app/api/requests" \
             -H "Content-Type: application/json" \
             -d "{
               \"agent_name\": \"SRE Support\",
