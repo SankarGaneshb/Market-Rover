@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 from rover_tools.ticker_resources import (
-    get_common_tickers, 
-    NIFTY_50_SECTOR_MAP, 
+    get_common_tickers,
+    NIFTY_50_SECTOR_MAP,
     NIFTY_50_BRAND_META,
     NIFTY_MIDCAP_SECTOR_MAP,
     NIFTY_NEXT_50_SECTOR_MAP,
@@ -29,7 +29,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
         return
 
-    
+
 
     # Check rate limit
 
@@ -41,7 +41,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
         return
 
-        
+
 
     with st.spinner(f"🔥 Analyzing {ticker}..."):
 
@@ -59,7 +59,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             import pandas as pd
 
-            
+
 
             # Fetch data
 
@@ -67,18 +67,18 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             analyzer = MarketAnalyzer()
 
-            
+
 
             history = fetcher.fetch_full_history(ticker)
 
-            
+
 
             if history.empty:
 
                 st.error(f"❌ Could not fetch data for {ticker}")
 
                 return
-            
+
             # Use global setting passed from parent
             exclude_outliers = global_outlier
 
@@ -88,9 +88,9 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                      # Parse logic: 1y -> 365 days, etc.
                      years_map = {"1y": 1, "3y": 3, "5y": 5}
                      years = years_map.get(lookback_period, 5)
-                     
+
                      cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
-                     
+
                      # Ensure timezone awareness compatibility
                      if history.index.tz is not None:
                           if cutoff_date.tz is None:
@@ -100,11 +100,11 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                cutoff_date = cutoff_date.tz_localize(None)
 
                      history = history[history.index >= cutoff_date]
-                     
+
                      if history.empty:
                           st.warning(f"⚠️ No data found for the last {lookback_period}.")
                           return
-                     
+
 
                  except Exception as ex:
                      st.error(f"Error applying time filter: {ex}")
@@ -115,11 +115,128 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             # Calculate monthly returns matrix
             returns_matrix = analyzer.calculate_monthly_returns_matrix(history, exclude_outliers=exclude_outliers)
             seasonality_stats = analyzer.calculate_seasonality(history, exclude_outliers=exclude_outliers)
-            
+
             from utils.celebration import trigger_celebration
             trigger_celebration("Analysis_Complete", f"Completed analysis for {ticker}", {"ticker": ticker})
             st.success(f"✅ Analysis complete! ({len(history)} days)")
-            
+
+            # === EXECUTIVE SUMMARY: STOCK SNAPSHOT ===
+            st.markdown("### 📋 Executive Summary")
+            try:
+                import yfinance as yf
+                stock_info = yf.Ticker(ticker)
+
+                # Fetch available info safely
+                f_info = stock_info.fast_info
+                info = stock_info.info
+
+                # Basic metrics
+                current_price = f_info.get("lastPrice", history['Close'].iloc[-1] if not history.empty else 0)
+                prev_close = f_info.get("previousClose", info.get("previousClose", 0))
+                open_price = f_info.get("open", info.get("open", 0))
+
+                day_high = f_info.get("dayHigh", info.get("dayHigh", 0))
+                day_low = f_info.get("dayLow", info.get("dayLow", 0))
+
+                # Calculate Day Average (VWAP approximation)
+                day_avg = (day_high + day_low) / 2 if day_high and day_low else current_price
+
+                # 52 Week
+                high_52w = f_info.get("yearHigh", info.get("fiftyTwoWeekHigh", 0))
+                low_52w = f_info.get("yearLow", info.get("fiftyTwoWeekLow", 0))
+
+                # DMAs (Calculate from history for accuracy if available, fallback to yf)
+                if len(history) >= 50:
+                    dma_50 = history['Close'].tail(50).mean()
+                else:
+                    dma_50 = f_info.get("fiftyDayAverage", info.get("fiftyDayAverage", 0))
+
+                if len(history) >= 200:
+                    dma_200 = history['Close'].tail(200).mean()
+                else:
+                    dma_200 = f_info.get("twoHundredDayAverage", info.get("twoHundredDayAverage", 0))
+
+                # Circuit Limits (Estimate 20% from prev close)
+                upper_circuit = prev_close * 1.20 if prev_close else current_price * 1.20
+                lower_circuit = prev_close * 0.80 if prev_close else current_price * 0.80
+
+                # Format deltas
+                def format_delta(current, base):
+                    if not base or base == 0: return None
+                    diff = current - base
+                    pct = (diff / base) * 100
+                    return f"{diff:+.2f} | {pct:+.2f}%"
+
+                # Metric Grid UI
+                col1, col2, col3, col4 = st.columns(4)
+
+                with col1:
+                    st.metric("Current Price", f"{current_price:.2f}", format_delta(current_price, prev_close))
+                    st.metric("52 Week High", f"{high_52w:.2f}", format_delta(current_price, high_52w), delta_color="off")
+                    st.metric("52 Week Low", f"{low_52w:.2f}", format_delta(current_price, low_52w), delta_color="off")
+
+                with col2:
+                    st.metric("Previous Close", f"{prev_close:.2f}")
+                    st.metric("Open Price", f"{open_price:.2f}", format_delta(open_price, prev_close))
+                    st.metric("Day Average", f"{day_avg:.2f}", format_delta(current_price, day_avg), delta_color="off")
+
+                with col3:
+                    st.metric("Day High", f"{day_high:.2f}", format_delta(current_price, day_high), delta_color="off")
+                    st.metric("Day Low", f"{day_low:.2f}", format_delta(current_price, day_low), delta_color="off")
+
+                with col4:
+                    st.metric("Upper Circuit (Est 20%)", f"{upper_circuit:.2f}")
+                    st.metric("Lower Circuit (Est 20%)", f"{lower_circuit:.2f}")
+                    st.metric("50 DMA", f"{dma_50:.2f}", format_delta(current_price, dma_50))
+                    st.metric("200 DMA", f"{dma_200:.2f}", format_delta(current_price, dma_200))
+
+                # 1-Year History Chart
+                st.markdown("##### 📈 1-Year History")
+                if len(history) > 0:
+                    # Filter to last 1 year for the chart
+                    one_year_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
+                    if history.index.tz is not None:
+                        if one_year_ago.tz is None:
+                            one_year_ago = one_year_ago.tz_localize(history.index.tz)
+                    else:
+                        if one_year_ago.tz is not None:
+                            one_year_ago = one_year_ago.tz_localize(None)
+
+                    hist_1y = history[history.index >= one_year_ago].copy()
+
+                    if not hist_1y.empty:
+                        # Calculate full DMAs if not already done, and align to 1-year window
+                        if len(history) >= 200:
+                            history['50_DMA'] = history['Close'].rolling(window=50, min_periods=1).mean()
+                            history['200_DMA'] = history['Close'].rolling(window=200, min_periods=1).mean()
+                            hist_1y = history[history.index >= one_year_ago].copy()
+
+                        fig_1y = go.Figure()
+
+                        # Add Price
+                        fig_1y.add_trace(go.Scatter(x=hist_1y.index, y=hist_1y['Close'], mode='lines', name='Close Price', line=dict(color='blue', width=2)))
+
+                        # Add DMAs if available
+                        if '50_DMA' in hist_1y.columns:
+                            fig_1y.add_trace(go.Scatter(x=hist_1y.index, y=hist_1y['50_DMA'], mode='lines', name='50 DMA', line=dict(color='orange', width=1.5, dash='dot')))
+                        if '200_DMA' in hist_1y.columns:
+                            fig_1y.add_trace(go.Scatter(x=hist_1y.index, y=hist_1y['200_DMA'], mode='lines', name='200 DMA', line=dict(color='red', width=1.5, dash='dash')))
+
+                        fig_1y.update_layout(
+                            height=350,
+                            margin=dict(l=0, r=0, t=30, b=0),
+                            hovermode="x unified",
+                            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                        )
+                        st.plotly_chart(fig_1y, use_container_width=True)
+                    else:
+                        st.info("Not enough data for 1-year chart.")
+
+            except Exception as e:
+                st.warning(f"Could not load live snapshot data: {e}")
+
+            st.markdown("---")
+
             # === VISUALIZATION 1: Monthly Returns Heatmap ===
             st.markdown("### 🌡️ Monthly Returns Heatmap")
 
@@ -136,7 +253,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                 )
                 fig_heatmap.update_layout(height=500)
                 st.plotly_chart(fig_heatmap, key=f"{key_prefix}_heatmap_chart", width="stretch")
-                
+
                 # Download Button for Heatmap Data (Added in V4.1)
                 csv = returns_matrix.to_csv().encode('utf-8')
                 st.download_button(
@@ -152,10 +269,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             # === VISUALIZATION 2: Seasonality Profile ===
             st.markdown("### 📊 Seasonality Profile")
-            
+
             if not seasonality_stats.empty:
                 from plotly.subplots import make_subplots
-                
+
                 # Create figure with secondary y-axis
                 fig_seasonality = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -207,10 +324,10 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                 fig_seasonality.update_yaxes(title_text="Win Rate %", range=[0, 110], secondary_y=True, showgrid=False)
 
                 st.plotly_chart(fig_seasonality, use_container_width=True)
-                
+
                 st.caption("📊 **Combined Profile**: Bars represent the average return (Magnitude), while the Gold Line shows the % of positive months (consistency/probability).")
 
-            
+
 
             st.markdown("---")
 
@@ -218,7 +335,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             st.markdown("### 🔮 2026 Forecast")
 
-            
+
 
             # Run Backtest
 
@@ -226,7 +343,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                 backtest_res = analyzer.backtest_strategies(history, exclude_outliers=exclude_outliers)
 
-            
+
 
             # Generate Forecasts
 
@@ -234,7 +351,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             forecast_sd = analyzer.calculate_sd_strategy_forecast(history, exclude_outliers=exclude_outliers)
 
-            
+
 
             if forecast_median and forecast_sd:
 
@@ -242,7 +359,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  winner = backtest_res['winner']
 
-                 
+
 
                  if winner == 'sd':
 
@@ -272,13 +389,13 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                     alt_color = "purple"
 
-                
+
 
                  baseline_growth = active_res['annualized_growth']
 
                  forecast_baseline = active_res['forecast_price']
 
-                 
+
 
                  # Conservative/Aggressive logic
 
@@ -290,29 +407,29 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  else:
 
-                    conservative_growth = baseline_growth * 1.2 
+                    conservative_growth = baseline_growth * 1.2
 
                     aggressive_growth = baseline_growth * 0.8
 
-                 
+
 
                  today = history.index[-1] # Ensure it matches data start
 
                  if today.tz is not None: today = today.tz_localize(None)
 
-                 
+
 
                  end_of_2026 = pd.Timestamp('2026-12-31')
 
                  years_fraction = (end_of_2026 - today).days / 365.25
 
-                 
+
 
                  forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
 
                  forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
 
-                  
+
 
                  # Metrics
 
@@ -326,7 +443,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  col_d.metric("🐂 Aggressive", f"₹{forecast_aggressive:.2f}", f"{aggressive_growth:.1f}%")
 
-                 
+
 
                  # Details with Low Data Warning
 
@@ -334,7 +451,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                     st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
 
-                    
+
 
                     confidence = backtest_res.get('confidence', 'High')
 
@@ -357,7 +474,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  fig_forecast = go.Figure()
 
-                 
+
 
                  # Create range including today for continuous chart
 
@@ -365,7 +482,7 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  dates = [today] + list(dates_range)
 
-                 
+
 
                  # Smooth curves starting from current price
 
@@ -375,13 +492,13 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  aggr_vals = [curr_p] + [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates_range]
 
-                 
+
 
                  fig_forecast.add_trace(go.Scatter(x=dates, y=cons_vals, mode='lines', line=dict(width=0), showlegend=False))
 
                  fig_forecast.add_trace(go.Scatter(x=dates, y=aggr_vals, mode='lines', fill='tonexty', fillcolor='rgba(200,200,200,0.2)', line=dict(width=0), name='Range'))
 
-                 
+
 
                  # Paths
 
@@ -391,17 +508,17 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                         p = res['projection_path']
 
-                        fig_forecast.add_trace(go.Scatter(x=[x['date'] for x in p], y=[x['price'] for x in p], 
+                        fig_forecast.add_trace(go.Scatter(x=[x['date'] for x in p], y=[x['price'] for x in p],
 
                                                         mode='lines', name=name, line=dict(color=color, dash=dash, width=3 if not dash else 2)))
 
-                 
+
 
                  plot_path(active_res, active_color, f"Active: {active_name}")
 
                  plot_path(alt_res, alt_color, f"Alt: {alt_name}", 'dot')
 
-                 
+
 
                  # Add Realized Actuals if available
 
@@ -411,9 +528,9 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  fig_forecast.update_layout(
 
-                     title=chart_title, 
+                     title=chart_title,
 
-                     height=500, 
+                     height=500,
 
                      hovermode='x unified',
 
@@ -423,25 +540,25 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
                  st.plotly_chart(fig_forecast, width="stretch")
 
-                 
+
 
                  # Save Button
 
                  # Actions Row
                  col_dl, col_save = st.columns([1, 1])
-                 
+
                  with col_dl:
                      # Prepare Download Data
                      # Reconstruct baseline for CSV consistency
                      base_vals = [curr_p] + [curr_p * (1 + baseline_growth/100)**((d-today).days/365.25) for d in dates_range]
-                     
+
                      forecast_df = pd.DataFrame({
                          'Date': dates,
                          'Conservative (Low)': cons_vals,
                          'Baseline (Target)': base_vals,
                          'Aggressive (High)': aggr_vals
                      })
-                     
+
                      st.download_button(
                          label="📥 Download Forecast Data",
                          data=forecast_df.to_csv(index=False).encode('utf-8'),
@@ -468,29 +585,29 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
 
 
-             
+
 
             # === SHARE ANALYSIS FEATURE ===
             try:
                 with st.expander("📤 Download PDF Report", expanded=False):
                     st.caption("Generate a professional multi-page PDF report with watermarks to share with your network.")
-                    
+
                     col_share_btn, col_share_links = st.columns([1, 2])
-                    
+
                     with col_share_btn:
                         if st.button("📄 Generate PDF Report", key=f"snap_{key_prefix}_{ticker}", type="secondary"):
                             with st.spinner("Generating multi-page PDF (Direct)..."):
                                 # Bypass Agent/LLM to avoid 429 Errors and Speed up
                                 res = run_snapshot_logic(ticker)
-                                
+
                                 # Handle Strings (Errors)
                                 if isinstance(res, str) and res.startswith("Error"):
                                     st.error(f"Report generation failed: {res}")
-                                
+
                                 # Handle Success Dict
                                 elif isinstance(res, dict) and 'pdf_buffer' in res:
                                     pdf_buffer = res['pdf_buffer']
-                                    
+
                                     # Provide Download Button
                                     st.download_button(
                                         label="⬇️ Download PDF",
@@ -499,14 +616,14 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                         mime="application/pdf",
                                         key=f"dl_pdf_{ticker}"
                                     )
-                                    
+
                                     from utils.celebration import trigger_celebration
                                     trigger_celebration("PDF_Generated", f"Generated report for {ticker}", {"ticker": ticker})
                                     st.success("✅ PDF Generated!")
-                                    
+
                                     # Social Intent Links
                                     share_text = f"Check out my AI-powered analysis of {ticker} on Market-Rover! %23StockMarket %23{ticker} %23AI"
-                                    
+
                                     st.markdown("##### 🔗 Share via:")
                                     s_col1, s_col2, s_col3 = st.columns(3)
                                     with s_col1:
@@ -514,8 +631,8 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                     with s_col2:
                                         st.link_button("WhatsApp", f"https://wa.me/?text={share_text}")
                                     with s_col3:
-                                        st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={share_text}") 
-                                        
+                                        st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={share_text}")
+
                                 else:
                                     st.error(f"Report generation failed: Unknown response format.")
             except Exception as ex:
@@ -534,7 +651,7 @@ def render_visual_ticker_selector(ticker_category):
     Returns the selected ticker if one was clicked, else None.
     """
     selected_ticker = None
-    
+
     # Determine which map to use
     sector_map = {}
     if ticker_category == "Nifty 50":
@@ -545,18 +662,18 @@ def render_visual_ticker_selector(ticker_category):
         sector_map = NIFTY_NEXT_50_SECTOR_MAP
     elif ticker_category == "Midcap":
         sector_map = NIFTY_MIDCAP_SECTOR_MAP
-        
+
     # Get tickers for this category
     category_tickers_full = get_common_tickers(category=ticker_category)
     # Extract clean tickers
     category_tickers = [t.split(' - ')[0].strip() for t in category_tickers_full]
-    
+
     # If we have a map, use it
     if sector_map:
         # Filter map items that are in this category
         # For Sensex, we might have tickers in category that are in NIFTY_50_SECTOR_MAP
         # For those NOT in map, assign "Others"
-        
+
         mapped_data = {}
         for ticker in category_tickers:
             # Check direct map
@@ -567,49 +684,49 @@ def render_visual_ticker_selector(ticker_category):
                 mapped_data[ticker] = NIFTY_50_SECTOR_MAP[ticker]
             else:
                  mapped_data[ticker] = "Others"
-                 
+
         # Group by Sector
         sectors = sorted(list(set(mapped_data.values())))
         # Move "Others" to end
         if "Others" in sectors:
             sectors.remove("Others")
             sectors.append("Others")
-            
+
         st.markdown("##### 📂 Browse by Sector")
         tabs = st.tabs(sectors)
-        
+
         for i, sector in enumerate(sectors):
             with tabs[i]:
                 # Get tickers in this sector
                 curr_sector_tickers = [t for t, s in mapped_data.items() if s == sector]
-                
+
                 # Grid for cards
                 cols = st.columns(4)
                 for j, ticker in enumerate(curr_sector_tickers):
                     col = cols[j % 4]
                     meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
-                    
+
                     # Generate SVG Logo (consistent with Brand Shop)
                     # Clean ticker for display (strip .NS but keep full code)
                     tick_short = ticker.split('.')[0]
                     color = meta.get('color', "#333333")
                     text_color = "#000000" if color in ["#FFD200", "#FFF200"] else "#ffffff"
-                    
+
                     # Use a slightly larger font size for the full ticker code if it fits better
                     font_size = "9" if len(tick_short) <= 5 else "7"
-                    
+
                     svg_raw = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="{color}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="{text_color}" font-family="Arial" font-weight="bold" font-size="{font_size}">{tick_short}</text></svg>'
                     b64_svg = base64.b64encode(svg_raw.encode('utf-8')).decode('utf-8')
                     icon_src = f"data:image/svg+xml;base64,{b64_svg}"
-                    
+
                     with col:
                         # Card UI (Visual Only)
                         meta = NIFTY_50_BRAND_META.get(ticker, {"name": ticker, "color": "#333333"})
-                        
+
                         # Robust Name Fetching
                         company_name = get_ticker_name(ticker)
                         safe_name = html.escape(company_name)
-                        
+
                         st.markdown(f"""
                             <div style="background: white; border-radius: 8px; padding: 8px; border: 1px solid #eee; display: flex; align-items: center; margin-bottom: 5px;">
                                 <img src="{icon_src}" style="width: 25px; height: 25px; margin-right: 8px; border-radius: 4px;">
@@ -619,7 +736,7 @@ def render_visual_ticker_selector(ticker_category):
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
-                        
+
                         # Use a native button for selection to preserve session state
                         if st.button(f"Analyze", key=f"vis_sel_{ticker}", use_container_width=True):
                             st.session_state.heatmap_active_ticker = ticker
@@ -637,7 +754,7 @@ def render_visual_ticker_selector(ticker_category):
                 with cols[i % 5]:
                     if st.button(tick_short, key=f"vis_{ticker}", use_container_width=True):
                         selected_ticker = ticker
-                        
+
     return selected_ticker
 
 def show_market_analysis_tab():
@@ -648,16 +765,16 @@ def show_market_analysis_tab():
 
     st.markdown("Deep-dive into **historical patterns** and get **AI-powered predictions** for individual Stocks or Market Indices.")
 
-    
+
 
     mode_col, setting_col = st.columns([1, 1])
     with mode_col:
         analysis_mode = st.radio("Analysis Mode:", ["Stock Analysis 🏢", "Benchmark/Index 📊"], index=1, horizontal=True, label_visibility="collapsed")
-    
+
     with setting_col:
         # Global Outlier Toggle
         exclude_outliers_global = st.checkbox("🚫 Exclude Outliers (Robust Mode)", value=False, help="Removes extreme volatility events from all analysis (Heatmap, Win Rate, Seasonality, Forecasts).")
-        
+
         # Time Filter
         lookback_period = st.selectbox(
             "",
@@ -684,19 +801,19 @@ def show_market_analysis_tab():
         # === STOCK LOGIC ===
         st.subheader("🏢 Stock Heatmap & Forecast")
         st.warning("⚠️ **Disclaimer:** Forecasts are AI-generated estimates based on historical patterns.")
-        
+
         # Move Filters to Full Width for better visibility
         with st.container():
              # Helper to get month name
             import datetime
             now = datetime.datetime.now()
             current_month_idx = now.month
-            
+
             def get_month_name(idx):
                 return datetime.date(2000, idx, 1).strftime("%B")
-                
+
             current_month_name = get_month_name(current_month_idx)
-            
+
             # Next month logic (handle Dec->Jan rollover)
             if current_month_idx == 12:
                 next_month_idx = 1
@@ -706,30 +823,30 @@ def show_market_analysis_tab():
 
             # Use 2 cols for filters
             f_col1, f_col2 = st.columns(2)
-            
+
             with f_col1:
                 # 1. Index Filter (Universe)
                 # Check for query param 'category'
                 qp_category = st.query_params.get("category", None)
                 target_default = qp_category if qp_category in ["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"] else "Nifty 50"
-                
+
                 ticker_category = st.pills(
                     "1. Select Universe",
                     options=["All", "Nifty 50", "Sensex", "Nifty Next 50", "Midcap"],
                     default=target_default,
                     key="heatmap_category_pills"
                 )
-            
+
             with f_col2:
                 # 2. Strategy Filter
                 stars_1y = "⭐Top 1Y Stars"
                 stars_3y = "⭐⭐⭐ Top 3Y Stars"
                 stars_5y = "⭐⭐⭐⭐⭐ Top 5Y Stars"
                 stars_5y_plus = "🌟 Top 5Y+ Stars"
-                
+
                 # Check for query param 'ticker' to auto-select Sector Browser mode if coming from link
                 qp_ticker = st.query_params.get("ticker", None)
-                
+
                 # Explicitly manage strategy selection based on state/params
                 if qp_ticker:
                     default_strat = "📂 Sector Browser"
@@ -737,7 +854,7 @@ def show_market_analysis_tab():
                     default_strat = stars_5y_plus
 
                 strategy_options = [stars_1y, stars_3y, stars_5y, stars_5y_plus, "📂 Sector Browser"]
-                
+
                 strategy_mode = st.radio(
                     "2. Filter Strategy",
                     options=strategy_options,
@@ -745,13 +862,13 @@ def show_market_analysis_tab():
                     horizontal=True,
                     key="heatmap_strategy_radio"
                 )
-        
+
         st.markdown("---")
 
         if strategy_mode == "📂 Sector Browser":
             # === SECTOR BROWSER LOGIC (Visual First) ===
             visual_selection = render_visual_ticker_selector(ticker_category)
-            
+
             # Handle selection update
             if visual_selection:
                 st.session_state.heatmap_active_ticker = visual_selection
@@ -760,10 +877,10 @@ def show_market_analysis_tab():
             # Ensure session state is synced with URL params (for reload)
             if 'heatmap_active_ticker' not in st.session_state and qp_ticker:
                  st.session_state.heatmap_active_ticker = qp_ticker
-                 
+
             # Display Analysis Logic
             active_ticker = st.session_state.get('heatmap_active_ticker')
-            
+
             if active_ticker:
                  st.markdown("---")
                  st.subheader(f"📊 Analysis: {get_ticker_name(active_ticker)} ({active_ticker})")
@@ -774,21 +891,21 @@ def show_market_analysis_tab():
         else:
             # === STANDARD LIST / STARS LOGIC ===
             col_input, col_button, col_info = st.columns([2, 1, 3])
-            
+
             with col_input:
                 # Stars Logic
                 from rover_tools.analytics.win_rate import get_performance_stars
-                
+
                 # Determine period based on selection
                 period = "1y"
                 if "3Y Stars" in strategy_mode: period = "3y"
                 elif "5Y+ Stars" in strategy_mode: period = "5y+"
                 elif "5Y Stars" in strategy_mode: period = "5y"
-                
+
                 with st.spinner(f"Identifying {period} winners in {ticker_category}..."):
                    # Use GLOBAL setting
                    top_stars = get_performance_stars(category=ticker_category, period=period, top_n=5)
-                   
+
                 if top_stars:
                      # Format: "TICKER (+XX%)"
                      common_tickers = [s['label'] for s in top_stars]
@@ -811,27 +928,27 @@ def show_market_analysis_tab():
                     # Default to SBIN if available, else 0
                     for i, t in enumerate(common_tickers):
                         if "SBIN.NS" in t:
-                            default_ix = i 
+                            default_ix = i
                             break
-                    
+
                     # Auto-select first stock if no specific default found (and list has items)
                     if len(common_tickers) > 0 and default_ix >= len(common_tickers):
                          default_ix = 0
 
                 ticker_options = common_tickers
-                
+
                 if not ticker_options:
                      st.warning("No stocks found for this criteria.")
                      ticker_options = ["No Data"]
-                
+
                 selected_opt = st.selectbox(
-                    "Stock Selection", 
-                    options=ticker_options, 
+                    "Stock Selection",
+                    options=ticker_options,
                     index=default_ix if default_ix < len(ticker_options) else 0,
                     key="heatmap_ticker_select",
                     help=f"Listing {ticker_category} stocks."
                 )
-                
+
                 if selected_opt and selected_opt != "No Data":
                      # Handle "TICKER - Name" AND "TICKER (+XX%)"
                      # Split by ' - ' first, then space to isolate ticker
@@ -840,12 +957,12 @@ def show_market_analysis_tab():
                      ticker_raw = None
 
             with col_button:
-                st.write("") 
+                st.write("")
                 analyze_button = st.button("📊 Analyze", type="primary", width='stretch', key="btn_heatmap")
 
             with col_info:
                  pass
-                
+
             # Initialize session state for this tab
             if 'heatmap_active_ticker' not in st.session_state:
                 # Auto-init with the default selection
@@ -863,7 +980,7 @@ def show_market_analysis_tab():
                      st.session_state.heatmap_active_ticker = clean_input
                  else:
                      st.error("Invalid ticker format. Please check your input.")
-            
+
             # Run analysis if a ticker is active
             if st.session_state.heatmap_active_ticker:
                  run_analysis_ui(st.session_state.heatmap_active_ticker, st.session_state.heatmap_limiter, key_prefix="heatmap", global_outlier=exclude_outliers_global, lookback_period=lookback_period)
@@ -876,7 +993,7 @@ def show_market_analysis_tab():
 
         st.subheader("📊 Benchmark Index Analysis")
 
-        
+
 
         # Define Major Indices
 
@@ -885,22 +1002,22 @@ def show_market_analysis_tab():
             "Nifty 50": "^NSEI",
 
             "Sensex": "^BSESN",
-            
+
             "Nifty Next 50": "JUNIORBEES.NS",
 
             "Nifty Midcap 100": "^CRSLDX"
 
         }
 
-        
+
 
         index_names = list(major_indices.keys())
 
-        
+
 
         st.markdown("##### ⚡ Quick Select Index")
         selected_index = st.pills("Choose an Index:", index_names, selection_mode="single", default="Nifty 50", key="bench_pills")
-        
+
         if selected_index:
             ticker = major_indices[selected_index]
             st.markdown(f"### Analyzing: **{selected_index}** (`{ticker}`)")

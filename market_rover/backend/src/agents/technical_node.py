@@ -3,15 +3,17 @@ import asyncio
 from src.state import AgentState
 from rover_tools.advanced_skills import calculate_mtc_score_tool, detect_technical_patterns_tool
 from src.utils.logger import get_logger
+from src.utils.throttle import throttled
 
 logger = get_logger(__name__)
 
+@throttled
 async def analyze_ticker_technicals(ticker: str):
     """Analyzes technicals for a single ticker in a thread."""
     try:
-        # Wrap synchronous tool calls in to_thread
-        mtc_res = await asyncio.to_thread(calculate_mtc_score_tool, ticker)
-        patterns = await asyncio.to_thread(detect_technical_patterns_tool, ticker)
+        # Wrap synchronous tool calls in to_thread using .run()
+        mtc_res = await asyncio.to_thread(calculate_mtc_score_tool.run, ticker=ticker)
+        patterns = await asyncio.to_thread(detect_technical_patterns_tool.run, ticker=ticker)
 
         concordance_status = "None"
         if "STRONG BUY CONCORDANCE" in mtc_res or "85/100" in mtc_res:

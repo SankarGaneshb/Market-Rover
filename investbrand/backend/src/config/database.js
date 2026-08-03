@@ -7,7 +7,16 @@ async function initializePool() {
   const isProduction = process.env.NODE_ENV === 'production';
   let config;
 
-  if (isProduction) {
+  if (process.env.DATABASE_URL) {
+    logger.info('Initializing database connection via DATABASE_URL');
+    config = {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 30000,
+    };
+  } else if (isProduction) {
     const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
     const dbUser = process.env.IC_DB_USER || process.env.DB_USER || 'postgres';
     const dbPass = process.env.IC_DB_PASSWORD || process.env.DB_PASSWORD || '';

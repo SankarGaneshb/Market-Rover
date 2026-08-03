@@ -9,7 +9,9 @@ from src.agents.dividend_node import dividend_node
 from src.agents.sector_node import sector_node
 from src.agents.shadow_node import shadow_node
 from src.agents.forensic_node import forensic_node
+from src.agents.ownerise_node import ownerise_node
 from src.agents.reporting_node import reporting_node
+
 
 def create_market_rover_graph():
     """
@@ -28,7 +30,9 @@ def create_market_rover_graph():
     workflow.add_node("sector", sector_node)
     workflow.add_node("shadow", shadow_node)
     workflow.add_node("forensic", forensic_node)
+    workflow.add_node("ownerise", ownerise_node)
     workflow.add_node("reporting", reporting_node)
+
 
     # 2. Define Edges (The Flow)
     # START -> SETUP
@@ -42,6 +46,8 @@ def create_market_rover_graph():
     workflow.add_edge("strategy", "dividend")
     workflow.add_edge("strategy", "sector")
     workflow.add_edge("strategy", "forensic")
+    workflow.add_edge("strategy", "ownerise")
+
 
     # Fan-In: Wait for all 5 parallel branches to finish
     workflow.add_edge("sentiment", "shadow")
@@ -50,6 +56,8 @@ def create_market_rover_graph():
     workflow.add_edge("dividend", "shadow")
     workflow.add_edge("sector", "shadow")
     workflow.add_edge("forensic", "shadow")
+    workflow.add_edge("ownerise", "shadow")
+
 
     # Final Sync
     workflow.add_edge("shadow", "reporting")

@@ -3,9 +3,11 @@ import asyncio
 import yfinance as yf
 from src.state import AgentState
 from src.utils.logger import get_logger
+from src.utils.throttle import throttled
 
 logger = get_logger(__name__)
 
+@throttled
 async def get_ticker_sentiment(ticker: str):
     """Fetches and analyzes sentiment for a single ticker in a thread."""
     try:

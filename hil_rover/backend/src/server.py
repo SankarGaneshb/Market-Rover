@@ -15,7 +15,7 @@ from urllib.parse import quote_plus
 
 # HIL-Rover Version: 4.4.0 — PostgreSQL persistence + GitHub Reactor
 
-# HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investcraft-db:hil_rover)
+# HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investbrand-db:hil_rover)
 app = FastAPI(title="HIL Rover API")
 
 DIST_PATH = os.environ.get("HIL_FRONTEND_PATH", "../frontend/dist")
@@ -41,27 +41,32 @@ async def get_pool() -> asyncpg.Pool:
 
 async def _create_pool() -> asyncpg.Pool:
     database_url = os.getenv("DATABASE_URL")
-    if not database_url:
+    if database_url:
+        print("[HIL] Connecting to PostgreSQL via DATABASE_URL DSN")
+        pool = await asyncpg.create_pool(
+            dsn=database_url,
+            min_size=1,
+            max_size=5
+        )
+    else:
         conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME", "")
         db_user   = os.getenv("PR_DB_USER", os.getenv("DB_USER", "postgres"))
         db_pass   = os.getenv("PR_DB_PASSWORD", os.getenv("DB_PASSWORD", ""))
         db_name   = os.getenv("HIL_DB_NAME", "hil_rover")
-    # Use keyword arguments for better compatibility with Unix sockets
-    host = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
-    port = int(os.getenv("DB_PORT", "5432"))
+        host = f"/cloudsql/{conn_name}" if conn_name else os.getenv("DB_HOST", "localhost")
+        port = int(os.getenv("DB_PORT", "5432"))
 
-    # Debug print (scrubbed)
-    print(f"[HIL] Connecting to {db_name} via { 'Socket' if conn_name else 'TCP' } (Host: {host})")
+        print(f"[HIL] Connecting to {db_name} via { 'Socket' if conn_name else 'TCP' } (Host: {host})")
 
-    pool = await asyncpg.create_pool(
-        user=db_user,
-        password=db_pass,
-        database=db_name,
-        host=host,
-        port=port,
-        min_size=1,
-        max_size=5
-    )
+        pool = await asyncpg.create_pool(
+            user=db_user,
+            password=db_pass,
+            database=db_name,
+            host=host,
+            port=port,
+            min_size=1,
+            max_size=5
+        )
     # Ensure schema exists
     async with pool.acquire() as conn:
         await conn.execute("""

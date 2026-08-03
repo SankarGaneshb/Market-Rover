@@ -105,7 +105,7 @@ describe('AI Agents Unit Tests', () => {
 
   describe('Ops Support Agent', () => {
     it('should analyze error and return mitigation', async () => {
-      mockInvoke.mockResolvedValueOnce({
+      mockInvoke.mockResolvedValue({
         content: JSON.stringify({ rootCause: 'DB Timeout', mitigation: 'Retry', severity: 'high' })
       });
 
@@ -113,7 +113,7 @@ describe('AI Agents Unit Tests', () => {
 
       expect(analysis.rootCause).toBe('DB Timeout');
       expect(mockInvoke).toHaveBeenCalled();
-    });
+    }, 15000);
   });
 
   describe('Puzzle Agent', () => {

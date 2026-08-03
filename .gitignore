@@ -82,3 +82,8 @@ coverage/
 *test_results*.txt
 *test_errors*.txt
 *loc.txt
+scratch/
+*.db
+server_log*.txt
+test_nginx.conf
+reports/test_user/

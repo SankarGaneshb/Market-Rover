@@ -1,16 +1,23 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
-from google.cloud.sql.connector import Connector, IPTypes
+# from google.cloud.sql.connector import Connector, IPTypes (MOVED TO PRODUCTION BLOCK)
 import pg8000
 
 Base = declarative_base()
 
-# Determine environment (Standard Cloud Run or Cloud SQL presence)
+# Determine environment (DATABASE_URL, Standard Cloud Run, or Cloud SQL presence)
+database_url = os.getenv("DATABASE_URL")
 conn_name = os.getenv("CLOUD_SQL_CONNECTION_NAME")
 is_production = os.getenv("K_SERVICE") is not None or conn_name is not None
 
-if is_production:
+if database_url:
+    print("Initializing connection to PostgreSQL via DATABASE_URL DSN")
+    async_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1) if database_url.startswith("postgresql://") else database_url
+    async_url = async_url.replace("sslmode=require", "ssl=require")
+    engine = create_async_engine(async_url, echo=False)
+elif is_production:
+    from google.cloud.sql.connector import Connector, IPTypes
     print(f"Initializing connection to Cloud SQL (ASYNC) via DSN: {conn_name}")
     db_user = os.environ.get("PR_DB_USER", os.environ.get("DB_USER", "postgres"))
     db_pass = os.environ.get("PR_DB_PASSWORD", os.environ.get("DB_PASSWORD", ""))

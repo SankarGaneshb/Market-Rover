@@ -1,6 +1,13 @@
 from typing import Annotated, TypedDict, List, Dict, Any, Optional
 from operator import add
 
+def merge_current_node(current: Optional[str], update: str) -> str:
+    """
+    Custom reducer for current_node state.
+    Handles concurrent parallel graph updates by simply taking the latest update.
+    """
+    return update
+
 class AgentState(TypedDict):
     """
     The state of the Market-Rover Intelligence Graph.
@@ -34,7 +41,7 @@ class AgentState(TypedDict):
 
     # --- SRE & Health ---
     errors: Annotated[List[str], add]
-    current_node: str
+    current_node: Annotated[str, merge_current_node]
     vulnerability_score: float # Threshold for HIL interrupt
 
     # --- Interactive UX (Celebrations & Feedback) ---

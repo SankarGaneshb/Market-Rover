@@ -17,6 +17,9 @@ from src.routes.forecast import router as forecast_router
 from src.routes.shadow import router as shadow_router
 from src.routes.calendar import router as calendar_router
 from src.routes.heatmap import router as heatmap_router
+from src.routes.analysis import router as analysis_router
+from ownerise.backend.router import router as ownerise_router
+from src.routes.snapshot import router as snapshot_router
 
 router = APIRouter()
 router.include_router(auth_router,    prefix="/auth",     tags=["Authentication"])
@@ -26,3 +29,6 @@ router.include_router(forecast_router,prefix="/forecasts",tags=["Forecasts"])
 router.include_router(shadow_router,  prefix="/shadow",   tags=["Shadow"])
 router.include_router(calendar_router,prefix="/calendar", tags=["Calendar"])
 router.include_router(heatmap_router, prefix="/heatmap",  tags=["Heatmap"])
+router.include_router(analysis_router,prefix="/analysis", tags=["Deep Dive"])
+router.include_router(ownerise_router,prefix="/v1/ownerise", tags=["OwneRise Rights"])
+router.include_router(snapshot_router,prefix="/snapshot", tags=["Snapshot"])

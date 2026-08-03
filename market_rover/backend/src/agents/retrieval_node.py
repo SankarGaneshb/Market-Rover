@@ -21,7 +21,7 @@ async def retrieval_node(state: AgentState) -> dict:
         # Check if there is a CSV to read via rover_tools
         try:
              # This uses the existing portfolio_tool.py logic
-             portfolio_data = read_portfolio("Portfolio.csv")
+             portfolio_data = read_portfolio.run(portfolio_file="Portfolio.csv")
              raw_tickers = [row['ticker'] for row in portfolio_data]
         except Exception as e:
             return {"errors": [f"Portfolio Retrieval Failed: {str(e)}"]}

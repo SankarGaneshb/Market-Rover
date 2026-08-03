@@ -43,23 +43,35 @@ async def get_market_shadow():
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@router.get("/{user_handle}")
-async def get_user_shadow(user_handle: str):
+@router.get("")
+async def get_user_shadow_query(user_handle: str = None):
     """
-    Returns all shadow/forensic signals generated for the given user,
+    Returns all shadow/forensic signals generated for the given user (query parameter),
     filtered to ACCUMULATION and DISTRIBUTION stances only.
+    If no user_handle is provided, defaults to all market shadow signals.
     """
     try:
         await db.connect()
-        query = """
-            SELECT ticker, stance, logic_summary, analysis_date
-            FROM public.agent_memory_ltm
-            WHERE user_id = $1
-              AND stance IN ('ACCUMULATION', 'DISTRIBUTION', 'WARNING')
-            ORDER BY analysis_date DESC
-        """
-        async with db.pool.acquire() as conn:
-            rows = await conn.fetch(query, user_handle)
+        if user_handle:
+            query = """
+                SELECT ticker, stance, logic_summary, analysis_date
+                FROM public.agent_memory_ltm
+                WHERE user_id = $1
+                  AND stance IN ('ACCUMULATION', 'DISTRIBUTION', 'WARNING')
+                ORDER BY analysis_date DESC
+            """
+            async with db.pool.acquire() as conn:
+                rows = await conn.fetch(query, user_handle)
+        else:
+            query = """
+                SELECT ticker, stance, logic_summary, analysis_date, user_id
+                FROM public.agent_memory_ltm
+                WHERE stance IN ('ACCUMULATION', 'DISTRIBUTION', 'WARNING')
+                ORDER BY analysis_date DESC
+                LIMIT 20
+            """
+            async with db.pool.acquire() as conn:
+                rows = await conn.fetch(query)
 
         result = []
         for r in rows:
@@ -68,7 +80,16 @@ async def get_user_shadow(user_handle: str):
                 item["analysis_date"] = item["analysis_date"].isoformat()
             result.append(item)
 
-        return result
+        return {"shadow_signals": result}
     except Exception as e:
-        logger.error(f"get_user_shadow failed: {e}")
+        logger.error(f"get_user_shadow_query failed: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.get("/{user_handle}")
+async def get_user_shadow(user_handle: str):
+    """
+    Returns all shadow/forensic signals generated for the given user (path parameter).
+    """
+    res = await get_user_shadow_query(user_handle=user_handle)
+    return res

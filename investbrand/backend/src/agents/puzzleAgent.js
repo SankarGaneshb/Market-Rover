@@ -33,31 +33,42 @@ async function generateInitialClues(companyName, ticker, sector) {
     const systemPrompt = `
       You are an expert game designer creating a "Guess the Stock" puzzle for: ${companyName} (${ticker}) in the ${sector} sector.
 
-      1. DO NOT mention the company name, its ticker, exact founder names, or the exact year of establishment.
-      2. Keep it completely anonymous.
-      3. clue1 MUST describe the sector name and a generic stock price range (e.g. 'Sector: IT. Stock Price Range: Rs. 1000 - Rs. 2000').
+      1. DO NOT mention the company name, its ticker, or exact founder names.
+      2. wordCloud MUST be 5-7 thematic words that define the company's legacy, products, or geography (e.g., 'Jamnagar, Refining, Polyester' for an energy giant).
+      3. clue1 MUST describe the sector name and a generic stock price range.
 
-      Your output MUST be a valid JSON object matching exactly this schema:
+      Your output MUST be a valid JSON object:
       {
-        "wordCloud": "A comma separated string of 5-7 thematic words/concepts related to the company's geography, iconic products, or loosely to its founders (e.g. 'Electronic City, Outsourcing, Banyan, Hub')",
-        "clue1": "Sector name and stock price range (e.g. 'Sector: Energy. Stock Price Range: Rs. 2500 - Rs. 3000').",
-        "clue2": "A medium difficulty hint focusing on product lines or thematic dominance.",
-        "clue3": "An easy difficulty hint focusing on its most famous characteristic or geographical origin."
+        "wordCloud": "A comma separated string of 5-7 thematic words",
+        "clue1": "Sector name and stock price range (e.g. 'Sector: IT. Range: Rs. 3000 - 3500')",
+        "clue2": "Medium hint about products/market dominance",
+        "clue3": "Easy hint about famous characteristics"
       }
     `;
 
-
-    logger.info(`Generating initial stock clues for ${ticker}...`);
+    logger.info(`Generating clues for ${ticker}...`);
     const response = await aiLlm.invoke(systemPrompt);
     const cleanJsonStr = String(response?.content || "").replace(/```json/gi, '').replace(/```/g, '').trim();
     return JSON.parse(cleanJsonStr);
   } catch (err) {
-    logger.error(`Error generating initial clues: ${err.message}`);
+    logger.error(`AI Clue Generation failed for ${ticker}: ${err.message}`);
+
+    const sectorBase = sector || "General";
+    // Dynamic Fallback Dictionary
+    const sectorMap = {
+      "IT": "Digital, Cloud, Outsourcing, Software, Mystery",
+      "Energy": "Power, Grid, Renewables, Fuel, Infrastructure, Mystery",
+      "Finance": "Capital, Banking, Credit, Nifty, Investment, Mystery",
+      "Consumer Goods": "FMCG, Brand, Retail, Household, Distribution, Mystery",
+      "Automobile": "Wheels, Engine, EV, Transport, Mobility, Mystery",
+      "Pharma": "Healthcare, Labs, Medicine, Wellness, Biotech, Mystery"
+    };
+
     return {
-      wordCloud: "Mystery, Finance, Giant, Benchmark, Value",
-      clue1: "This company is a giant in its sector.",
-      clue2: "It has a long history of dominating the market.",
-      clue3: "You might interact with its products daily."
+      wordCloud: sectorMap[sector] || sectorMap[sectorBase] || "Growth, Value, Industry, Market, Global",
+      clue1: `This company is a key player in the ${sectorBase} sector.`,
+      clue2: "It has a significant market presence and long-term history.",
+      clue3: "Its products or services are part of many Indian households."
     };
   }
 }

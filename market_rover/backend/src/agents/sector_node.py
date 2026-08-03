@@ -16,7 +16,7 @@ async def sector_node(state: AgentState) -> dict:
     tickers = state.get("tickers", [])
 
     # 1. Analyze Sector Flows using existing tool (wrapped in thread)
-    sector_flow_res = await asyncio.to_thread(analyze_sector_flow_tool)
+    sector_flow_res = await asyncio.to_thread(analyze_sector_flow_tool.run)
 
     # 2. Map Tickers to Sectors
     ticker_map = {}

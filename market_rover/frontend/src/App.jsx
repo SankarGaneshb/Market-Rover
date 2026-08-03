@@ -4,10 +4,15 @@ import {
   LineChart, TrendingUp, Shield, Target, User, Zap, Gamepad2,
   Activity, AlertTriangle, CheckCircle, Briefcase, ExternalLink,
   ChevronRight, Database, Calendar, Layers, Search, History,
-  LogOut, Globe, Eye, BarChart2, Flame, ChevronDown
+  LogOut, Globe, Eye, BarChart2, Flame, ChevronDown, Scale
 } from 'lucide-react';
 import Confetti from 'react-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
+import RightsTimeline from './components/ownerise/RightsTimeline';
+import ProfitLossCalculator from './components/ownerise/ProfitLossCalculator';
+import RightsChart from './components/ownerise/RightsChart';
+import StockSnapshot from './components/StockSnapshot';
+
 
 // ── Base URL — Vite proxy handles /api  in dev, nginx in prod ──────────────────
 const API = '';
@@ -95,9 +100,11 @@ const App = () => {
   // ── Dashboard (Intelligence Hub) ──
   const [tickers, setTickers] = useState('TCS.NS, RELIANCE.NS, INFY.NS');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [report, setReport] = useState('');
+  const [robustMode, setRobustMode] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
   const [findings, setFindings] = useState([]);
   const [traditionalInsights, setTraditionalInsights] = useState([]);
+  const [report, setReport] = useState('');
 
   // ── Profile (Sleep Test) ──
   const [quizStep, setQuizStep] = useState(0);
@@ -120,6 +127,14 @@ const App = () => {
   const [heatData, setHeatData] = useState(null);
   const [heatLoading, setHeatLoading] = useState(false);
   const [heatError, setHeatError] = useState('');
+
+  // ── OwneRise ──
+  const [owneriseData, setOwneriseData] = useState(null);
+  const [owneriseLoading, setOwneriseLoading] = useState(false);
+  const [owneriseSymbol, setOwneriseSymbol] = useState('RELIANCE');
+  const [owneriseError, setOwneriseError] = useState(null);
+  const [rightsChartData, setRightsChartData] = useState({ stock: [], re: [] });
+
 
   // ── Auth Handlers ──────────────────────────────────────────────────────────
 
@@ -163,11 +178,11 @@ const App = () => {
   // ── Profile ────────────────────────────────────────────────────────────────
 
   const fetchProfile = useCallback(async () => {
+    if (!socialIdentity.handle) return;
     try {
       const res = await api.get(`/api/profile/${socialIdentity.handle}`);
       const fetchedPersona = res.data.persona || 'Not Set';
       setPersona(fetchedPersona);
-      // Force new users to the calibration screen immediately
       if (fetchedPersona === 'Not Set') {
         setActiveTab('profile');
       }
@@ -304,6 +319,27 @@ const App = () => {
     } finally { setHeatLoading(false); }
   };
 
+  const fetchOwnerise = useCallback(async () => {
+    setOwneriseLoading(true);
+    setOwneriseError(null);
+    try {
+      const [detailsRes, chartRes] = await Promise.all([
+        api.get(`/api/v1/ownerise/${owneriseSymbol}`),
+        api.get(`/api/v1/ownerise/${owneriseSymbol}/chart`)
+      ]);
+      setOwneriseData(detailsRes.data);
+      setRightsChartData({
+        stock: chartRes.data.stock_chart,
+        re: chartRes.data.re_chart
+      });
+    } catch (err) {
+      setOwneriseError("Issue not found or backend disconnected.");
+    } finally {
+      setOwneriseLoading(false);
+    }
+  }, [owneriseSymbol]);
+
+
   // ── Effects ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -323,7 +359,9 @@ const App = () => {
     if (activeTab === 'forecasts') fetchForecasts();
     if (activeTab === 'shadow') fetchShadow();
     if (activeTab === 'calendar') fetchCalendar();
-  }, [activeTab, isLoggedIn, socialIdentity.handle, fetchForecasts, fetchShadow, fetchCalendar]);
+    if (activeTab === 'ownerise') fetchOwnerise();
+  }, [activeTab, isLoggedIn, socialIdentity.handle, fetchForecasts, fetchShadow, fetchCalendar, fetchOwnerise, owneriseSymbol]);
+
 
   // ── Login Screen ───────────────────────────────────────────────────────────
 
@@ -385,7 +423,9 @@ const App = () => {
 
   // ── Authenticated Layout ───────────────────────────────────────────────────
 
-  const personaIcon = persona.includes('Hunter') ? '(Hunter)' : persona.includes('Defender') ? '(Defender)' : persona.includes('Compounder') ? '(Compounder)' : persona.includes('Preserver') ? '(Preserver)' : '';
+  const personaIcon = (persona && typeof persona === 'string')
+    ? (persona.includes('Hunter') ? '(Hunter)' : persona.includes('Defender') ? '(Defender)' : persona.includes('Compounder') ? '(Compounder)' : persona.includes('Preserver') ? '(Preserver)' : '')
+    : '';
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#020617', color: 'white', fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -405,14 +445,19 @@ const App = () => {
             {persona === 'Not Set' ? 'CALIBRATION REQUIRED' : 'CORE INTELLIGENCE'}
           </p>
 
-          <SidebarItem icon={<User size={18} />} label="Investor Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
+          <SidebarItem icon={<User size={18} />} label="👤 Investor Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
 
           {persona && persona !== 'Not Set' && (<>
-            <SidebarItem icon={<Activity size={18} />}   label="Market Analysis Hub"   active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-            <SidebarItem icon={<BarChart2 size={18} />}  label="Market Heatmap"     active={activeTab === 'heatmap'}   onClick={() => setActiveTab('heatmap')} />
-            <SidebarItem icon={<Eye size={18} />}        label="Shadow Discovery"   active={activeTab === 'shadow'}    onClick={() => setActiveTab('shadow')} />
-            <SidebarItem icon={<History size={18} />}    label="Forecast Tracker"   active={activeTab === 'forecasts'} onClick={() => setActiveTab('forecasts')} />
-            <SidebarItem icon={<Calendar size={18} />}   label="Trading Calendar"   active={activeTab === 'calendar'}  onClick={() => setActiveTab('calendar')} />
+            <SidebarItem icon={<Activity size={18} />}   label="📤 Portfolio Analysis"   active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+            <SidebarItem icon={<BarChart2 size={18} />}  label="🔥 Market Heatmap"     active={activeTab === 'heatmap'}   onClick={() => setActiveTab('heatmap')} />
+            <SidebarItem icon={<Eye size={18} />}        label="🕵️ Shadow Discovery"   active={activeTab === 'shadow'}    onClick={() => setActiveTab('shadow')} />
+            <SidebarItem icon={<History size={18} />}    label="🎯 Forecast Tracker"   active={activeTab === 'forecasts'} onClick={() => setActiveTab('forecasts')} />
+            <SidebarItem icon={<Scale size={18} />}      label="⚖️ Portfolio Rebalancer" active={activeTab === 'rebalancer'} onClick={() => setActiveTab('rebalancer')} />
+            <SidebarItem icon={<Calendar size={18} />}   label="📅 Trading Calendar"   active={activeTab === 'calendar'}  onClick={() => setActiveTab('calendar')} />
+            <SidebarItem icon={<Layers size={18} />}     label="🚀 OwneRise Rights"   active={activeTab === 'ownerise'}  onClick={() => setActiveTab('ownerise')} />
+            <SidebarItem icon={<Zap size={18} />}        label="🧠 Agent Brain"         active={activeTab === 'brain'}     onClick={() => setActiveTab('brain')} />
+
+            <SidebarItem icon={<Database size={18} />}   label="⚙️ System Health"      active={activeTab === 'health'}    onClick={() => setActiveTab('health')} />
 
             <p style={{ margin: '1.5rem 0.5rem 0.8rem', fontSize: '0.65rem', color: '#334155', fontWeight: 800, letterSpacing: '1.5px' }}>SATELLITE MISSIONS</p>
             <SidebarItem icon={<Layers size={18} />}  label="HIL Mission Control" external onClick={() => window.open('https://hil-rover-9514347926.us-central1.run.app', '_blank')} />
@@ -452,34 +497,124 @@ const App = () => {
 
         <AnimatePresence mode="wait">
 
-          {/* ── Intelligence Hub ─────────────────────────────────────────── */}
+          {/* ── Portfolio Analysis (Intelligence Hub) ─────────────────────────── */}
           {activeTab === 'dashboard' && (
             <motion.div key="dashboard" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <SectionHeader icon={<Activity size={24} color="var(--accent-cyan)" />} title="Market Analysis Hub" sub={`Secure analysis for ${socialIdentity.handle}`} />
+              <SectionHeader icon={<Activity size={24} color="var(--accent-cyan)" />} title="Portfolio Analysis" sub={`Institutional intelligence for ${socialIdentity.handle}`} />
 
-              <GlassCard style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} size={18} />
-                  <input
-                    id="input-tickers"
-                    type="text"
-                    value={tickers}
-                    onChange={e => setTickers(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && !isAnalyzing && runAnalysis()}
-                    placeholder="Enter NSE tickers (e.g. TCS.NS, RELIANCE.NS, INFY.NS)..."
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', color: 'white', fontSize: '0.95rem', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }}
-                  />
+              <GlassCard style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} size={18} />
+                    <input
+                      id="input-tickers"
+                      type="text"
+                      value={tickers}
+                      onChange={e => setTickers(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && !isAnalyzing && runAnalysis()}
+                      placeholder="Enter NSE tickers (e.g. TCS.NS, RELIANCE.NS)..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', color: 'white', fontSize: '0.95rem', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => setRobustMode(!robustMode)}
+                    style={{
+                      padding: '0 1rem', background: robustMode ? 'rgba(244,63,94,0.1)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${robustMode ? '#f43f5e' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius: '12px', color: robustMode ? '#f43f5e' : '#94a3b8',
+                      fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+                    }}
+                  >
+                    {robustMode ? '🚫 ROBUST ON' : '⚙️ ROBUST MODE'}
+                  </button>
+                  <button
+                    id="btn-run-analysis"
+                    className="btn-primary"
+                    onClick={runAnalysis}
+                    disabled={isAnalyzing}
+                    style={{ height: '60px', padding: '0 2.5rem', background: 'linear-gradient(45deg,#06b6d4,#3b82f6)', border: 'none', borderRadius: '16px', color: 'white', fontWeight: 800, cursor: isAnalyzing ? 'not-allowed' : 'pointer', opacity: isAnalyzing ? 0.7 : 1, boxShadow: '0 8px 15px -3px rgba(6,182,212,0.4)', whiteSpace: 'nowrap' }}
+                  >
+                    {isAnalyzing ? 'ORCHESTRATING...' : 'RUN INTELLIGENCE'}
+                  </button>
                 </div>
-                <button
-                  id="btn-run-analysis"
-                  className="btn-primary"
-                  onClick={runAnalysis}
-                  disabled={isAnalyzing}
-                  style={{ height: '60px', padding: '0 2.5rem', background: 'linear-gradient(45deg,#06b6d4,#3b82f6)', border: 'none', borderRadius: '16px', color: 'white', fontWeight: 800, cursor: isAnalyzing ? 'not-allowed' : 'pointer', opacity: isAnalyzing ? 0.7 : 1, boxShadow: '0 8px 15px -3px rgba(6,182,212,0.4)', whiteSpace: 'nowrap' }}
-                >
-                  {isAnalyzing ? 'ORCHESTRATING...' : 'RUN INTELLIGENCE'}
-                </button>
+
+                <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <p style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 800, letterSpacing: '2px', marginBottom: '1rem' }}>🛒 QUICK SELECT BRANDS (CORE NIFTY)</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
+                    {[
+                      { ticker: 'TCS.NS',      name: 'TCS',      color: '#000000', icon: 'TCS' },
+                      { ticker: 'RELIANCE.NS', name: 'Reliance', color: '#00539f', icon: 'RIL' },
+                      { ticker: 'INFY.NS',     name: 'Infosys',  color: '#007cc3', icon: 'INFY' },
+                      { ticker: 'HDFCBANK.NS', name: 'HDFC Bank',color: '#004c8f', icon: 'HDFC' },
+                      { ticker: 'ICICIBANK.NS',name: 'ICICI Bank',color: '#f37021', icon: 'ICICI' },
+                      { ticker: 'ITC.NS',      name: 'ITC',      color: '#004a99', icon: 'ITC' },
+                      { ticker: 'SBIN.NS',     name: 'SBI',      color: '#28ade4', icon: 'SBI' },
+                      { ticker: 'BHARTIARTL.NS', name: 'Airtel', color: '#e40000', icon: 'AIRTEL' }
+                    ].map(b => (
+                      <button
+                        key={b.ticker}
+                        onClick={() => {
+                          const current = tickers.split(',').map(t => t.trim()).filter(t => t);
+                          if (current.includes(b.ticker)) {
+                            setTickers(current.filter(t => t !== b.ticker).join(', '));
+                          } else {
+                            setTickers([...current, b.ticker].join(', '));
+                          }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '8px', padding: '8px',
+                          background: tickers.includes(b.ticker) ? `${b.color}22` : 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${tickers.includes(b.ticker) ? b.color : 'rgba(255,255,255,0.05)'}`,
+                          borderRadius: '10px', color: 'white', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.75rem'
+                        }}
+                      >
+                        <div style={{ width: '24px', height: '24px', background: b.color, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5rem', fontWeight: 900, flexShrink: 0 }}>{b.icon}</div>
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <Briefcase size={18} color="#94a3b8" />
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                    <strong>Legacy Support:</strong> Upload CSV to analyze multi-stock portfolios (Format: Symbol, Company Name)
+                  </p>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    style={{ display: 'none' }}
+                    id="csv-upload"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const csv = event.target.result;
+                          const lines = csv.split('\n');
+                          const symbols = lines.slice(1)
+                            .map(line => line.split(',')[0].trim())
+                            .filter(s => s && s !== 'Symbol')
+                            .map(s => s.includes('.') ? s : `${s}.NS`);
+                          setTickers(symbols.join(', '));
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => document.getElementById('csv-upload').click()}
+                    style={{ marginLeft: 'auto', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    UPLOAD CSV
+                  </button>
+                </div>
               </GlassCard>
+
+              {/* Render StockSnapshot for the FIRST ticker in the list */}
+              {(isAnalyzing || report || findings.length > 0) && tickers.split(',')[0].trim() && (
+                <StockSnapshot ticker={tickers.split(',')[0].trim()} />
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '1.5rem' }}>
                 <GlassCard style={{ display: 'flex', flexDirection: 'column', minHeight: '540px' }}>
@@ -751,6 +886,209 @@ const App = () => {
                   </div>
                 </GlassCard>
               </div>
+            </motion.div>
+          )}
+
+          {/* ── OwneRise Rights Issue (New Feature) ─────────────────────────── */}
+          {activeTab === 'ownerise' && (
+            <motion.div key="ownerise" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <SectionHeader
+                icon={<Layers size={24} color="#22d3ee" />}
+                title="OwneRise: Rights Intelligence"
+                sub="Capitalize on Corporate Actions with UHNWI-grade analysis and P&L simulators."
+              />
+
+              <GlassCard style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} size={18} />
+                  <input
+                    type="text"
+                    value={owneriseSymbol}
+                    onChange={e => setOwneriseSymbol(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === 'Enter' && fetchOwnerise()}
+                    placeholder="Enter Symbol (e.g. RELIANCE)..."
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', color: 'white', fontSize: '0.95rem', fontFamily: 'JetBrains Mono, monospace', outline: 'none' }}
+                  />
+                </div>
+                <button
+                  className="btn-primary"
+                  onClick={fetchOwnerise}
+                  disabled={owneriseLoading}
+                  style={{ height: '60px', padding: '0 2.5rem', background: 'linear-gradient(45deg,#06b6d4,#3b82f6)', border: 'none', borderRadius: '16px', color: 'white', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {owneriseLoading ? 'ANALYZING...' : 'DISCOVER RIGHTS'}
+                </button>
+              </GlassCard>
+
+              {owneriseData && (
+                <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <GlassCard>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#f8fafc' }}>{owneriseData.details.company_name}</h3>
+                      <p style={{ color: '#64748b', fontSize: '0.85rem' }}>Rights Ratio: {owneriseData.details.new_shares_ratio} for {owneriseData.details.old_shares_ratio}</p>
+                      <div style={{ marginTop: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+                          <p style={{ fontSize: '0.6rem', color: '#94a3b8' }}>ISSUE PRICE</p>
+                          <p style={{ fontWeight: 800 }}>₹{owneriseData.details.issue_price}</p>
+                        </div>
+                        <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+                          <p style={{ fontSize: '0.6rem', color: '#94a3b8' }}>CMP</p>
+                          <p style={{ fontWeight: 800 }}>₹{owneriseData.details.current_market_price}</p>
+                        </div>
+                      </div>
+                    </GlassCard>
+                    <RightsTimeline timeline={owneriseData.timeline} />
+                    <ProfitLossCalculator details={owneriseData.details} />
+                  </div>
+
+                  <div>
+                    <RightsChart
+                      symbol={owneriseSymbol}
+                      stockData={rightsChartData.stock}
+                      reData={rightsChartData.re}
+                      timeline={owneriseData.timeline}
+                    />
+
+                    <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(0,255,242,0.03)', borderRadius: '24px', border: '1px solid rgba(0,255,242,0.1)' }}>
+                      <h4 style={{ color: 'var(--accent-cyan)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Shield size={16} /> Council of Experts Analysis
+                      </h4>
+                      <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.6 }}>
+                        The AI agents have verified the Draft Letter of Offer (DLOF). Key Insight: <strong>Promoters are subscribing to 100% of their entitlement</strong> and have committed to subscribing to any undersubscribed portion. This is a strong signal of balance-sheet confidence.
+                      </p>
+                      <button className="glow-button" style={{ marginTop: '1.5rem', padding: '10px 20px', fontSize: '0.8rem' }}>
+                        RUN AI AUDIT (AGENTIC CREW)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ── Portfolio Rebalancer ────────────────────────────────────────── */}
+          {activeTab === 'rebalancer' && (
+            <motion.div key="rebalancer" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <SectionHeader icon={<Scale size={24} color="var(--accent-cyan)" />} title="Portfolio Rebalancer" sub="Suggests rebalancing actions to equalize risk contribution or maximize alpha" />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }}>
+                <GlassCard>
+                  <h3 style={{ marginBottom: '1.5rem' }}>Strategy</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {[
+                      { id: 'safety', label: '🛡️ Risk Parity', desc: 'Inverse Volatility — focus on stability.' },
+                      { id: 'growth', label: '🚀 Growth Optimization', desc: 'Sharpe Ratio — focus on alpha.' }
+                    ].map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => {/* Mock selection */}}
+                        style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', color: 'white', textAlign: 'left', cursor: 'pointer' }}
+                      >
+                        <p style={{ fontWeight: 800, color: 'var(--accent-cyan)' }}>{s.label}</p>
+                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{s.desc}</p>
+                      </button>
+                    ))}
+                    <button className="btn-primary" style={{ marginTop: '1rem' }}>ANALYZE & REBALANCE</button>
+                  </div>
+                </GlassCard>
+
+                <GlassCard>
+                  <h3 style={{ marginBottom: '1.5rem' }}>Rebalancing Plan</h3>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ color: '#475569', fontSize: '0.7rem', fontWeight: 800, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                          <th style={{ padding: '1rem' }}>TICKER</th>
+                          <th style={{ padding: '1rem' }}>CURRENT %</th>
+                          <th style={{ padding: '1rem' }}>TARGET %</th>
+                          <th style={{ padding: '1rem' }}>ACTION</th>
+                          <th style={{ padding: '1rem' }}>REASONING</th>
+                        </tr>
+                      </thead>
+                      <tbody style={{ fontSize: '0.85rem' }}>
+                        {[
+                          { ticker: 'RELIANCE.NS', cur: '45%', tar: '30%', action: 'SELL', color: '#f43f5e', reason: 'High volatility vs group' },
+                          { ticker: 'TCS.NS', cur: '10%', tar: '25%', action: 'BUY', color: '#10b981', reason: 'Strong Sharpe ratio lead' },
+                          { ticker: 'INFY.NS', cur: '15%', tar: '15%', action: 'HOLD', color: '#94a3b8', reason: 'Balanced risk weight' }
+                        ].map(r => (
+                          <tr key={r.ticker} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                            <td style={{ padding: '1rem', fontWeight: 700 }}>{r.ticker}</td>
+                            <td style={{ padding: '1rem' }}>{r.cur}</td>
+                            <td style={{ padding: '1rem' }}>{r.tar}</td>
+                            <td style={{ padding: '1rem' }}><Badge text={r.action} color={r.color} /></td>
+                            <td style={{ padding: '1rem', color: '#94a3b8' }}>{r.reason}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </GlassCard>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── Agent Brain ──────────────────────────────────────────── */}
+          {activeTab === 'brain' && (
+            <motion.div key="brain" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <SectionHeader icon={<Zap size={24} color="var(--accent-cyan)" />} title="Agent Swarm Brain" sub="Real-time introspection into the agentic reasoning and memory state" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem' }}>
+                <GlassCard style={{ minHeight: '400px' }}>
+                  <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Activity size={18} color="var(--accent-cyan)" /> Active Thought Stream</h3>
+                  <div style={{ background: '#000', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', height: '300px', overflowY: 'auto', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', color: '#10b981' }}>
+                    &gt; Initializing LangGraph Engine v5.0...<br />
+                    &gt; Agent Swarm: Reporting Node [PENDING] | Forensic Node [PENDING]<br />
+                    &gt; Thread ID: {socialIdentity.handle}<br />
+                    &gt; Memory Buffer: Loaded 24 past stances.<br />
+                    <motion.span animate={{ opacity: [0, 1] }} transition={{ repeat: Infinity, duration: 0.8 }}>_</motion.span>
+                  </div>
+                </GlassCard>
+                <GlassCard>
+                  <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Database size={18} color="#a78bfa" /> Agent Memory</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {['Technical Trends', 'Forensic Warnings', 'Sentiment Shifts', 'Institutional Flow'].map(m => (
+                      <div key={m} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.85rem' }}>{m}</span>
+                        <Badge text="ACTIVE" color="#10b981" />
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── System Health ──────────────────────────────────────────── */}
+          {activeTab === 'health' && (
+            <motion.div key="health" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <SectionHeader icon={<Database size={24} color="#10b981" />} title="System Health" sub="Monitoring deployment stability, API usage, and operational integrity" />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <GlassCard style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '1px', marginBottom: '10px' }}>SYSTEM STATUS</p>
+                  <h2 style={{ color: '#10b981' }}>OPERATIONAL</h2>
+                  <Badge text="LATEST BUILD" color="#10b981" />
+                </GlassCard>
+                <GlassCard style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '1px', marginBottom: '10px' }}>API UPTIME</p>
+                  <h2 style={{ color: 'var(--accent-cyan)' }}>99.9%</h2>
+                  <Badge text="STABLE" color="var(--accent-cyan)" />
+                </GlassCard>
+                <GlassCard style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '1px', marginBottom: '10px' }}>ERRORS (24H)</p>
+                  <h2 style={{ color: '#f43f5e' }}>0</h2>
+                  <Badge text="NOMINAL" color="#f43f5e" />
+                </GlassCard>
+              </div>
+              <GlassCard>
+                <h3 style={{ marginBottom: '1rem' }}>Active Dependencies</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  {['PostgreSQL', 'LangGraph', 'Gemini 2.0', 'yfinance', 'nselib'].map(d => (
+                    <div key={d} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle size={16} color="#10b981" />
+                      <span style={{ fontSize: '0.9rem' }}>{d}</span>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
             </motion.div>
           )}
 

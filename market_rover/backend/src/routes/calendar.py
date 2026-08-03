@@ -52,3 +52,37 @@ async def get_muhurtham_windows(year: int):
 async def get_seasonal_patterns():
     """Returns known Indian market seasonal performance patterns."""
     return {"patterns": SEASONAL_PATTERNS}
+
+
+@router.get("")
+async def get_unified_calendar():
+    """
+    Returns unified calendar list for the frontend calendar tab.
+    Converts Muhurtham windows and seasonal patterns into the 'calendar' array format.
+    """
+    try:
+        current_year = datetime.now().year
+        muhurthams = MUHURTHAM_WINDOWS.get(current_year, MUHURTHAM_WINDOWS.get(2026, []))
+
+        calendar_list = []
+
+        # Map Muhurtham windows to 'Buy' types
+        for m in muhurthams:
+            calendar_list.append({
+                "type": "Buy",
+                "event": m["name"],
+                "month": m["date"]
+            })
+
+        # Map Seasonal patterns to 'Accumulate' types
+        for s in SEASONAL_PATTERNS:
+            calendar_list.append({
+                "type": "Accumulate",
+                "event": s["season"],
+                "month": s["months"]
+            })
+
+        return {"calendar": calendar_list}
+    except Exception as e:
+        logger.error(f"get_unified_calendar failed: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})

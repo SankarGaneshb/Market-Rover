@@ -17,7 +17,7 @@ async def traditional_node(state: AgentState) -> dict:
     current_year = datetime.now().year
 
     # 1. Fetch Muhurtham Data
-    muhurtham_res = fetch_subha_muhurtham_tool(current_year)
+    muhurtham_res = fetch_subha_muhurtham_tool.run(year=current_year)
 
     # 2. Fundamental Scrub
     fundamental_results = []
