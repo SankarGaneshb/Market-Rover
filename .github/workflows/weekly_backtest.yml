@@ -44,7 +44,7 @@ jobs:
       run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
     - name: Commit Results
-      uses: stefanzweifel/git-auto-commit-action@v7
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "Data: Update weekly backtest registry and reports [skip ci]"
         file_pattern: data/backtest_registry.json backtest_summary.md reports/backtest_summary_*.md
