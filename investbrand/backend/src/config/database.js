@@ -5,9 +5,10 @@ let pool;
 
 async function initializePool() {
   const isProduction = process.env.NODE_ENV === 'production';
+  const isTest = process.env.NODE_ENV === 'test' || process.env.DB_NAME === 'investbrand_test';
   let config;
 
-  if (process.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL && !isTest) {
     logger.info('Initializing database connection via DATABASE_URL');
     config = {
       connectionString: process.env.DATABASE_URL,
