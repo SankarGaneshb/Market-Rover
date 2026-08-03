@@ -31,6 +31,8 @@ _RT_SUBS = [
     "rover_tools.ticker_resources",
     "rover_tools.analytics",
     "rover_tools.analytics.forensic_engine",
+    "rover_tools.forensic_tool",
+    "rover_tools.corporate_actions_tool",
 ]
 
 for _mod_name in _RT_SUBS:
@@ -59,5 +61,14 @@ _port.read_portfolio                 = MagicMock(return_value=[])
 _ticker = sys.modules["rover_tools.ticker_resources"]
 _ticker.NIFTY_50_SECTOR_MAP          = {}
 
+_analytics = sys.modules["rover_tools.analytics"]
+_analytics.AnalyzersUnified          = MagicMock()
+
 _forensic_pkg = sys.modules["rover_tools.analytics.forensic_engine"]
 _forensic_pkg.ForensicAnalyzer       = MagicMock()
+
+_forensic_tool = sys.modules["rover_tools.forensic_tool"]
+_forensic_tool.run_forensic_audit_tool = MagicMock()
+
+_corp_tool = sys.modules["rover_tools.corporate_actions_tool"]
+_corp_tool.fetch_shareholding_pattern_tool = MagicMock()

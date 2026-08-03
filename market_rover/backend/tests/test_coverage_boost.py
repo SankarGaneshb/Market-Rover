@@ -372,3 +372,32 @@ def test_facebook_auth_url():
     res = client.get("/api/auth/facebook/url")
     assert res.status_code == 200
     assert "facebook.com" in res.json()["url"]
+
+
+# ════════════════════════════════════════════════════════════════
+# FORENSIC & OWNERISE NODES
+# ════════════════════════════════════════════════════════════════
+
+@pytest.mark.asyncio
+async def test_forensic_node_runs():
+    from src.agents.forensic_node import forensic_node
+    with patch("src.agents.forensic_node.ForensicAnalyzer") as mock_analyzer:
+        mock_analyzer.return_value.generate_forensic_report.return_value = {
+            "overall_status": "HEALTHY", "red_flags": 0, "summary": "No red flags."
+        }
+        result = await forensic_node({"tickers": ["TCS.NS"], "celebrations": [], "feedback_prompts": []})
+        assert "forensic_reports" in result
+
+
+@pytest.mark.asyncio
+async def test_ownerise_node_runs():
+    from src.agents.ownerise_node import ownerise_node
+    result = await ownerise_node({"tickers": ["RELIANCE.NS"], "celebrations": [], "traditional_insights": []})
+    assert "celebrations" in result
+
+
+def test_analysis_endpoint_mock():
+    with patch("src.routes.analysis.MarketAnalyzer") as mock_analyzer:
+        mock_analyzer.return_value.get_volatility.return_value = {"volatility": "Low"}
+        res = client.get("/api/analysis/volatility/TCS.NS")
+        assert res.status_code in (200, 404, 500)

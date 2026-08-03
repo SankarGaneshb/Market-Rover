@@ -52,15 +52,15 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-asyncio pytest-cov
 
-      - name: Run backend tests with coverage gate (70%)
-        working-directory: market_rover/backend
-        run: |
-          pytest tests/ -v --tb=short
-
       - name: Sync Core Dependencies (for check and build)
         run: |
           cp agents.py config.py market_rover/
           cp -r rover_tools utils scripts market_rover/
+
+      - name: Run backend tests with coverage gate (70%)
+        working-directory: market_rover/backend
+        run: |
+          pytest tests/ -v --tb=short
 
       - name: Market-Rover Startup Integrity Check
         working-directory: market_rover/backend

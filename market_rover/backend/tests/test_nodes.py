@@ -52,7 +52,9 @@ async def test_sentiment_node_consensus(base_state):
 async def test_technical_node_triple_concordance(base_state):
     with patch("src.agents.technical_node.calculate_mtc_score_tool") as mock_mtc:
         with patch("src.agents.technical_node.detect_technical_patterns_tool") as mock_pat:
+            mock_mtc.run.return_value = "STRONG BUY CONCORDANCE [85/100]"
             mock_mtc.return_value = "STRONG BUY CONCORDANCE [85/100]"
+            mock_pat.run.return_value = "Cup and Handle detected."
             mock_pat.return_value = "Cup and Handle detected."
             result = await technical_node(base_state)
             assert result["technical_data"][0]["concordance"] == "Strong"
