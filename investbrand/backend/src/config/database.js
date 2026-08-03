@@ -158,7 +158,14 @@ async function runMigrations() {
     await client.query('CREATE TABLE IF NOT EXISTS share_clicks (id SERIAL PRIMARY KEY, promoter_id INTEGER REFERENCES users(id), clicked_at TIMESTAMPTZ DEFAULT NOW())');
 
     // 7. Financial Literacy & Agentic Framework Tables
-    try { await client.query('CREATE EXTENSION IF NOT EXISTS vector'); } catch (e) { logger.warn('Failed to ensure pgvector extension: ' + e.message); }
+    try {
+      await client.query('SAVEPOINT vector_sp');
+      await client.query('CREATE EXTENSION IF NOT EXISTS vector');
+      await client.query('RELEASE SAVEPOINT vector_sp');
+    } catch (e) {
+      try { await client.query('ROLLBACK TO SAVEPOINT vector_sp'); } catch (_) {}
+      logger.warn('Failed to ensure pgvector extension (swallowed for compatibility): ' + e.message);
+    }
     await client.query('CREATE TABLE IF NOT EXISTS user_missions (user_id INTEGER REFERENCES users(id), mission_id VARCHAR(50), progress INTEGER DEFAULT 0, is_completed BOOLEAN DEFAULT FALSE, completed_at TIMESTAMPTZ, PRIMARY KEY(user_id, mission_id))');
     await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS mission_def JSONB');
     await client.query('ALTER TABLE user_missions ADD COLUMN IF NOT EXISTS unlocked_reward VARCHAR(100)');
