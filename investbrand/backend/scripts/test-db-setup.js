@@ -16,9 +16,19 @@ async function setupTestDb() {
         database: 'postgres',
     });
 
-    try {
-        await client.connect();
-        console.log(`Connected to Postgres on ${host}:${port}`);
+    let connected = false;
+    let attempts = 0;
+    while (!connected && attempts < 10) {
+        attempts++;
+        try {
+            await client.connect();
+            connected = true;
+            console.log(`Connected to Postgres on ${host}:${port} (attempt ${attempts})`);
+        } catch (connErr) {
+            console.log(`Postgres not ready yet (attempt ${attempts}/10): ${connErr.message}. Retrying in 2s...`);
+            await new Promise(r => setTimeout(r, 2000));
+        }
+    }
 
         // Check if test db exists
         const res = await client.query("SELECT 1 FROM pg_database WHERE datname='investbrand_test'");
