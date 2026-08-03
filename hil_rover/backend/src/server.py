@@ -322,15 +322,102 @@ async def get_kpi_leaderboard():
         {"agent": "SRE Support",   "kpi": "SLA Governance",      "score": sre_score, "target": 95, "status": sre_status},
     ]
 
-# ── HIL Request queue (PostgreSQL-backed) ──────────────────────────────────────
+# ── Local SQLite Fallback Queue (High-Availability Circuit Breaker) ───────────
+import sqlite3
+
+FALLBACK_DB_PATH = os.environ.get("HIL_FALLBACK_DB", "/tmp/hil_fallback.db")
+
+def _init_sqlite_fallback():
+    """Ensure local SQLite fallback table exists."""
+    try:
+        os.makedirs(os.path.dirname(FALLBACK_DB_PATH), exist_ok=True)
+        with sqlite3.connect(FALLBACK_DB_PATH) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS hil_requests_fallback (
+                    id           TEXT PRIMARY KEY,
+                    agent_name   TEXT NOT NULL,
+                    task_name    TEXT NOT NULL,
+                    instructions TEXT,
+                    status       TEXT NOT NULL DEFAULT 'PENDING',
+                    decision     TEXT,
+                    comments     TEXT,
+                    data         TEXT,
+                    created_at   TEXT NOT NULL
+                )
+            """)
+    except Exception as e:
+        print(f"[HIL] Fallback DB init warning: {e}")
+
+def _save_to_sqlite_fallback(req_id, agent_name, task_name, instructions, status, data, created_at):
+    """Save request to local SQLite queue when PostgreSQL is offline."""
+    _init_sqlite_fallback()
+    try:
+        raw_data = json.dumps(data) if isinstance(data, (dict, list)) else data
+        c_at = created_at.isoformat() if hasattr(created_at, 'isoformat') else str(created_at)
+        with sqlite3.connect(FALLBACK_DB_PATH) as conn:
+            conn.execute("""
+                INSERT INTO hil_requests_fallback (id, agent_name, task_name, instructions, status, data, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET instructions=excluded.instructions, status=excluded.status
+            """, (req_id, agent_name, task_name, instructions, status, raw_data, c_at))
+        print(f"[HIL FALLBACK] Alert {req_id} stored in local SQLite fallback queue.")
+        return True
+    except Exception as e:
+        print(f"[HIL FALLBACK ERROR] Failed to store in SQLite fallback: {e}")
+        return False
+
+def _get_from_sqlite_fallback():
+    """Retrieve fallback items from local SQLite queue."""
+    _init_sqlite_fallback()
+    try:
+        with sqlite3.connect(FALLBACK_DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            rows = cursor.execute("SELECT * FROM hil_requests_fallback ORDER BY created_at DESC").fetchall()
+            return [dict(r) for r in rows]
+    except Exception:
+        return []
+
+async def _flush_fallback_queue():
+    """Periodically attempts to move offline SQLite fallback items into PostgreSQL when DB recovers."""
+    items = _get_from_sqlite_fallback()
+    if not items:
+        return
+    try:
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            for item in items:
+                await conn.execute("""
+                    INSERT INTO hil_requests
+                        (id, agent_name, task_name, instructions, status, data, created_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (id) DO NOTHING
+                """, item["id"], item["agent_name"], item["task_name"],
+                    item.get("instructions"), item.get("status", "PENDING"), item.get("data"),
+                    item.get("created_at"))
+                with sqlite3.connect(FALLBACK_DB_PATH) as sq_conn:
+                    sq_conn.execute("DELETE FROM hil_requests_fallback WHERE id=?", (item["id"],))
+            print(f"[HIL SYNC] Flushed {len(items)} offline alerts from SQLite to PostgreSQL!")
+    except Exception:
+        pass
 
 
 @app.get("/api/requests")
 async def get_all_requests():
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        rows = await conn.fetch("SELECT * FROM hil_requests ORDER BY created_at DESC")
-    return [_row_to_dict(r) for r in rows]
+    try:
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("SELECT * FROM hil_requests ORDER BY created_at DESC")
+        pg_items = [_row_to_dict(r) for r in rows]
+        fallback_items = _get_from_sqlite_fallback()
+        all_ids = {item["id"] for item in pg_items}
+        for fb in fallback_items:
+            if fb["id"] not in all_ids:
+                pg_items.append(fb)
+        return pg_items
+    except Exception as e:
+        print(f"[HIL WARNING] PostgreSQL offline ({e}). Serving requests from SQLite Fallback Store.")
+        return _get_from_sqlite_fallback()
 
 
 @app.post("/api/requests")
@@ -345,19 +432,25 @@ async def create_request(request: Request):
         created_at = datetime.now(timezone.utc)
         raw_data   = json.dumps(data.get("data")) if data.get("data") else None
 
-        pool = await get_pool()
-        async with pool.acquire() as conn:
-            await conn.execute("""
-                INSERT INTO hil_requests
-                    (id, agent_name, task_name, instructions, status, data, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-                ON CONFLICT (id) DO UPDATE SET
-                    status = EXCLUDED.status,
-                    instructions = EXCLUDED.instructions
-            """, req_id, data["agent_name"], data["task_name"],
-                data.get("instructions"), status, raw_data, created_at)
+        try:
+            pool = await get_pool()
+            async with pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO hil_requests
+                        (id, agent_name, task_name, instructions, status, data, created_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (id) DO UPDATE SET
+                        status = EXCLUDED.status,
+                        instructions = EXCLUDED.instructions
+                """, req_id, data["agent_name"], data["task_name"],
+                    data.get("instructions"), status, raw_data, created_at)
 
-        return {"status": "success", "id": req_id}
+            return {"status": "success", "id": req_id}
+        except Exception as db_err:
+            print(f"[HIL WARNING] PostgreSQL write failed ({db_err}). Switching to Local SQLite Fallback.")
+            _save_to_sqlite_fallback(req_id, data["agent_name"], data["task_name"], data.get("instructions"), status, raw_data, created_at)
+            return JSONResponse(status_code=202, content={"status": "queued_offline", "id": req_id, "note": "Saved to local fallback queue"})
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
