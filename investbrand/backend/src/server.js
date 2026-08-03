@@ -96,12 +96,7 @@ app.get('/api/health', (req, res) => {
 
 const startServer = async () => {
   try {
-    // 1. Initialize Database (Awaited to prevent race conditions)
-    await initializePool();
-    logger.info('Database pool and migrations initialized successfully');
-    isDbReady = true;
-
-    // 2. Start Listening
+    // 1. Start Listening FIRST to satisfy Cloud Run startup probes instantly
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`InvestBrand API explicitly listening on 0.0.0.0:${PORT}`);
       logger.info(`InvestBrand API live on port ${PORT}`, {
@@ -109,6 +104,17 @@ const startServer = async () => {
         port: PORT
       });
     });
+
+    // 2. Initialize Database pool asynchronously in background
+    initializePool()
+      .then(() => {
+        logger.info('Database pool and migrations initialized successfully');
+        isDbReady = true;
+      })
+      .catch((err) => {
+        logger.error('Database initialization failed:', { error: err.message, code: err.code });
+        dbError = err.message;
+      });
 
     // 3. Graceful Shutdown
     process.on('SIGTERM', () => {
@@ -126,7 +132,6 @@ const startServer = async () => {
       code: err.code
     });
     dbError = err.message;
-    // We exit in production to force Cloud Run to restart the container
     if (process.env.NODE_ENV === 'production') {
       process.exit(1);
     }
