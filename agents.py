@@ -50,23 +50,12 @@ except ImportError as e:
     # Define stubs for critical missing tools if needed, or rely on them being optional
     # For now, we assume most are needed but we'd rather warn than crash during collection.
 
-from config import MAX_ITERATIONS, GOOGLE_API_KEY
+from config import MAX_ITERATIONS, GOOGLE_API_KEY, PRIMARY_LLM_MODEL, FALLBACK_LLM_MODEL
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
 
 logger = get_logger(__name__)
-
-# ... (existing imports)
-
-# ...
-
-# ... (existing imports)
-
-# ...
-
-
-
 
 
 _flash_llm = None
@@ -75,7 +64,7 @@ _pro_llm = None
 def _create_llm(model_name: str, temp: float = 0.3):
     """Internal helper to create LLM instance."""
     if not GOOGLE_API_KEY:
-        logger.error("GOOGLE_API_KEY not found in environment variables.")
+        logger.error("GOOGLE_API_KEY not found in environment variables or Secret Manager.")
         raise ValueError("GOOGLE_API_KEY not found.")
 
     os.environ.setdefault("GOOGLE_API_KEY", GOOGLE_API_KEY)
@@ -84,39 +73,50 @@ def _create_llm(model_name: str, temp: float = 0.3):
     if "OPENAI_API_KEY" in os.environ:
         del os.environ["OPENAI_API_KEY"]
 
+    # CRITICAL: Force Google AI Studio endpoint and prevent accidental Vertex AI routing
+    os.environ.pop("VERTEXAI", None)
+    os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
+    os.environ.pop("GCP_PROJECT", None)
+
+    # Ensure model name format for CrewAI/LiteLLM
+    clean_model_name = model_name if model_name.startswith("gemini/") else f"gemini/{model_name}"
+
     try:
         return LLM(
-            model=f"gemini/{model_name}",
+            model=clean_model_name,
             temperature=temp,
             api_key=GOOGLE_API_KEY
         )
     except Exception as e:
-        logger.error(f"Failed to initialize Gemini LLM ({model_name}): {e}")
+        logger.error(f"Failed to initialize Gemini LLM ({clean_model_name}): {e}")
         track_error("llm_initialization")
         raise
 
 def get_flash_llm():
-    """Create and cache the Gemini Flash LLM (Fast, Low Latency)."""
+    """Create and cache the Gemini Flash LLM with Fallback Model Cascade."""
     global _flash_llm
     if _flash_llm is not None:
         return _flash_llm
-    # Primary model per rule #2.1
-    _flash_llm = _create_llm("gemini-3-flash-preview")
+    try:
+        _flash_llm = _create_llm(PRIMARY_LLM_MODEL)
+    except Exception as e:
+        logger.warning(f"Primary model ({PRIMARY_LLM_MODEL}) initialization failed ({e}). Falling back to {FALLBACK_LLM_MODEL}.")
+        _flash_llm = _create_llm(FALLBACK_LLM_MODEL)
     return _flash_llm
 
 def get_pro_llm():
-    """Create and cache the Gemini Pro LLM (Deep Reasoning)."""
+    """Create and cache the Gemini Pro LLM with Fallback Cascade."""
     global _pro_llm
     if _pro_llm is not None:
         return _pro_llm
-    # Using 1.5 Flash as higher-fidelity fallback for long-context tasks per rule #2.1
     try:
-        _pro_llm = _create_llm("gemini-3-flash-preview")
-    except:
-        _pro_llm = _create_llm("gemini-3-flash-preview")
+        _pro_llm = _create_llm(PRIMARY_LLM_MODEL)
+    except Exception as e:
+        logger.warning(f"Pro model ({PRIMARY_LLM_MODEL}) initialization failed ({e}). Falling back to {FALLBACK_LLM_MODEL}.")
+        _pro_llm = _create_llm(FALLBACK_LLM_MODEL)
     return _pro_llm
 
-# Legacy accessor for compatibility (mapped to Pro for safety)
+# Legacy accessor for compatibility
 get_gemini_llm = get_pro_llm
 
 
