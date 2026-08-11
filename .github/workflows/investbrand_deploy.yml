@@ -1,3 +1,11 @@
+# ==============================================================================
+# NOTE ON LOCAL IDE LINTING WARNINGS:
+# Local IDEs / extensions (like Red Hat YAML) may display warnings such as:
+# "Unable to resolve action '...', repository or version not found".
+# These warnings occur because local validators cannot query remote GitHub
+# Action repositories. They are safely ignorable and do not affect CI execution.
+# ==============================================================================
+
 name: Deploy investbrand
 
 on:
