@@ -3,14 +3,37 @@ Logging infrastructure for Market-Rover 2.0
 Provides structured logging with rotation and multiple log levels
 """
 import logging
+import os
 import sys
+import json
+import time
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
 
+class JSONCloudFormatter(logging.Formatter):
+    """Structured JSON Formatter for GCP Cloud Logging via stdout/stderr."""
+    def format(self, record: logging.LogRecord) -> str:
+        log_entry = {
+            "severity": record.levelname,
+            "timestamp": self.formatTime(record, self.datefmt),
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "filename": record.filename,
+            "lineno": record.lineno,
+        }
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_entry)
+
+
 # Create logs directory
 LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
+try:
+    LOG_DIR.mkdir(exist_ok=True)
+except Exception:
+    pass
 
 # Log configuration
 LOG_FORMAT = "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
@@ -23,46 +46,52 @@ BACKUP_COUNT = 7  # Keep 7 days of logs
 def get_logger(name: str = "market_rover") -> logging.Logger:
     """
     Get a configured logger instance.
-    
+    In Cloud Run (K_SERVICE set), outputs structured JSON directly to stdout for Cloud Logging ingest.
+
     Args:
         name: Logger name (usually __name__ from calling module)
-        
+
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger(name)
-    
+
     # Only configure if not already configured
     if not logger.handlers:
         logger.setLevel(logging.INFO)
-        
-        # Create formatter
-        formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-        
-        # Console handler
+
+        is_cloud_run = bool(os.getenv("K_SERVICE"))
+
+        # Console handler (JSON in Cloud Run, standard text in local dev)
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
+
+        if is_cloud_run:
+            console_handler.setFormatter(JSONCloudFormatter(datefmt="%Y-%m-%dT%H:%M:%SZ"))
+        else:
+            console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
+
         logger.addHandler(console_handler)
-        
-        # File handler with rotation
-        try:
-            file_handler = RotatingFileHandler(
-                LOG_FILE,
-                maxBytes=MAX_BYTES,
-                backupCount=BACKUP_COUNT,
-                encoding='utf-8'
-            )
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-        except Exception as e:
-            # If file logging fails (e.g., permissions), continue with console only
-            logger.warning(f"Could not create file handler: {e}")
-        
+
+        # File handler with rotation (only if not in Cloud Run or if writable)
+        if not is_cloud_run:
+            try:
+                file_handler = RotatingFileHandler(
+                    LOG_FILE,
+                    maxBytes=MAX_BYTES,
+                    backupCount=BACKUP_COUNT,
+                    encoding='utf-8'
+                )
+                file_handler.setLevel(logging.DEBUG)
+                file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
+                logger.addHandler(file_handler)
+            except Exception as e:
+                # If file logging fails (e.g., permissions), continue with console only
+                logger.warning(f"Could not create file handler: {e}")
+
         # Prevent propagation to root logger
         logger.propagate = False
-    
+
     return logger
 
 

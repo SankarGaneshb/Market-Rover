@@ -47,9 +47,9 @@ This document details the complete **High Level Design (HLD) System Architecture
 
 ### 4. AI Processing, Agents & Self-SRE
 * **Safety & Policy Layer**: Input sanitization, prompt injection detection, and Unicode/emoji scrubbing.
-* **Model Router**: Intelligently routes calls to **Gemini 3.0 Flash** or **Gemini 3 Flash Preview** based on context depth, speed requirements, and task complexity.
+* **Model Router**: Resilient LLM router with primary (`google-gemini-3.0-flash`) and fallback (`google-gemini-2.5-flash`) model cascade with exponential backoff and full jitter retries.
 * **10 Core LangGraph Agent Nodes**:
-  1. **Retrieval Node**: Symbol gatekeeper validating tickers and fetching historical OHLCV data via `yfinance`.
+  1. **Market Data Ingestion Node**: Symbol gatekeeper validating tickers, resolving `.NS`/`.BO` suffixes, and fetching historical OHLCV data via `yfinance`.
   2. **Strategy Node**: Macro-economic regime classifier (analyzing VIX, DXY, US 10Y Yields into Goldilocks/Panic regimes).
   3. **Sentiment Node**: Parses news articles via `Newspaper3k` and calculates fear/greed sentiment scores.
   4. **Technical Node**: Calculates Triple Concordance (MTC) and identifies key support/resistance levels.
@@ -75,8 +75,9 @@ This document details the complete **High Level Design (HLD) System Architecture
   * Technical Indicators & MTC calculator.
 * **Data & Storage**:
   * **Cloud SQL (PostgreSQL)**: Connected via Unix socket DSNs with `asyncio.Lock()` lazy loading to prevent `Errno 111` race conditions.
-  * `/reports` Directory: Permanent storage for generated JSON and Markdown research reports.
-  * `metrics/*.jsonl`: Structured crash logs (`errors_*.jsonl`), daily latency, and workflow metric streams.
+  * **GCP Secret Manager**: Dynamic runtime resolution of API keys (`GOOGLE_API_KEY`, DB DSNs) with fallback to mounted volume `/secrets/`.
+  * `/reports` Directory: Ephemeral/permanent storage for generated JSON and Markdown research reports.
+  * **Structured Cloud Logging**: Production stdout/stderr formatted as JSON logs for native GCP Cloud Logging ingestion.
 * **Federated Satellites**:
   * **HIL Rover**: Centralized SRE failure telemetry hub.
   * **Pledge-Rover**, **Investbrand**, **Ownerise**.
@@ -86,7 +87,7 @@ This document details the complete **High Level Design (HLD) System Architecture
 
 ### 6. Agent Performance Metrics & Observability
 * **Observability Metrics Engine**:
-  * `metrics/errors_YYYY-MM-DD.jsonl`: Structured JSON records capturing full stack traces, user variables, and agent execution states during failures.
+  * **Structured stdout Logs**: JSON log stream (`JSONCloudFormatter`) containing severity, timestamp, job IDs, and stack traces.
   * `metrics/metrics_YYYY-MM-DD.json`: Measures latency averages, token consumption, and daily API call volume.
   * `metrics/workflow_events_*.jsonl`: Logs high-level logic events (*Consistency Checks*, *Emergency Overrides*).
 * **HIL Mission Control Telemetry**: Real-time error rates, SRE alerts, and failure recovery metrics.
@@ -105,8 +106,11 @@ This document details the complete **High Level Design (HLD) System Architecture
 
 | Category | Component / Strategy | Description |
 | :--- | :--- | :--- |
+| **Security** | GCP Secret Manager | Dynamic key retrieval via IAM service accounts or `/secrets/` mounts. |
+| **Resilience** | Gemini Fallback Router | Primary (`gemini-3.0-flash`) -> Fallback (`gemini-2.5-flash`) cascade with jitter backoff. |
+| **Async Execution** | Cloud Tasks / Background Jobs | Decouples long-running batch scraper tasks to eliminate Cloud Run 504 timeouts. |
+| **Observability** | Structured stdout Logging | JSON stdout stream (`JSONCloudFormatter`) ingested directly into GCP Cloud Logging. |
 | **Self-SRE & Governance** | Self-SRE Support Agent | Intercepts runtime crashes, manages Dependabot PRs, auto-fixes CI regressions, and notifies HIL. |
-| **Observability** | `metrics/` & HIL Telemetry | Crash metrics with full stack traces, latency tracking, and workflow event streams. |
 | **Federated Satellite Mesh** | HIL, Pledge, Investbrand, Ownerise | Federated microservices reporting failure events to HIL Mission Control. |
 | **Performance** | The Batch Imperative | Enforces batch API calls across tickers instead of sequential iteration. |
 | **Database Resilience** | Lazy-Loading DB Connections | `asyncio.Lock()` lazy-loading eliminating `Errno 111` race conditions during secret injection. |
