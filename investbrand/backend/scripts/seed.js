@@ -6,6 +6,14 @@ const path = require('path');
 function getPool() {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  if (process.env.DATABASE_URL) {
+    console.log('[SEEDER] Connecting to database via DATABASE_URL');
+    return new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+  }
+
   if (isProduction) {
     const connName = process.env.CLOUD_SQL_CONNECTION_NAME;
     // Align with API's preference for IC_DB_* variables
