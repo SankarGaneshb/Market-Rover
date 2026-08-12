@@ -1,1 +1,1 @@
-# OwneRise Backend Module
+# Ownerise Backend Package

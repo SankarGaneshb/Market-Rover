@@ -1,0 +1,69 @@
+name: Deploy Unified Market-Rover App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: market-rover
+  REGION: us-central1
+  SERVICE_NAME: market-rover-app
+
+jobs:
+  deploy-unified:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Startup Integrity Check
+        run: |
+          python -c "import server; print('[OK] Unified server loaded successfully')"
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Push Unified Image (GCP Cloud Build)
+        run: |
+          gcloud builds submit . \
+            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Deploy Unified App to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},NODE_ENV=production,GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }},GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --timeout 300 \
+            --concurrency 80
+
+      - name: Auto-Purge Old Image Digests (Artifact Registry Storage Guard)
+        run: |
+          echo "Purging older container digests to keep Artifact Registry strictly under Free Tier limit..."
+          IMAGE_PATH="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}"
+
+          # Keep latest digest, delete older unreferenced digests
+          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" | tail -n +2 | while read -r digest; do
+            if [ -n "$digest" ]; then
+              echo "Deleting old digest: $digest"
+              gcloud container images delete "$IMAGE_PATH@$digest" --force-delete-tags --quiet || true
+            fi
+          done
+          echo "Registry cleanup complete. Storage usage optimal!"

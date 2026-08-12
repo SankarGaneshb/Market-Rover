@@ -1,5 +1,14 @@
-# Market-Rover Streamlit & CrewAI Dependencies
-# (Strictly isolated from Pledge Rover & InvestBrand APIs)
+# Market-Rover Unified Monolith Dependencies
+# (Core App, FastAPI Server, Satellite Rovers & CrewAI Engine)
+
+# Core Web Framework & Async Database
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+asyncpg>=0.29.0
+sqlalchemy[asyncio]>=2.0.30
+pg8000>=1.31.0
+pyjwt>=2.8.0
+passlib[bcrypt]>=1.7.4
 
 # Core App & AI Agents
 crewai>=1.7.2
@@ -8,7 +17,7 @@ langgraph~=1.1.4
 google-genai>=1.56.0
 langchain-google-genai~=4.2.0
 
-# Frontend UI
+# Frontend UI & Streamlit
 streamlit>=1.52.0
 streamlit-authenticator>=0.4.2
 streamlit-oauth>=0.1.11
