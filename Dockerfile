@@ -6,15 +6,15 @@ WORKDIR /app
 
 # Copy package files and build Market Rover Frontend
 COPY market_rover/frontend /app/market_rover/frontend
-RUN cd /app/market_rover/frontend && npm ci && npm run build
+RUN cd /app/market_rover/frontend && npm install --legacy-peer-deps && npm run build
 
 # Copy package files and build HIL Rover Frontend
 COPY hil_rover/frontend /app/hil_rover/frontend
-RUN cd /app/hil_rover/frontend && npm ci && npm run build
+RUN cd /app/hil_rover/frontend && npm install --legacy-peer-deps && npm run build
 
 # Copy package files and build InvestBrand Frontend
 COPY investbrand/frontend /app/investbrand/frontend
-RUN cd /app/investbrand/frontend && npm ci && npm run build
+RUN cd /app/investbrand/frontend && npm install --legacy-peer-deps && npm run build
 
 # Organize all compiled static bundles under /app/static
 RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbrand && \
