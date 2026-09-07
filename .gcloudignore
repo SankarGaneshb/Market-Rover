@@ -8,7 +8,8 @@
 htmlcov
 artifacts/
 assets/
-data/
+/data/
+!**/src/data/**
 *.log
 ci_log*.txt
 full_*.txt
