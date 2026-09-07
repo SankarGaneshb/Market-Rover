@@ -118,7 +118,12 @@ async def get_rights_chart(symbol: str):
 
     for dt, row in data.iterrows():
         d_str = dt.strftime("%Y-%m-%d")
-        last_price = round(float(row['Close']), 2)
+        close_raw = row['Close']
+            close_val = close_raw.iloc[0] if hasattr(close_raw, 'iloc') else (close_raw.values[0] if hasattr(close_raw, 'values') and hasattr(close_raw.values, '__len__') and len(close_raw.values) > 0 else close_raw)
+            try:
+                last_price = round(float(close_val), 2)
+            except Exception:
+                last_price = 0.0
         last_volume = int(row['Volume'])
         chart_data.append({
             "date": d_str,
