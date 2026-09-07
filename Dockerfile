@@ -1,7 +1,7 @@
 # ==============================================================================
 # Stage 1: Build Frontend Static Assets (React / Vite)
 # ==============================================================================
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 
 # Copy package files and build Market Rover Frontend
@@ -25,7 +25,7 @@ RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbr
 # ==============================================================================
 # Stage 2: Unified Production Python Application Runtime
 # ==============================================================================
-FROM python:3.11-slim AS runner
+FROM python:3.13-slim AS runner
 WORKDIR /app
 
 # Install system dependencies & curl for health checks
@@ -36,16 +36,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --compile -r requirements.txt && \
+    find /usr/local -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local -type f -name '*.pyc' -delete || true && \
+    find /usr/local -type f -name '*.pyo' -delete || true
 
 # Copy static frontend assets from Stage 1
 COPY --from=frontend-builder /app/static /app/static
 
-# Copy all application code
+# Copy application code
 COPY . /app
 
 # Ensure PYTHONPATH includes repo root and satellite module paths
-ENV PYTHONPATH="/app:/app/market_rover/backend:/app/pledge_rover/backend:/app/hil_rover/backend:/app/ownerise/backend"
+ENV PYTHONPATH="/app:/app/market_rover/backend"
 ENV PORT=8080
 
 EXPOSE 8080
