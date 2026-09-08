@@ -32,7 +32,7 @@ class DBManager:
                 try:
                     if dsn:
                         logger.info("Connecting to PostgreSQL using DSN...")
-                        self.pool = await asyncpg.create_pool(dsn=dsn)
+                        self.pool = await asyncpg.create_pool(dsn=dsn, command_timeout=5.0, timeout=5.0)
                     else:
                         host = f"/cloudsql/{conn_name}" if conn_name else db_host
                         logger.info(f"Connecting to PostgreSQL (Host: {host})...")
@@ -43,16 +43,18 @@ class DBManager:
                             database=db_name,
                             host=host,
                             port=int(db_port),
-                            min_size=5,
-                            max_size=20
+                            min_size=1,
+                            max_size=10,
+                            command_timeout=5.0,
+                            timeout=5.0
                         )
 
                     # GoA Standard: Ensure all tables are provisioned on first connection
                     await self._provision_tables()
                     logger.info(f"Successfully connected and provisioned PostgreSQL Pool ({ 'Socket' if conn_name else 'TCP' }).")
                 except Exception as e:
-                    logger.error(f"PostgreSQL Connection Error: {e}")
-                    raise
+                    logger.warning(f"PostgreSQL Connection skipped/failed: {e}")
+                    self.pool = None
 
     async def _provision_tables(self):
         """Ensures all required tables exist in the public schema."""
@@ -93,70 +95,108 @@ class DBManager:
 
     async def log_activity(self, user_handle: str, action: str, platform: str = "WEB"):
         """Logs user login/interaction events."""
+        if not self.pool:
+            return
         query = """
             INSERT INTO public.user_activity_log (user_id, action_type, platform)
             VALUES ($1, $2, $3)
         """
-        async with self.pool.acquire() as conn:
-            await conn.execute(query, user_handle, action, platform)
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute(query, user_handle, action, platform)
+        except Exception as e:
+            logger.warning(f"DB log_activity error: {e}")
 
     async def store_memory(self, user_handle: str, ticker: str, stance: str, logic: str):
         """Stores final analysis conclusion as Long-Term Memory (LTM)."""
+        if not self.pool:
+            return
         query = """
             INSERT INTO public.agent_memory_ltm (user_id, ticker, stance, logic_summary)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (user_id, ticker) DO UPDATE
             SET stance = $3, logic_summary = $4, analysis_date = CURRENT_TIMESTAMP
         """
-        async with self.pool.acquire() as conn:
-            await conn.execute(query, user_handle, ticker, stance, logic)
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute(query, user_handle, ticker, stance, logic)
+        except Exception as e:
+            logger.warning(f"DB store_memory error: {e}")
 
     async def get_memory(self, user_handle: str, ticker: str):
         """Retrieves the last known stance for the user/ticker pair."""
+        if not self.pool:
+            return None
         query = """
             SELECT stance, logic_summary, analysis_date
             FROM public.agent_memory_ltm
             WHERE user_id = $1 AND ticker = $2
             ORDER BY analysis_date DESC LIMIT 1
         """
-        async with self.pool.acquire() as conn:
-            return await conn.fetchrow(query, user_handle, ticker)
+        try:
+            async with self.pool.acquire() as conn:
+                return await conn.fetchrow(query, user_handle, ticker)
+        except Exception as e:
+            logger.warning(f"DB get_memory error: {e}")
+            return None
 
     async def record_share(self, user_handle: str, platform: str, content_type: str, reach: int = 1):
         """Tracks social engagement (WhatsApp/X/etc)."""
+        if not self.pool:
+            return
         query = """
             INSERT INTO public.social_shares (user_id, platform, content_type, recipient_count)
             VALUES ($1, $2, $3, $4)
         """
-        async with self.pool.acquire() as conn:
-            await conn.execute(query, user_handle, platform, content_type, reach)
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute(query, user_handle, platform, content_type, reach)
+        except Exception as e:
+            logger.warning(f"DB record_share error: {e}")
 
     async def set_user_persona(self, user_handle: str, persona: str):
         """Saves the user's investor persona (e.g., Hunter, Defender)."""
+        if not self.pool:
+            return
         query = """
             INSERT INTO public.user_profiles (user_id, persona, last_updated)
             VALUES ($1, $2, CURRENT_TIMESTAMP)
             ON CONFLICT (user_id) DO UPDATE SET persona = $2, last_updated = CURRENT_TIMESTAMP
         """
-        async with self.pool.acquire() as conn:
-            await conn.execute(query, user_handle, persona)
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute(query, user_handle, persona)
+        except Exception as e:
+            logger.warning(f"DB set_user_persona error: {e}")
 
     async def get_user_persona(self, user_handle: str):
         """Retrieves the investor persona."""
+        if not self.pool:
+            return None
         query = "SELECT persona FROM public.user_profiles WHERE user_id = $1"
-        async with self.pool.acquire() as conn:
-            return await conn.fetchval(query, user_handle)
+        try:
+            async with self.pool.acquire() as conn:
+                return await conn.fetchval(query, user_handle)
+        except Exception as e:
+            logger.warning(f"DB get_user_persona error: {e}")
+            return None
 
     async def get_forecast_history(self, user_handle: str):
         """Retrieves all historical analysis stances as a forecast tracker."""
+        if not self.pool:
+            return []
         query = """
             SELECT ticker, stance, logic_summary, analysis_date
             FROM public.agent_memory_ltm
             WHERE user_id = $1
             ORDER BY analysis_date DESC
         """
-        async with self.pool.acquire() as conn:
-            return await conn.fetch(query, user_handle)
+        try:
+            async with self.pool.acquire() as conn:
+                return await conn.fetch(query, user_handle)
+        except Exception as e:
+            logger.warning(f"DB get_forecast_history error: {e}")
+            return []
 
 # Global singleton
 db = DBManager()

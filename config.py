@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# CRITICAL: Force Google AI Studio endpoint and disable GCP Vertex AI billing fallback
+os.environ["GENAI_USE_VERTEXAI"] = "false"
+os.environ.pop("VERTEXAI", None)
+
 def get_secret(secret_name: str, default: str = "") -> str:
     """
     Fetch a secret from environment variables or GCP Secret Manager.
@@ -46,10 +50,17 @@ PROJECT_ROOT = Path(__file__).parent
 # API Keys (with Secret Manager resolution)
 GOOGLE_API_KEY = get_secret("GOOGLE_API_KEY", "")
 NEWS_API_KEY = get_secret("NEWS_API_KEY", "")
+VISMERA_SERVICE_KEY = get_secret("VISMERA_SERVICE_KEY", "")
+
+# Vismera Platform Integration Settings
+VISMERA_API_BASE_URL = os.getenv("VISMERA_API_BASE_URL", "https://dev.vismera.ai/api/v1")
+VISMERA_CLERK_ISSUER = os.getenv("VISMERA_CLERK_ISSUER", "https://clerk.dev.vismera.ai")
+VISMERA_ENABLED = os.getenv("VISMERA_ENABLED", "true").lower() == "true"
+MAX_AGENT_TOKENS_PER_RUN = int(os.getenv("MAX_AGENT_TOKENS_PER_RUN", "10000"))
 
 # LLM Resilience Models
-PRIMARY_LLM_MODEL = os.getenv("PRIMARY_LLM_MODEL", "google-gemini-3.0-flash")
-FALLBACK_LLM_MODEL = os.getenv("FALLBACK_LLM_MODEL", "google-gemini-2.5-flash")
+PRIMARY_LLM_MODEL = os.getenv("PRIMARY_LLM_MODEL", "gemini-2.5-flash")
+FALLBACK_LLM_MODEL = os.getenv("FALLBACK_LLM_MODEL", "gemini-2.5-flash")
 
 # System Settings
 MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))

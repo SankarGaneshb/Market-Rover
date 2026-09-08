@@ -10,16 +10,16 @@ Each sub-router handles a discrete domain:
   - heatmap : Monthly returns matrix via yfinance
 """
 from fastapi import APIRouter
-from src.routes.auth import router as auth_router
-from src.routes.analyze import router as analyze_router
-from src.routes.profile import router as profile_router
-from src.routes.forecast import router as forecast_router
-from src.routes.shadow import router as shadow_router
-from src.routes.calendar import router as calendar_router
-from src.routes.heatmap import router as heatmap_router
-from src.routes.analysis import router as analysis_router
+from .auth import router as auth_router
+from .analyze import router as analyze_router
+from .profile import router as profile_router
+from .forecast import router as forecast_router
+from .shadow import router as shadow_router
+from .calendar import router as calendar_router
+from .heatmap import router as heatmap_router
+from .analysis import router as analysis_router
 from ownerise.backend.router import router as ownerise_router
-from src.routes.snapshot import router as snapshot_router
+from .snapshot import router as snapshot_router
 
 router = APIRouter()
 router.include_router(auth_router,    prefix="/auth",     tags=["Authentication"])

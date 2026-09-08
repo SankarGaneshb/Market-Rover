@@ -78,14 +78,16 @@ def _create_llm(model_name: str, temp: float = 0.3):
     os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
     os.environ.pop("GCP_PROJECT", None)
 
-    # Ensure model name format for CrewAI/LiteLLM
-    clean_model_name = model_name if model_name.startswith("gemini/") else f"gemini/{model_name}"
+    # Ensure model name format for CrewAI native Gemini provider (gemini/gemini-2.5-flash)
+    clean_name = model_name.replace("google-", "")
+    clean_model_name = clean_name if clean_name.startswith("gemini/") else f"gemini/{clean_name}"
 
     try:
         return LLM(
             model=clean_model_name,
             temperature=temp,
-            api_key=GOOGLE_API_KEY
+            api_key=GOOGLE_API_KEY,
+            rpm_limit=10
         )
     except Exception as e:
         logger.error(f"Failed to initialize Gemini LLM ({clean_model_name}): {e}")
@@ -120,6 +122,25 @@ def get_pro_llm():
 get_gemini_llm = get_pro_llm
 
 
+def ensure_crewai_tools(tools_list):
+    """Ensure all tools passed to CrewAI Agent are valid BaseTool instances or @tool decorated."""
+    valid_tools = []
+    for t in tools_list:
+        if t is None:
+            continue
+        if hasattr(t, "name") or hasattr(t, "_run") or type(t).__name__ in ("StructuredTool", "Tool", "BaseTool"):
+            valid_tools.append(t)
+        elif callable(t):
+            try:
+                from crewai.tools import tool
+                valid_tools.append(tool(t))
+            except Exception:
+                valid_tools.append(t)
+        else:
+            valid_tools.append(t)
+    return valid_tools
+
+
 def create_portfolio_manager_agent():
     """Agent A: Portfolio Manager (Low Complexity -> Flash)"""
     llm = get_flash_llm()
@@ -131,7 +152,7 @@ def create_portfolio_manager_agent():
             "stock holdings. You ensure all stock symbols are properly formatted "
             "with NSE suffixes (.NS) and validate the data integrity."
         ),
-        tools=[read_portfolio, calculate_portfolio_risk_tool],
+        tools=ensure_crewai_tools([read_portfolio, calculate_portfolio_risk_tool]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
@@ -156,7 +177,7 @@ def create_news_scraper_agent():
             "before they hit the stock price. You follow the 'Governance Heartbeat' protocol but with an "
             "elite layer of macro-causality. You tell the team what the 'vibe' of the market is, and why."
         ),
-        tools=[
+        tools=ensure_crewai_tools([
             search_market_news,
             get_global_cues,
             get_corporate_actions,
@@ -167,7 +188,7 @@ def create_news_scraper_agent():
             check_accounting_fraud,
             fetch_economic_calendar_tool,
             calculate_portfolio_risk_tool # Re-added for cross-functional support
-        ],
+        ]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
@@ -191,7 +212,7 @@ def create_sentiment_analyzer_agent():
             "their emotion (Fear/Greed). You flag 'Hype' vs 'Panic'. Your output feeds "
             "into the Shadow Analyst to detect contrarian traps."
         ),
-        tools=[analyze_retail_sentiment_tool],  # Uses LLM reasoning and retail sentiment tool
+        tools=ensure_crewai_tools([analyze_retail_sentiment_tool]),  # Uses LLM reasoning and retail sentiment tool
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
         allow_delegation=False,
@@ -215,12 +236,12 @@ def create_market_context_agent():
             "Footprints'—zones with the highest volume (POC)—rather than just lines on a chart. "
             "You provide the 'Structural High Ground' for the team, filtering out 90% of retail noise."
         ),
-        tools=[
+        tools=ensure_crewai_tools([
             analyze_market_context,
             batch_get_stock_data,
             detect_technical_patterns_tool,
             calculate_mtc_score_tool # NEW ELITE SKILL
-        ],
+        ]),
         verbose=True,
         max_iter=3,
         allow_delegation=False,
@@ -240,7 +261,7 @@ def create_report_generator_agent():
             "combining Strategy, Technicals, and Shadow Alerts into a cohesive narrative. "
             "You highlight 'Silent Accumulation' or 'Bull Traps' identified by the team."
         ),
-        tools=[fetch_historical_context_tool],
+        tools=ensure_crewai_tools([fetch_historical_context_tool]),
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
         allow_delegation=False,
@@ -265,7 +286,7 @@ def create_shadow_analyst_agent():
             "will force a squeeze. You are the ultimate contrarian brain of the team, "
             "trained to see the 'Shadow' behind the price action."
         ),
-        tools=[
+        tools=ensure_crewai_tools([
             analyze_sector_flow_tool,
             fetch_block_deals_tool,
             batch_detect_accumulation,
@@ -276,7 +297,7 @@ def create_shadow_analyst_agent():
             fetch_fii_dii_flow_tool,
             fetch_options_skew_tool,         # NEW ELITE SKILL
             detect_institutional_absorption_tool # NEW ELITE SKILL
-        ],
+        ]),
         verbose=True,
         max_iter=5, # Strict limit to prevent loops
         allow_delegation=False,
@@ -297,7 +318,7 @@ def create_visualizer_agent():
             "Call Writers are running away. If data is missing, you gracefully fall back "
             "to Historical Volatility."
         ),
-        tools=[generate_market_snapshot, generate_sector_heatmap_tool],
+        tools=ensure_crewai_tools([generate_market_snapshot, generate_sector_heatmap_tool]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
         allow_delegation=False,
@@ -334,7 +355,7 @@ def create_traditional_timing_agent():
             "surges on certain Nakshatras or festivals (Akshaya Tritiya, Dhanteras). You provide the cultural 'When' "
             "to the broader strategy, advising if today is an auspicious day for sector-specific accumulation."
         ),
-        tools=[fetch_subha_muhurtham_tool, analyze_traditional_calendar_tool],
+        tools=ensure_crewai_tools([fetch_subha_muhurtham_tool, analyze_traditional_calendar_tool]),
         verbose=True,
         max_iter=3,
         allow_delegation=False,
@@ -358,7 +379,7 @@ def create_sre_support_agent():
             "When the system is breathing heavy, you use the 'propose_system_remediation' "
             "tool to ask the Human-In-The-Loop for a mission-critical fix."
         ),
-        tools=[propose_system_remediation],
+        tools=ensure_crewai_tools([propose_system_remediation]),
         verbose=True,
         max_iter=3,
         allow_delegation=False,

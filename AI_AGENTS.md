@@ -35,14 +35,14 @@ graph TD
 ## 🕵️ Headless Execution (Automated Governance)
 Beyond user interaction, the **Strategist** and **SRE Agents** maintain the system autonomously through:
 1.  **Daily Market Intelligence**: Automated logic posting to GitHub Discussions.
-2.  **Federated Satellite Monitoring**: Real-time failure alerts from **Investbrand** and **Pledge-Rover** sent to the HIL Dashboard.
+2.  **Unified Container Health Monitoring**: Real-time failure alerts across all integrated modules (**Market Rover**, **Investbrand**, **Pledge-Rover**, **OwneRise**, **HIL Rover**) sent to the central HIL Dashboard.
 
 ---
 
-## 🕵️ Agent Roster (Core & Satellite)
+## 🕵️ Agent Roster (Core & Integrated Modules)
 
 ### 1-10. Core Analysis Crew (LangGraph Nodes)
-*Orchestrated by Gemini 3-Flash-Preview and LangGraph (FastAPI v5 Backend).* [OK]
+*Orchestrated by Gemini 3-Flash-Preview and LangGraph (FastAPI v5 Backend in Unified Container).* [OK]
 
 1.  **Retrieval Node**: The Gatekeeper. Validates symbols, fetches historical data via `yfinance`, and initializes global state.
 2.  **Strategy Node**: The Macro-Economist. Maps global cues (VIX, DXY, Yields) to the **Quadratic Regime** (Goldilocks/Panic).
@@ -55,8 +55,8 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 9.  **Shadow Node**: The Forensic Detective. Merges all parallel inputs to detect **Institutional Bull/Bear Traps**.
 10. **Reporting Node**: The Intelligence Officer. Conducts final synthesis, generates Markdown reports, and appends **Feedback**.
 
-### 11-13. Satellite & SRE Crew
-*Orchestrated by Gemini 3-Flash-Preview and Node.js.*
+### 11-13. Integrated Modules & SRE Crew
+*Orchestrated by Gemini 3-Flash-Preview and Unified FastAPI Server (`server.py`).*
 *   **Investbrand Puzzle Agent**: Generates the "Brand to Stock" gamified challenges.
 *   **Adaptive Teacher**: Contextualizes gameplay with micro-learning insights.
 *   **Operational SRE Support**: Intercepts runtime exceptions, manages **Dependabot Governance**, and routes critical failures to the **HIL Mission Control**.
@@ -79,22 +79,22 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *   **Rule**: Fail gracefully. Fallback from Option Chains to Historical Volatility if data is missing.
 
 ### 5. The Production Standard
-*   **Rule**: Primary Brain must be **Gemini 3-Flash-Preview**. Verify UTF-8 compliance and Python 3.13 compatibility across ALL modules (including Satellite Dockerfiles) before every push.
+*   **Rule**: Primary Brain must be **Gemini 3-Flash-Preview**. Verify UTF-8 compliance and Python 3.11/3.13 compatibility across ALL integrated modules and the root `Dockerfile` before every push.
 
 ### 6. The Unicode Scrub Rule
 *Rule*: **No emojis** in `.github/workflows/`, `Dockerfile`, or `.env`. Use standard text markers like `[OK]` or `[ALERT]`.
 
 ### 7. Global Integrity Check
-*Rule*: All changes to infrastructure or satellite modules MUST pass `python scripts/build_integrity_check.py`.
+*Rule*: All changes to infrastructure or integrated modules MUST pass `python scripts/build_integrity_check.py`.
 
 ### 7. The Multi-Provider Social Governance Shield
 *   **Rule**: Maintain **Open Access** while protecting the UI.
 *   **Reason**: Clients should never see technical provider errors (e.g. "Invalid App ID").
 *   **Implementation**: If a provider uses a placeholder ID, the **Social Manager Shield** must intercept and show a friendly internal warning.
 
-### 8. The Federated Satellite Rule
-*   **Rule**: Every satellite module (Investbrand, Pledge-Rover) MUST report failures to the central HIL Dashboard.
-*   **Reason**: Eliminates "Silent Failures" and ensures total system transparency.
+### 8. The Unified Telemetry Rule
+*   **Rule**: Every integrated module (Investbrand, Pledge-Rover, OwneRise) MUST report failures to the central HIL Dashboard within the unified container.
+*   **Reason**: Eliminates "Silent Failures" and ensures total system transparency across all integrated sub-routes.
 
 ### 9. The Cloud SQL DSN Standard
 *   **Rule**: Avoid top-level `Connector()` instantiation. Use manual, socket-based DSN construction.

@@ -25,6 +25,7 @@ from agents import AgentFactory
 from tasks import TaskFactory
 from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY
 from typing import Optional, Callable
+import asyncio
 
 # Structured logging and metrics
 from utils.logger import logger
@@ -34,26 +35,26 @@ from utils.retry import retry_operation
 
 class MarketRoverCrew:
     """Market-Rover 2.0 intelligence crew with parallel execution."""
-    
-    def __init__(self, max_parallel_stocks: Optional[int] = None, 
+
+    def __init__(self, max_parallel_stocks: Optional[int] = None,
                  progress_callback: Optional[Callable] = None):
         """
         Initialize the crew with all agents and tasks.
-        
+
         Args:
             max_parallel_stocks: Maximum number of stocks to process in parallel (default: from config)
             progress_callback: Optional callback function for progress updates (percentage, stock_name, status)
         """
         # Create all agents
         self.agents = AgentFactory.create_all_agents()
-        
+
         # Create all tasks with dependencies
         self.tasks = TaskFactory.create_all_tasks(self.agents)
-        
+
         # Set parallel execution parameters
         self.max_parallel_stocks = max_parallel_stocks or MAX_PARALLEL_STOCKS
         self.progress_callback = progress_callback
-        
+
         # Create the crew
         self.crew = Crew(
             agents=list(self.agents.values()),
@@ -63,35 +64,84 @@ class MarketRoverCrew:
             max_rpm=20,  # Rate limiting for API calls
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
         )
-    
+
     @retry_operation(max_retries=3, delay=5.0, exceptions=(ValueError, Exception))
     def run(self):
         """
         Execute the Market-Rover 2.0 workflow with parallel stock processing.
-        
+
         Returns:
             Final report from the crew
         """
         logger.info("🚀 Starting Market-Rover 2.0 Intelligence Analysis...")
         logger.info(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
         logger.info("%s", "=" * 60)
-        
+
         session_id = track_workflow_start("Market Analysis")
-        
+
+        # Vismera Telemetry Hook: WORKFLOW_START
         try:
-            # Kick off the crew (parallel processing handled within tasks)
-            result = self.crew.kickoff()
+            from rover_tools.vismera_client import log_telemetry_event
+            log_telemetry_event(
+                event_type="WORKFLOW_START",
+                agent_name="MarketRoverCrew",
+                session_id=str(session_id),
+                payload={"max_parallel_stocks": self.max_parallel_stocks, "num_agents": len(self.agents)}
+            )
+        except Exception:
+            logger.debug("Vismera start telemetry hook skipped")
+
+        try:
+            # Check if an event loop is already running (e.g. inside FastAPI / ASGI)
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                import concurrent.futures
+                def _run_async_kickoff(crew_instance):
+                    return asyncio.run(crew_instance.kickoff_async())
+
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    result = executor.submit(_run_async_kickoff, self.crew).result()
+            else:
+                result = self.crew.kickoff()
 
             logger.info("%s", "\n" + "=" * 60)
             logger.info("✅ Analysis Complete!")
 
             track_workflow_end(session_id, "success")
+
+            # Vismera Telemetry Hook: WORKFLOW_END
+            try:
+                log_telemetry_event(
+                    event_type="WORKFLOW_END",
+                    agent_name="MarketRoverCrew",
+                    session_id=str(session_id),
+                    payload={"status": "success"}
+                )
+            except Exception:
+                logger.debug("Vismera end telemetry hook skipped")
+
             return result
 
         except Exception as e:
             # Log & persist detailed error information for daily triage
             logger.exception("Error during crew execution: %s", str(e))
             track_workflow_end(session_id, "failed")
+
+            # Vismera Telemetry Hook: ERROR
+            try:
+                log_telemetry_event(
+                    event_type="ERROR",
+                    agent_name="MarketRoverCrew",
+                    session_id=str(session_id),
+                    payload={"error": str(e), "status": "failed"}
+                )
+            except Exception:
+                logger.debug("Vismera error telemetry hook skipped")
+
             try:
                 track_error_detail(
                     error_type="CrewExecutionError",
@@ -106,7 +156,83 @@ class MarketRoverCrew:
             except Exception:
                 logger.debug("Failed to persist crew error detail")
             raise
-    
+
+    async def run_async(self):
+        """
+        Execute the Market-Rover 2.0 workflow asynchronously inside an active asyncio event loop.
+
+        Returns:
+            Final report from the crew
+        """
+        logger.info("🚀 Starting Market-Rover 2.0 Intelligence Analysis (Async)...")
+        logger.info(f"⚡ Parallel Mode: Processing up to {self.max_parallel_stocks} stocks concurrently")
+        logger.info("%s", "=" * 60)
+
+        session_id = track_workflow_start("Market Analysis")
+
+        # Vismera Telemetry Hook: WORKFLOW_START
+        try:
+            from rover_tools.vismera_client import log_telemetry_event
+            log_telemetry_event(
+                event_type="WORKFLOW_START",
+                agent_name="MarketRoverCrew",
+                session_id=str(session_id),
+                payload={"max_parallel_stocks": self.max_parallel_stocks, "num_agents": len(self.agents)}
+            )
+        except Exception:
+            logger.debug("Vismera start telemetry hook skipped")
+
+        try:
+            # Kick off the crew asynchronously
+            result = await self.crew.kickoff_async()
+
+            logger.info("%s", "\n" + "=" * 60)
+            logger.info("✅ Analysis Complete!")
+
+            track_workflow_end(session_id, "success")
+
+            # Vismera Telemetry Hook: WORKFLOW_END
+            try:
+                log_telemetry_event(
+                    event_type="WORKFLOW_END",
+                    agent_name="MarketRoverCrew",
+                    session_id=str(session_id),
+                    payload={"status": "success"}
+                )
+            except Exception:
+                logger.debug("Vismera end telemetry hook skipped")
+
+            return result
+
+        except Exception as e:
+            logger.exception("Error during crew execution: %s", str(e))
+            track_workflow_end(session_id, "failed")
+
+            try:
+                log_telemetry_event(
+                    event_type="ERROR",
+                    agent_name="MarketRoverCrew",
+                    session_id=str(session_id),
+                    payload={"error": str(e), "status": "failed"}
+                )
+            except Exception:
+                logger.debug("Vismera error telemetry hook skipped")
+
+            try:
+                track_error_detail(
+                    error_type="CrewExecutionError",
+                    message=str(e),
+                    context={
+                        'max_parallel_stocks': self.max_parallel_stocks,
+                        'num_agents': len(self.agents),
+                        'session_id': session_id
+                    },
+                    user_id=None,
+                )
+            except Exception:
+                logger.debug("Failed to persist crew error detail")
+            raise
+
     def get_crew_info(self):
         """Get information about the crew composition."""
         info = {
@@ -121,14 +247,14 @@ class MarketRoverCrew:
         return info
 
 
-def create_crew(max_parallel_stocks: Optional[int] = None, 
+def create_crew(max_parallel_stocks: Optional[int] = None,
                 progress_callback: Optional[Callable] = None):
     """Factory function to create a new MarketRoverCrew instance.
-    
+
     Args:
         max_parallel_stocks: Maximum number of stocks to process in parallel
         progress_callback: Optional callback for progress updates
-        
+
     Returns:
         MarketRoverCrew instance configured for parallel execution
     """

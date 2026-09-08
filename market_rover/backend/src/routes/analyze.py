@@ -8,7 +8,7 @@ import asyncio
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from src.market_rover_graph import create_market_rover_graph
 from src.utils.logger import get_logger
 from src.utils.db_manager import db
@@ -24,7 +24,7 @@ active_tasks = {}
 
 class AnalysisRequest(BaseModel):
     tickers: List[str]
-    discoverable_handle: str
+    discoverable_handle: Optional[str] = "vismera_user"
 
 
 @router.post("")
