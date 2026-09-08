@@ -59,8 +59,8 @@ jobs:
           echo "Purging older container digests to keep Artifact Registry strictly under Free Tier limit..."
           IMAGE_PATH="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}"
 
-          # Keep latest digest, delete older unreferenced digests
-          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" | tail -n +2 | while read -r digest; do
+          # Keep strictly 1 latest digest, delete all older unreferenced digests
+          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" --sort-by="~TIMESTAMP" | tail -n +2 | while read -r digest; do
             if [ -n "$digest" ]; then
               echo "Deleting old digest: $digest"
               gcloud container images delete "$IMAGE_PATH@$digest" --force-delete-tags --quiet || true

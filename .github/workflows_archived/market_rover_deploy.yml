@@ -135,6 +135,17 @@ jobs:
             --timeout 300 \
             --concurrency 80
 
+      - name: Auto-Purge Old Image Digests (Artifact Registry Storage Guard)
+        run: |
+          echo "Purging older container digests..."
+          IMAGE_PATH="gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}"
+          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" --sort-by="~TIMESTAMP" | tail -n +2 | while read -r digest; do
+            if [ -n "$digest" ]; then
+              echo "Deleting old digest: $digest"
+              gcloud container images delete "$IMAGE_PATH@$digest" --force-delete-tags --quiet || true
+            fi
+          done
+
       - name: Notify HIL on Success
         if: success()
         run: |
