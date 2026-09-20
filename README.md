@@ -435,10 +435,22 @@ authorize_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
 token_endpoint = "https://oauth2.googleapis.com/token"
 user_info_endpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
 redirect_uri = "https://market-rover.streamlit.app"
-icon = "google"
+scope = "openid email profile"
 ```
 
-#### 2. X (Twitter) Login
+#### 2. GitHub Login
+```toml
+[oauth.github]
+client_id = "your-github-client-id"
+client_secret = "your-github-client-secret"
+authorize_endpoint = "https://github.com/login/oauth/authorize"
+token_endpoint = "https://github.com/login/oauth/access_token"
+user_info_endpoint = "https://api.github.com/user"
+redirect_uri = "https://market-rover.streamlit.app"
+scope = "read:user user:email"
+```
+
+#### 3. X (Twitter) Login
 ```toml
 [oauth.x]
 client_id = "your-x-client-id"
@@ -448,21 +460,6 @@ token_endpoint = "https://api.twitter.com/2/oauth2/token"
 user_info_endpoint = "https://api.twitter.com/2/users/me"
 redirect_uri = "https://market-rover.streamlit.app"
 scope = "users.read tweet.read openid email"
-icon = "twitter"
-```
-
-#### 3. Facebook & Instagram Login
-```toml
-[oauth.facebook]
-client_id = "your-fb-app-id"
-client_secret = "your-fb-app-secret"
-authorize_endpoint = "https://www.facebook.com/v12.0/dialog/oauth"
-token_endpoint = "https://graph.facebook.com/v12.0/oauth/access_token"
-user_info_endpoint = "https://graph.facebook.com/me"
-user_info_params = { fields = "id,name,email" }
-redirect_uri = "https://market-rover.streamlit.app"
-scope = "email,public_profile"
-icon = "facebook"
 ```
 
 #### 4. LinkedIn Login
@@ -472,14 +469,25 @@ client_id = "your-linkedin-id"
 client_secret = "your-linkedin-secret"
 authorize_endpoint = "https://www.linkedin.com/oauth/v2/authorization"
 token_endpoint = "https://www.linkedin.com/oauth/v2/accessToken"
-user_info_endpoint = "https://api.linkedin.com/v2/me"
+user_info_endpoint = "https://api.linkedin.com/v2/userinfo"
 redirect_uri = "https://market-rover.streamlit.app"
-scope = "r_liteprofile r_emailaddress"
-icon = "link"
+scope = "openid profile email"
+```
+
+#### 5. Facebook Login
+```toml
+[oauth.facebook]
+client_id = "your-fb-app-id"
+client_secret = "your-fb-app-secret"
+authorize_endpoint = "https://www.facebook.com/v12.0/dialog/oauth"
+token_endpoint = "https://graph.facebook.com/v12.0/oauth/access_token"
+user_info_endpoint = "https://graph.facebook.com/me"
+redirect_uri = "https://market-rover.streamlit.app"
+scope = "email,public_profile"
 ```
 
 > [!NOTE]
-> **WhatsApp Login**: For WhatsApp, we recommend using the **Meta Login** (Facebook) as it integrates with the Meta identity ecosystem. Direct "Login with WhatsApp" buttons typically require a Meta Business Account and a third-party bridge or specialized API.
+> **WhatsApp & Meta Login**: For WhatsApp, we recommend using Meta Login (Facebook) as it integrates with the Meta identity ecosystem. Direct "Login with WhatsApp" buttons typically require a Meta Business Account.
 
 ---
 

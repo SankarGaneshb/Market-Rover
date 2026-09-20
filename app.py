@@ -190,6 +190,11 @@ def main():
         **AI Stock Intelligence**
         Your personal quant researcher.
         """)
+        about_col1, about_col2 = st.columns(2)
+        with about_col1:
+            st.link_button("⭐ GitHub", "https://github.com/SankarGaneshb/Market-Rover", use_container_width=True, help="Visit the Market-Rover GitHub repository")
+        with about_col2:
+            st.link_button("𝕏 Updates", "https://x.com/search?q=%23MarketRover&f=live", use_container_width=True, help="Explore #MarketRover on X")
         st.markdown("---")
         st.header("📍 Navigation") # NAVIGATION
         # User Profile Status Check

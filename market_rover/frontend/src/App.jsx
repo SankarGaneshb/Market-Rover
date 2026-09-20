@@ -383,6 +383,7 @@ const App = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[
               { id: 'Google',   icon: <Globe size={20} />, color: '#ea4335' },
+              { id: 'GitHub',   icon: <span style={{ fontWeight: 900, fontSize: '1.1rem' }}>GH</span>, color: '#f0f6fc' },
               { id: 'X',        icon: <span style={{ fontWeight: 900, fontSize: '1.2rem' }}>X</span>, color: '#fff' },
               { id: 'LinkedIn', icon: <span style={{ fontWeight: 900 }}>in</span>, color: '#0077b5' },
               { id: 'Facebook', icon: <span style={{ fontWeight: 900 }}>f</span>, color: '#1877f2' }

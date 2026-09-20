@@ -56,6 +56,26 @@ def test_auth_callback_dev_bypass():
     assert data["provider"] == "Social Hub"
 
 
+def test_auth_redirect_uri_helpers():
+    from src.routes.auth import get_redirect_uri
+    from starlette.requests import Request
+
+    with patch.dict(os.environ, {"GOOGLE_REDIRECT_URI": ""}):
+        # Request with custom host
+        req = Request({"type": "http", "headers": [(b"host", b"custom.run.app"), (b"x-forwarded-proto", b"https")]})
+        assert "custom.run.app" in get_redirect_uri(req)
+
+        # Request with localhost
+        req_local = Request({"type": "http", "headers": [(b"host", b"localhost:8000")]})
+        assert "market-rover-app" in get_redirect_uri(req_local)
+
+    # With GOOGLE_REDIRECT_URI env var explicitly set
+    with patch.dict(os.environ, {"GOOGLE_REDIRECT_URI": "https://custom-redirect.com"}):
+        req_dummy = Request({"type": "http", "headers": []})
+        assert get_redirect_uri(req_dummy) == "https://custom-redirect.com"
+
+
+
 # ════════════════════════════════════════════════════════════════
 # FORECAST ROUTES  (src/routes/forecast.py)
 # ════════════════════════════════════════════════════════════════
@@ -368,10 +388,43 @@ def test_linkedin_auth_url():
     assert "linkedin.com" in res.json()["url"]
 
 
+def test_github_auth_url():
+    res = client.get("/api/auth/github/url")
+    assert res.status_code == 200
+    assert "github.com" in res.json()["url"]
+
+
 def test_facebook_auth_url():
     res = client.get("/api/auth/facebook/url")
     assert res.status_code == 200
     assert "facebook.com" in res.json()["url"]
+
+
+def test_provider_callbacks_dev_bypass():
+    for prov in ["github", "x", "linkedin", "facebook"]:
+        res = client.post(f"/api/auth/{prov}/callback", json={"code": "mock_code"})
+        assert res.status_code == 200
+        assert "handle" in res.json()
+
+    for prov in ["github", "x", "linkedin", "facebook"]:
+        res = client.post(f"/api/auth/{prov}/callback", json={})
+        assert res.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_auth_callbacks_token_error():
+    with patch("httpx.AsyncClient.post") as mock_post:
+        mock_post.return_value = MagicMock(json=MagicMock(return_value={"error": "invalid_grant", "error_description": "Bad code"}))
+        res = client.post("/api/auth/google/callback", json={"code": "bad_code"})
+        assert res.status_code == 400
+        assert "error" in res.json()
+
+        res_gh = client.post("/api/auth/github/callback", json={"code": "bad_code"})
+        assert res_gh.status_code == 400
+        assert "error" in res_gh.json()
+
+
+
 
 
 # ════════════════════════════════════════════════════════════════

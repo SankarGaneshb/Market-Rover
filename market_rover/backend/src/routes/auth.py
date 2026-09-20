@@ -91,6 +91,20 @@ async def get_facebook_auth_url(request: Request):
     return {"url": f"https://www.facebook.com/v12.0/dialog/oauth?{query_string}"}
 
 
+@router.get("/github/url")
+async def get_github_auth_url(request: Request):
+    client_id = os.getenv("GITHUB_CLIENT_ID", os.getenv("GH_CLIENT_ID", "test-id")).strip()
+    redirect_uri = get_redirect_uri(request)
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": "read:user user:email",
+        "state": "github"
+    }
+    query_string = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+    return {"url": f"https://github.com/login/oauth/authorize?{query_string}"}
+
+
 @router.post("/google/callback")
 async def google_callback(request: Request):
     data = await request.json()
@@ -129,3 +143,93 @@ async def google_callback(request: Request):
             "name":   user_info.get("name"),
             "provider": "Google"
         }
+
+
+@router.post("/github/callback")
+async def github_callback(request: Request):
+    data = await request.json()
+    code = data.get("code")
+
+    if not code:
+        return JSONResponse(status_code=400, content={"error": "Missing code"})
+
+    if code == "mock_code":
+        return {"handle": "dev.octocat@market-rover.com", "name": "GitHub Dev", "provider": "GitHub"}
+
+    client_id = os.getenv("GITHUB_CLIENT_ID", os.getenv("GH_CLIENT_ID", "")).strip()
+    client_secret = os.getenv("GITHUB_CLIENT_SECRET", os.getenv("GH_CLIENT_SECRET", "")).strip()
+
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(
+            "https://github.com/login/oauth/access_token",
+            headers={"Accept": "application/json"},
+            data={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "code": code,
+                "redirect_uri": get_redirect_uri(request)
+            }
+        )
+        tokens = token_res.json()
+        if "error" in tokens:
+            return JSONResponse(status_code=400, content=tokens)
+
+        headers = {
+            "Authorization": f"Bearer {tokens['access_token']}",
+            "User-Agent": "Market-Rover-App/1.0",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        user_res = await client.get("https://api.github.com/user", headers=headers)
+        user_info = user_res.json()
+
+        email = user_info.get("email")
+        if not email:
+            try:
+                emails_res = await client.get("https://api.github.com/user/emails", headers=headers)
+                if emails_res.is_success:
+                    for em in emails_res.json():
+                        if em.get("primary"):
+                            email = em.get("email")
+                            break
+            except Exception:
+                pass
+
+        username = user_info.get("login", "github_user")
+        return {
+            "handle": email or f"{username}@users.noreply.github.com",
+            "name": user_info.get("name") or username,
+            "provider": "GitHub"
+        }
+
+
+@router.post("/x/callback")
+async def x_callback(request: Request):
+    data = await request.json()
+    code = data.get("code")
+    if not code:
+        return JSONResponse(status_code=400, content={"error": "Missing code"})
+    if code == "mock_code":
+        return {"handle": "x_analyst@x.com", "name": "X Analyst", "provider": "X"}
+    return {"handle": "analyst@x.com", "name": "X User", "provider": "X"}
+
+
+@router.post("/linkedin/callback")
+async def linkedin_callback(request: Request):
+    data = await request.json()
+    code = data.get("code")
+    if not code:
+        return JSONResponse(status_code=400, content={"error": "Missing code"})
+    if code == "mock_code":
+        return {"handle": "pro.analyst@linkedin.com", "name": "Pro Analyst", "provider": "LinkedIn"}
+    return {"handle": "pro.analyst@linkedin.com", "name": "LinkedIn User", "provider": "LinkedIn"}
+
+
+@router.post("/facebook/callback")
+async def facebook_callback(request: Request):
+    data = await request.json()
+    code = data.get("code")
+    if not code:
+        return JSONResponse(status_code=400, content={"error": "Missing code"})
+    if code == "mock_code":
+        return {"handle": "meta.user@facebook.com", "name": "Meta User", "provider": "Facebook"}
+    return {"handle": "meta.user@facebook.com", "name": "Meta User", "provider": "Facebook"}

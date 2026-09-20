@@ -9,8 +9,14 @@ def mock_modules():
     mock_st = MagicMock()
     # Ensure nested mocks return MagicMocks to prevent attribute errors
     mock_st.sidebar = MagicMock()
-    mock_st.columns.return_value = [MagicMock(), MagicMock(), MagicMock()]
-    
+    def mock_cols(spec, *args, **kwargs):
+        if isinstance(spec, int):
+            return [MagicMock() for _ in range(spec)]
+        elif isinstance(spec, (list, tuple)):
+            return [MagicMock() for _ in range(len(spec))]
+        return [MagicMock(), MagicMock(), MagicMock()]
+    mock_st.columns.side_effect = mock_cols
+
     # Custom Session State that supports both attribute and item access
     class MockSessionState(dict):
         def __getattr__(self, key):
@@ -20,10 +26,10 @@ def mock_modules():
                 raise AttributeError(key)
         def __setattr__(self, key, value):
             self[key] = value
-            
+
     mock_st.session_state = MockSessionState({
         'job_manager': MagicMock(),
-        'current_job_id': None, 
+        'current_job_id': None,
         'analysis_complete': False,
         'test_mode': False,
         'heatmap_limiter': MagicMock(),
@@ -31,7 +37,7 @@ def mock_modules():
         'username': 'test_user',
         'show_balloons': False
     })
-    
+
     # Mock mocks for all used modules
     mocks = {
         'streamlit': mock_st,
@@ -58,7 +64,7 @@ def mock_modules():
         'tabs.brain_tab': MagicMock(),
         'tabs.trading_calendar_tab': MagicMock(),
     }
-    
+
     # Apply patches
     with patch.dict(sys.modules, mocks):
         yield mocks
@@ -71,36 +77,36 @@ def test_app_main_logic(mock_modules):
         importlib.reload(app)
     else:
         import app
-        
+
     mock_st = mock_modules['streamlit']
-    
+
     # Test 1: Auth Fail
     # Setup AuthManager mock
     auth_mgr = mock_modules['utils.auth'].AuthManager.return_value
     auth_mgr.check_authentication.return_value = False
-    
+
     app.main()
-    
+
     mock_st.stop.assert_called()
     mock_st.stop.reset_mock()
-    
+
     # Test 2: Auth Success + Market Analysis
     auth_mgr.check_authentication.return_value = True
     mock_st.radio.return_value = "🔍 Market Analysis"
     mock_st.session_state['nav_selection'] = "🔍 Market Analysis"
-    
+
     app.main()
-    
+
     mock_modules['tabs.market_analysis_tab'].show_market_analysis_tab.assert_called()
-    
+
     # Test 3: Auth Success + Portfolio Analysis
     mock_st.radio.return_value = "📤 Portfolio Analysis"
     mock_st.session_state['nav_selection'] = "📤 Portfolio Analysis"
-    
+
     app.main()
-    
+
     mock_modules['tabs.portfolio_tab'].show_portfolio_analysis_tab.assert_called()
-    
+
     # Test 4: Balloons
     mock_st.session_state['show_balloons'] = True
     app.main()
