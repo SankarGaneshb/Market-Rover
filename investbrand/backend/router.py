@@ -12,9 +12,10 @@ from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from fastapi import APIRouter, Request, HTTPException, Depends, Header
+from fastapi import APIRouter, Request, HTTPException, Depends, Header, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from .duel_manager import duel_manager
 
 logger = logging.getLogger("market_rover.investbrand")
 
@@ -609,3 +610,165 @@ async def social_login(payload: SocialLoginPayload):
             "total_score": 250
         }
     }
+
+
+# ── Bull vs Bear (1v1 Real-Time Duel) Endpoints ────────────────────────────────
+
+class CreateDuelPayload(BaseModel):
+    name: str = "Bull Trader"
+    avatar: str = ""
+    difficulty: str = "easy"
+
+class JoinDuelPayload(BaseModel):
+    roomCode: str
+    name: str = "Bear Trader"
+    avatar: str = ""
+
+class QuickMatchPayload(BaseModel):
+    name: str = "Trader"
+    avatar: str = ""
+
+@router.post("/puzzles/duel/create")
+async def create_duel_room(payload: CreateDuelPayload):
+    """Create a new Bull vs Bear 1v1 Arena."""
+    room_code, player_id = await duel_manager.create_room(
+        host_name=payload.name,
+        host_avatar=payload.avatar,
+        difficulty=payload.difficulty
+    )
+    room = duel_manager.rooms.get(room_code)
+    return {
+        "success": True,
+        "roomCode": room_code,
+        "playerId": player_id,
+        "room": room.to_summary() if room else None
+    }
+
+@router.post("/puzzles/duel/join")
+async def join_duel_room(payload: JoinDuelPayload):
+    """Join an existing 1v1 Arena."""
+    room, player_id, err = await duel_manager.join_room(
+        room_code=payload.roomCode,
+        player_name=payload.name,
+        player_avatar=payload.avatar
+    )
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+
+    # Broadcast opponent joined event to host
+    await duel_manager.broadcast_to_room(payload.roomCode.upper(), {
+        "type": "OPPONENT_JOINED",
+        "room": room.to_summary(),
+        "newPlayer": room.players[player_id].to_dict()
+    })
+
+    return {
+        "success": True,
+        "roomCode": payload.roomCode.upper(),
+        "playerId": player_id,
+        "room": room.to_summary()
+    }
+
+@router.post("/puzzles/duel/quick-match")
+async def quick_match_duel(payload: QuickMatchPayload):
+    """Instant matchmaking queue for Bull vs Bear."""
+    room_code, player_id, matched = await duel_manager.get_or_create_quick_match(
+        player_name=payload.name,
+        player_avatar=payload.avatar
+    )
+    room = duel_manager.rooms.get(room_code)
+    if matched and room:
+        await duel_manager.broadcast_to_room(room_code, {
+            "type": "OPPONENT_JOINED",
+            "room": room.to_summary(),
+            "newPlayer": room.players[player_id].to_dict()
+        })
+
+    return {
+        "success": True,
+        "roomCode": room_code,
+        "playerId": player_id,
+        "matched": matched,
+        "room": room.to_summary() if room else None
+    }
+
+@router.get("/puzzles/duel/room/{room_code}")
+async def get_duel_room_status(room_code: str):
+    """Get active status of a duel room."""
+    room = duel_manager.rooms.get(room_code.upper())
+    if not room:
+        raise HTTPException(status_code=404, detail="Duel Arena not found.")
+    return room.to_summary()
+
+@router.websocket("/ws/duel/{room_code}")
+async def websocket_duel_endpoint(websocket: WebSocket, room_code: str):
+    """Real-time duplex communication channel for 1v1 Bull vs Bear duels."""
+    await websocket.accept()
+    room_code = room_code.upper().strip()
+    player_id = websocket.query_params.get("playerId")
+
+    if not player_id:
+        # Fallback: find by connection or disconnect
+        await websocket.send_json({"type": "ERROR", "message": "Missing playerId in query params."})
+        await websocket.close()
+        return
+
+    attached = await duel_manager.attach_websocket(room_code, player_id, websocket)
+    if not attached:
+        logger.warning(f"[DuelWS] Room {room_code} or Player {player_id} not found for WS attach.")
+        # Send error and allow re-sync
+        await websocket.send_json({"type": "ERROR", "message": "Player session expired or not registered in room."})
+        await websocket.close()
+        return
+
+    logger.info(f"[DuelWS] Player {player_id} connected to room {room_code}")
+    room = duel_manager.rooms.get(room_code)
+    if room:
+        await websocket.send_json({
+            "type": "CONNECTED",
+            "room": room.to_summary()
+        })
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = json.loads(data)
+            except Exception:
+                continue
+
+            msg_type = msg.get("type")
+
+            if msg_type == "READY":
+                await duel_manager.handle_player_ready(room_code, player_id)
+
+            elif msg_type == "MOVE_UPDATE":
+                solved_count = msg.get("solvedCount", 0)
+                clue_idx = msg.get("currentClueIdx", 1)
+                moves = msg.get("moves", 0)
+                await duel_manager.handle_move_update(room_code, player_id, solved_count, clue_idx, moves)
+
+            elif msg_type == "SUBMIT_GUESS":
+                guess_text = msg.get("guess", "")
+                res = await duel_manager.handle_guess(room_code, player_id, guess_text)
+                await websocket.send_json({
+                    "type": "GUESS_RESPONSE",
+                    **res
+                })
+
+            elif msg_type == "REACTION":
+                emoji = msg.get("emoji", "🚀")
+                await duel_manager.handle_reaction(room_code, player_id, emoji)
+
+            elif msg_type == "REMATCH":
+                await duel_manager.handle_rematch(room_code, player_id)
+
+            elif msg_type == "PING":
+                await websocket.send_json({"type": "PONG"})
+
+    except WebSocketDisconnect:
+        logger.info(f"[DuelWS] Player {player_id} disconnected from {room_code}")
+        await duel_manager.handle_disconnect(room_code, player_id)
+    except Exception as e:
+        logger.warning(f"[DuelWS] Error in room {room_code} loop: {e}")
+        await duel_manager.handle_disconnect(room_code, player_id)

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Play, User, LogOut, TrendingUp, Calendar, Target, HelpCircle, Menu, X, Facebook, Linkedin, Github } from 'lucide-react';
+import { Trophy, Play, User, LogOut, TrendingUp, Calendar, Target, HelpCircle, Menu, X, Facebook, Linkedin, Github, Swords } from 'lucide-react';
 import OnboardingModal from './OnboardingModal';
 
 export default function Navbar({ googleClientId }) {
@@ -39,6 +39,7 @@ export default function Navbar({ googleClientId }) {
 
         <div className="hidden md:flex items-center gap-6">
           <Link to="/play" className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"><Play size={14} />Play</Link>
+          <Link to="/duel" className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition-colors bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Swords size={14} />Bull vs Bear</Link>
           <Link to="/leaderboard" className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"><Trophy size={14} />Leaderboard</Link>
           <Link to="/vote" className="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"><Calendar size={14} />Vote</Link>
           {user && (
@@ -124,6 +125,16 @@ export default function Navbar({ googleClientId }) {
                 <Play size={20} />
               </div>
               Play Brand Recall
+            </Link>
+            <Link
+              to="/duel"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-xl text-emerald-300 hover:text-white flex items-center gap-4 p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl transition-all active:scale-[0.98]"
+            >
+              <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                <Swords size={20} />
+              </div>
+              Bull vs Bear (1v1 Arena)
             </Link>
             <Link
               to="/leaderboard"

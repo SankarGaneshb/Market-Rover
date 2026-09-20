@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Play, TrendingUp, Facebook, Linkedin, Github } from 'lucide-react';
+import { Play, TrendingUp, Facebook, Linkedin, Github, Swords } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
 export default function Home({ googleClientId }) {
@@ -43,18 +43,27 @@ export default function Home({ googleClientId }) {
         <p className="text-slate-400 text-lg mb-12 max-w-lg mx-auto leading-relaxed">The ultimate brand intelligence challenge. Solve puzzles, decode market signals, and master the art of identification.</p>
 
         <div className="flex flex-col items-center gap-6">
-          <button
-            onClick={async () => {
-              if (user) {
-                navigate('/play');
-              } else {
-                await handleSocialLogin('guest');
-              }
-            }}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black px-12 py-5 rounded-[2rem] transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-3 transform hover:scale-105 active:scale-95"
-          >
-            {user ? "Continue Journey →" : <><Play size={24} fill="currentColor" /> Play Now (Instant Access)</>}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            <button
+              onClick={async () => {
+                if (user) {
+                  navigate('/play');
+                } else {
+                  await handleSocialLogin('guest');
+                }
+              }}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-lg font-black px-8 py-4 rounded-[2rem] transition-all shadow-xl shadow-indigo-600/40 flex items-center justify-center gap-3 transform hover:scale-105 active:scale-95"
+            >
+              {user ? "Solo Journey →" : <><Play size={20} fill="currentColor" /> Solo Play</>}
+            </button>
+
+            <button
+              onClick={() => navigate('/duel')}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-lg font-black px-8 py-4 rounded-[2rem] transition-all shadow-xl shadow-emerald-600/40 flex items-center justify-center gap-3 transform hover:scale-105 active:scale-95 border border-emerald-400/30"
+            >
+              <Swords size={20} /> Bull vs Bear (1v1 Arena)
+            </button>
+          </div>
 
           {!user && (
             <div id="social-access" className="mt-8 bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md animate-in zoom-in-95 duration-500">

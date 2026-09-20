@@ -10,6 +10,7 @@ import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Vote from './pages/Vote';
 import MissionsTab from './components/MissionsTab';
+import Duel from './pages/Duel';
 
 function PromoterTracker() {
   const location = useLocation();
@@ -98,6 +99,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home googleClientId={activeClientId} />} />
             <Route path="/play" element={<PrivateRoute><Puzzle /></PrivateRoute>} />
+            <Route path="/duel" element={<Duel />} />
+            <Route path="/duel/:roomCode" element={<Duel />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/vote" element={<PrivateRoute><Vote /></PrivateRoute>} />
             <Route path="/missions" element={<PrivateRoute><MissionsTab /></PrivateRoute>} />

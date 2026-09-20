@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/investbrand/static/css/main.4777b8bb.css",
-    "main.js": "/investbrand/static/js/main.2f8cc34b.js",
+    "main.css": "/investbrand/static/css/main.4632e731.css",
+    "main.js": "/investbrand/static/js/main.fc517198.js",
     "index.html": "/investbrand/index.html",
-    "main.4777b8bb.css.map": "/investbrand/static/css/main.4777b8bb.css.map",
-    "main.2f8cc34b.js.map": "/investbrand/static/js/main.2f8cc34b.js.map"
+    "main.4632e731.css.map": "/investbrand/static/css/main.4632e731.css.map",
+    "main.fc517198.js.map": "/investbrand/static/js/main.fc517198.js.map"
   },
   "entrypoints": [
-    "static/css/main.4777b8bb.css",
-    "static/js/main.2f8cc34b.js"
+    "static/css/main.4632e731.css",
+    "static/js/main.fc517198.js"
   ]
 }
