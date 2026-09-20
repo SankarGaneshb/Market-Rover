@@ -24,6 +24,9 @@ jest.mock('lucide-react', () => ({
     Award: () => <div data-testid="icon-award" />,
     TrendingUp: () => <div data-testid="icon-trending" />,
     Lightbulb: () => <div data-testid="icon-lightbulb" />,
+    Check: () => <div data-testid="icon-check" />,
+    Sparkles: () => <div data-testid="icon-sparkles" />,
+    HelpCircle: () => <div data-testid="icon-help" />,
 }));
 
 const mockUser = {

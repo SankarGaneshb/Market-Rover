@@ -220,6 +220,19 @@ async def get_puzzle_clues(puzzle_id: int):
     company = brand.get("company", "")
     ticker = brand.get("ticker", "")
 
+    sector_clouds = {
+        "Energy": "Refining, Jio, Petrochemicals, Oil, Solar, Cash Flow",
+        "IT": "Software, Cloud, AI, Consulting, Digital, Global",
+        "Financials": "Banking, Credit, Deposits, Wealth, Capital, Lending",
+        "Consumer Goods": "FMCG, Brands, Retail, Distribution, Packaging, Household",
+        "Automobile": "EV, Engines, Trucks, Passenger, Mobility, Assembly",
+        "Pharma": "Healthcare, Formulations, API, Labs, Medicine, Biotech",
+        "Metals": "Steel, Aluminium, Mining, Smelting, Infrastructure",
+        "Telecom": "5G, Data, Towers, Bandwidth, Broadband, ARPU",
+        "Power": "Thermal, Hydro, Grid, Renewable, Transmission"
+    }
+    word_cloud = sector_clouds.get(sector, "Growth, Value, Quality, Moat, Market Leader")
+
     clue1 = f"Sector Clue: Operating in the {sector} sector with significant Indian market presence."
     clue2 = f"Word Clue: {len(b_name)} letters, starts with '{b_name[0].upper() if b_name else '?'}'."
     clue3 = f"Stock Clue: Owned by {company} (Ticker: {ticker}), traded on the NSE/BSE."
@@ -230,7 +243,10 @@ async def get_puzzle_clues(puzzle_id: int):
         "clues": {
             "clue1": clue1,
             "clue2": clue2,
-            "clue3": clue3
+            "clue3": clue3,
+            "wordCloud": word_cloud,
+            "logoSvg": brand.get("logoSvg", ""),
+            "logoUrl": brand.get("logoUrl", "")
         }
     }
 
@@ -252,18 +268,26 @@ async def evaluate_puzzle_guess(puzzle_id: int, payload: GuessPayload):
     )
 
     if is_correct:
+        msg = f"Spot on! You correctly identified {brand.get('brand')}."
         return {
+            "success": True,
             "correct": True,
+            "isCorrect": True,
             "brand": brand.get("brand"),
             "company": brand.get("company"),
             "ticker": brand.get("ticker"),
             "score": 100,
-            "message": f"Spot on! You correctly identified {brand.get('brand')}."
+            "message": msg,
+            "feedback": msg
         }
     else:
+        msg = "Not quite! Try checking the sector and word clues again."
         return {
+            "success": True,
             "correct": False,
-            "message": "Not quite! Try using one of the progressive clues."
+            "isCorrect": False,
+            "message": msg,
+            "feedback": msg
         }
 
 @router.post("/puzzles/{puzzle_id}/complete")
