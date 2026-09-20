@@ -539,6 +539,14 @@ async def get_user_profile():
 async def get_user_sessions():
     return _MEMORY_SESSIONS
 
+@router.get("/auth/config")
+async def get_auth_config():
+    """Returns runtime authentication configuration (e.g. Google Client ID)."""
+    client_id = (os.getenv("IC_GOOGLE_CLIENT_ID") or os.getenv("GOOGLE_CLIENT_ID") or "").strip()
+    return {
+        "googleClientId": client_id
+    }
+
 @router.get("/auth/me")
 async def get_auth_me():
     return {

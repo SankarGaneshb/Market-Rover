@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Play, TrendingUp, Facebook, Linkedin, Github } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
-export default function Home() {
+export default function Home({ googleClientId }) {
   const { user, login } = useAuth();
   const navigate = useNavigate();
 
@@ -65,17 +65,26 @@ export default function Home() {
               </h3>
 
               <div className="flex flex-col gap-4">
-                {/* Primary: Google One-Tap */}
-                <div className="w-full flex justify-center transform transition-transform hover:scale-[1.02]">
-                  <GoogleLogin
-                    onSuccess={(r) => handleSocialLogin('google', r.credential)}
-                    onError={() => alert('Access Configuration Error')}
-                    theme="filled_blue"
-                    shape="pill"
-                    width="320"
-                    text="continue_with"
-                  />
-                </div>
+                {/* Primary: Google One-Tap or Instant Explorer */}
+                {googleClientId ? (
+                  <div className="w-full flex justify-center transform transition-transform hover:scale-[1.02]">
+                    <GoogleLogin
+                      onSuccess={(r) => handleSocialLogin('google', r.credential)}
+                      onError={() => alert('Google Sign-In requires your domain to be whitelisted in Google Cloud Console.')}
+                      theme="filled_blue"
+                      shape="pill"
+                      width="320"
+                      text="continue_with"
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleSocialLogin('guest')}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold py-3 px-6 rounded-full flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-indigo-500/20"
+                  >
+                    ⚡ Continue as Explorer
+                  </button>
+                )}
 
                 {/* Secondary Providers Grid */}
                 <div className="grid grid-cols-3 gap-3">

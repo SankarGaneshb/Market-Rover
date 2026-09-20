@@ -38,31 +38,44 @@ function PrivateRoute({ children }) {
 }
 
 export default function App() {
-  const envId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  const GOOGLE_CLIENT_ID = (envId && envId !== "undefined" && envId !== "null" && envId.trim() !== "")
-    ? envId
-    : '';
+  const [googleClientId, setGoogleClientId] = React.useState(process.env.REACT_APP_GOOGLE_CLIENT_ID || '');
 
-  if (!envId || envId === "undefined" || envId === "null" || envId.trim() === "") {
-    console.warn("WARNING: REACT_APP_GOOGLE_CLIENT_ID is missing or invalid. Using safety fallback ID.");
+  React.useEffect(() => {
+    if (!googleClientId) {
+      axios.get('/api/auth/config')
+        .then(res => {
+          if (res.data?.googleClientId) {
+            setGoogleClientId(res.data.googleClientId);
+          }
+        })
+        .catch(err => console.warn('Could not load auth config:', err.message));
+    }
+  }, [googleClientId]);
+
+  const appContent = (
+    <AuthProvider>
+      <BrowserRouter basename={process.env.PUBLIC_URL || '/investbrand'}>
+        <PromoterTracker />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home googleClientId={googleClientId} />} />
+          <Route path="/play" element={<PrivateRoute><Puzzle /></PrivateRoute>} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/vote" element={<PrivateRoute><Vote /></PrivateRoute>} />
+          <Route path="/missions" element={<PrivateRoute><MissionsTab /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+
+  if (googleClientId && googleClientId.trim() !== '') {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {appContent}
+      </GoogleOAuthProvider>
+    );
   }
 
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <BrowserRouter basename={process.env.PUBLIC_URL || '/investbrand'}>
-          <PromoterTracker />
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/play" element={<PrivateRoute><Puzzle /></PrivateRoute>} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/vote" element={<PrivateRoute><Vote /></PrivateRoute>} />
-            <Route path="/missions" element={<PrivateRoute><MissionsTab /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </GoogleOAuthProvider>
-  );
+  return appContent;
 }
