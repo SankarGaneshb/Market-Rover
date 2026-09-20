@@ -165,16 +165,28 @@ async def health_check():
     }
 
 @router.get("/puzzles/daily")
-async def get_daily_puzzle():
-    """Fetch the active puzzle for today."""
+async def get_daily_puzzle(brand_id: Optional[int] = None, ticker: Optional[str] = None):
+    """Fetch the active puzzle for today, supporting optional ticker/brand override for testing."""
     today = get_ist_date()
     pool = await get_db_pool()
 
     brand = None
     selection_method = "lucky_draw"
 
-    # Check for votes first
-    if pool:
+    # 1. Check if user requested a specific ticker or brand_id for testing
+    if ticker:
+        for b in NIFTY50_BRANDS:
+            if b.get("ticker", "").upper() == ticker.upper() or b.get("brand", "").lower() == ticker.lower():
+                brand = b
+                selection_method = "featured_sample"
+                break
+    elif brand_id:
+        brand = get_brand_by_id(brand_id)
+        if brand:
+            selection_method = "featured_sample"
+
+    # 2. Check for community votes first if not overridden
+    if not brand and pool:
         try:
             async with pool.acquire() as conn:
                 vote_row = await conn.fetchrow(
@@ -189,23 +201,23 @@ async def get_daily_puzzle():
         except Exception as e:
             logger.warning(f"[InvestBrand] Error checking DB votes: {e}")
 
-    # Fallback to deterministic daily brand
+    # 3. Default to featured LICI sample (Brand #1) or daily rotation
     if not brand:
-        brand = get_daily_brand(today)
+        brand = get_brand_by_id(1) or get_daily_brand(today)
 
     brand_id = brand.get("id", 1)
     return {
         "id": brand_id,
         "puzzle_date": today,
         "brand_id": brand_id,
-        "brand_name": brand.get("brand", "Jio"),
-        "company_name": brand.get("company", "Reliance Industries"),
-        "ticker": brand.get("ticker", "RELIANCE"),
-        "logo_url": brand.get("logoUrl", ""),
+        "brand_name": brand.get("brand", "LIC"),
+        "company_name": brand.get("company", "Life Insurance Corporation of India"),
+        "ticker": brand.get("ticker", "LICI"),
+        "logo_url": brand.get("logoUrl", "/logos/LICI.png"),
         "logo_svg": brand.get("logoSvg", ""),
         "difficulty": 1,
-        "sector": brand.get("sector", "Energy"),
-        "hint": f"Leading brand in the {brand.get('sector', 'Indian')} sector.",
+        "sector": brand.get("sector", "Financials"),
+        "hint": f"Leading brand in the {brand.get('sector', 'Financials')} sector.",
         "selection_method": selection_method,
         "scheduled_date": today,
         "total_votes": 0

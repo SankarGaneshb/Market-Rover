@@ -70,6 +70,27 @@ export default function PuzzleGame() {
     return '';
   };
 
+  const selectBrand = async (brand) => {
+    if (!brand) return;
+    setCurrentBrand(brand);
+    setDbPuzzleId(brand.id);
+    try {
+      const clueResponse = await axios.get(`/api/puzzles/${brand.id}/clues`);
+      if (clueResponse.data?.success) {
+        setWordCloud(clueResponse.data.clues.wordCloud || '');
+        setClues(clueResponse.data.clues);
+      }
+    } catch (e) {
+      // Local fallback clues
+      setWordCloud('Growth, Value, Quality, Moat, Market Leader');
+      setClues({
+        clue1: `Sector Clue: Operating in the ${brand.sector || 'Market'} sector.`,
+        clue2: `Word Clue: ${brand.brand?.length || 4} letters, starts with '${brand.brand?.[0] || '?'}'`,
+        clue3: `Stock Clue: Owned by ${brand.company || brand.brand} (Ticker: ${brand.ticker}).`
+      });
+    }
+  };
+
   useEffect(() => {
     const updateSize = () => {
       if (boardParentRef.current) {
@@ -108,7 +129,10 @@ export default function PuzzleGame() {
     }, 8000);
 
     try {
-      const { data } = await axios.get('/api/puzzles/daily');
+      const searchParams = new URLSearchParams(window.location.search);
+      const tickerParam = searchParams.get('ticker') || searchParams.get('brand');
+      const fetchUrl = tickerParam ? `/api/puzzles/daily?ticker=${encodeURIComponent(tickerParam)}` : '/api/puzzles/daily';
+      const { data } = await axios.get(fetchUrl);
       if (data) {
         setDbPuzzleId(data.id);
         setSelectionMethod(data.selectionMethod);
@@ -397,6 +421,18 @@ export default function PuzzleGame() {
               </div>
             </div>
 
+            {/* Mystery Stock Card (Keeps the Puzzle Mysterious!) */}
+            <div className="mb-8 bg-gradient-to-b from-indigo-950/40 to-slate-900/80 border border-indigo-500/20 rounded-3xl p-6 text-center shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-indigo-500/25">
+                ?
+              </div>
+              <h3 className="text-xl font-black text-white mb-1">Mystery Nifty 50 Brand</h3>
+              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                Can you reconstruct the official corporate emblem and identify the market titan before the clock runs out?
+              </p>
+            </div>
+
             <div className="text-left mb-6">
               <div className="text-xs font-black uppercase text-indigo-300 tracking-widest mb-3">Select Difficulty</div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -415,6 +451,44 @@ export default function PuzzleGame() {
                 ))}
               </div>
             </div>
+
+            {/* Optional Collapsed Review Mode for testing specific brands */}
+            <details className="mt-4 text-left border-t border-white/10 pt-4 text-xs text-slate-500">
+              <summary className="cursor-pointer hover:text-indigo-300 font-semibold text-[11px] uppercase tracking-wider flex items-center gap-1.5 select-none">
+                <span>🛠️ Review Mode (Select specific brand for testing)</span>
+              </summary>
+              <div className="mt-3 p-3 bg-slate-900/90 rounded-xl border border-white/10 flex flex-wrap items-center gap-2">
+                <span className="text-slate-400 font-bold">Pick Brand:</span>
+                <select
+                  value={currentBrand?.ticker || 'LICI'}
+                  onChange={(e) => {
+                    const found = NIFTY50_BRANDS.find(b => b.ticker === e.target.value);
+                    if (found) selectBrand(found);
+                  }}
+                  className="bg-slate-800 border border-white/20 text-white text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                >
+                  {NIFTY50_BRANDS.map(b => (
+                    <option key={b.ticker} value={b.ticker}>
+                      {b.ticker} — {b.brand} ({b.company})
+                    </option>
+                  ))}
+                </select>
+                <div className="flex flex-wrap gap-1.5 mt-1 w-full">
+                  {['LICI', 'APOLLOHOSP', 'RELIANCE', 'TCS', 'HDFCBANK', 'SBIN', 'TATAMOTORS', 'TITAN', 'ITC', 'ZOMATO'].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        const found = NIFTY50_BRANDS.find(b => b.ticker === t);
+                        if (found) selectBrand(found);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border ${currentBrand?.ticker === t ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800 text-slate-400 border-white/5 hover:text-white'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
 
             <div className="bg-white/5 rounded-2xl p-4 text-xs text-slate-400 flex items-center justify-center gap-3">
               <HelpCircle size={16} className="text-indigo-400" />
