@@ -621,20 +621,20 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                     trigger_celebration("PDF_Generated", f"Generated report for {ticker}", {"ticker": ticker})
                                     st.success("✅ PDF Generated!")
 
-                                     # Social Intent Links
-                                     import urllib.parse
-                                     raw_share_text = f"Check out my AI-powered analysis of {ticker} on Market-Rover! #StockMarket #{ticker} #AI"
-                                     encoded_share_text = urllib.parse.quote(raw_share_text)
-                                     app_url = urllib.parse.quote("https://market-rover.streamlit.app")
+                                    # Social Intent Links
+                                    import urllib.parse
+                                    raw_share_text = f"Check out my AI-powered analysis of {ticker} on Market-Rover! #StockMarket #{ticker} #AI"
+                                    encoded_share_text = urllib.parse.quote(raw_share_text)
+                                    app_url = urllib.parse.quote("https://market-rover.streamlit.app")
 
-                                     st.markdown("##### 🔗 Share via:")
-                                     s_col1, s_col2, s_col3 = st.columns(3)
-                                     with s_col1:
-                                         st.link_button("𝕏 (Twitter)", f"https://x.com/intent/tweet?text={encoded_share_text}&url={app_url}")
-                                     with s_col2:
-                                         st.link_button("WhatsApp", f"https://wa.me/?text={encoded_share_text}%20{app_url}")
-                                     with s_col3:
-                                         st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={encoded_share_text}")
+                                    st.markdown("##### 🔗 Share via:")
+                                    s_col1, s_col2, s_col3 = st.columns(3)
+                                    with s_col1:
+                                        st.link_button("𝕏 (Twitter)", f"https://x.com/intent/tweet?text={encoded_share_text}&url={app_url}")
+                                    with s_col2:
+                                        st.link_button("WhatsApp", f"https://wa.me/?text={encoded_share_text}%20{app_url}")
+                                    with s_col3:
+                                        st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={encoded_share_text}")
 
                                 else:
                                     st.error(f"Report generation failed: Unknown response format.")
