@@ -10,12 +10,12 @@ export default function Home() {
 
   const handleSocialLogin = async (provider, token = 'mock_token') => {
     try {
-      // In production, these would trigger their respective OAuth flows
-      // For now, we stub the flow while showing the beautiful UI
       if (provider === 'google') {
           await login(token, 'google');
+      } else if (provider === 'guest') {
+          await login('guest_token', 'guest');
       } else {
-          alert(`${provider} integration is coming soon! Whitelist your production ID to enable.`);
+          await login(token, provider);
       }
       navigate('/play');
     } catch (err) {
@@ -44,16 +44,16 @@ export default function Home() {
 
         <div className="flex flex-col items-center gap-6">
           <button
-            onClick={() => {
+            onClick={async () => {
               if (user) {
                 navigate('/play');
               } else {
-                document.getElementById('social-access')?.scrollIntoView({ behavior: 'smooth' });
+                await handleSocialLogin('guest');
               }
             }}
-            className={`${user ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-slate-800/80 hover:bg-slate-700/60 border border-white/10'} text-white text-xl font-black px-12 py-5 rounded-[2rem] transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-3 transform hover:scale-105 active:scale-95`}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black px-12 py-5 rounded-[2rem] transition-all shadow-2xl shadow-indigo-600/40 flex items-center gap-3 transform hover:scale-105 active:scale-95"
           >
-            {user ? "Continue Journey →" : <><Play size={24} fill="currentColor" /> Play Now</>}
+            {user ? "Continue Journey →" : <><Play size={24} fill="currentColor" /> Play Now (Instant Access)</>}
           </button>
 
           {!user && (
