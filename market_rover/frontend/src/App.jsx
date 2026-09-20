@@ -460,9 +460,9 @@ const App = () => {
             <SidebarItem icon={<Database size={18} />}   label="⚙️ System Health"      active={activeTab === 'health'}    onClick={() => setActiveTab('health')} />
 
             <p style={{ margin: '1.5rem 0.5rem 0.8rem', fontSize: '0.65rem', color: '#334155', fontWeight: 800, letterSpacing: '1.5px' }}>SATELLITE MISSIONS</p>
-            <SidebarItem icon={<Layers size={18} />}  label="HIL Mission Control" external onClick={() => window.open('https://hil-rover-9514347926.us-central1.run.app', '_blank')} />
+            <SidebarItem icon={<Layers size={18} />}  label="HIL Mission Control" external onClick={() => window.open('/hil', '_blank')} />
             <SidebarItem icon={<Shield size={18} />}  label="Pledge & SRE Hub"    external onClick={() => window.open('https://pledge-rover-9514347926.us-central1.run.app', '_blank')} />
-            <SidebarItem icon={<Gamepad2 size={18} />} label="InvestBrand Hub"    external onClick={() => window.open('https://investbrand-ui-9514347926.us-central1.run.app', '_blank')} />
+            <SidebarItem icon={<Gamepad2 size={18} />} label="InvestBrand Hub"    external onClick={() => window.open('/investbrand', '_blank')} />
           </>)}
         </nav>
 

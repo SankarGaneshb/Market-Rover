@@ -49,6 +49,9 @@ from pledge_rover.backend.src.routes import api_router as pledge_router
 # 3. Import Ownerise Router
 from ownerise.backend.router import router as ownerise_router
 
+# 4. Import InvestBrand Router
+from investbrand.backend.router import router as investbrand_router
+
 # Initialize main FastAPI application
 app = FastAPI(
     title="Market-Rover Unified Intelligence Gateway",
@@ -131,9 +134,11 @@ async def post_market_analyze(request: Request):
 app.include_router(market_router, prefix="/api/v1/market")
 app.include_router(pledge_router, prefix="/api/v1/pledge")
 app.include_router(ownerise_router, prefix="/api/v1/ownerise")
+app.include_router(investbrand_router, prefix="/api/v1/investbrand")
 
 # --- Legacy & Root Route Compatibility ---
 app.include_router(market_router, prefix="/api")
+app.include_router(investbrand_router, prefix="/api")
 
 @app.get("/health")
 async def health_check():
@@ -187,29 +192,59 @@ for frontend_name, route_path in [
         mount_path = f"{route_path}/assets" if route_path else "/assets"
         app.mount(mount_path, StaticFiles(directory=str(assets_dir)), name=f"assets_{frontend_name}")
 
+    static_dir = dist_dir / "static"
+    if static_dir.exists():
+        mount_path = f"{route_path}/static" if route_path else "/static"
+        app.mount(mount_path, StaticFiles(directory=str(static_dir)), name=f"static_{frontend_name}")
+
+ASSET_EXTENSIONS = {
+    ".js", ".css", ".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp",
+    ".ico", ".json", ".map", ".woff", ".woff2", ".ttf", ".eot"
+}
+
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str):
     """Catch-all SPA router serving compiled React/Vite frontends."""
     if full_path.startswith("api/"):
         return JSONResponse(status_code=404, content={"error": "API route not found"})
 
-    if full_path.startswith("hil"):
+    clean_path = full_path.strip("/")
+
+    if clean_path.startswith("hil"):
         frontend_dir = STATIC_ROOT / "hil_rover"
-        sub_file = full_path.replace("hil/", "", 1).replace("hil", "", 1)
-    elif full_path.startswith("investbrand"):
+        sub_file = clean_path[3:].lstrip("/")
+    elif clean_path.startswith("investbrand"):
         frontend_dir = STATIC_ROOT / "investbrand"
-        sub_file = full_path.replace("investbrand/", "", 1).replace("investbrand", "", 1)
+        sub_file = clean_path[11:].lstrip("/")
     else:
         frontend_dir = STATIC_ROOT / "market_rover"
-        sub_file = full_path
+        sub_file = clean_path
 
-    target_file = frontend_dir / sub_file
-    if sub_file and target_file.is_file():
-        return FileResponse(target_file)
+    # 1. Direct file lookup in the scoped frontend directory
+    if sub_file:
+        target_file = frontend_dir / sub_file
+        if target_file.is_file():
+            return FileResponse(target_file)
 
+    # 2. Defense-in-depth: check if asset exists under any satellite static bundle
+    for alt_dir in [STATIC_ROOT / "investbrand", STATIC_ROOT / "market_rover", STATIC_ROOT / "hil_rover"]:
+        alt_file = alt_dir / clean_path
+        if alt_file.is_file():
+            return FileResponse(alt_file)
+
+    # 3. Guard against MIME errors: if a static asset was requested and not found, 404 immediately
+    ext = Path(clean_path).suffix.lower()
+    if ext in ASSET_EXTENSIONS or clean_path.startswith(("static/", "assets/", "badges/", "logos/")):
+        return JSONResponse(status_code=404, content={"error": f"Static asset '{clean_path}' not found"})
+
+    # 4. SPA client-side routing fallback: serve index.html
     index_file = frontend_dir / "index.html"
     if index_file.is_file():
         return FileResponse(index_file)
+
+    root_index = STATIC_ROOT / "market_rover" / "index.html"
+    if root_index.is_file():
+        return FileResponse(root_index)
 
     return {
         "message": "Market-Rover Unified Gateway",

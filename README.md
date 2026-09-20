@@ -18,9 +18,11 @@
 - Built **for Indian markets**: Nifty, Sensex, sector indices, NSE symbols, and block deals – not generic US-only tooling.
 - **Enterprise v5 Stack**: Decoupled **FastAPI Backend** and **React 19 (Vite) Frontend** for maximum performance and scalability.
 - **LangGraph Intelligence**: 10+ specialized nodes orchestrated via **Gemini 2.0-Flash** for news, sentiment, seasonality, MTC technicals, and forensic signals.
-- **Production-ready**: Hosted on Google Cloud Run with unified **PostgreSQL (Cloud SQL)** and CI/CD coverage gates (70%).
+- **Production-ready**: Hosted on Google Cloud Run with unified **PostgreSQL** and CI/CD coverage gates (70%).
 
-🌐 **Live v5 UI:** https://market-rover-ui-9514347926.us-central1.run.app/
+🌐 **Live Unified App:** https://market-rover-app-9514347926.us-central1.run.app/
+* 🧩 **InvestBrand Hub:** https://market-rover-app-9514347926.us-central1.run.app/investbrand
+* 🛡️ **HIL Rover HUD:** https://market-rover-app-9514347926.us-central1.run.app/hil
 
 ---
 

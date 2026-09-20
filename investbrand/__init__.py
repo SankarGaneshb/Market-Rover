@@ -1,0 +1,1 @@
+"""InvestBrand package."""

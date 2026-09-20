@@ -161,31 +161,32 @@ To configure:
 
 ---
 
-## Step 6: Microservices (Cloud Run)
+## Step 6: Unified Container Deployment (Cloud Run)
 
-Beyond the main Streamlit app, Market-Rover utilizes specialized microservices for gamification and AI council scanning.
+Market-Rover consolidates all satellite modules (**Market-Rover**, **InvestBrand**, **Pledge-Rover**, **HIL-Rover**) into a single unified container served via `server.py` on Google Cloud Run.
 
-### 6.1 Services List
-1.  **InvestBrand API**: Node.js/Express service for the "Brand to Stock" game.
-2.  **Pledge-Rover**: Python/FastAPI service for the AI Governance Council.
+### 6.1 Unified Service Details
+* **Active Cloud Run Service**: `market-rover-app`
+* **Live Service URL**: `https://market-rover-app-9514347926.us-central1.run.app`
+* **Routes & Frontends**:
+  - `/` -> Market-Rover Core UI
+  - `/investbrand` -> InvestBrand UI ("Brand to Stock" puzzle game)
+  - `/hil` -> HIL Rover HUD
+  - `/api/v1/market` -> Market-Rover API
+  - `/api/v1/investbrand` -> InvestBrand API
+  - `/api/v1/pledge` -> Pledge-Rover API
+  - `/api/v1/ownerise` -> Ownerise API
 
-### 6.2 Automatic Deployment
-These services are automatically built and deployed via **GitHub Actions** when changes are pushed to their respective directories:
-- `investbrand/` -> Deploy to Cloud Run (Node 20)
-- `pledge_rover/` -> Deploy to Cloud Run (Python 3.13)
-
-### 6.3 Manual Deployment (Optional)
-If you need to deploy manually from your local machine:
+### 6.2 Container Deployment
+Deploy the unified container to Cloud Run using Google Cloud Build:
 ```bash
-# Deploy InvestBrand
-cd investbrand/backend
-gcloud builds submit --tag gcr.io/PROJECT_ID/investbrand-api
-gcloud run deploy investbrand-api --image gcr.io/PROJECT_ID/investbrand-api
-
-# Deploy Pledge-Rover
-cd pledge_rover
-gcloud builds submit --tag gcr.io/PROJECT_ID/pledge-rover
-gcloud run deploy pledge-rover --image gcr.io/PROJECT_ID/pledge-rover
+# Build and deploy unified container
+gcloud builds submit --tag gcr.io/market-rover/market-rover-app:latest .
+gcloud run deploy market-rover-app \
+    --image gcr.io/market-rover/market-rover-app:latest \
+    --region us-central1 \
+    --platform managed \
+    --allow-unauthenticated
 ```
 
 

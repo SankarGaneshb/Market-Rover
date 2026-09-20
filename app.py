@@ -278,9 +278,10 @@ def main():
 
         # Skin in the Game – contextual shortcut
         st.markdown("---")
+        pledge_url = os.getenv("PLEDGE_ROVER_URL", "https://market-rover-app-9514347926.us-central1.run.app")
         st.link_button(
             "🛡️ Skin in the Game",
-            "https://pledge-rover-9514347926.us-central1.run.app",
+            pledge_url,
             use_container_width=True,
             help="Analyze Promoter Pledging & Contagion Risk via the Pledge Rover Council."
         )
@@ -288,9 +289,10 @@ def main():
         # InvestBrand Game – Play Now
         st.markdown("---")
         st.markdown("### 🎮 Play Now")
+        investbrand_url = os.getenv("INVESTBRAND_URL", "https://market-rover-app-9514347926.us-central1.run.app/investbrand")
         st.link_button(
             "🧩 Play InvestBrand",
-            "https://investbrand-ui-9514347926.us-central1.run.app",
+            investbrand_url,
             use_container_width=True,
             help="Learn about Indian brands through daily logo puzzles & AI insights."
         )

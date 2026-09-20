@@ -50,7 +50,7 @@ export default function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.PUBLIC_URL || '/investbrand'}>
           <PromoterTracker />
           <Navbar />
           <Routes>

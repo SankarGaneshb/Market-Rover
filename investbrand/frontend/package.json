@@ -1,6 +1,7 @@
 {
   "name": "investbrand-frontend",
   "version": "1.0.0",
+  "homepage": "/investbrand",
   "private": true,
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
