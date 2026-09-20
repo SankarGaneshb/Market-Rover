@@ -41,11 +41,11 @@ RUN pip install --no-cache-dir --compile -r requirements.txt && \
     find /usr/local -type f -name '*.pyc' -delete || true && \
     find /usr/local -type f -name '*.pyo' -delete || true
 
-# Copy static frontend assets from Stage 1
-COPY --from=frontend-builder /app/static /app/static
-
 # Copy application code
 COPY . /app
+
+# Copy freshly compiled static frontend assets from Stage 1 (overwrites any local static cache)
+COPY --from=frontend-builder /app/static /app/static
 
 # Ensure PYTHONPATH includes repo root and satellite module paths
 ENV PYTHONPATH="/app:/app/market_rover/backend"
