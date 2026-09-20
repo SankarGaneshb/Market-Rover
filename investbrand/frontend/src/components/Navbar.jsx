@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Trophy, Play, User, LogOut, TrendingUp, Calendar, Target, HelpCircle, Menu, X, Facebook, Linkedin, Github } from 'lucide-react';
 import OnboardingModal from './OnboardingModal';
 
-export default function Navbar() {
+export default function Navbar({ googleClientId }) {
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -78,22 +78,24 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10">
-             <div className="hidden lg:block">
-               <GoogleLogin
-                 onSuccess={async (r) => {
-                   try {
-                     await login(r.credential, 'google');
-                     navigate('/play');
-                   } catch (err) {
-                     alert(`Login Failed: ${err.message}`);
-                   }
-                 }}
-                 onError={() => alert('Access Configuration Error')}
-                 shape="circle"
-                 type="icon"
-                 theme="filled_blue"
-               />
-             </div>
+             {googleClientId ? (
+               <div className="hidden lg:block">
+                 <GoogleLogin
+                   onSuccess={async (r) => {
+                     try {
+                       await login(r.credential, 'google');
+                       navigate('/play');
+                     } catch (err) {
+                       alert(`Login Failed: ${err.message}`);
+                     }
+                   }}
+                   onError={() => alert('Access Configuration Error')}
+                   shape="circle"
+                   type="icon"
+                   theme="filled_blue"
+                 />
+               </div>
+             ) : null}
 
              {/* Simple Icon Fallbacks for other Social Media in Navbar */}
              <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#1877F2]/20 text-slate-400 hover:text-[#1877F2] transition-colors" title="Facebook Login">

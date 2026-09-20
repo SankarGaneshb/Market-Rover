@@ -115,7 +115,10 @@ def test_social_auth_load_provider_defaults():
     cfg = {
         'oauth': {
             'github': {'client_id': 'gh_123', 'client_secret': 'gh_sec'},
-            'x': {'client_id': 'x_123', 'client_secret': 'x_sec'}
+            'x': {'client_id': 'x_123', 'client_secret': 'x_sec'},
+            'linkedin': {'client_id': 'li_123', 'client_secret': 'li_sec'},
+            'facebook': {'client_id': 'fb_123', 'client_secret': 'fb_sec'},
+            'google': {'client_id': 'gg_123', 'client_secret': 'gg_sec'},
         }
     }
     mgr = SocialAuthManager(config=cfg)
@@ -126,3 +129,45 @@ def test_social_auth_load_provider_defaults():
     assert 'x' in mgr.oauth_providers
     assert mgr.oauth_providers['x']['authorize_endpoint'] == 'https://twitter.com/i/oauth2/authorize'
     assert 'users.read' in mgr.oauth_providers['x']['scope']
+
+    assert 'linkedin' in mgr.oauth_providers
+    assert mgr.oauth_providers['linkedin']['authorize_endpoint'] == 'https://www.linkedin.com/oauth/v2/authorization'
+    assert mgr.oauth_providers['linkedin']['scope'] == 'openid profile email'
+
+    assert 'facebook' in mgr.oauth_providers
+    assert mgr.oauth_providers['facebook']['authorize_endpoint'] == 'https://www.facebook.com/v12.0/dialog/oauth'
+    assert mgr.oauth_providers['facebook']['scope'] == 'email,public_profile'
+
+    assert 'google' in mgr.oauth_providers
+    assert mgr.oauth_providers['google']['authorize_endpoint'] == 'https://accounts.google.com/o/oauth2/v2/auth'
+    assert mgr.oauth_providers['google']['scope'] == 'openid email profile'
+
+
+def test_social_auth_normalize_linkedin():
+    from utils.social_auth import SocialAuthManager
+    mgr = SocialAuthManager(config={'oauth': {}})
+    profile = {
+        'given_name': 'Jane',
+        'family_name': 'Doe',
+        'email': 'jane.doe@linkedin.com'
+    }
+    normalized = mgr._normalize_profile(profile, 'linkedin')
+    assert normalized['name'] == 'Jane Doe'
+    assert normalized['email'] == 'jane.doe@linkedin.com'
+    assert normalized['username'] == 'jane.doe@linkedin.com'
+    assert normalized['provider'] == 'linkedin'
+
+
+def test_social_auth_normalize_facebook():
+    from utils.social_auth import SocialAuthManager
+    mgr = SocialAuthManager(config={'oauth': {}})
+    profile = {
+        'id': 'fb_123456',
+        'name': 'Facebook Analyst',
+        'email': 'analyst@meta.com'
+    }
+    normalized = mgr._normalize_profile(profile, 'facebook')
+    assert normalized['name'] == 'Facebook Analyst'
+    assert normalized['email'] == 'analyst@meta.com'
+    assert normalized['username'] == 'fb_123456'
+    assert normalized['provider'] == 'facebook'
