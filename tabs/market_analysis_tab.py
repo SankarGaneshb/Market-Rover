@@ -44,39 +44,22 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
 
     with st.spinner(f"🔥 Analyzing {ticker}..."):
-
-         try:
-
+        try:
             # Import necessary modules
-
             from rover_tools.market_data import MarketDataFetcher
-
             from rover_tools.market_analytics import MarketAnalyzer
-
             import plotly.graph_objects as go
-
             import plotly.express as px
-
             import pandas as pd
 
-
-
             # Fetch data
-
             fetcher = MarketDataFetcher()
-
             analyzer = MarketAnalyzer()
-
-
 
             history = fetcher.fetch_full_history(ticker)
 
-
-
             if history.empty:
-
                 st.error(f"❌ Could not fetch data for {ticker}")
-
                 return
 
             # Use global setting passed from parent
@@ -84,30 +67,29 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
 
             # Apply Time Filter
             if lookback_period != "5y+ (Max)":
-                 try:
-                     # Parse logic: 1y -> 365 days, etc.
-                     years_map = {"1y": 1, "3y": 3, "5y": 5}
-                     years = years_map.get(lookback_period, 5)
+                try:
+                    # Parse logic: 1y -> 365 days, etc.
+                    years_map = {"1y": 1, "3y": 3, "5y": 5}
+                    years = years_map.get(lookback_period, 5)
 
-                     cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
+                    cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years)
 
-                     # Ensure timezone awareness compatibility
-                     if history.index.tz is not None:
-                          if cutoff_date.tz is None:
-                               cutoff_date = cutoff_date.tz_localize(history.index.tz)
-                     else:
-                          if cutoff_date.tz is not None:
-                               cutoff_date = cutoff_date.tz_localize(None)
+                    # Ensure timezone awareness compatibility
+                    if history.index.tz is not None:
+                        if cutoff_date.tz is None:
+                            cutoff_date = cutoff_date.tz_localize(history.index.tz)
+                    else:
+                        if cutoff_date.tz is not None:
+                            cutoff_date = cutoff_date.tz_localize(None)
 
-                     history = history[history.index >= cutoff_date]
+                    history = history[history.index >= cutoff_date]
 
-                     if history.empty:
-                          st.warning(f"⚠️ No data found for the last {lookback_period}.")
-                          return
+                    if history.empty:
+                        st.warning(f"⚠️ No data found for the last {lookback_period}.")
+                        return
 
-
-                 except Exception as ex:
-                     st.error(f"Error applying time filter: {ex}")
+                except Exception as ex:
+                    st.error(f"Error applying time filter: {ex}")
 
             if exclude_outliers:
                 st.info(f"ℹ️ **Robust Analysis Enabled**: Outliers removed from Heatmap, Seasonality, Forecast Trends, and Filter Strategy. Analysis filtered to last {lookback_period}.")
@@ -332,282 +314,154 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
             st.markdown("---")
 
             # === VISUALIZATION 3: 2026 Forecast ===
-
             st.markdown("### 🔮 2026 Forecast")
 
-
-
             # Run Backtest
-
             with st.spinner("🔄 Backtesting strategies..."):
-
                 backtest_res = analyzer.backtest_strategies(history, exclude_outliers=exclude_outliers)
 
-
-
             # Generate Forecasts
-
             forecast_median = analyzer.calculate_median_strategy_forecast(history, exclude_outliers=exclude_outliers)
-
             forecast_sd = analyzer.calculate_sd_strategy_forecast(history, exclude_outliers=exclude_outliers)
 
-
-
             if forecast_median and forecast_sd:
+                current_price = history['Close'].iloc[-1]
+                winner = backtest_res['winner']
 
-                 current_price = history['Close'].iloc[-1]
-
-                 winner = backtest_res['winner']
-
-
-
-                 if winner == 'sd':
-
+                if winner == 'sd':
                     active_res = forecast_sd
-
                     alt_res = forecast_median
-
                     active_name = "SD Strategy"
-
                     alt_name = "Median Strategy"
-
                     active_color = "purple"
-
                     alt_color = "blue"
-
-                 else:
-
+                else:
                     active_res = forecast_median
-
                     alt_res = forecast_sd
-
                     active_name = "Median Strategy"
-
                     alt_name = "SD Strategy"
-
                     active_color = "blue"
-
                     alt_color = "purple"
 
+                baseline_growth = active_res['annualized_growth']
+                forecast_baseline = active_res['forecast_price']
 
-
-                 baseline_growth = active_res['annualized_growth']
-
-                 forecast_baseline = active_res['forecast_price']
-
-
-
-                 # Conservative/Aggressive logic
-
-                 if baseline_growth > 0:
-
+                # Conservative/Aggressive logic
+                if baseline_growth > 0:
                     conservative_growth = baseline_growth * 0.8
-
                     aggressive_growth = baseline_growth * 1.2
-
-                 else:
-
+                else:
                     conservative_growth = baseline_growth * 1.2
-
                     aggressive_growth = baseline_growth * 0.8
 
+                today = history.index[-1] # Ensure it matches data start
+                if today.tz is not None:
+                    today = today.tz_localize(None)
 
+                end_of_2026 = pd.Timestamp('2026-12-31')
+                years_fraction = (end_of_2026 - today).days / 365.25
 
-                 today = history.index[-1] # Ensure it matches data start
+                forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
+                forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
 
-                 if today.tz is not None: today = today.tz_localize(None)
+                # Metrics
+                col_a, col_b, col_c, col_d = st.columns(4)
+                col_a.metric("Strategy", active_name, f"Acc: ±{min(backtest_res['median_avg_error'], backtest_res['sd_avg_error']):.1f}%")
+                col_b.metric("🛡️ Conservative", f"₹{forecast_conservative:.2f}", f"{conservative_growth:.1f}%")
+                col_c.metric("🎯 Baseline", f"₹{forecast_baseline:.2f}", f"{baseline_growth:.1f}%")
+                col_d.metric("🐂 Aggressive", f"₹{forecast_aggressive:.2f}", f"{aggressive_growth:.1f}%")
 
-
-
-                 end_of_2026 = pd.Timestamp('2026-12-31')
-
-                 years_fraction = (end_of_2026 - today).days / 365.25
-
-
-
-                 forecast_conservative = current_price * (1 + conservative_growth/100) ** years_fraction
-
-                 forecast_aggressive = current_price * (1 + aggressive_growth/100) ** years_fraction
-
-
-
-                 # Metrics
-
-                 col_a, col_b, col_c, col_d = st.columns(4)
-
-                 col_a.metric("Strategy", active_name, f"Acc: ±{min(backtest_res['median_avg_error'], backtest_res['sd_avg_error']):.1f}%")
-
-                 col_b.metric("🛡️ Conservative", f"₹{forecast_conservative:.2f}", f"{conservative_growth:.1f}%")
-
-                 col_c.metric("🎯 Baseline", f"₹{forecast_baseline:.2f}", f"{baseline_growth:.1f}%")
-
-                 col_d.metric("🐂 Aggressive", f"₹{forecast_aggressive:.2f}", f"{aggressive_growth:.1f}%")
-
-
-
-                 # Details with Low Data Warning
-
-                 with st.expander(f"ℹ️ Strategy Details", expanded=True):
-
+                # Details with Low Data Warning
+                with st.expander(f"ℹ️ Strategy Details", expanded=True):
                     st.markdown(f"**Active ({active_name}):** {active_res['strategy_description']}")
-
-
-
                     confidence = backtest_res.get('confidence', 'High')
-
                     years_tested = backtest_res.get('years_tested', [])
-
                     if years_tested:
-
                         st.caption(f"✅ Validation: {', '.join(map(str, years_tested))}")
-
                         if confidence in ["Low", "Insufficient"]:
-
                             st.markdown(f":red[⚠️ **Warning: Low Data Confidence ({len(years_tested)} years)**]")
-
                     else:
-
                         st.markdown(f":red[⚠️ **Backtest skipped due to limited history**]")
 
+                # Chart
+                fig_forecast = go.Figure()
+                dates_range = pd.date_range(today, end_of_2026, freq='ME')
+                dates = [today] + list(dates_range)
 
-                 # Chart
+                # Smooth curves starting from current price
+                curr_p = current_price
+                cons_vals = [curr_p] + [curr_p * (1 + conservative_growth/100)**((d-today).days/365.25) for d in dates_range]
+                aggr_vals = [curr_p] + [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates_range]
 
-                 fig_forecast = go.Figure()
+                fig_forecast.add_trace(go.Scatter(x=dates, y=cons_vals, mode='lines', line=dict(width=0), showlegend=False))
+                fig_forecast.add_trace(go.Scatter(x=dates, y=aggr_vals, mode='lines', fill='tonexty', fillcolor='rgba(200,200,200,0.2)', line=dict(width=0), name='Range'))
 
-
-
-                 # Create range including today for continuous chart
-
-                 dates_range = pd.date_range(today, end_of_2026, freq='ME')
-
-                 dates = [today] + list(dates_range)
-
-
-
-                 # Smooth curves starting from current price
-
-                 curr_p = current_price
-
-                 cons_vals = [curr_p] + [curr_p * (1 + conservative_growth/100)**((d-today).days/365.25) for d in dates_range]
-
-                 aggr_vals = [curr_p] + [curr_p * (1 + aggressive_growth/100)**((d-today).days/365.25) for d in dates_range]
-
-
-
-                 fig_forecast.add_trace(go.Scatter(x=dates, y=cons_vals, mode='lines', line=dict(width=0), showlegend=False))
-
-                 fig_forecast.add_trace(go.Scatter(x=dates, y=aggr_vals, mode='lines', fill='tonexty', fillcolor='rgba(200,200,200,0.2)', line=dict(width=0), name='Range'))
-
-
-
-                 # Paths
-
-                 def plot_path(res, color, name, dash=None):
-
+                # Paths
+                def plot_path(res, color, name, dash=None):
                     if 'projection_path' in res:
-
                         p = res['projection_path']
-
                         fig_forecast.add_trace(go.Scatter(x=[x['date'] for x in p], y=[x['price'] for x in p],
-
                                                         mode='lines', name=name, line=dict(color=color, dash=dash, width=3 if not dash else 2)))
 
+                plot_path(active_res, active_color, f"Active: {active_name}")
+                plot_path(alt_res, alt_color, f"Alt: {alt_name}", 'dot')
 
+                chart_title = f"{ticker} Forecast"
+                fig_forecast.update_layout(
+                    title=chart_title,
+                    height=500,
+                    hovermode='x unified',
+                    xaxis=dict(range=[today - pd.Timedelta(days=10), end_of_2026 + pd.Timedelta(days=15)]) # Buffer to show Dec 2026
+                )
+                st.plotly_chart(fig_forecast, width="stretch")
 
-                 plot_path(active_res, active_color, f"Active: {active_name}")
+                # Actions Row
+                col_dl, col_save = st.columns([1, 1])
+                with col_dl:
+                    # Prepare Download Data
+                    base_vals = [curr_p] + [curr_p * (1 + baseline_growth/100)**((d-today).days/365.25) for d in dates_range]
+                    forecast_df = pd.DataFrame({
+                        'Date': dates,
+                        'Conservative (Low)': cons_vals,
+                        'Baseline (Target)': base_vals,
+                        'Aggressive (High)': aggr_vals
+                    })
+                    st.download_button(
+                        label="📥 Download Forecast Data",
+                        data=forecast_df.to_csv(index=False).encode('utf-8'),
+                        file_name=f"{ticker}_forecast_2026.csv",
+                        mime="text/csv",
+                        key=f"dl_forecast_{ticker}"
+                    )
 
-                 plot_path(alt_res, alt_color, f"Alt: {alt_name}", 'dot')
-
-
-
-                 # Add Realized Actuals if available
-
-                 chart_title = f"{ticker} Forecast"
-
-
-
-                 fig_forecast.update_layout(
-
-                     title=chart_title,
-
-                     height=500,
-
-                     hovermode='x unified',
-
-                     xaxis=dict(range=[today - pd.Timedelta(days=10), end_of_2026 + pd.Timedelta(days=15)]) # Buffer to show Dec 2026
-
-                 )
-
-                 st.plotly_chart(fig_forecast, width="stretch")
-
-
-
-                 # Save Button
-
-                 # Actions Row
-                 col_dl, col_save = st.columns([1, 1])
-
-                 with col_dl:
-                     # Prepare Download Data
-                     # Reconstruct baseline for CSV consistency
-                     base_vals = [curr_p] + [curr_p * (1 + baseline_growth/100)**((d-today).days/365.25) for d in dates_range]
-
-                     forecast_df = pd.DataFrame({
-                         'Date': dates,
-                         'Conservative (Low)': cons_vals,
-                         'Baseline (Target)': base_vals,
-                         'Aggressive (High)': aggr_vals
-                     })
-
-                     st.download_button(
-                         label="📥 Download Forecast Data",
-                         data=forecast_df.to_csv(index=False).encode('utf-8'),
-                         file_name=f"{ticker}_forecast_2026.csv",
-                         mime="text/csv",
-                         key=f"dl_forecast_{ticker}"
-                     )
-
-                 with col_save:
-                     from utils.forecast_tracker import save_forecast
-                     if st.button("💾 Save to Tracker", key=f"save_{ticker}", help="Save this forecast to track performance over time"):
-                        # Get current user
+                with col_save:
+                    from utils.forecast_tracker import save_forecast
+                    if st.button("💾 Save to Tracker", key=f"save_{ticker}", help="Save this forecast to track performance over time"):
                         curr_user = st.session_state.get('username', 'guest')
                         if save_forecast(ticker, current_price, forecast_baseline, "2026-12-31", active_name, backtest_res.get('confidence'), backtest_res.get('years_tested', []), username=curr_user):
                             from utils.celebration import trigger_celebration
                             trigger_celebration("Forecast_Saved", f"Saved forecast for {ticker}", {"ticker": ticker, "strategy": active_name})
                             st.success(f"✅ Saved for {curr_user}!")
 
-
-
             else:
-
-                 st.warning("Insufficient data for forecast")
-
-
-
-
+                st.warning("Insufficient data for forecast")
 
             # === SHARE ANALYSIS FEATURE ===
             try:
                 with st.expander("📤 Download PDF Report", expanded=False):
                     st.caption("Generate a professional multi-page PDF report with watermarks to share with your network.")
-
                     col_share_btn, col_share_links = st.columns([1, 2])
-
                     with col_share_btn:
                         if st.button("📄 Generate PDF Report", key=f"snap_{key_prefix}_{ticker}", type="secondary"):
                             with st.spinner("Generating multi-page PDF (Direct)..."):
                                 # Bypass Agent/LLM to avoid 429 Errors and Speed up
                                 res = run_snapshot_logic(ticker)
-
                                 # Handle Strings (Errors)
                                 if isinstance(res, str) and res.startswith("Error"):
                                     st.error(f"Report generation failed: {res}")
-
                                 # Handle Success Dict
                                 elif isinstance(res, dict) and 'pdf_buffer' in res:
                                     pdf_buffer = res['pdf_buffer']
-
                                     # Provide Download Button
                                     st.download_button(
                                         label="⬇️ Download PDF",
@@ -616,7 +470,6 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                         mime="application/pdf",
                                         key=f"dl_pdf_{ticker}"
                                     )
-
                                     from utils.celebration import trigger_celebration
                                     trigger_celebration("PDF_Generated", f"Generated report for {ticker}", {"ticker": ticker})
                                     st.success("✅ PDF Generated!")
@@ -635,16 +488,13 @@ def run_analysis_ui(ticker_raw, limiter, key_prefix="default", global_outlier=Fa
                                         st.link_button("WhatsApp", f"https://wa.me/?text={encoded_share_text}%20{app_url}")
                                     with s_col3:
                                         st.link_button("LinkedIn", f"https://www.linkedin.com/feed/?shareActive=true&text={encoded_share_text}")
-
                                 else:
                                     st.error(f"Report generation failed: Unknown response format.")
             except Exception as ex:
                 st.warning(f"Share feature unavailable: {str(ex)}")
 
-         except Exception as e:
-
+        except Exception as e:
             st.error(f"Analysis error: {str(e)}")
-
             st.info("Check logs for details")
 
 
