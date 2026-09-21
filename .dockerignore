@@ -3,7 +3,7 @@
 .gitignore
 .github
 
-# Node / JS Dependencies & Builds
+# Node / JS Dependencies & Local Builds
 **/node_modules
 **/dist
 **/build
@@ -18,9 +18,13 @@ ENV
 **/*.pyc
 **/*.pyo
 **/*.pyd
-.pytest_cache
+
+# Tests, Code Coverage & Benchmarks
+tests/
+htmlcov/
+.pytest_cache/
 .coverage
-htmlcov
+.benchmarks/
 *.egg-info
 
 # OS & IDE Temp Files
@@ -30,8 +34,12 @@ Thumbs.db
 .idea
 *.swp
 
-# Application Logs & Scratch Files
+# Application Logs & Temporary Dumps
 *.log
+logs/
+reports/
+output/
+uploads/
 **/scratch/
 .agent/
 .streamlit/secrets.toml

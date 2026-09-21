@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install Python dependencies
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --compile -r requirements.txt && \
+    pip cache purge 2>/dev/null || true && \
     find /usr/local -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local -type f -name '*.pyc' -delete || true && \
     find /usr/local -type f -name '*.pyo' -delete || true
@@ -44,7 +45,10 @@ RUN pip install --no-cache-dir --compile -r requirements.txt && \
 # Copy application code
 COPY . /app
 
-# Copy freshly compiled static frontend assets from Stage 1 (overwrites any local static cache)
+# Prune uncompiled frontend source trees from runtime (static bundles are mounted from /app/static)
+RUN rm -rf /app/market_rover/frontend /app/hil_rover/frontend /app/investbrand/frontend /app/pledge_rover/frontend
+
+# Copy freshly compiled static frontend assets from Stage 1 into /app/static
 COPY --from=frontend-builder /app/static /app/static
 
 # Ensure PYTHONPATH includes repo root and satellite module paths
