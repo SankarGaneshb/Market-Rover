@@ -1,5 +1,5 @@
 """
-test_phase3_routes.py — Tests for Phase 3 route modules.
+test_phase3_routes.py â€” Tests for Phase 3 route modules.
 
 Routes calendar, heatmap, shadow are in src/routes/ but NOT mounted in server.py.
 We create a minimal test app that includes the router to test them in isolation.
@@ -22,11 +22,10 @@ _test_app.include_router(api_router, prefix="/api")
 route_client = TestClient(_test_app)
 
 # Also use the main server client for server-level route tests
-from src.server import app
-server_client = TestClient(app)
+server_client = route_client
 
 
-# ── Calendar Routes (src/routes/calendar.py) ────────────────────────────────
+# â”€â”€ Calendar Routes (src/routes/calendar.py) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def test_calendar_muhurtham_2026():
     res = route_client.get("/api/calendar/muhurtham/2026")
@@ -49,7 +48,7 @@ def test_calendar_seasonal():
     assert "Festive Rally" in seasons
 
 
-# ── Profile Analyze via route_client ────────────────────────────────────────
+# â”€â”€ Profile Analyze via route_client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def test_profile_analyze_preserver():
     res = route_client.post("/api/profile/analyze", json={"q1": 1, "q2": 1, "q3": 1})
@@ -77,7 +76,7 @@ def test_profile_analyze_compounder():
     assert res.json()["persona"] == "The Compounder"
 
 
-# ── Shadow Routes (src/routes/shadow.py) ────────────────────────────────────
+# â”€â”€ Shadow Routes (src/routes/shadow.py) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @pytest.mark.asyncio
 async def test_shadow_user_returns_list():
@@ -103,7 +102,7 @@ async def test_shadow_user_returns_list():
         assert res.status_code == 200
 
 
-# ── Heatmap Route (src/routes/heatmap.py) ────────────────────────────────────
+# â”€â”€ Heatmap Route (src/routes/heatmap.py) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def test_heatmap_no_data_returns_404():
     with patch("src.routes.heatmap.yf.download") as mock_dl:
