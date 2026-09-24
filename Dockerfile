@@ -41,6 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install lean production Python dependencies
 COPY requirements-prod.txt /app/requirements-prod.txt
 RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
+    # Uninstall heavy unused transitive packages (saves ~150MB) \
+    pip uninstall -y scipy kubernetes 2>/dev/null || true && \
     pip cache purge 2>/dev/null || true && \
     # Strip binary debug symbols from compiled C-extensions (.so) \
     find /usr/local/lib/python3.13/site-packages -name "*.so" -exec strip --strip-unneeded {} + 2>/dev/null || true && \
@@ -61,15 +63,18 @@ RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
 # Copy application code
 COPY . /app
 
+# Install lightweight pure-python scipy stub into site-packages
+RUN cp -r /app/rover_tools/stubs/scipy /usr/local/lib/python3.13/site-packages/scipy 2>/dev/null || true
+
 # Prune uncompiled frontend source trees, tests, and non-production files
 RUN rm -rf /app/market_rover/frontend /app/hil_rover/frontend /app/investbrand/frontend /app/pledge_rover/frontend \
-    /app/tests /app/metrics /app/reports /app/output /app/uploads /app/.pytest_cache /app/data/*.db 2>/dev/null || true
+    /app/tests /app/metrics /app/reports /app/output /app/uploads /app/.pytest_cache /app/data/*.db /app/build_log.txt 2>/dev/null || true
 
 # Copy freshly compiled static frontend assets from Stage 1 into /app/static
 COPY --from=frontend-builder /app/static /app/static
 
-# Ensure PYTHONPATH includes repo root and satellite module paths
-ENV PYTHONPATH="/app:/app/market_rover/backend"
+# Ensure PYTHONPATH includes repo root, stubs, and satellite module paths
+ENV PYTHONPATH="/app:/app/rover_tools/stubs:/app/market_rover/backend"
 ENV PORT=8080
 
 EXPOSE 8080
