@@ -9,69 +9,14 @@ Solution: Inject stub MagicMock modules for every rover_tools sub-package
           imports resolve to MagicMock objects — which is exactly what the
           test suite patches over anyway.
 """
+import os
 import sys
-import types
-from unittest.mock import MagicMock
+from pathlib import Path
 
-
-def _stub_module(name: str) -> types.ModuleType:
-    mod = types.ModuleType(name)
-    mod.__spec__ = None  # prevents importlib from trying to reload it
-    return mod
-
-
-# ── Stub every rover_tools sub-package needed by agent nodes ──────────────────
-
-_RT_SUBS = [
-    "rover_tools",
-    "rover_tools.advanced_skills",
-    "rover_tools.global_market_tool",
-    "rover_tools.shadow_tools",
-    "rover_tools.portfolio_tool",
-    "rover_tools.ticker_resources",
-    "rover_tools.analytics",
-    "rover_tools.analytics.forensic_engine",
-    "rover_tools.forensic_tool",
-    "rover_tools.corporate_actions_tool",
-]
-
-for _mod_name in _RT_SUBS:
-    if _mod_name not in sys.modules:
-        _mod = _stub_module(_mod_name)
-        sys.modules[_mod_name] = _mod
-
-# Attach MagicMock callables for every symbol the agent nodes import
-_adv = sys.modules["rover_tools.advanced_skills"]
-_adv.analyze_retail_sentiment_tool   = MagicMock(return_value="Neutral market breadth.")
-_adv.calculate_mtc_score_tool        = MagicMock(return_value="MTC Score: 55/100")
-_adv.detect_technical_patterns_tool  = MagicMock(return_value="No patterns detected.")
-_adv.fetch_subha_muhurtham_tool      = MagicMock(return_value="Check almanac.")
-
-_glob = sys.modules["rover_tools.global_market_tool"]
-_glob.get_global_cues_data           = MagicMock(return_value={"vix": 15, "dxy": 101, "yield_10y": 3.5})
-_glob.get_global_cues                = _glob.get_global_cues_data
-
-_shadow = sys.modules["rover_tools.shadow_tools"]
-_shadow.get_trap_indicator_tool      = MagicMock(return_value="No institutional trap detected.")
-_shadow.analyze_sector_flow_tool     = MagicMock(return_value="Sector flow neutral.")
-
-_port = sys.modules["rover_tools.portfolio_tool"]
-_port.read_portfolio                 = MagicMock(return_value=[])
-
-_ticker = sys.modules["rover_tools.ticker_resources"]
-_ticker.NIFTY_50_SECTOR_MAP          = {
-    "TCS.NS": "IT", "INFY.NS": "IT", "TCS": "IT", "INFY": "IT",
-    "RELIANCE.NS": "Energy", "HDFCBANK.NS": "Financial Services"
-}
-
-_analytics = sys.modules["rover_tools.analytics"]
-_analytics.AnalyzersUnified          = MagicMock()
-
-_forensic_pkg = sys.modules["rover_tools.analytics.forensic_engine"]
-_forensic_pkg.ForensicAnalyzer       = MagicMock()
-
-_forensic_tool = sys.modules["rover_tools.forensic_tool"]
-_forensic_tool.run_forensic_audit_tool = MagicMock()
-
-_corp_tool = sys.modules["rover_tools.corporate_actions_tool"]
-_corp_tool.fetch_shareholding_pattern_tool = MagicMock()
+# Ensure repo root is on sys.path so real rover_tools is accessible
+_root = Path(__file__).resolve().parent.parent.parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+_backend = Path(__file__).resolve().parent.parent
+if str(_backend) not in sys.path:
+    sys.path.insert(0, str(_backend))
