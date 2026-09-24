@@ -55,11 +55,18 @@ describe('Leaderboard Component', () => {
 
     it('switches leaderboard filters', async () => {
         render(<MockApp />);
-        const weeklyBtn = await screen.findByText('weekly');
+        const weeklyBtn = await screen.findByText(/weekly/i);
         fireEvent.click(weeklyBtn);
         expect(axios.get).toHaveBeenCalledWith(
             '/api/leaderboard',
             expect.objectContaining({ params: { type: 'weekly' } })
+        );
+
+        const duelBtn = await screen.findByText(/bull vs bear/i);
+        fireEvent.click(duelBtn);
+        expect(axios.get).toHaveBeenCalledWith(
+            '/api/leaderboard',
+            expect.objectContaining({ params: { type: 'duel' } })
         );
     });
 });

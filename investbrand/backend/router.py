@@ -80,8 +80,19 @@ async def get_db_pool():
                         last_played DATE,
                         total_score INTEGER DEFAULT 0,
                         best_score INTEGER DEFAULT 0,
+                        easy_score INTEGER DEFAULT 0,
+                        medium_score INTEGER DEFAULT 0,
+                        hard_score INTEGER DEFAULT 0,
+                        duel_score INTEGER DEFAULT 0,
+                        duel_wins INTEGER DEFAULT 0,
                         created_at TIMESTAMPTZ DEFAULT NOW()
                     );
+                    ALTER TABLE public.investbrand_users ADD COLUMN IF NOT EXISTS easy_score INTEGER DEFAULT 0;
+                    ALTER TABLE public.investbrand_users ADD COLUMN IF NOT EXISTS medium_score INTEGER DEFAULT 0;
+                    ALTER TABLE public.investbrand_users ADD COLUMN IF NOT EXISTS hard_score INTEGER DEFAULT 0;
+                    ALTER TABLE public.investbrand_users ADD COLUMN IF NOT EXISTS duel_score INTEGER DEFAULT 0;
+                    ALTER TABLE public.investbrand_users ADD COLUMN IF NOT EXISTS duel_wins INTEGER DEFAULT 0;
+
                     CREATE TABLE IF NOT EXISTS public.investbrand_votes (
                         id SERIAL PRIMARY KEY,
                         user_id INTEGER,
@@ -133,6 +144,16 @@ class CompletePayload(BaseModel):
     difficulty: Optional[str] = "easy"
     time_taken: Optional[int] = 30
     attempts: Optional[int] = 1
+
+class DuelCompletePayload(BaseModel):
+    roomCode: Optional[str] = None
+    playerId: Optional[str] = None
+    score: Optional[int] = 1000
+    brandId: Optional[int] = 1
+    moves: Optional[int] = 0
+    timeTaken: Optional[int] = 30
+    isWinner: Optional[bool] = True
+    role: Optional[str] = "bull"
 
 class VotePayload(BaseModel):
     brandId: Optional[int] = None
@@ -224,395 +245,8 @@ async def get_daily_puzzle(brand_id: Optional[int] = None, ticker: Optional[str]
         "total_votes": 0
     }
 
-@router.get("/puzzles/{puzzle_id}/clues")
-async def get_puzzle_clues(puzzle_id: int):
-    """Progressive clues for solving the puzzle."""
-    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
-    sector = brand.get("sector", "Market")
-    b_name = brand.get("brand", "")
-    company = brand.get("company", "")
-    ticker = brand.get("ticker", "")
-
-    sector_clouds = {
-        "Energy": "Refining, Jio, Petrochemicals, Oil, Solar, Cash Flow",
-        "IT": "Software, Cloud, AI, Consulting, Digital, Global",
-        "Financials": "Banking, Credit, Deposits, Wealth, Capital, Lending",
-        "Consumer Goods": "FMCG, Brands, Retail, Distribution, Packaging, Household",
-        "Automobile": "EV, Engines, Trucks, Passenger, Mobility, Assembly",
-        "Pharma": "Healthcare, Formulations, API, Labs, Medicine, Biotech",
-        "Metals": "Steel, Aluminium, Mining, Smelting, Infrastructure",
-        "Telecom": "5G, Data, Towers, Bandwidth, Broadband, ARPU",
-        "Power": "Thermal, Hydro, Grid, Renewable, Transmission"
-    }
-    word_cloud = sector_clouds.get(sector, "Growth, Value, Quality, Moat, Market Leader")
-
-    clue1 = f"Sector Clue: Operating in the {sector} sector with significant Indian market presence."
-    clue2 = f"Word Clue: {len(b_name)} letters, starts with '{b_name[0].upper() if b_name else '?'}'."
-    clue3 = f"Stock Clue: Owned by {company} (Ticker: {ticker}), traded on the NSE/BSE."
-
-    return {
-        "success": True,
-        "puzzle_id": puzzle_id,
-        "clues": {
-            "clue1": clue1,
-            "clue2": clue2,
-            "clue3": clue3,
-            "wordCloud": word_cloud,
-            "logoSvg": brand.get("logoSvg", ""),
-            "logoUrl": brand.get("logoUrl", "")
-        }
-    }
-
-@router.post("/puzzles/{puzzle_id}/guess")
-async def evaluate_puzzle_guess(puzzle_id: int, payload: GuessPayload):
-    """Validate user guess against brand, company name, or ticker."""
-    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
-    user_guess = payload.guess.strip().lower()
-
-    target_brand = (brand.get("brand") or "").strip().lower()
-    target_company = (brand.get("company") or "").strip().lower()
-    target_ticker = (brand.get("ticker") or "").strip().lower()
-
-    is_correct = (
-        user_guess == target_brand or
-        user_guess == target_company or
-        user_guess == target_ticker or
-        (len(user_guess) >= 3 and user_guess in target_brand)
-    )
-
-    if is_correct:
-        msg = f"Spot on! You correctly identified {brand.get('brand')}."
-        return {
-            "success": True,
-            "correct": True,
-            "isCorrect": True,
-            "brand": brand.get("brand"),
-            "company": brand.get("company"),
-            "ticker": brand.get("ticker"),
-            "score": 100,
-            "message": msg,
-            "feedback": msg
-        }
-    else:
-        msg = "Not quite! Try checking the sector and word clues again."
-        return {
-            "success": True,
-            "correct": False,
-            "isCorrect": False,
-            "message": msg,
-            "feedback": msg
-        }
-
-@router.post("/puzzles/{puzzle_id}/complete")
-async def complete_puzzle(puzzle_id: int, payload: CompletePayload):
-    """Record completed game and return updated streak and stats."""
-    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
-    today = get_ist_date()
-    score = payload.score or 100
-
-    pool = await get_db_pool()
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO public.investbrand_sessions (puzzle_id, brand_id, score, difficulty, time_taken)
-                    VALUES ($1, $2, $3, $4, $5)
-                """, puzzle_id, brand.get("id", 1), score, payload.difficulty, payload.time_taken)
-        except Exception as e:
-            logger.warning(f"[InvestBrand] Failed recording session to DB: {e}")
-
-    _MEMORY_SESSIONS.append({
-        "puzzle_id": puzzle_id,
-        "brand_id": brand.get("id", 1),
-        "score": score,
-        "date": today
-    })
-
-    return {
-        "success": True,
-        "score": score,
-        "xp_earned": score,
-        "streak": max(1, len(_MEMORY_SESSIONS)),
-        "total_score": sum(s.get("score", 0) for s in _MEMORY_SESSIONS),
-        "level": "Junior Virtuoso"
-    }
-
-@router.get("/puzzles/{puzzle_id}/insight")
-async def get_puzzle_insight(puzzle_id: int):
-    """Fetch Teacher / Market Insight for the solved puzzle."""
-    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
-    insight = brand.get("insight") or f"{brand.get('brand')} is a prominent business under {brand.get('company')} ({brand.get('ticker')})."
-
-    # Generate live Gemini AI explanation if GOOGLE_API_KEY is available
-    ai_teacher_tip = None
-    if os.getenv("GOOGLE_API_KEY"):
-        try:
-            from google import genai
-            client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
-            prompt = (
-                f"In 2 concise sentences, provide an educational investing lesson on {brand.get('company')} ({brand.get('ticker')}) "
-                f"and its brand '{brand.get('brand')}'. Explain why understanding customer brand loyalty helps stock investors."
-            )
-            resp = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
-            if resp and resp.text:
-                ai_teacher_tip = resp.text.strip()
-        except Exception as e:
-            logger.debug(f"[InvestBrand] AI Insight generation exception: {e}")
-
-    if not ai_teacher_tip:
-        ai_teacher_tip = f"Investing in companies with strong brand recall like {brand.get('brand')} provides pricing power and defensible economic moats."
-
-    return {
-        "success": True,
-        "brand": brand.get("brand"),
-        "company": brand.get("company"),
-        "ticker": brand.get("ticker"),
-        "sector": brand.get("sector"),
-        "insight": insight,
-        "teacher_tip": ai_teacher_tip,
-        "financial_concept": f"Brand Moat & {brand.get('sector')} Growth"
-    }
-
-@router.get("/puzzles/vote-status")
-async def get_vote_status():
-    """Return candidates for tomorrow's community vote."""
-    today = get_ist_date()
-    candidates = NIFTY50_BRANDS[:5]
-
-    pool = await get_db_pool()
-    votes_map = {}
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                rows = await conn.fetch(
-                    "SELECT brand_id, COUNT(*) as cnt FROM public.investbrand_votes WHERE vote_date = $1 GROUP BY brand_id",
-                    date.fromisoformat(today) + timedelta(days=1)
-                )
-                for r in rows:
-                    votes_map[r["brand_id"]] = r["cnt"]
-        except Exception as e:
-            logger.warning(f"[InvestBrand] Error fetching vote counts: {e}")
-
-    candidate_list = []
-    for c in candidates:
-        b_id = c.get("id")
-        candidate_list.append({
-            "brand_id": b_id,
-            "brand": c.get("brand"),
-            "company": c.get("company"),
-            "sector": c.get("sector"),
-            "votes": votes_map.get(b_id, 0)
-        })
-
-    return {
-        "has_voted": False,
-        "candidates": candidate_list,
-        "vote_date": (date.fromisoformat(today) + timedelta(days=1)).isoformat()
-    }
-
-@router.post("/puzzles/vote")
-async def cast_vote(payload: VotePayload):
-    """Cast a community vote for tomorrow's puzzle brand."""
-    b_id = payload.brandId or payload.brand_id or 1
-    today = get_ist_date()
-    tomorrow = (date.fromisoformat(today) + timedelta(days=1)).isoformat()
-
-    pool = await get_db_pool()
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO public.investbrand_votes (brand_id, vote_date)
-                    VALUES ($1, $2)
-                """, b_id, date.fromisoformat(tomorrow))
-        except Exception as e:
-            logger.warning(f"[InvestBrand] Error casting vote to DB: {e}")
-
-    _MEMORY_VOTES.setdefault(tomorrow, []).append(b_id)
-
-    return {
-        "success": True,
-        "brand_id": b_id,
-        "message": "Vote logged successfully for tomorrow's challenge!"
-    }
-
-@router.post("/puzzles/track-click")
-async def track_share_click(payload: TrackClickPayload):
-    return {"success": True, "tracked": True}
-
-@router.get("/leaderboard")
-async def get_leaderboard(type: str = "daily"):
-    """Fetch the leaderboard ranks."""
-    pool = await get_db_pool()
-    leaderboard_list = []
-
-    if pool:
-        try:
-            async with pool.acquire() as conn:
-                rows = await conn.fetch("""
-                    SELECT name, avatar_url, total_score, streak
-                    FROM public.investbrand_users
-                    ORDER BY total_score DESC, streak DESC
-                    LIMIT 20
-                """)
-                for idx, r in enumerate(rows, start=1):
-                    leaderboard_list.append({
-                        "id": str(idx),
-                        "name": r["name"] or f"Player {idx}",
-                        "avatar_url": r["avatar_url"] or "",
-                        "score": r["total_score"] or 0,
-                        "total_score": r["total_score"] or 0,
-                        "streak": r["streak"] or 0,
-                        "rank": idx
-                    })
-        except Exception as e:
-            logger.warning(f"[InvestBrand] Error querying leaderboard from DB: {e}")
-
-    if not leaderboard_list:
-        # Default mock ranking for active community feel
-        leaderboard_list = [
-            {"id": "1", "name": "Aarav Sharma", "avatar_url": "", "score": 2400, "total_score": 2400, "streak": 14, "rank": 1, "badge": "Silver Virtuoso"},
-            {"id": "2", "name": "Priya Patel", "avatar_url": "", "score": 1850, "total_score": 1850, "streak": 9, "rank": 2, "badge": "Bronze Virtuoso"},
-            {"id": "3", "name": "Rohan Iyer", "avatar_url": "", "score": 1200, "total_score": 1200, "streak": 5, "rank": 3, "badge": "Copper Virtuoso"},
-            {"id": "4", "name": "Ananya Sen", "avatar_url": "", "score": 950, "total_score": 950, "streak": 3, "rank": 4, "badge": "Copper Virtuoso"},
-            {"id": "5", "name": "Vikram Malhotra", "avatar_url": "", "score": 600, "total_score": 600, "streak": 2, "rank": 5, "badge": "Junior Virtuoso"}
-        ]
-
-    return {"leaderboard": leaderboard_list}
-
-@router.get("/missions")
-async def get_missions():
-    """Active gamified missions for players."""
-    return [
-        {
-            "id": "m1",
-            "title": "First Step",
-            "description": "Solve your first daily brand puzzle",
-            "xp": 100,
-            "badge": "Junior",
-            "progress": 100,
-            "completed": True
-        },
-        {
-            "id": "m2",
-            "title": "Streak Builder",
-            "description": "Maintain a 3-day puzzle solving streak",
-            "xp": 300,
-            "badge": "Copper",
-            "progress": 33,
-            "completed": False
-        },
-        {
-            "id": "m3",
-            "title": "Community Voter",
-            "description": "Cast a vote for tomorrow's featured brand",
-            "xp": 150,
-            "badge": "Voter",
-            "progress": 100,
-            "completed": True
-        },
-        {
-            "id": "m4",
-            "title": "Sector Savant",
-            "description": "Correctly identify 5 Energy or IT sector brands",
-            "xp": 500,
-            "badge": "Bronze",
-            "progress": 40,
-            "completed": False
-        }
-    ]
-
-@router.get("/education/locker")
-async def get_education_locker():
-    """Returns unlocked learning cards and brand insights."""
-    cards = []
-    for b in NIFTY50_BRANDS[:6]:
-        cards.append({
-            "id": b.get("id"),
-            "brand": b.get("brand"),
-            "company": b.get("company"),
-            "ticker": b.get("ticker"),
-            "sector": b.get("sector"),
-            "insight": b.get("insight"),
-            "date_unlocked": get_ist_date()
-        })
-    return {"cards": cards}
-
-@router.get("/education/tip")
-async def get_education_tip():
-    """Returns the daily Teacher Tip."""
-    tips = [
-        "Owning one auto stock is risky; an index fund spreads that risk across 50 companies.",
-        "Stocks can be volatile short-term but historically compound wealth over 10+ years.",
-        "Market cap = share price × total shares; it reveals true enterprise scale.",
-        "FMCG stocks (like Hindustan Unilever or ITC) are defensive assets during downturns.",
-        "You don't buy 'Pulsar'; you buy Bajaj Auto stock which owns Pulsar and other brands."
-    ]
-    h = int(hashlib.md5(get_ist_date().encode("utf-8")).hexdigest(), 16)
-    tip = tips[h % len(tips)]
-    return {
-        "tip": tip,
-        "author": "InvestBrand Teacher Agent",
-        "category": "Portfolio Fundamentals"
-    }
-
-@router.get("/users/me")
-async def get_user_profile():
-    return {
-        "id": 1,
-        "name": "Market Explorer",
-        "email": "explorer@market-rover.app",
-        "avatar": "",
-        "streak": max(1, len(_MEMORY_SESSIONS)),
-        "total_score": max(250, sum(s.get("score", 0) for s in _MEMORY_SESSIONS)),
-        "badges": ["Junior Virtuoso", "Brand Sleuth"],
-        "created_at": get_ist_date()
-    }
-
-@router.get("/users/me/sessions")
-async def get_user_sessions():
-    return _MEMORY_SESSIONS
-
-@router.get("/auth/config")
-async def get_auth_config():
-    """Returns runtime authentication configuration (e.g. Google Client ID)."""
-    client_id = (os.getenv("IC_GOOGLE_CLIENT_ID") or os.getenv("GOOGLE_CLIENT_ID") or "").strip()
-    return {
-        "googleClientId": client_id
-    }
-
-@router.get("/auth/me")
-async def get_auth_me():
-    return {
-        "user": {
-            "id": 1,
-            "name": "Market Explorer",
-            "email": "explorer@market-rover.app",
-            "avatar": "",
-            "streak": 1,
-            "total_score": 250
-        }
-    }
-
-@router.post("/auth/social-login")
-async def social_login(payload: SocialLoginPayload):
-    return {
-        "token": "mock_jwt_session_token",
-        "user": {
-            "id": 1,
-            "name": "Market Explorer",
-            "email": "explorer@market-rover.app",
-            "avatar": "",
-            "streak": 1,
-            "total_score": 250
-        }
-    }
-
-
 # ── Bull vs Bear (1v1 Real-Time Duel) Endpoints ────────────────────────────────
+# Must be defined BEFORE /puzzles/{puzzle_id}/... to avoid route shadowing 422 errors
 
 class CreateDuelPayload(BaseModel):
     name: str = "Bull Trader"
@@ -627,6 +261,49 @@ class JoinDuelPayload(BaseModel):
 class QuickMatchPayload(BaseModel):
     name: str = "Trader"
     avatar: str = ""
+
+@router.post("/puzzles/duel/complete")
+async def complete_duel_puzzle(payload: DuelCompletePayload):
+    """Record completed Bull vs Bear match, award BvB score and update rankings."""
+    today = get_ist_date()
+    brand = get_brand_by_id(payload.brandId) or get_daily_brand(today)
+    score = payload.score or (1000 if payload.isWinner else 100)
+    time_taken = payload.timeTaken or 30
+
+    pool = await get_db_pool()
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO public.investbrand_sessions (puzzle_id, brand_id, score, difficulty, time_taken)
+                    VALUES ($1, $2, $3, 'duel', $4)
+                """, payload.brandId or brand.get("id", 1), brand.get("id", 1), score, time_taken)
+        except Exception as e:
+            logger.warning(f"[InvestBrand] Failed recording duel session to DB: {e}")
+
+    _MEMORY_SESSIONS.append({
+        "puzzle_id": payload.brandId or brand.get("id", 1),
+        "brand_id": brand.get("id", 1),
+        "score": score,
+        "difficulty": "duel",
+        "date": today,
+        "is_winner": payload.isWinner,
+        "role": payload.role
+    })
+
+    bvb_total = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "duel")
+    grand_total = sum(s.get("score", 0) for s in _MEMORY_SESSIONS)
+
+    return {
+        "success": True,
+        "score": score,
+        "bvb_score": bvb_total,
+        "duel_score": bvb_total,
+        "total_score": grand_total,
+        "streak": max(1, len(_MEMORY_SESSIONS)),
+        "isWinner": payload.isWinner,
+        "message": f"🏆 Bull vs Bear points updated! +{score} BvB Points awarded."
+    }
 
 @router.post("/puzzles/duel/create")
 async def create_duel_room(payload: CreateDuelPayload):
@@ -772,3 +449,461 @@ async def websocket_duel_endpoint(websocket: WebSocket, room_code: str):
     except Exception as e:
         logger.warning(f"[DuelWS] Error in room {room_code} loop: {e}")
         await duel_manager.handle_disconnect(room_code, player_id)
+
+
+# ── Parameterized Individual Puzzle Routes ────────────────────────────────────
+
+@router.get("/puzzles/{puzzle_id}/clues")
+async def get_puzzle_clues(puzzle_id: int):
+    """Progressive clues for solving the puzzle."""
+    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
+    sector = brand.get("sector", "Market")
+    b_name = brand.get("brand", "")
+    company = brand.get("company", "")
+    ticker = brand.get("ticker", "")
+
+    sector_clouds = {
+        "Energy": "Refining, Jio, Petrochemicals, Oil, Solar, Cash Flow",
+        "IT": "Software, Cloud, AI, Consulting, Digital, Global",
+        "Financials": "Banking, Credit, Deposits, Wealth, Capital, Lending",
+        "Consumer Goods": "FMCG, Brands, Retail, Distribution, Packaging, Household",
+        "Automobile": "EV, Engines, Trucks, Passenger, Mobility, Assembly",
+        "Pharma": "Healthcare, Formulations, API, Labs, Medicine, Biotech",
+        "Metals": "Steel, Aluminium, Mining, Smelting, Infrastructure",
+        "Telecom": "5G, Data, Towers, Bandwidth, Broadband, ARPU",
+        "Power": "Thermal, Hydro, Grid, Renewable, Transmission"
+    }
+    word_cloud = sector_clouds.get(sector, "Growth, Value, Quality, Moat, Market Leader")
+
+    clue1 = f"Sector Clue: Operating in the {sector} sector with significant Indian market presence."
+    clue2 = f"Word Clue: {len(b_name)} letters, starts with '{b_name[0].upper() if b_name else '?'}'."
+    clue3 = f"Stock Clue: Owned by {company} (Ticker: {ticker}), traded on the NSE/BSE."
+
+    return {
+        "success": True,
+        "puzzle_id": puzzle_id,
+        "clues": {
+            "clue1": clue1,
+            "clue2": clue2,
+            "clue3": clue3,
+            "wordCloud": word_cloud,
+            "logoSvg": brand.get("logoSvg", ""),
+            "logoUrl": brand.get("logoUrl", "")
+        }
+    }
+
+@router.post("/puzzles/{puzzle_id}/guess")
+async def evaluate_puzzle_guess(puzzle_id: int, payload: GuessPayload):
+    """Validate user guess against brand, company name, or ticker."""
+    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
+    user_guess = payload.guess.strip().lower()
+
+    target_brand = (brand.get("brand") or "").strip().lower()
+    target_company = (brand.get("company") or "").strip().lower()
+    target_ticker = (brand.get("ticker") or "").strip().lower()
+
+    is_correct = (
+        user_guess == target_brand or
+        user_guess == target_company or
+        user_guess == target_ticker or
+        (len(user_guess) >= 3 and user_guess in target_brand)
+    )
+
+    if is_correct:
+        msg = f"Spot on! You correctly identified {brand.get('brand')}."
+        return {
+            "success": True,
+            "correct": True,
+            "isCorrect": True,
+            "brand": brand.get("brand"),
+            "company": brand.get("company"),
+            "ticker": brand.get("ticker"),
+            "score": 100,
+            "message": msg,
+            "feedback": msg
+        }
+    else:
+        msg = "Not quite! Try checking the sector and word clues again."
+        return {
+            "success": True,
+            "correct": False,
+            "isCorrect": False,
+            "message": msg,
+            "feedback": msg
+        }
+
+@router.post("/puzzles/{puzzle_id}/complete")
+async def complete_puzzle(puzzle_id: int, payload: CompletePayload):
+    """Record completed game and return updated streak and stats."""
+    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
+    today = get_ist_date()
+    score = payload.score or 100
+
+    pool = await get_db_pool()
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO public.investbrand_sessions (puzzle_id, brand_id, score, difficulty, time_taken)
+                    VALUES ($1, $2, $3, $4, $5)
+                """, puzzle_id, brand.get("id", 1), score, payload.difficulty, payload.time_taken)
+        except Exception as e:
+            logger.warning(f"[InvestBrand] Failed recording session to DB: {e}")
+
+    _MEMORY_SESSIONS.append({
+        "puzzle_id": puzzle_id,
+        "brand_id": brand.get("id", 1),
+        "score": score,
+        "difficulty": payload.difficulty or "easy",
+        "date": today
+    })
+
+    return {
+        "success": True,
+        "score": score,
+        "xp_earned": score,
+        "streak": max(1, len(_MEMORY_SESSIONS)),
+        "total_score": sum(s.get("score", 0) for s in _MEMORY_SESSIONS),
+        "level": "Junior Virtuoso"
+    }
+
+@router.get("/puzzles/{puzzle_id}/insight")
+async def get_puzzle_insight(puzzle_id: int):
+    """Fetch Teacher / Market Insight for the solved puzzle."""
+    brand = get_brand_by_id(puzzle_id) or get_daily_brand(get_ist_date())
+    insight = brand.get("insight") or f"{brand.get('brand')} is a prominent business under {brand.get('company')} ({brand.get('ticker')})."
+
+    # Generate live Gemini AI explanation if GOOGLE_API_KEY is available
+    ai_teacher_tip = None
+    if os.getenv("GOOGLE_API_KEY"):
+        try:
+            from google import genai
+            client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
+            prompt = (
+                f"In 2 concise sentences, provide an educational investing lesson on {brand.get('company')} ({brand.get('ticker')}) "
+                f"and its brand '{brand.get('brand')}'. Explain why understanding customer brand loyalty helps stock investors."
+            )
+            resp = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            if resp and resp.text:
+                ai_teacher_tip = resp.text.strip()
+        except Exception as e:
+            logger.debug(f"[InvestBrand] AI Insight generation exception: {e}")
+
+    if not ai_teacher_tip:
+        ai_teacher_tip = f"Investing in companies with strong brand recall like {brand.get('brand')} provides pricing power and defensible economic moats."
+
+    return {
+        "success": True,
+        "brand": brand.get("brand"),
+        "company": brand.get("company"),
+        "ticker": brand.get("ticker"),
+        "sector": brand.get("sector"),
+        "insight": insight,
+        "teacher_tip": ai_teacher_tip,
+        "financial_concept": f"Brand Moat & {brand.get('sector')} Growth"
+    }
+
+@router.get("/puzzles/vote-status")
+async def get_vote_status():
+    """Return candidates for tomorrow's community vote."""
+    today = get_ist_date()
+    candidates = NIFTY50_BRANDS[:5]
+
+    pool = await get_db_pool()
+    votes_map = {}
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                rows = await conn.fetch(
+                    "SELECT brand_id, COUNT(*) as cnt FROM public.investbrand_votes WHERE vote_date = $1 GROUP BY brand_id",
+                    date.fromisoformat(today) + timedelta(days=1)
+                )
+                for r in rows:
+                    votes_map[r["brand_id"]] = r["cnt"]
+        except Exception as e:
+            logger.warning(f"[InvestBrand] Error fetching vote counts: {e}")
+
+    candidate_list = []
+    for c in candidates:
+        b_id = c.get("id")
+        candidate_list.append({
+            "brand_id": b_id,
+            "brand": c.get("brand"),
+            "company": c.get("company"),
+            "sector": c.get("sector"),
+            "votes": votes_map.get(b_id, 0)
+        })
+
+    return {
+        "has_voted": False,
+        "candidates": candidate_list,
+        "vote_date": (date.fromisoformat(today) + timedelta(days=1)).isoformat()
+    }
+
+@router.post("/puzzles/vote")
+async def cast_vote(payload: VotePayload):
+    """Cast a community vote for tomorrow's puzzle brand."""
+    b_id = payload.brandId or payload.brand_id or 1
+    today = get_ist_date()
+    tomorrow = (date.fromisoformat(today) + timedelta(days=1)).isoformat()
+
+    pool = await get_db_pool()
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO public.investbrand_votes (brand_id, vote_date)
+                    VALUES ($1, $2)
+                """, b_id, date.fromisoformat(tomorrow))
+        except Exception as e:
+            logger.warning(f"[InvestBrand] Error casting vote to DB: {e}")
+
+    _MEMORY_VOTES.setdefault(tomorrow, []).append(b_id)
+
+    return {
+        "success": True,
+        "brand_id": b_id,
+        "message": "Vote logged successfully for tomorrow's challenge!"
+    }
+
+@router.post("/puzzles/track-click")
+async def track_share_click(payload: TrackClickPayload):
+    return {"success": True, "tracked": True}
+
+@router.get("/leaderboard")
+async def get_leaderboard(type: str = "all-time", level: Optional[str] = None):
+    """Fetch the leaderboard ranks with support for separate Bull vs Bear (duel) ranks and score breakdown."""
+    pool = await get_db_pool()
+    leaderboard_list = []
+    is_duel_filter = type.lower() in ["duel", "bull-vs-bear", "bvb"]
+
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                order_clause = "duel_score DESC, total_score DESC" if is_duel_filter else "total_score DESC, streak DESC"
+                rows = await conn.fetch(f"""
+                    SELECT name, avatar_url, total_score, streak,
+                           COALESCE(easy_score, 0) as easy_score,
+                           COALESCE(medium_score, 0) as medium_score,
+                           COALESCE(hard_score, 0) as hard_score,
+                           COALESCE(duel_score, 0) as duel_score,
+                           COALESCE(duel_wins, 0) as duel_wins
+                    FROM public.investbrand_users
+                    ORDER BY {order_clause}
+                    LIMIT 20
+                """)
+                for idx, r in enumerate(rows, start=1):
+                    display_score = r["duel_score"] if is_duel_filter else r["total_score"]
+                    leaderboard_list.append({
+                        "id": str(idx),
+                        "name": r["name"] or f"Player {idx}",
+                        "avatar_url": r["avatar_url"] or "",
+                        "score": display_score or 0,
+                        "total_score": r["total_score"] or 0,
+                        "easy_score": r["easy_score"] or 0,
+                        "medium_score": r["medium_score"] or 0,
+                        "hard_score": r["hard_score"] or 0,
+                        "duel_score": r["duel_score"] or 0,
+                        "duel_wins": r["duel_wins"] or 0,
+                        "streak": r["streak"] or 0,
+                        "rank": idx
+                    })
+        except Exception as e:
+            logger.warning(f"[InvestBrand] Error querying leaderboard from DB: {e}")
+
+    if not leaderboard_list:
+        # Default mock ranking with distinct Easy, Medium, Hard and Bull vs Bear scores
+        base_mocks = [
+            {"id": "1", "name": "Aarav Sharma", "avatar_url": "", "total_score": 3800, "easy_score": 1200, "medium_score": 1000, "hard_score": 600, "duel_score": 1000, "duel_wins": 4, "streak": 14, "badge": "Silver Virtuoso"},
+            {"id": "2", "name": "Priya Patel", "avatar_url": "", "total_score": 3100, "easy_score": 900, "medium_score": 800, "hard_score": 500, "duel_score": 900, "duel_wins": 3, "streak": 9, "badge": "Bronze Virtuoso"},
+            {"id": "3", "name": "Rohan Iyer", "avatar_url": "", "total_score": 2400, "easy_score": 700, "medium_score": 600, "hard_score": 400, "duel_score": 700, "duel_wins": 2, "streak": 5, "badge": "Copper Virtuoso"},
+            {"id": "4", "name": "Ananya Sen", "avatar_url": "", "total_score": 1950, "easy_score": 550, "medium_score": 500, "hard_score": 300, "duel_score": 600, "duel_wins": 2, "streak": 3, "badge": "Copper Virtuoso"},
+            {"id": "5", "name": "Vikram Malhotra", "avatar_url": "", "total_score": 1400, "easy_score": 400, "medium_score": 350, "hard_score": 250, "duel_score": 400, "duel_wins": 1, "streak": 2, "badge": "Junior Virtuoso"}
+        ]
+
+        if is_duel_filter:
+            sorted_mocks = sorted(base_mocks, key=lambda x: x["duel_score"], reverse=True)
+        else:
+            sorted_mocks = sorted(base_mocks, key=lambda x: x["total_score"], reverse=True)
+
+        for idx, m in enumerate(sorted_mocks, start=1):
+            leaderboard_list.append({
+                **m,
+                "score": m["duel_score"] if is_duel_filter else m["total_score"],
+                "rank": idx
+            })
+
+    return {"leaderboard": leaderboard_list}
+
+@router.get("/missions")
+async def get_missions():
+    """Active gamified missions for players."""
+    return [
+        {
+            "id": "m1",
+            "title": "First Step",
+            "description": "Solve your first daily brand puzzle",
+            "xp": 100,
+            "badge": "Junior",
+            "progress": 100,
+            "completed": True
+        },
+        {
+            "id": "m2",
+            "title": "Streak Builder",
+            "description": "Maintain a 3-day puzzle solving streak",
+            "xp": 300,
+            "badge": "Copper",
+            "progress": 33,
+            "completed": False
+        },
+        {
+            "id": "m3",
+            "title": "Community Voter",
+            "description": "Cast a vote for tomorrow's featured brand",
+            "xp": 150,
+            "badge": "Voter",
+            "progress": 100,
+            "completed": True
+        },
+        {
+            "id": "m4",
+            "title": "Sector Savant",
+            "description": "Correctly identify 5 Energy or IT sector brands",
+            "xp": 500,
+            "badge": "Bronze",
+            "progress": 40,
+            "completed": False
+        },
+        {
+            "id": "m5",
+            "title": "Duel Gladiator",
+            "description": "Compete and win in a 1v1 Bull vs Bear Real-Time Duel",
+            "xp": 400,
+            "badge": "Bull Gladiator",
+            "progress": 100,
+            "completed": True
+        }
+    ]
+
+@router.get("/education/locker")
+async def get_education_locker():
+    """Returns unlocked learning cards and brand insights."""
+    cards = []
+    for b in NIFTY50_BRANDS[:6]:
+        cards.append({
+            "id": b.get("id"),
+            "brand": b.get("brand"),
+            "company": b.get("company"),
+            "ticker": b.get("ticker"),
+            "sector": b.get("sector"),
+            "insight": b.get("insight"),
+            "date_unlocked": get_ist_date()
+        })
+    return {"cards": cards}
+
+@router.get("/education/tip")
+async def get_education_tip():
+    """Returns the daily Teacher Tip."""
+    tips = [
+        "Owning one auto stock is risky; an index fund spreads that risk across 50 companies.",
+        "Stocks can be volatile short-term but historically compound wealth over 10+ years.",
+        "Market cap = share price × total shares; it reveals true enterprise scale.",
+        "FMCG stocks (like Hindustan Unilever or ITC) are defensive assets during downturns.",
+        "You don't buy 'Pulsar'; you buy Bajaj Auto stock which owns Pulsar and other brands."
+    ]
+    h = int(hashlib.md5(get_ist_date().encode("utf-8")).hexdigest(), 16)
+    tip = tips[h % len(tips)]
+    return {
+        "tip": tip,
+        "author": "InvestBrand Teacher Agent",
+        "category": "Portfolio Fundamentals"
+    }
+
+@router.get("/users/me")
+async def get_user_profile():
+    easy_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "easy")
+    med_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "medium")
+    hard_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "hard")
+    duel_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "duel")
+    total_s = max(250, easy_s + med_s + hard_s + duel_s)
+
+    return {
+        "id": 1,
+        "name": "Market Explorer",
+        "email": "explorer@market-rover.app",
+        "avatar": "",
+        "streak": max(1, len(_MEMORY_SESSIONS)),
+        "score": total_s,
+        "total_score": total_s,
+        "easyScore": easy_s,
+        "easy_score": easy_s,
+        "mediumScore": med_s,
+        "medium_score": med_s,
+        "hardScore": hard_s,
+        "hard_score": hard_s,
+        "duelScore": duel_s,
+        "duel_score": duel_s,
+        "duelWins": sum(1 for s in _MEMORY_SESSIONS if s.get("difficulty") == "duel" and s.get("is_winner")),
+        "puzzlesCompleted": max(1, len(_MEMORY_SESSIONS)),
+        "strategyTag": "Virtuoso Strategist",
+        "badges": ["Junior Virtuoso", "Brand Sleuth", "Bull Champion" if duel_s > 0 else ""],
+        "created_at": get_ist_date()
+    }
+
+@router.get("/users/me/sessions")
+async def get_user_sessions():
+    return _MEMORY_SESSIONS
+
+@router.get("/auth/config")
+async def get_auth_config():
+    """Returns runtime authentication configuration (e.g. Google Client ID)."""
+    client_id = (os.getenv("IC_GOOGLE_CLIENT_ID") or os.getenv("GOOGLE_CLIENT_ID") or "").strip()
+    return {
+        "googleClientId": client_id
+    }
+
+@router.get("/auth/me")
+async def get_auth_me():
+    easy_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "easy")
+    med_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "medium")
+    hard_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "hard")
+    duel_s = sum(s.get("score", 0) for s in _MEMORY_SESSIONS if s.get("difficulty") == "duel")
+    total_s = max(250, easy_s + med_s + hard_s + duel_s)
+
+    return {
+        "user": {
+            "id": 1,
+            "name": "Market Explorer",
+            "email": "explorer@market-rover.app",
+            "avatar": "",
+            "streak": max(1, len(_MEMORY_SESSIONS)),
+            "score": total_s,
+            "total_score": total_s,
+            "easyScore": easy_s,
+            "easy_score": easy_s,
+            "mediumScore": med_s,
+            "medium_score": med_s,
+            "hardScore": hard_s,
+            "hard_score": hard_s,
+            "duelScore": duel_s,
+            "duel_score": duel_s
+        }
+    }
+
+@router.post("/auth/social-login")
+async def social_login(payload: SocialLoginPayload):
+    return {
+        "token": "mock_jwt_session_token",
+        "user": {
+            "id": 1,
+            "name": "Market Explorer",
+            "email": "explorer@market-rover.app",
+            "avatar": "",
+            "streak": 1,
+            "total_score": 250
+        }
+    }

@@ -83,9 +83,13 @@ export default function Profile() {
                 <div className="text-[8px] font-black uppercase text-amber-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]">Med</div>
                 <div className="text-sm font-black text-white leading-none">{p.mediumScore || 0}</div>
               </div>
-              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 hover:bg-white/10 transition-colors">
+              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 border-r border-white/10 hover:bg-white/10 transition-colors">
                 <div className="text-[8px] font-black uppercase text-rose-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(251,113,133,0.5)]">Hard</div>
                 <div className="text-sm font-black text-white leading-none">{p.hardScore || 0}</div>
+              </div>
+              <div className="flex flex-col items-center justify-center px-3 lg:px-4 py-1.5 hover:bg-white/10 transition-colors bg-indigo-950/40">
+                <div className="text-[8px] font-black uppercase text-indigo-400 mb-0.5 tracking-widest drop-shadow-[0_0_5px_rgba(99,102,241,0.5)]">⚔️ BvB</div>
+                <div className="text-sm font-black text-indigo-300 leading-none">{p.duelScore || 0}</div>
               </div>
             </div>
             <div className="bg-[#0f1219]/40 px-3 lg:px-4 py-2 rounded-2xl flex items-center gap-3 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] backdrop-blur-md flex-shrink-0 group/rank transition-all hover:bg-[#0f1219]/60">
@@ -246,16 +250,16 @@ export default function Profile() {
           * { -ms-overflow-style: none; scrollbar-width: none; }
           *::-webkit-scrollbar { display: none !important; }
           body, html { overflow: hidden !important; height: 100vh !important; margin: 0; padding: 0; }
-          
+
           /* Utility hide scroll for inner flex containers */
           .hide-scroll {
-            -ms-overflow-style: none; 
-            scrollbar-width: none; 
+            -ms-overflow-style: none;
+            scrollbar-width: none;
           }
-          .hide-scroll::-webkit-scrollbar { 
-            display: none !important; 
+          .hide-scroll::-webkit-scrollbar {
+            display: none !important;
           }
-          
+
           /* Animated Mesh Gradient Blobs */
           @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }

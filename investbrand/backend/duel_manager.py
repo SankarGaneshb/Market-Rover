@@ -340,13 +340,15 @@ class DuelRoomManager:
 
             logger.info(f"[DuelManager] {player.name} won {room_code} with guess '{raw_guess}'! Score: {player.score}")
 
-            # Broadcast Match Over with brand revealed
+            # Broadcast Match Over with brand revealed and score
             await self.broadcast_to_room(room_code, {
                 "type": "MATCH_OVER",
                 "winnerId": player_id,
                 "winnerName": player.name,
                 "winnerRole": player.role,
                 "endReason": "correct_guess",
+                "score": player.score,
+                "winnerScore": player.score,
                 "brand": room.brand,
                 "room": room.to_summary(reveal_brand=True)
             })

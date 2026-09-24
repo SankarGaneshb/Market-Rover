@@ -70,6 +70,55 @@ export default function PuzzleGame() {
     return '';
   };
 
+  // Helper to compute unique irregular & organic jigsaw morphology based on intrinsic grid position
+  const getTileMorphology = (pieceId, grid) => {
+    const row = Math.floor(pieceId / grid);
+    const col = pieceId % grid;
+    const isTop = row === 0;
+    const isBottom = row === grid - 1;
+    const isLeft = col === 0;
+    const isRight = col === grid - 1;
+
+    // Corner Pieces: Flat outer 90-degree edges, deep swooping organic curve on inner corner
+    if (isTop && isLeft) {
+      return { borderRadius: '4px 14px 34px 14px', label: 'Top-Left' };
+    }
+    if (isTop && isRight) {
+      return { borderRadius: '14px 4px 14px 34px', label: 'Top-Right' };
+    }
+    if (isBottom && isLeft) {
+      return { borderRadius: '14px 34px 14px 4px', label: 'Bottom-Left' };
+    }
+    if (isBottom && isRight) {
+      return { borderRadius: '34px 14px 4px 14px', label: 'Bottom-Right' };
+    }
+
+    // Edge Pieces: Flat exterior edge, alternating organic wave/pill curvature on interior side
+    if (isTop) {
+      const isAlt = col % 2 === 0;
+      return { borderRadius: isAlt ? '4px 4px 28px 10px' : '4px 4px 10px 28px', label: 'Top-Edge' };
+    }
+    if (isBottom) {
+      const isAlt = col % 2 === 0;
+      return { borderRadius: isAlt ? '28px 10px 4px 4px' : '10px 28px 4px 4px', label: 'Bottom-Edge' };
+    }
+    if (isLeft) {
+      const isAlt = row % 2 === 0;
+      return { borderRadius: isAlt ? '4px 28px 10px 4px' : '4px 10px 28px 4px', label: 'Left-Edge' };
+    }
+    if (isRight) {
+      const isAlt = row % 2 === 0;
+      return { borderRadius: isAlt ? '28px 4px 4px 10px' : '10px 4px 4px 28px', label: 'Right-Edge' };
+    }
+
+    // Interior Pieces: Alternating diagonal organic leaf/pebble jigsaw curvature
+    const isDiagonalA = (row + col) % 2 === 0;
+    return {
+      borderRadius: isDiagonalA ? '30px 10px 30px 10px' : '10px 30px 10px 30px',
+      label: 'Interior'
+    };
+  };
+
   const selectBrand = async (brand) => {
     if (!brand) return;
     setCurrentBrand(brand);
@@ -694,14 +743,14 @@ export default function PuzzleGame() {
 
               {/* Jigsaw Board Grid */}
               <div
-                className="grid bg-slate-800/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-2xl border-2 border-white/15 relative"
+                className="grid bg-slate-900/95 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl border-2 border-indigo-500/20 relative"
                 style={{
                   gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
                   gridTemplateRows: `repeat(${gridSize}, 1fr)`,
                   width: boardSize,
                   height: boardSize,
-                  gap: '2px',
-                  padding: '4px'
+                  gap: '4px',
+                  padding: '6px'
                 }}
               >
                 {pieces.map((piece, positionIdx) => {
@@ -710,6 +759,7 @@ export default function PuzzleGame() {
                   const isSelected = selectedPieceId === actualPiece.id;
                   const row = Math.floor(actualPiece.correctPosition / gridSize);
                   const col = actualPiece.correctPosition % gridSize;
+                  const pieceShape = getTileMorphology(actualPiece.id, gridSize);
 
                   return (
                     <div
@@ -717,38 +767,43 @@ export default function PuzzleGame() {
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, positionIdx)}
                       onClick={() => handlePieceClick(actualPiece)}
-                      className={`relative flex items-center justify-center overflow-hidden rounded-lg cursor-pointer transition-all duration-200 select-none ${
+                      className={`relative flex items-center justify-center cursor-pointer transition-all duration-200 select-none group/tile ${
                         isSelected
-                          ? 'ring-4 ring-cyan-400 scale-[1.03] z-10 shadow-cyan-500/50 shadow-lg'
+                          ? 'scale-[1.05] z-30 ring-4 ring-cyan-400 shadow-2xl shadow-cyan-500/50'
                           : isSolved
-                          ? 'border border-emerald-500/50 shadow-sm'
-                          : 'border border-white/10 hover:border-indigo-400 hover:scale-[1.02]'
+                          ? 'border-2 border-emerald-500 shadow-md shadow-emerald-500/20'
+                          : 'border border-white/20 hover:border-indigo-400 hover:scale-[1.02] shadow-sm'
                       }`}
-                      style={{ width: '100%', height: '100%' }}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: pieceShape.borderRadius,
+                        boxShadow: isSelected
+                          ? '0 0 0 3px #38bdf8, 0 10px 25px -5px rgba(56, 189, 248, 0.5), inset 0 0 0 1.5px rgba(255,255,255,0.8)'
+                          : isSolved
+                          ? '0 0 0 2px rgba(16, 185, 129, 0.8), inset 0 0 0 1.5px rgba(255,255,255,0.7), inset 2px 2px 4px rgba(255,255,255,0.3), inset -2px -2px 4px rgba(0,0,0,0.2)'
+                          : '0 2px 6px rgba(0,0,0,0.4), inset 0 0 0 1.5px rgba(255,255,255,0.6), inset 2px 2px 4px rgba(255,255,255,0.25), inset -2px -2px 4px rgba(0,0,0,0.25)'
+                      }}
                     >
                       {/* Sliced Piece Visual from Original Brand Image */}
                       <div
                         draggable={!isJigsawCompleted}
                         onDragStart={(e) => handleDragStart(e, actualPiece)}
-                        className={`absolute inset-0 transition-opacity ${isSolved ? 'opacity-100' : 'opacity-90'}`}
+                        className={`absolute inset-0 transition-opacity overflow-hidden ${isSolved ? 'opacity-100' : 'opacity-95'}`}
                         style={{
                           backgroundImage: `url("${brandImageSrc}")`,
                           backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
                           backgroundPosition: `${gridSize > 1 ? (col / (gridSize - 1)) * 100 : 0}% ${gridSize > 1 ? (row / (gridSize - 1)) * 100 : 0}%`,
                           backgroundRepeat: 'no-repeat',
-                          backgroundColor: '#ffffff'
+                          backgroundColor: '#ffffff',
+                          borderRadius: pieceShape.borderRadius
                         }}
                       />
 
-                      {/* Piece Number Badge */}
-                      <div className="absolute top-1 left-1 bg-slate-900/75 text-slate-300 rounded px-1.5 py-0.5 text-[9px] font-black pointer-events-none">
-                        #{actualPiece.id + 1}
-                      </div>
-
                       {/* Solved Check Badge */}
                       {isSolved && (
-                        <div className="absolute top-1 right-1 bg-emerald-500 text-white rounded-full p-1 shadow-lg pointer-events-none">
-                          <Award size={10} />
+                        <div className="absolute top-1.5 right-1.5 bg-emerald-500 text-white rounded-full p-1 shadow-md pointer-events-none flex items-center justify-center">
+                          <Check size={10} strokeWidth={3} />
                         </div>
                       )}
                     </div>

@@ -128,6 +128,52 @@ def test_education():
     assert res_tip.status_code == 200
     assert "tip" in res_tip.json()
 
+def test_duel_completion_and_bvb_score():
+    """Verify Bull vs Bear duel completion recording and BvB score calculation."""
+    res = client.post("/api/puzzles/duel/complete", json={
+        "roomCode": "BULL99",
+        "playerId": "p1_12345",
+        "score": 1250,
+        "brandId": 1,
+        "moves": 8,
+        "timeTaken": 42,
+        "isWinner": True,
+        "role": "bull"
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert data["score"] == 1250
+    assert data["bvb_score"] >= 1250
+    assert data["duel_score"] >= 1250
+    assert data["total_score"] >= 1250
+
+def test_leaderboard_duel_filtering():
+    """Verify leaderboard filtering specifically for Bull vs Bear duels."""
+    res = client.get("/api/leaderboard?type=duel")
+    assert res.status_code == 200
+    data = res.json()
+    assert "leaderboard" in data
+    assert len(data["leaderboard"]) > 0
+    first = data["leaderboard"][0]
+    assert "duel_score" in first
+    assert "easy_score" in first
+    assert "medium_score" in first
+    assert "hard_score" in first
+    assert first["score"] == first["duel_score"]
+    assert first["rank"] == 1
+
+def test_user_profile_duel_scores():
+    """Verify user profile contains distinct BvB duelScore alongside solo tiers."""
+    res = client.get("/api/users/me")
+    assert res.status_code == 200
+    data = res.json()
+    assert "duelScore" in data
+    assert "easyScore" in data
+    assert "mediumScore" in data
+    assert "hardScore" in data
+    assert data["duelScore"] >= 0
+
 def test_spa_routing_mime_types():
     """Verify SPA router handles asset extensions with 404 instead of HTML fallback."""
     # Non-existent JS asset must return 404 JSON, NOT index.html (200)

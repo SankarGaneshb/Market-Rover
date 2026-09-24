@@ -143,3 +143,28 @@ async def test_duel_disconnect_forfeit():
     assert room.state == "finished"
     assert room.winner_id == p2_id
     assert room.end_reason == "opponent_forfeit"
+
+
+@pytest.mark.asyncio
+async def test_duel_grid_sizes_easy_medium_hard():
+    """Verify 3x3 (9 pieces), 4x4 (16 pieces), 5x5 (25 pieces) grid puzzle generation."""
+    # 3x3 Easy
+    room_easy = DuelRoom(room_code="EASY01", difficulty="easy")
+    assert room_easy.grid_size == 3
+    assert room_easy.total_pieces == 9
+    room_easy.generate_puzzle()
+    assert len(room_easy.pieces) == 9
+
+    # 4x4 Medium
+    room_med = DuelRoom(room_code="MEDM01", difficulty="medium")
+    assert room_med.grid_size == 4
+    assert room_med.total_pieces == 16
+    room_med.generate_puzzle()
+    assert len(room_med.pieces) == 16
+
+    # 5x5 Hard
+    room_hard = DuelRoom(room_code="HARD01", difficulty="hard")
+    assert room_hard.grid_size == 5
+    assert room_hard.total_pieces == 25
+    room_hard.generate_puzzle()
+    assert len(room_hard.pieces) == 25

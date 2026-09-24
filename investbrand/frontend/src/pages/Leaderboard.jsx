@@ -62,13 +62,18 @@ export default function Leaderboard() {
 
         {/* Filters */}
         <div className='flex flex-wrap gap-2 mb-6 bg-slate-800/50 p-2 rounded-2xl border border-slate-700'>
-          {['all-time', 'weekly', 'daily'].map(t => (
+          {[
+            { id: 'all-time', label: 'All Time' },
+            { id: 'weekly', label: 'Weekly' },
+            { id: 'daily', label: 'Daily' },
+            { id: 'duel', label: '⚔️ Bull vs Bear' }
+          ].map(t => (
             <button
-              key={t}
-              onClick={() => { setType(t); setSelectedLevel(null); }}
-              className={`px-4 py-2 rounded-xl text-sm font-bold capitalize transition-all ${type === t && !selectedLevel ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+              key={t.id}
+              onClick={() => { setType(t.id); setSelectedLevel(null); }}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${type === t.id && !selectedLevel ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
             >
-              {t.replace('-', ' ')}
+              {t.label}
             </button>
           ))}
         </div>
@@ -106,6 +111,11 @@ export default function Leaderboard() {
             <div className='divide-y divide-slate-700/50'>
               {data.map((u, i) => {
                 const level = getVirtuosoLevel(u.streak);
+                const formatK = (val) => {
+                  const num = val || 0;
+                  return num >= 1000 ? `${(num / 1000).toFixed(num % 1000 === 0 ? 0 : 1)}k` : `${num}`;
+                };
+
                 return (
                   <div key={u.id} className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 hover:bg-slate-700/30 transition-colors ${user?.id === u.id ? 'bg-indigo-600/10' : ''}`}>
                     <div className='w-6 sm:w-8 font-black text-slate-500 text-xs sm:text-base'>
@@ -127,13 +137,15 @@ export default function Leaderboard() {
                       <div className={`text-[10px] font-black uppercase tracking-tighter ${level.color}`}>{level.name}</div>
                     </div>
                     <div className='text-right flex flex-col items-end shrink-0'>
-                      <div className='text-indigo-400 font-black text-base sm:text-lg leading-none mb-1'>{u.score.toLocaleString()}</div>
+                      <div className='text-indigo-400 font-black text-base sm:text-lg leading-none mb-1'>{(u.score || 0).toLocaleString()}</div>
                       <div className='flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase tracking-wider mb-1 bg-slate-900/50 px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-700/50'>
-                        <span className="text-emerald-400">E:{Math.floor(u.easy_score / 1000)}k</span>
+                        <span className="text-emerald-400">E:{formatK(u.easy_score)}</span>
                         <span className="text-slate-600">|</span>
-                        <span className="text-amber-400">M:{Math.floor(u.medium_score / 1000)}k</span>
+                        <span className="text-amber-400">M:{formatK(u.medium_score)}</span>
                         <span className="text-slate-600">|</span>
-                        <span className="text-rose-400">H:{Math.floor(u.hard_score / 1000)}k</span>
+                        <span className="text-rose-400">H:{formatK(u.hard_score)}</span>
+                        <span className="text-slate-600">|</span>
+                        <span className="text-indigo-400 font-bold">⚔️ BvB:{formatK(u.duel_score)}</span>
                       </div>
                       <div className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase'>{u.streak}d streak</div>
                     </div>

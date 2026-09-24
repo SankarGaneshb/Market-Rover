@@ -57,13 +57,24 @@ jobs:
       - name: Auto-Purge Old Image Digests (Artifact Registry Storage Guard)
         run: |
           echo "Purging older container digests to keep Artifact Registry strictly under Free Tier limit..."
-          IMAGE_PATH="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}"
+          REPO_IMAGE="us-docker.pkg.dev/${{ env.PROJECT_ID }}/gcr.io/${{ env.SERVICE_NAME }}"
 
-          # Keep strictly 1 latest digest, delete all older unreferenced digests
-          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" --sort-by="~TIMESTAMP" | tail -n +2 | while read -r digest; do
+          # Fetch all digests in descending chronological order (newest first)
+          DIGESTS=$(gcloud artifacts docker images list "$REPO_IMAGE" --sort-by="~CREATE_TIME" --format="value(version)" 2>/dev/null | grep -E '^sha256:' || true)
+
+          # Retain strictly the 1 latest deployed digest, delete all older digests
+          echo "$DIGESTS" | tail -n +2 | while read -r digest; do
             if [ -n "$digest" ]; then
               echo "Deleting old digest: $digest"
-              gcloud container images delete "$IMAGE_PATH@$digest" --force-delete-tags --quiet || true
+              gcloud artifacts docker images delete "${REPO_IMAGE}@${digest}" --delete-tags --quiet || true
+            fi
+          done
+
+          # Fallback purge via legacy gcr.io path
+          IMAGE_PATH="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}"
+          gcloud container images list-tags "$IMAGE_PATH" --format="value(digest)" --sort-by="~TIMESTAMP" 2>/dev/null | tail -n +2 | while read -r digest; do
+            if [ -n "$digest" ]; then
+              gcloud container images delete "$IMAGE_PATH@$digest" --force-delete-tags --quiet 2>/dev/null || true
             fi
           done
           echo "Registry cleanup complete. Storage usage optimal!"

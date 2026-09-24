@@ -93,6 +93,55 @@ export default function DuelArena() {
     return () => window.removeEventListener('resize', handleResize);
   }, [stage]);
 
+  // ── Unique Irregular & Organic Jigsaw Morphology ─────────────────────────
+  const getTileMorphology = (pieceId, grid) => {
+    const row = Math.floor(pieceId / grid);
+    const col = pieceId % grid;
+    const isTop = row === 0;
+    const isBottom = row === grid - 1;
+    const isLeft = col === 0;
+    const isRight = col === grid - 1;
+
+    // Corner Pieces: Flat outer 90-degree edges, deep swooping organic curve on inner corner
+    if (isTop && isLeft) {
+      return { borderRadius: '4px 14px 34px 14px', label: 'Top-Left' };
+    }
+    if (isTop && isRight) {
+      return { borderRadius: '14px 4px 14px 34px', label: 'Top-Right' };
+    }
+    if (isBottom && isLeft) {
+      return { borderRadius: '14px 34px 14px 4px', label: 'Bottom-Left' };
+    }
+    if (isBottom && isRight) {
+      return { borderRadius: '34px 14px 4px 14px', label: 'Bottom-Right' };
+    }
+
+    // Edge Pieces: Flat exterior edge, alternating organic wave/pill curvature on interior side
+    if (isTop) {
+      const isAlt = col % 2 === 0;
+      return { borderRadius: isAlt ? '4px 4px 28px 10px' : '4px 4px 10px 28px', label: 'Top-Edge' };
+    }
+    if (isBottom) {
+      const isAlt = col % 2 === 0;
+      return { borderRadius: isAlt ? '28px 10px 4px 4px' : '10px 28px 4px 4px', label: 'Bottom-Edge' };
+    }
+    if (isLeft) {
+      const isAlt = row % 2 === 0;
+      return { borderRadius: isAlt ? '4px 28px 10px 4px' : '4px 10px 28px 4px', label: 'Left-Edge' };
+    }
+    if (isRight) {
+      const isAlt = row % 2 === 0;
+      return { borderRadius: isAlt ? '28px 4px 4px 10px' : '10px 4px 4px 28px', label: 'Right-Edge' };
+    }
+
+    // Interior Pieces: Alternating diagonal organic leaf/pebble jigsaw curvature
+    const isDiagonalA = (row + col) % 2 === 0;
+    return {
+      borderRadius: isDiagonalA ? '30px 10px 30px 10px' : '10px 30px 10px 30px',
+      label: 'Interior'
+    };
+  };
+
   // ── Web Audio Synthesizer (Bells, Buzzers, Snaps) ──────────────────────────
   const playSfx = (type) => {
     if (!soundEnabled) return;
@@ -305,11 +354,26 @@ export default function DuelArena() {
         }
         setMatchResult(msg);
         setStage('results');
-        if (msg.winnerId === playerId) {
+        const won = msg.winnerId === playerId;
+        if (won) {
           playSfx('victory');
         } else {
           playSfx('wrong');
         }
+
+        // Persist Bull vs Bear duel score & ranking
+        const duelScore = won ? (msg.score || 1000) : 100;
+        apiPost('/puzzles/duel/complete', {
+          roomCode: roomCode || '',
+          playerId: playerId || '',
+          score: duelScore,
+          brandId: msg.brand?.id || currentBrand?.id || 1,
+          moves: moves || 0,
+          timeTaken: Math.max(1, 90 - matchTimer),
+          isWinner: won,
+          role: playerRole
+        }).catch(e => console.warn('Could not save duel result:', e));
+
         break;
       }
 
@@ -860,7 +924,7 @@ export default function DuelArena() {
             <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex-1 flex flex-col items-center justify-center relative min-h-[360px]" ref={boardParentRef}>
               {/* Sliced Jigsaw Grid */}
               <div
-                className="grid gap-1.5 bg-slate-950/80 p-2 rounded-2xl border border-slate-800 shadow-2xl relative select-none"
+                className="grid gap-1.5 bg-slate-950/90 p-2.5 rounded-3xl border border-indigo-500/20 shadow-2xl relative select-none"
                 style={{
                   gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
                   width: `${boardSize}px`,
@@ -869,15 +933,16 @@ export default function DuelArena() {
               >
                 {Array.from({ length: totalPieces }).map((_, slotIndex) => {
                   const piece = pieces.find(p => p.currentPosition === slotIndex);
-                  if (!piece) return <div key={slotIndex} className="bg-slate-900/50 rounded-lg" />;
+                  if (!piece) return <div key={slotIndex} className="bg-slate-900/50 rounded-2xl" />;
 
                   const isSolved = piece.correctPosition === piece.currentPosition;
                   const isSelected = selectedPieceId === piece.id;
 
                   const correctRow = Math.floor(piece.id / gridSize);
                   const correctCol = piece.id % gridSize;
-                  const bgX = (correctCol / (gridSize - 1)) * 100;
-                  const bgY = (correctRow / (gridSize - 1)) * 100;
+                  const bgX = gridSize > 1 ? (correctCol / (gridSize - 1)) * 100 : 0;
+                  const bgY = gridSize > 1 ? (correctRow / (gridSize - 1)) * 100 : 0;
+                  const pieceShape = getTileMorphology(piece.id, gridSize);
 
                   return (
                     <div
@@ -887,20 +952,39 @@ export default function DuelArena() {
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, slotIndex)}
                       onClick={() => handlePieceClick(piece)}
-                      className={`relative rounded-xl cursor-pointer overflow-hidden transition-all duration-150 ${
-                        isSelected ? 'ring-4 ring-indigo-400 scale-[1.03] z-20 shadow-xl' : ''
-                      } ${isSolved ? 'border-2 border-emerald-500/50' : 'border border-white/10 hover:border-white/30'}`}
+                      className={`relative cursor-pointer transition-all duration-150 select-none group/tile ${
+                        isSelected
+                          ? 'scale-[1.05] z-30 ring-4 ring-cyan-400 shadow-2xl shadow-cyan-500/50'
+                          : isSolved
+                          ? 'border-2 border-emerald-500/80 shadow-md shadow-emerald-500/20'
+                          : 'border border-slate-700/80 hover:border-indigo-400/80 hover:scale-[1.02] shadow-sm'
+                      }`}
                       style={{
-                        backgroundImage: brandImageSrc ? `url("${brandImageSrc}")` : 'none',
-                        backgroundSize: `${boardSize}px ${boardSize}px`,
-                        backgroundPosition: `${bgX}% ${bgY}%`,
-                        backgroundColor: '#1e1b4b'
+                        borderRadius: pieceShape.borderRadius,
+                        boxShadow: isSelected
+                          ? '0 0 0 3px #38bdf8, 0 10px 25px -5px rgba(56, 189, 248, 0.5), inset 0 0 0 1.5px rgba(255,255,255,0.8)'
+                          : isSolved
+                          ? '0 0 0 2px rgba(16, 185, 129, 0.8), inset 0 0 0 1.5px rgba(255,255,255,0.7), inset 2px 2px 4px rgba(255,255,255,0.3), inset -2px -2px 4px rgba(0,0,0,0.2)'
+                          : '0 2px 6px rgba(0,0,0,0.4), inset 0 0 0 1.5px rgba(255,255,255,0.6), inset 2px 2px 4px rgba(255,255,255,0.25), inset -2px -2px 4px rgba(0,0,0,0.25)'
                       }}
                     >
+                      {/* Sliced Piece Visual from Original Brand Image */}
+                      <div
+                        className={`absolute inset-0 transition-opacity overflow-hidden ${isSolved ? 'opacity-100' : 'opacity-95'}`}
+                        style={{
+                          backgroundImage: brandImageSrc ? `url("${brandImageSrc}")` : 'none',
+                          backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
+                          backgroundPosition: `${bgX}% ${bgY}%`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundColor: '#ffffff',
+                          borderRadius: pieceShape.borderRadius
+                        }}
+                      />
+
                       {/* Solved checkmark */}
                       {isSolved && (
-                        <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-emerald-500/80 flex items-center justify-center">
-                          <Check size={10} className="text-white" />
+                        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-500 text-white shadow-md flex items-center justify-center pointer-events-none">
+                          <Check size={10} strokeWidth={3} />
                         </div>
                       )}
                     </div>
@@ -1035,7 +1119,7 @@ export default function DuelArena() {
       <div className="min-h-[calc(100vh-65px)] bg-[#030014] text-white p-4 flex items-center justify-center relative">
         <div className="max-w-2xl w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative z-10 shadow-2xl text-center">
           {/* Winner Trophy Banner */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-3 bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/20">
               <Trophy size={32} />
             </div>
@@ -1049,9 +1133,25 @@ export default function DuelArena() {
             </p>
           </div>
 
+          {/* Bull vs Bear Score & Match Performance HUD */}
+          <div className="grid grid-cols-3 gap-2.5 my-4">
+            <div className="bg-slate-950/80 p-3 rounded-2xl border border-amber-500/30">
+              <div className="text-[10px] font-black uppercase text-amber-400 tracking-wider mb-0.5">BvB Points Earned</div>
+              <div className="text-lg font-black text-amber-300">+{isWinner ? (matchResult?.score || 1000) : 100} PTS</div>
+            </div>
+            <div className="bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
+              <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-0.5">Your Moves</div>
+              <div className="text-lg font-black text-white">{moves} Moves</div>
+            </div>
+            <div className="bg-slate-950/80 p-3 rounded-2xl border border-indigo-500/30">
+              <div className="text-[10px] font-black uppercase text-indigo-400 tracking-wider mb-0.5">Arena Format</div>
+              <div className="text-lg font-black text-indigo-300 font-mono">{gridSize}x{gridSize} Jigsaw</div>
+            </div>
+          </div>
+
           {/* Revealed Brand Card */}
           {revealedBrand && (
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 my-6 flex items-center gap-4 text-left">
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 my-4 flex items-center gap-4 text-left">
               <div className="w-16 h-16 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
                 {brandImageSrc && <img src={brandImageSrc} alt="" className="w-full h-full object-contain" />}
               </div>
@@ -1065,7 +1165,7 @@ export default function DuelArena() {
 
           {/* AI Teacher Insight / Lore */}
           {revealedBrand?.insight && (
-            <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-4 mb-6 text-left text-xs text-indigo-200">
+            <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-4 mb-4 text-left text-xs text-indigo-200">
               <span className="font-bold text-indigo-300 block mb-1 flex items-center gap-1.5">
                 <Sparkles size={14} /> AI Market Lore & Moat:
               </span>
