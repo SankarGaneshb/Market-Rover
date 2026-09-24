@@ -27,6 +27,15 @@ from fastapi import FastAPI
 from src.routes import router as api_router
 app = FastAPI()
 app.include_router(api_router, prefix="/api")
+
+@app.get("/")
+def _root():
+    return {"status": "OPERATIONAL", "docs": "/docs"}
+
+@app.get("/health")
+def _health():
+    return {"status": "stable"}
+
 from src.utils.db_manager import db
 
 client = TestClient(app)
