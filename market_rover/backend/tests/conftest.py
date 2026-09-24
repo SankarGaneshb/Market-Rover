@@ -59,7 +59,10 @@ _port = sys.modules["rover_tools.portfolio_tool"]
 _port.read_portfolio                 = MagicMock(return_value=[])
 
 _ticker = sys.modules["rover_tools.ticker_resources"]
-_ticker.NIFTY_50_SECTOR_MAP          = {}
+_ticker.NIFTY_50_SECTOR_MAP          = {
+    "TCS.NS": "IT", "INFY.NS": "IT", "TCS": "IT", "INFY": "IT",
+    "RELIANCE.NS": "Energy", "HDFCBANK.NS": "Financial Services"
+}
 
 _analytics = sys.modules["rover_tools.analytics"]
 _analytics.AnalyzersUnified          = MagicMock()

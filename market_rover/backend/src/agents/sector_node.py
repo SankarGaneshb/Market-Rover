@@ -23,9 +23,9 @@ async def sector_node(state: AgentState) -> dict:
     aligned_tickers = []
 
     for ticker in tickers:
-        # Clean ticker for lookup (TCS.NS -> TCS)
+        # Clean ticker for lookup (TCS.NS or TCS)
         short_ticker = ticker.split('.')[0].upper()
-        sector = NIFTY_50_SECTOR_MAP.get(short_ticker, "Other / Diversified")
+        sector = NIFTY_50_SECTOR_MAP.get(ticker, NIFTY_50_SECTOR_MAP.get(f"{short_ticker}.NS", NIFTY_50_SECTOR_MAP.get(short_ticker, "Other / Diversified")))
         ticker_map[ticker] = sector
 
         # Check alignment with top sectors
