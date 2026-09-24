@@ -49,8 +49,10 @@ To maintain build stability, all code changes MUST adhere to these GoA rules:
    - Every integrated module (e.g., `investbrand`, `ownerise`, `pledge_rover`) must be import-verifiable without environment variables or credentials.
    - Always run the "Startup Integrity" check: `python -c "import server; print('[OK] Unified server loaded successfully')"`.
    - When modularizing API routes, aggressively delete old inline endpoints in the main server file to prevent silent `NameError` route shadowing.
-3. **Dependency Sync**:
-   - When tools in `rover_tools/` are updated, ensure integrated modules' `requirements.txt` and the root unified `Dockerfile` are updated to match.
+3. **Dependency Sync & Container Optimization**:
+   - Production Cloud Run deployments MUST use `requirements-prod.txt` to keep container image sizes minimal and strictly within Artifact Registry free tier quotas.
+   - Root `requirements.txt` inherits `-r requirements-prod.txt` and supplies developer/UI tools (`streamlit`, `matplotlib`, `seaborn`, `pytest`) for local development, Snowflake, and CI hooks.
+   - When tools in `rover_tools/` are updated, ensure integrated modules' `requirements.txt`, `requirements-prod.txt`, and the root unified `Dockerfile` are updated to match.
    - Use absolute imports (e.g., `from rover_tools.logger import ...`) and ensure `PYTHONPATH` includes the app root.
 4. **Proxy & Auth Compliance**:
    - **Nginx**: Never use `proxy_set_header Host $host;` when proxying from an Nginx container to a `.run.app` service, as it causes SNI mismatches (502 Bad Gateway).

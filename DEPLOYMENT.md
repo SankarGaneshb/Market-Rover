@@ -331,4 +331,33 @@ If needed:
 
 ---
 
-**Congratulations! 🎉 Market-Rover 2.0 is now in production!**
+## ☁️ Google Cloud Run Unified Container Deployment (v5 Architecture)
+
+Market-Rover deploys a unified single-container monolith to Google Cloud Run hosting the FastAPI Intelligence Gateway, all satellite API routers, and 3 compiled React SPAs.
+
+### 1. Dual Requirements Architecture
+- **`requirements-prod.txt`**: Lean runtime dependencies installed in the Cloud Run container (`FastAPI`, `Uvicorn`, `asyncpg`, `sqlalchemy`, `CrewAI`, `pandas`, `yfinance`, `pydantic`).
+- **`requirements.txt`**: All-inclusive manifest inheriting `-r requirements-prod.txt` plus `streamlit`, `streamlit-authenticator`, `plotly`, `matplotlib`, and `seaborn` for local development, Snowflake, and CI tests.
+
+### 2. Multi-Stage Dockerfile
+```dockerfile
+# Stage 1: Build React SPAs
+FROM node:20-alpine AS frontend-builder
+...
+# Stage 2: Unified Python 3.13 Runner
+FROM python:3.13-slim AS runner
+COPY requirements-prod.txt /app/requirements-prod.txt
+RUN pip install --no-cache-dir --compile -r requirements-prod.txt
+COPY . /app
+RUN rm -rf /app/market_rover/frontend /app/hil_rover/frontend /app/investbrand/frontend /app/pledge_rover/frontend
+COPY --from=frontend-builder /app/static /app/static
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "2"]
+```
+
+### 3. Artifact Registry Lifecycle & Storage Optimization
+- **Retention Policy**: `keep-latest-3` (retains the 3 most recent versions) + `delete-prunable-versions` (purges builds older than 1 day).
+- **Target Image Size**: ~200–220 MB compressed, ensuring all active versions comfortably fit within the **0.5 GB Free Tier**.
+
+---
+
+**Congratulations! 🎉 Market-Rover 5.0 is in production!**
