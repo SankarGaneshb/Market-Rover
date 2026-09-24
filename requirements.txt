@@ -1,20 +1,10 @@
 # Market-Rover Unified Monolith Dependencies
-# (Core App, FastAPI Server, Satellite Rovers & CrewAI Engine)
+# (Local Development, Snowflake & Integrated Test Suites)
 
-# Core Web Framework & Async Database
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-asyncpg>=0.29.0
-sqlalchemy[asyncio]>=2.0.30
-pg8000>=1.31.0
+# Inherit Production Dependencies
+-r requirements-prod.txt
 
-# Core App & AI Agents
-crewai>=1.7.2
-litellm>=1.40.0
-langgraph~=1.1.4
-langchain-google-genai~=4.2.0
-
-# Frontend UI & Streamlit
+# Frontend UI & Streamlit Dashboard Suite
 streamlit>=1.52.0
 streamlit-authenticator>=0.4.2
 streamlit-oauth>=0.1.11
@@ -22,24 +12,3 @@ plotly>=6.5.0
 matplotlib>=3.10.8
 seaborn>=0.13.2
 Pillow>=11.3.0
-
-# Data, Analytics & Scraping
-pandas>=2.2.3
-numpy>=2.1.1
-scipy>=1.15.2
-yfinance>=0.2.66
-nselib>=1.9
-nsepython>=2.97
-beautifulsoup4~=4.13.4
-newspaper3k>=0.2.8
-lxml_html_clean>=0.4.3
-duckduckgo_search>=8.1.1
-
-# Utilities
-pydantic~=2.11.10
-python-dotenv>=1.1.1
-protobuf>=4.25.3
-PyYAML>=6.0.1
-Requests>=2.32.3
-httpx>=0.28.1
-aiohttp>=3.11.0

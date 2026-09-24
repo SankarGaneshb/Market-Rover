@@ -34,9 +34,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --compile -r requirements.txt && \
+# Copy requirements and install lean production Python dependencies
+COPY requirements-prod.txt /app/requirements-prod.txt
+RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
     pip cache purge 2>/dev/null || true && \
     # Strip site-packages test bloat and cache artifacts \
     find /usr/local/lib/python3.13/site-packages -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \

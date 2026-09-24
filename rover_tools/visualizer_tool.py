@@ -7,8 +7,10 @@ import os
 from typing import Type
 from pydantic import BaseModel, Field
 from utils.logger import get_logger
-from utils.metrics import track_error_detail
-import streamlit as st
+try:
+    import streamlit as st
+except ImportError:
+    st = None
 
 logger = get_logger(__name__)
 
@@ -36,21 +38,21 @@ def run_snapshot_logic(ticker: str):
     # Use long-term volatility (1 year) for stability
     volatility = analyzer.calculate_volatility(history, window=252)
     returns_matrix = analyzer.calculate_monthly_returns_matrix(history)
-    
+
     # Scenarios based on Volatility only (No OI)
     scenarios = analyzer.model_scenarios(ltp, volatility, days_remaining=30)
-    
+
     # Seasonality Stats (Win Rate, Avg Return)
     seasonality_stats = analyzer.calculate_seasonality(history)
-    
+
     # 2026 Calendar Analysis
     calendar_tool = SeasonalityCalendar(history)
     calendar_df_strategic = calendar_tool.generate_analysis()
-    
+
     # Subha Muhurta Calendar
     calendar_tool_muhurta = SeasonalityCalendar(history, calendar_type="Subha Muhurta")
     calendar_df_muhurta = calendar_tool_muhurta.generate_analysis()
-        
+
     # 2026 Forecast
     forecast_2026 = analyzer.calculate_2026_forecast(history)
 
@@ -59,17 +61,17 @@ def run_snapshot_logic(ticker: str):
         # 3. Visualize (Returns buffer)
         # Pass new data components (Seasonality, Calendar) to PDF generator
         pdf_buffer = visualizer.generate_pdf_report(
-            ticker=ticker, 
-            history_df=history, 
-            scenarios=scenarios, 
-            returns_matrix=returns_matrix, 
+            ticker=ticker,
+            history_df=history,
+            scenarios=scenarios,
+            returns_matrix=returns_matrix,
             forecast_2026=forecast_2026,
             seasonality_stats=seasonality_stats,
             calendar_tool=calendar_tool,
             calendar_df_strategic=calendar_df_strategic,
             calendar_df_muhurta=calendar_df_muhurta
         )
-        
+
         return {
             "ltp": ltp,
             "volatility": volatility,
@@ -96,13 +98,13 @@ class MarketSnapshotTool(BaseTool):
 
     def _run(self, ticker: str) -> str:
         logger.debug(f"MarketSnapshotTool called for {ticker}")
-        
+
         # Call cached logic
         result = run_snapshot_logic(ticker)
-        
+
         if isinstance(result, str) and result.startswith("Error"):
             return result
-        
+
         # Unpack
         ltp = result['ltp']
         volatility = result['volatility']
@@ -115,7 +117,7 @@ class MarketSnapshotTool(BaseTool):
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
         filename = f"{output_dir}/{ticker}_report.pdf"
-        
+
         with open(filename, "wb") as f:
             f.write(pdf_buffer.getbuffer())
 
@@ -124,9 +126,9 @@ class MarketSnapshotTool(BaseTool):
         neutral_end = scenarios['neutral_range'][1]
         bull_tgt = scenarios['bull_target']
         bear_tgt = scenarios['bear_target']
-        
+
         iv_info = f"- **HV Used (Annual):** {volatility*100:.2f}%"
-        
+
         summary = f"""
         **Market Snapshot for {ticker}**
         - **LTP:** {ltp:.2f}
@@ -134,10 +136,10 @@ class MarketSnapshotTool(BaseTool):
         - **Expected Range (30 days):** {neutral_start:.0f} - {neutral_end:.0f}
         - **Bull Target:** {bull_tgt:.0f}
         - **Bear Target:** {bear_tgt:.0f}
-        
+
         [Download PDF Report]({filename})
         """
-        
+
         if forecast_2026:
             summary += f"""
             **2026 Long-Term Forecast (End of Year)**
@@ -145,7 +147,7 @@ class MarketSnapshotTool(BaseTool):
             - **Range:** {forecast_2026['range_low']:.0f} - {forecast_2026['range_high']:.0f}
             - **Models Used:** Trend (LinReg), CAGR ({forecast_2026['cagr_percent']:.1f}%), Monte Carlo
             """
-        
+
         return summary
 
 # Instantiate for import
