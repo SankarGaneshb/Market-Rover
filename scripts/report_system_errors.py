@@ -8,7 +8,7 @@ Usage:
 """
 from pathlib import Path
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 import argparse
 import os
