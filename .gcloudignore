@@ -10,8 +10,8 @@ artifacts/
 /assets/
 !**/frontend/**/assets/**
 !**/src/assets/**
-/data/
-!**/src/data/**
+data/*.db
+*.db
 *.log
 ci_log*.txt
 full_*.txt
