@@ -53,8 +53,8 @@ data/*.db
 
 # Loose Root Markdown, Text & Diagnostic Logs
 *.txt
+!requirements*.txt
 *.pdf
-*.csv
 *.md
 *.bat
 *.ps1
