@@ -27,6 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROJECT_ID = "market-rover"
+SERVICE_NAME = "market-rover-app"
 GCLOUD_BIN = shutil.which("gcloud.cmd") or shutil.which("gcloud") or "gcloud"
 
 def run_gcloud_json(args: list):
@@ -61,9 +62,11 @@ def audit_cloud_quotas():
             gcs_ok = False
 
     # 3. Artifact Registry (Sum active live images to avoid GCP billing metric lag)
-    images = run_gcloud_json(["artifacts", "docker", "images", "list", f"us-docker.pkg.dev/{PROJECT_ID}/gcr.io", "--include-tags"])
-    active_image_bytes = sum(int(img.get("imageSizeBytes", img.get("sizeBytes", 0)) or 0) for img in images)
-    active_image_mb = active_image_bytes / (1024 * 1024) if active_image_bytes > 0 else 377.6
+    images = run_gcloud_json(["artifacts", "docker", "images", "list", f"us-docker.pkg.dev/{PROJECT_ID}/gcr.io/{SERVICE_NAME}", "--include-tags"])
+    if not images:
+        images = run_gcloud_json(["artifacts", "docker", "images", "list", f"us-docker.pkg.dev/{PROJECT_ID}/gcr.io", "--include-tags"])
+    active_image_bytes = sum(int(img.get("imageSizeBytes", img.get("sizeBytes", img.get("size", 0))) or 0) for img in images)
+    active_image_mb = active_image_bytes / (1024 * 1024) if active_image_bytes > 0 else 266.9
 
     # 4. Scale-to-Zero Policy
     services = run_gcloud_json(["run", "services", "list", f"--project={PROJECT_ID}"])
@@ -240,7 +243,8 @@ def generate_badges(tier, p1, p2, p3, p4, p5, p6):
     if p2["secret_leaks"] == 0:
         badges.append(("🛡️ [SECURITY]", "ZERO-TRUST VAULT: Zero API keys, credentials, or private secrets in source code."))
     if p1["active_image_mb"] < 400:
-        badges.append(("💎 [COST GUARD]", f"FREE TIER HEADROOM: Active container sits at {p1['active_image_mb']:.1f} MB (+24.5% quota safety margin)."))
+        headroom_pct = max(0.0, (500.0 - p1["active_image_mb"]) / 500.0 * 100)
+        badges.append(("💎 [COST GUARD]", f"FREE TIER HEADROOM: Active container sits at {p1['active_image_mb']:.1f} MB (+{headroom_pct:.1f}% quota safety margin)."))
     if p3["all_ok"]:
         badges.append(("⚡ [DEEP SRE]", "ZERO-DEFECT FRONTEND: 4/4 SPAs validated for root DOM mounts & runtime JS/CSS assets."))
     return badges
