@@ -1,7 +1,7 @@
 """
-Market-Rover Developer Compliance & SRE Tier Scoreboard (A -> AAAAA)
-====================================================================
-Evaluates the architecture across 6 core pillars:
+Market-Rover SRE Compliance & Governance Platform (A -> AAAAA)
+==============================================================
+Comprehensive 6-Pillar Engineering & Infrastructure Assurance:
 1. Zero-Cost Cloud Quotas (Artifact Registry < 500MB, GCS 1-day purge, scale-to-zero)
 2. Security & Zero-Trust Hygiene (Secret scanning, OAuth RFC 6749, MIME guard)
 3. Deep Frontend & Asset SRE (4 SPAs DOM mount, 100% JS/CSS asset resolution)
@@ -272,7 +272,7 @@ def write_github_summary(total_score, tier, tier_title, p1, p2, p3, p4, p5, p6, 
             f.write("### 🚀 Next-Level Developer Quests\n")
             f.write("- **Quest 1:** Migrate `investbrand/frontend` to Vite (earn the ⚡ *Instant-Build Trophy*).\n")
             f.write("- **Quest 2:** Add Brotli pre-compression for production JS bundles.\n")
-            f.write("\n---\n*Report generated dynamically by Market-Rover SRE Compliance Engine.*\n")
+            f.write("\n---\n*Report generated dynamically by Market-Rover SRE Compliance Platform.*\n")
     except Exception:
         pass
 

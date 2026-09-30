@@ -80,6 +80,6 @@ jobs:
           done
           echo "Registry cleanup complete. Storage usage optimal!"
 
-      - name: Proactive Zero-Cost Quota Audit
+      - name: Proactive SRE & Zero-Cost Governance Audit
         run: |
-          python scripts/cost_guard.py
+          python scripts/sre_compliance_platform.py
