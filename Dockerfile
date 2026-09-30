@@ -46,13 +46,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install lean production Python dependencies
 COPY requirements-prod.txt /app/requirements-prod.txt
 RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
-    # Uninstall heavy unused transitive packages (saves ~180MB) \
-    pip uninstall -y scipy kubernetes pyarrow onnxruntime chromadb chromadb_rust_bindings lance pymupdf pdfminer pypdf pypdfium2 docling_parse docutils 2>/dev/null || true && \
+    # Uninstall heavy unused transitive packages (saves ~220MB) \
+    pip uninstall -y scipy kubernetes pyarrow onnxruntime chromadb chromadb_rust_bindings lance pymupdf pdfminer pypdf pypdfium2 docling_parse docutils rapidocr selenium jieba 2>/dev/null || true && \
     pip cache purge 2>/dev/null || true && \
     # Strip binary debug symbols from compiled C-extensions (.so) \
     find /usr/local/lib/python3.13/site-packages -name "*.so" -exec strip --strip-unneeded {} + 2>/dev/null || true && \
-    # Remove stub files, test trees, and C headers from site-packages \
-    find /usr/local/lib/python3.13/site-packages -type d \( -name "tests" -o -name "test" -o -name "testing" -o -name "doc" -o -name "docs" -o -name "__pycache__" \) -exec rm -rf {} + 2>/dev/null || true && \
+    # Remove stub files, test trees, discovery caches, and C headers from site-packages \
+    find /usr/local/lib/python3.13/site-packages -type d \( -name "tests" -o -name "test" -o -name "testing" -o -name "doc" -o -name "docs" -o -name "__pycache__" -o -name "discovery_cache" \) -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local/lib/python3.13/site-packages -name "*.pyi" -o -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.map" -delete 2>/dev/null || true && \
     find /usr/local -type f -name '*.pyc' -delete || true && \
     find /usr/local -type f -name '*.pyo' -delete || true && \
