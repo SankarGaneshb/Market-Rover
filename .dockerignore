@@ -1,15 +1,22 @@
-# Git & VC
+# ==============================================================================
+# Market-Rover Clean Docker Build Context Ignore List
+# ==============================================================================
+
+# Git & VCS
 .git
 .gitignore
 .github
+.devcontainer
 
-# Node / JS Dependencies & Local Builds
+# Node Dependencies & Coverage
 **/node_modules
 **/dist
 **/build
 **/.npm
+**/coverage
+**/lcov-report
 
-# Python Virtual Envs & Caches
+# Python Virtual Envs & Bytecode Caches
 .venv
 venv
 env
@@ -24,28 +31,41 @@ tests/
 htmlcov/
 .pytest_cache/
 .coverage
+.coveragerc
 coverage.xml
 .benchmarks/
 *.egg-info
 metrics/
 
-# OS & IDE Temp Files
+# Temporary Dumps, Logs, Reports & Scripts
+*.log
+logs/
+reports/
+output/
+uploads/
+artifacts/
+scratch/
+**/scratch/
+.agent/
+.streamlit/secrets.toml
+data/*.db
+*.db
+
+# Loose Root Markdown, Text & Diagnostic Logs
+*.txt
+*.pdf
+*.csv
+*.md
+*.bat
+*.ps1
+
+# Assets & Diagrams (Not needed in backend container)
+assets/
+
+# IDE & OS Artifacts
 .DS_Store
 Thumbs.db
 .vscode
 .idea
 *.swp
 *.map
-
-# Application Logs & Temporary Dumps
-*.log
-logs/
-reports/
-output/
-uploads/
-**/scratch/
-.agent/
-.streamlit/secrets.toml
-data/*.db
-*.db
-full_deploy_log.txt

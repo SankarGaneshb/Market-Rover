@@ -6,19 +6,19 @@ WORKDIR /app
 
 ENV GENERATE_SOURCEMAP=false
 
-# Copy package files and build Market Rover Frontend
+# 1. Build Market Rover Frontend (Vite SPA)
 COPY market_rover/frontend /app/market_rover/frontend
 RUN cd /app/market_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
-# Copy package files and build HIL Rover Frontend
+# 2. Build HIL Rover Frontend (Vite SPA scoped to /hil/)
 COPY hil_rover/frontend /app/hil_rover/frontend
 RUN cd /app/hil_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
-# Copy package files and build InvestBrand Frontend
+# 3. Build InvestBrand Frontend (React CRA scoped to /investbrand/)
 COPY investbrand/frontend /app/investbrand/frontend
 RUN cd /app/investbrand/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
-# Copy package files and build Pledge Rover Frontend
+# 4. Build Pledge Rover Frontend (Vite SPA scoped to /pledge/)
 COPY pledge_rover/frontend /app/pledge_rover/frontend
 RUN cd /app/pledge_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
@@ -31,12 +31,12 @@ RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbr
     find /app/static -name "*.map" -delete || true
 
 # ==============================================================================
-# Stage 2: Unified Production Python Application Runtime
+# Stage 2: Unified Production Python Application Runtime (Ultra-Lean)
 # ==============================================================================
 FROM python:3.13-slim AS runner
 WORKDIR /app
 
-# Install system dependencies & binutils for symbol stripping
+# Install system runtime dependencies & binutils for symbol stripping
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -46,34 +46,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install lean production Python dependencies
 COPY requirements-prod.txt /app/requirements-prod.txt
 RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
-    # Uninstall heavy unused transitive packages (saves ~150MB) \
-    pip uninstall -y scipy kubernetes 2>/dev/null || true && \
+    # Uninstall heavy unused transitive packages (saves ~180MB) \
+    pip uninstall -y scipy kubernetes pyarrow onnxruntime chromadb chromadb_rust_bindings lance pymupdf pdfminer pypdf pypdfium2 docling_parse docutils 2>/dev/null || true && \
     pip cache purge 2>/dev/null || true && \
     # Strip binary debug symbols from compiled C-extensions (.so) \
     find /usr/local/lib/python3.13/site-packages -name "*.so" -exec strip --strip-unneeded {} + 2>/dev/null || true && \
     # Remove stub files, test trees, and C headers from site-packages \
-    find /usr/local/lib/python3.13/site-packages -name "*.pyi" -delete || true && \
-    find /usr/local/lib/python3.13/site-packages -name "*.c" -delete || true && \
-    find /usr/local/lib/python3.13/site-packages -name "*.h" -delete || true && \
-    find /usr/local/lib/python3.13/site-packages -name "*.cpp" -delete || true && \
-    find /usr/local/lib/python3.13/site-packages -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.13/site-packages -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.13/site-packages -type d -name "testing" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.13/site-packages -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.13/site-packages -type d \( -name "tests" -o -name "test" -o -name "testing" -o -name "doc" -o -name "docs" -o -name "__pycache__" \) -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.13/site-packages -name "*.pyi" -o -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.map" -delete 2>/dev/null || true && \
     find /usr/local -type f -name '*.pyc' -delete || true && \
     find /usr/local -type f -name '*.pyo' -delete || true && \
     # Purge build tooling from final image to minimize size \
     apt-get purge -y binutils && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
-# Copy application code
-COPY . /app
+# Copy backend application modules and services specifically
+COPY market_rover/backend /app/market_rover/backend
+COPY hil_rover/backend /app/hil_rover/backend
+COPY investbrand/backend /app/investbrand/backend
+COPY pledge_rover/backend /app/pledge_rover/backend
+COPY ownerise /app/ownerise
+COPY rover_tools /app/rover_tools
+COPY utils /app/utils
+COPY tabs /app/tabs
+COPY data /app/data
+COPY server.py /app/server.py
+COPY crew_engine.py /app/crew_engine.py
+COPY config.py /app/config.py
+COPY agents.py /app/agents.py
+COPY tasks.py /app/tasks.py
 
 # Install lightweight pure-python scipy stub into site-packages
 RUN cp -r /app/rover_tools/stubs/scipy /usr/local/lib/python3.13/site-packages/scipy 2>/dev/null || true
-
-# Prune uncompiled frontend source trees, tests, and non-production files
-RUN rm -rf /app/market_rover/frontend /app/hil_rover/frontend /app/investbrand/frontend /app/pledge_rover/frontend \
-    /app/tests /app/metrics /app/reports /app/output /app/uploads /app/.pytest_cache /app/data/*.db /app/build_log.txt 2>/dev/null || true
 
 # Copy freshly compiled static frontend assets from Stage 1 into /app/static
 COPY --from=frontend-builder /app/static /app/static
