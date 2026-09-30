@@ -5,7 +5,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 def get_gemini_llm():
     """Helper to initialize the Gemini LLM for OwneRise agents."""
     return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", # Standardized on fast Gemini 2.5 Flash
+        model="gemini-3.8-flash", # Standardized on fast Gemini 3.8 Flash
         verbose=True,
         temperature=0.2,
         google_api_key=os.getenv("GOOGLE_API_KEY")

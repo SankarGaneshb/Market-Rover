@@ -63,6 +63,7 @@ def mock_modules():
         'tabs.system_health': MagicMock(),
         'tabs.brain_tab': MagicMock(),
         'tabs.trading_calendar_tab': MagicMock(),
+        'tabs.muhurtha_sip_tab': MagicMock(),
     }
 
     # Apply patches

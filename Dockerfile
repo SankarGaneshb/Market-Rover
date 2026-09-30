@@ -75,8 +75,9 @@ COPY config.py /app/config.py
 COPY agents.py /app/agents.py
 COPY tasks.py /app/tasks.py
 
-# Install lightweight pure-python scipy stub into site-packages
-RUN cp -r /app/rover_tools/stubs/scipy /usr/local/lib/python3.13/site-packages/scipy 2>/dev/null || true
+# Install lightweight pure-python scipy and chromadb stubs into site-packages
+RUN cp -r /app/rover_tools/stubs/scipy /usr/local/lib/python3.13/site-packages/scipy 2>/dev/null || true && \
+    cp -r /app/rover_tools/stubs/chromadb /usr/local/lib/python3.13/site-packages/chromadb 2>/dev/null || true
 
 # Copy freshly compiled static frontend assets from Stage 1 into /app/static
 COPY --from=frontend-builder /app/static /app/static

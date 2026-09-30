@@ -24,8 +24,9 @@ Whenever `agents.py`, `tasks.py`, or Gemini integration logic changes, update th
 
 ### 2.1 Primary model
 
-- **Default LLM:** `google-gemini-3.0-flash` (or the latest equivalent configured via `langchain-google-genai`). [file:2]
-- **Fallback / long-context model:** `google-gemini-3.0-flash` for longer reasoning tasks (e.g., detailed portfolio reports). [file:2]
+- **Default / Primary LLM:** `gemini-3.8-flash` (configured via `config.PRIMARY_LLM_MODEL`, `langchain-google-genai`, and `crewai`). [file:2]
+- **Fallback / Failover model:** `gemini-3.5-flash` (`config.FALLBACK_LLM_MODEL`) with automatic retry cascade and exponential jitter backoff. [file:2]
+- **Ultra-Lite SRE / Webhook model:** `gemini-3.5-flash-lite` (`config.LITE_LLM_MODEL`) for operational diagnostics, fast triage, and SRE alerts. [file:2]
 
 ### 2.2 API keys & environment
 

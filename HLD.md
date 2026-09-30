@@ -47,7 +47,7 @@ This document details the complete **High Level Design (HLD) System Architecture
 
 ### 4. AI Processing, Agents & Self-SRE
 * **Safety & Policy Layer**: Input sanitization, prompt injection detection, and Unicode/emoji scrubbing.
-* **Model Router**: Resilient LLM router with primary (`google-gemini-3.0-flash`) and fallback (`google-gemini-2.5-flash`) model cascade with exponential backoff and full jitter retries.
+* **Model Router**: Resilient LLM router with primary (`gemini-3.8-flash`), fallback (`gemini-3.5-flash`), and ultra-fast SRE (`gemini-3.5-flash-lite`) model cascade with exponential backoff and full jitter retries.
 * **10 Core LangGraph Agent Nodes**:
   1. **Market Data Ingestion Node**: Symbol gatekeeper validating tickers, resolving `.NS`/`.BO` suffixes, and fetching historical OHLCV data via `yfinance`.
   2. **Strategy Node**: Macro-economic regime classifier (analyzing VIX, DXY, US 10Y Yields into Goldilocks/Panic regimes).
@@ -107,7 +107,7 @@ This document details the complete **High Level Design (HLD) System Architecture
 | Category | Component / Strategy | Description |
 | :--- | :--- | :--- |
 | **Security** | GCP Secret Manager | Dynamic key retrieval via IAM service accounts or `/secrets/` mounts. |
-| **Resilience** | Gemini Fallback Router | Primary (`gemini-3.0-flash`) -> Fallback (`gemini-2.5-flash`) cascade with jitter backoff. |
+| **Resilience** | Gemini Fallback Router | Primary (`gemini-3.8-flash`) -> Fallback (`gemini-3.5-flash`) -> SRE Lite (`gemini-3.5-flash-lite`) cascade with jitter backoff. |
 | **Async Execution** | Cloud Tasks / Background Jobs | Decouples long-running batch scraper tasks to eliminate Cloud Run 504 timeouts. |
 | **Observability** | Structured stdout Logging | JSON stdout stream (`JSONCloudFormatter`) ingested directly into GCP Cloud Logging. |
 | **Self-SRE & Governance** | Self-SRE Support Agent | Intercepts runtime crashes, manages Dependabot PRs, auto-fixes CI regressions, and notifies HIL. |

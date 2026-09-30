@@ -622,7 +622,9 @@ if os.path.exists(os.path.join(DIST_PATH, "assets")):
 
 @app.get("/{path:path}")
 async def catch_all(path: str):
-    index_file = os.path.join(DIST_PATH, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
-    return {"status": "Mission Control initializing... please refresh in 10s"}
+    clean = path.strip("/")
+    if not clean or clean in ["governance", "decisions", "stats", "feed", "dashboard", "settings", "audit"]:
+        index_file = os.path.join(DIST_PATH, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+    return JSONResponse(status_code=404, content={"error": "Route not found"})

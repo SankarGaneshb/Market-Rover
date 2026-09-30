@@ -1,19 +1,22 @@
 """Lightweight chromadb.config stub."""
 
 from typing import Any, Dict, Optional
+from pydantic import BaseModel, ConfigDict, GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 
-class Settings:
-    """Stub for chromadb.config.Settings."""
-    def __init__(self, **kwargs: Any):
-        self._data: Dict[str, Any] = kwargs
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+class Settings(BaseModel):
+    """Stub for chromadb.config.Settings compatible with Pydantic v2 validation."""
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
-    def __getattr__(self, name: str) -> Any:
-        return self._data.get(name, None)
+    persist_directory: Optional[str] = "./.chroma"
+    allow_reset: Optional[bool] = True
+    is_persistent: Optional[bool] = True
 
-    def __repr__(self) -> str:
-        return f"Settings({self._data})"
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, _source_type: Any, _handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        return core_schema.any_schema()
 
 class System:
     pass

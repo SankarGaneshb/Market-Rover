@@ -8,6 +8,8 @@ import logging
 import google.generativeai as genai
 from typing import Optional, Dict, Any
 
+from config import LITE_LLM_MODEL
+
 logger = logging.getLogger(__name__)
 
 def analyze_error(error: Exception, context: str = "general") -> Optional[Dict[str, Any]]:
@@ -21,8 +23,8 @@ def analyze_error(error: Exception, context: str = "general") -> Optional[Dict[s
 
     try:
         genai.configure(api_key=api_key)
-        # Standardize on gemini-1.5-flash for speed/reliability in SRE tasks
-        model = genai.GenerativeModel('gemini-3-flash-preview')
+        # Standardize on gemini-3.5-flash-lite for ultra-fast speed & reliability in SRE tasks
+        model = genai.GenerativeModel(LITE_LLM_MODEL or 'gemini-3.5-flash-lite')
 
         error_msg = str(error)
         error_type = type(error).__name__

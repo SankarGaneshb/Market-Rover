@@ -584,7 +584,7 @@ async def get_puzzle_insight(puzzle_id: int):
                 f"and its brand '{brand.get('brand')}'. Explain why understanding customer brand loyalty helps stock investors."
             )
             resp = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-3.8-flash",
                 contents=prompt
             )
             if resp and resp.text:

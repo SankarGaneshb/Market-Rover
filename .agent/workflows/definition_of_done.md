@@ -95,5 +95,5 @@ Run this checklist before marking any significant task as "Completed".
     - [ ] **DOCKERFILE COPY**: Verify the satellite's `Dockerfile` has explicit `COPY rover_tools/ ./rover_tools/` commands and sets `ENV PYTHONPATH=/app`.
     - [ ] **DEEP IMPORT VERIFICATION**: Run `python scripts/build_integrity_check.py` and verify it passes the "Deep Import" stage for all rovers.
 9.  **AI Model Consistency**
-    - [ ] **STANDARD**: Use `google-gemini-3.0-flash` for all primary agent logic.
+    - [ ] **STANDARD**: Use `gemini-3.8-flash` (`config.PRIMARY_LLM_MODEL`) for all primary agent logic.
     - [ ] **SYNC**: If updating a model, verify it matches the configuration in `.agent/rules/market-rover.md`.

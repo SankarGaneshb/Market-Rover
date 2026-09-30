@@ -58,9 +58,10 @@ VISMERA_CLERK_ISSUER = os.getenv("VISMERA_CLERK_ISSUER", "https://clerk.dev.vism
 VISMERA_ENABLED = os.getenv("VISMERA_ENABLED", "true").lower() == "true"
 MAX_AGENT_TOKENS_PER_RUN = int(os.getenv("MAX_AGENT_TOKENS_PER_RUN", "10000"))
 
-# LLM Resilience Models
-PRIMARY_LLM_MODEL = os.getenv("PRIMARY_LLM_MODEL", "gemini-2.5-flash")
-FALLBACK_LLM_MODEL = os.getenv("FALLBACK_LLM_MODEL", "gemini-2.5-flash")
+# LLM Resilience Models (Gemini 3 Generation)
+PRIMARY_LLM_MODEL = os.getenv("PRIMARY_LLM_MODEL", "gemini-3.8-flash")
+FALLBACK_LLM_MODEL = os.getenv("FALLBACK_LLM_MODEL", "gemini-3.5-flash")
+LITE_LLM_MODEL = os.getenv("LITE_LLM_MODEL", "gemini-3.5-flash-lite")
 
 # System Settings
 MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))

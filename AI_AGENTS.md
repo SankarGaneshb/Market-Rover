@@ -42,7 +42,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 ## 🕵️ Agent Roster (Core & Integrated Modules)
 
 ### 1-10. Core Analysis Crew (LangGraph Nodes)
-*Orchestrated by Gemini 3-Flash-Preview and LangGraph (FastAPI v5 Backend in Unified Container).* [OK]
+*Orchestrated by Gemini 3.8 Flash and LangGraph (FastAPI v5 Backend in Unified Container).* [OK]
 
 1.  **Retrieval Node**: The Gatekeeper. Validates symbols, fetches historical data via `yfinance`, and initializes global state.
 2.  **Strategy Node**: The Macro-Economist. Maps global cues (VIX, DXY, Yields) to the **Quadratic Regime** (Goldilocks/Panic).
@@ -56,7 +56,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 10. **Reporting Node**: The Intelligence Officer. Conducts final synthesis, generates Markdown reports, and appends **Feedback**.
 
 ### 11-13. Integrated Modules & SRE Crew
-*Orchestrated by Gemini 3-Flash-Preview and Unified FastAPI Server (`server.py`).*
+*Orchestrated by Gemini 3.8 Flash and Unified FastAPI Server (`server.py`).*
 *   **Investbrand Puzzle Agent**: Generates the "Brand to Stock" gamified challenges.
 *   **Adaptive Teacher**: Contextualizes gameplay with micro-learning insights.
 *   **Operational SRE Support**: Intercepts runtime exceptions, manages **Dependabot Governance**, and routes critical failures to the **HIL Mission Control**.
@@ -79,7 +79,7 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 *   **Rule**: Fail gracefully. Fallback from Option Chains to Historical Volatility if data is missing.
 
 ### 5. The Production Standard
-*   **Rule**: Primary Brain must be **Gemini 3-Flash-Preview**. Verify UTF-8 compliance and Python 3.11/3.13 compatibility across ALL integrated modules and the root `Dockerfile` before every push.
+*   **Rule**: Primary Brain must be **Gemini 3.8 Flash**. Verify UTF-8 compliance and Python 3.11/3.13 compatibility across ALL integrated modules and the root `Dockerfile` before every push.
 
 ### 6. The Unicode Scrub Rule
 *Rule*: **No emojis** in `.github/workflows/`, `Dockerfile`, or `.env`. Use standard text markers like `[OK]` or `[ALERT]`.
@@ -111,5 +111,5 @@ Beyond user interaction, the **Strategist** and **SRE Agents** maintain the syst
 
 ---
 
-**Built with LangGraph, FastAPI, Gemini 3-Flash-Preview, and Google Cloud Run.** [OK]
+**Built with LangGraph, FastAPI, Gemini 3.8 Flash, and Google Cloud Run.** [OK]
 *Last Unified Update: April 21, 2026 (Green-on-Arrival Hardening)*

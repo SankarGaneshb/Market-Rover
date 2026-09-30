@@ -121,11 +121,13 @@ def fetch_subha_muhurtham_tool(year: int) -> str:
         windows = scan_auspicious_month_windows(year, current_month)
         if windows:
             top = windows[0]
-            yogas_str = ", ".join(top["special_yogas"]) if top["special_yogas"] else "Auspicious Nakshatra"
+            yogas_str = ", ".join(top.get("special_yogas", [])) if top.get("special_yogas") else "Auspicious Nakshatra"
+            abhijit = top.get("abhijit_muhurat") or top.get("auspicious_window") or "11:45 - 12:35 IST"
+            rahu = top.get("rahu_kaalam") or "16:30 - 18:00 IST"
             return (
-                f"Subha Muhurtham for {year}-{current_month:02d}: Top auspicious date is {top['date']} ({top['weekday']}). "
+                f"Muhurtham Data {year}: Top auspicious date in {year}-{current_month:02d} is {top['date']} ({top['weekday']}). "
                 f"Nakshatra: {top['nakshatra']}, Tithi: {top['tithi']}. Alignments: {yogas_str}. "
-                f"Abhijit Muhurat: {top['abhijit_muhurat']}. Rahu Kaalam: {top['rahu_kaalam']}."
+                f"Abhijit Muhurat: {abhijit}. Rahu Kaalam: {rahu}."
             )
         return f"Muhurtham Data {year}: Upcoming auspicious dates include Akshaya Tritiya (May), and Diwali Muhurat Trading (Nov)."
     except Exception as e:

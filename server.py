@@ -221,10 +221,9 @@ ASSET_EXTENSIONS = {
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str):
     """Catch-all SPA router serving compiled React/Vite frontends."""
-    if full_path.startswith("api/"):
-        return JSONResponse(status_code=404, content={"error": "API route not found"})
-
     clean_path = full_path.strip("/")
+    if clean_path == "api" or clean_path.startswith("api/"):
+        return JSONResponse(status_code=404, content={"error": "API route not found"})
 
     if clean_path.startswith("hil"):
         frontend_dir = STATIC_ROOT / "hil_rover"

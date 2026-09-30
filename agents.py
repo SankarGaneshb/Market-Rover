@@ -50,7 +50,7 @@ except ImportError as e:
     # Define stubs for critical missing tools if needed, or rely on them being optional
     # For now, we assume most are needed but we'd rather warn than crash during collection.
 
-from config import MAX_ITERATIONS, GOOGLE_API_KEY, PRIMARY_LLM_MODEL, FALLBACK_LLM_MODEL
+from config import MAX_ITERATIONS, GOOGLE_API_KEY, PRIMARY_LLM_MODEL, FALLBACK_LLM_MODEL, LITE_LLM_MODEL
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
@@ -60,6 +60,7 @@ logger = get_logger(__name__)
 
 _flash_llm = None
 _pro_llm = None
+_lite_llm = None
 
 def _create_llm(model_name: str, temp: float = 0.3):
     """Internal helper to create LLM instance."""
@@ -78,7 +79,7 @@ def _create_llm(model_name: str, temp: float = 0.3):
     os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
     os.environ.pop("GCP_PROJECT", None)
 
-    # Ensure model name format for CrewAI native Gemini provider (gemini/gemini-2.5-flash)
+    # Ensure model name format for CrewAI native Gemini provider (gemini/gemini-3.8-flash)
     clean_name = model_name.replace("google-", "")
     clean_model_name = clean_name if clean_name.startswith("gemini/") else f"gemini/{clean_name}"
 
@@ -117,6 +118,18 @@ def get_pro_llm():
         logger.warning(f"Pro model ({PRIMARY_LLM_MODEL}) initialization failed ({e}). Falling back to {FALLBACK_LLM_MODEL}.")
         _pro_llm = _create_llm(FALLBACK_LLM_MODEL)
     return _pro_llm
+
+def get_lite_llm():
+    """Create and cache the ultra-low latency Gemini Flash Lite LLM."""
+    global _lite_llm
+    if _lite_llm is not None:
+        return _lite_llm
+    try:
+        _lite_llm = _create_llm(LITE_LLM_MODEL, temp=0.1)
+    except Exception as e:
+        logger.warning(f"Lite model ({LITE_LLM_MODEL}) initialization failed ({e}). Falling back to {PRIMARY_LLM_MODEL}.")
+        _lite_llm = _create_llm(PRIMARY_LLM_MODEL, temp=0.1)
+    return _lite_llm
 
 # Legacy accessor for compatibility
 get_gemini_llm = get_pro_llm
