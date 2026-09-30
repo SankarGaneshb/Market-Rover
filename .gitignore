@@ -87,3 +87,7 @@ scratch/
 server_log*.txt
 test_nginx.conf
 reports/test_user/
+
+# Agent local configs
+.agent/*.json
+.agent/mcp_config.json

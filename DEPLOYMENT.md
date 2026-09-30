@@ -358,6 +358,27 @@ CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--workers"
 - **Retention Policy**: `keep-latest-3` (retains the 3 most recent versions) + `delete-prunable-versions` (purges builds older than 1 day).
 - **Target Image Size**: ~200–220 MB compressed, ensuring all active versions comfortably fit within the **0.5 GB Free Tier**.
 
+### 4. Zero-Cost GCP Architecture & Multi-Layer Backup Strategy
+To prevent unexpected cloud billing (maintaining ₹0 / $0 monthly operations), Market-Rover enforces strict lifecycle and secret management policies:
+
+#### A. Secret Manager Free Tier Cap (≤ 6 Active Versions)
+- GCP Free Tier grants **6 active secret versions**.
+- Retain only active production secrets (`GOOGLE_API_KEY`, `GOOGLE_CLIENT_SECRET`, `google-client-id`).
+- Old/disabled versions must be destroyed, as disabled versions still incur monthly replica storage fees.
+
+#### B. Cloud Storage (`gs://market-rover_cloudbuild`) 1-Day Auto-Purge
+- Temporary `.tar.gz` source bundles created by `gcloud builds submit` are automatically purged after **1 day** via a GCS Lifecycle Policy.
+- **Soft-Delete Cleared**: 7-day retention is disabled on temporary build buckets to prevent zombie storage charges.
+
+#### C. Why We Do Not Keep Staging `.tgz` Archives (Multi-Layer Backup Design)
+Retaining temporary build archives is redundant because backups and rollbacks are handled across 3 dedicated architectural layers:
+1. **Source Code History (Layer 1)**: 100% permanently preserved in **GitHub Git History** (commits, branches, and release tags).
+2. **Container Image History (Layer 2)**: Compiled deployable images are stored and versioned in **Artifact Registry** tagged with `${{ github.sha }}`.
+3. **Instant Live Rollback (Layer 3)**: Managed via **Cloud Run Immutable Revisions**. If a deployment needs to be rolled back, traffic can be instantly switched to the previous revision in seconds without rebuilding from source:
+   ```bash
+   gcloud run services update-traffic market-rover-app --to-revisions=PREVIOUS_REVISION_NAME=100
+   ```
+
 ---
 
 **Congratulations! 🎉 Market-Rover 5.0 is in production!**

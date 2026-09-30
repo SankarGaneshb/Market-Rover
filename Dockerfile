@@ -18,11 +18,16 @@ RUN cd /app/hil_rover/frontend && npm install --include=dev --legacy-peer-deps &
 COPY investbrand/frontend /app/investbrand/frontend
 RUN cd /app/investbrand/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
+# Copy package files and build Pledge Rover Frontend
+COPY pledge_rover/frontend /app/pledge_rover/frontend
+RUN cd /app/pledge_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
+
 # Organize all compiled static bundles under /app/static and prune sourcemaps
-RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbrand && \
+RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbrand /app/static/pledge_rover && \
     cp -r /app/market_rover/frontend/dist/* /app/static/market_rover/ && \
     cp -r /app/hil_rover/frontend/dist/* /app/static/hil_rover/ && \
     cp -r /app/investbrand/frontend/build/* /app/static/investbrand/ || true && \
+    cp -r /app/pledge_rover/frontend/dist/* /app/static/pledge_rover/ || true && \
     find /app/static -name "*.map" -delete || true
 
 # ==============================================================================

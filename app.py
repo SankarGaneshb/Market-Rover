@@ -53,6 +53,7 @@ from tabs.profiler_tab import show_profiler_tab
 from tabs.system_health import show_system_health_tab
 from tabs.brain_tab import show_brain_tab
 from tabs.trading_calendar_tab import show_trading_calendar_tab
+from tabs.muhurtha_sip_tab import show_muhurtha_sip_tab
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -211,6 +212,7 @@ def main():
             "---",
             "🔍 Market Analysis",
             "📅 Trading Calendar",
+            "🪔 1-Click Muhurtha-SIP",
             "🕵️ Shadow Tracker",
             "---",
             "🧠 Agent Brain",
@@ -326,6 +328,9 @@ def main():
 
     elif selection.startswith("📅 Trading Calendar"):
         show_trading_calendar_tab()
+
+    elif selection.startswith("🪔 1-Click Muhurtha-SIP"):
+        show_muhurtha_sip_tab()
 
     elif selection.startswith("🎯 Forecast Tracker"):
         show_forecast_tracker_tab()

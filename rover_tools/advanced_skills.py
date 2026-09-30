@@ -107,7 +107,7 @@ def fetch_fii_dii_flow_tool(date: str) -> str:
          logger.error(f"Error in fetch_fii_dii_flow_tool: {e}")
          return f"Failed to fetch FII/DII flow for {date}."
 
-# --- 6. Traditional Timing Analyst Skills (New Agent) ---
+# --- 6. Traditional Timing Analyst Skills (Panchang & Muhurtha SIP Engine) ---
 @tool("fetch_subha_muhurtham_tool")
 def fetch_subha_muhurtham_tool(year: int) -> str:
     """
@@ -115,12 +115,43 @@ def fetch_subha_muhurtham_tool(year: int) -> str:
     Input: Year (e.g., 2026)
     """
     try:
-        # Mock database lookup for traditional Indian calendar dates
-        current_year = year
-        return f"Muhurtham Data {current_year}: Upcoming auspicious dates include Akshaya Tritiya (May), and Diwali Muhurat Trading (Nov). Suggest heavy equity accumulation on these days."
+        from rover_tools.panchang_engine import scan_auspicious_month_windows
+        import datetime
+        current_month = datetime.datetime.now().month
+        windows = scan_auspicious_month_windows(year, current_month)
+        if windows:
+            top = windows[0]
+            yogas_str = ", ".join(top["special_yogas"]) if top["special_yogas"] else "Auspicious Nakshatra"
+            return (
+                f"Subha Muhurtham for {year}-{current_month:02d}: Top auspicious date is {top['date']} ({top['weekday']}). "
+                f"Nakshatra: {top['nakshatra']}, Tithi: {top['tithi']}. Alignments: {yogas_str}. "
+                f"Abhijit Muhurat: {top['abhijit_muhurat']}. Rahu Kaalam: {top['rahu_kaalam']}."
+            )
+        return f"Muhurtham Data {year}: Upcoming auspicious dates include Akshaya Tritiya (May), and Diwali Muhurat Trading (Nov)."
     except Exception as e:
         logger.error(f"Error in fetch_subha_muhurtham_tool: {e}")
         return "Failed to fetch Muhurtham data."
+
+@tool("calculate_muhurtha_sip_tool")
+def calculate_muhurtha_sip_tool(budget: float = 25000.0, portfolio_style: str = "Auspicious Wealth Core (70% Nifty + 30% Gold)") -> str:
+    """
+    Calculates the optimal Muhurtha-SIP execution schedule and exact lot sizing.
+    Input: budget (e.g., 25000), portfolio_style
+    """
+    try:
+        from rover_tools.sip_planner import MuhurthaSIPPlanner
+        planner = MuhurthaSIPPlanner()
+        plan = planner.calculate_plan(budget=budget, portfolio_style=portfolio_style)
+        primary = plan["primary_window"]
+        basket_str = ", ".join([f"{item['quantity']}x {item['clean_symbol']} (Rs.{item['estimated_cost']})" for item in plan["order_basket"]])
+        return (
+            f"Muhurtha-SIP Plan: Date: {primary['date']} ({primary['weekday']}) at {primary['auspicious_time']}. "
+            f"Nakshatra: {primary['nakshatra']}. Basket: {basket_str}. "
+            f"Total Spend: Rs.{plan['total_estimated_spend']:,.2f} / Rs.{budget:,.2f}. Safety: {plan['safety_status']['rating']}."
+        )
+    except Exception as e:
+        logger.error(f"Error in calculate_muhurtha_sip_tool: {e}")
+        return "Failed to calculate Muhurtha-SIP plan."
 
 @tool("analyze_traditional_calendar_tool")
 def analyze_traditional_calendar_tool(sector: str) -> str:

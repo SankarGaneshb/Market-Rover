@@ -52,6 +52,14 @@ from ownerise.backend.router import router as ownerise_router
 # 4. Import InvestBrand Router
 from investbrand.backend.router import router as investbrand_router
 
+# 5. Import HIL Rover App / Router
+try:
+    from hil_rover.backend.src.server import app as hil_app
+    hil_router = hil_app.router
+except Exception as e:
+    logger.warning(f"Could not import HIL Rover router: {e}")
+    hil_router = None
+
 # Initialize main FastAPI application
 app = FastAPI(
     title="Market-Rover Unified Intelligence Gateway",
@@ -67,6 +75,45 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Top-Level Unified Health & Gateway Status Endpoints ---
+@app.get("/health")
+@app.get("/api/health")
+async def health_check():
+    """Unified health check endpoint."""
+    return {
+        "status": "healthy",
+        "container": "market-rover-app",
+        "architecture": "unified-monolith",
+        "database": "Neon PostgreSQL"
+    }
+
+@app.get("/api/v1/health")
+async def v1_health_check():
+    return {
+        "status": "healthy",
+        "services": ["market_rover", "pledge_rover", "hil_rover", "ownerise", "investbrand", "vismera"]
+    }
+
+@app.get("/api/v1/vismera/status")
+async def vismera_status_endpoint():
+    """Returns connectivity and health metrics for the Vismera Platform bridge."""
+    try:
+        from rover_tools.vismera_client import get_vismera_status
+        return get_vismera_status()
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+@app.get("/api/v1/vismera/user")
+async def vismera_user_endpoint(request: Request):
+    """Inspect authenticated Vismera Clerk user context."""
+    try:
+        from utils.vismera_auth import verify_vismera_token
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else None
+        return verify_vismera_token(token)
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
 
 @app.get("/api/v1/market/analyze")
 @app.get("/api/v1/analyze")
@@ -135,48 +182,16 @@ app.include_router(market_router, prefix="/api/v1/market")
 app.include_router(pledge_router, prefix="/api/v1/pledge")
 app.include_router(ownerise_router, prefix="/api/v1/ownerise")
 app.include_router(investbrand_router, prefix="/api/v1/investbrand")
+if hil_router:
+    app.include_router(hil_router, prefix="/api/v1/hil")
 
 # --- Legacy & Root Route Compatibility ---
 app.include_router(market_router, prefix="/api")
 app.include_router(investbrand_router, prefix="/api")
-
-@app.get("/health")
-async def health_check():
-    """Unified health check endpoint."""
-    return {
-        "status": "healthy",
-        "container": "market-rover-app",
-        "architecture": "unified-monolith",
-        "database": "Neon PostgreSQL"
-    }
-
-@app.get("/api/v1/health")
-async def v1_health_check():
-    return {
-        "status": "healthy",
-        "services": ["market_rover", "pledge_rover", "hil_rover", "ownerise", "investbrand", "vismera"]
-    }
-
-@app.get("/api/v1/vismera/status")
-async def vismera_status_endpoint():
-    """Returns connectivity and health metrics for the Vismera Platform bridge."""
-    try:
-        from rover_tools.vismera_client import get_vismera_status
-        return get_vismera_status()
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
-
-@app.get("/api/v1/vismera/user")
-async def vismera_user_endpoint(request: Request):
-    """Inspect authenticated Vismera Clerk user context."""
-    try:
-        from utils.vismera_auth import verify_vismera_token
-        auth_header = request.headers.get("Authorization", "")
-        token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else None
-        return verify_vismera_token(token)
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
-
+app.include_router(pledge_router, prefix="/api")
+app.include_router(ownerise_router, prefix="/api/ownerise")
+if hil_router:
+    app.include_router(hil_router, prefix="/api")
 
 # --- Static Frontend SPA Mounting ---
 STATIC_ROOT = REPO_ROOT / "static"
@@ -184,7 +199,8 @@ STATIC_ROOT = REPO_ROOT / "static"
 for frontend_name, route_path in [
     ("market_rover", ""),
     ("hil_rover", "/hil"),
-    ("investbrand", "/investbrand")
+    ("investbrand", "/investbrand"),
+    ("pledge_rover", "/pledge")
 ]:
     dist_dir = STATIC_ROOT / frontend_name
     assets_dir = dist_dir / "assets"
@@ -216,6 +232,9 @@ async def serve_spa(full_path: str):
     elif clean_path.startswith("investbrand"):
         frontend_dir = STATIC_ROOT / "investbrand"
         sub_file = clean_path[11:].lstrip("/")
+    elif clean_path.startswith("pledge"):
+        frontend_dir = STATIC_ROOT / "pledge_rover"
+        sub_file = clean_path[6:].lstrip("/")
     else:
         frontend_dir = STATIC_ROOT / "market_rover"
         sub_file = clean_path
@@ -227,7 +246,7 @@ async def serve_spa(full_path: str):
             return FileResponse(target_file)
 
     # 2. Defense-in-depth: check if asset exists under any satellite static bundle
-    for alt_dir in [STATIC_ROOT / "investbrand", STATIC_ROOT / "market_rover", STATIC_ROOT / "hil_rover"]:
+    for alt_dir in [STATIC_ROOT / "investbrand", STATIC_ROOT / "market_rover", STATIC_ROOT / "hil_rover", STATIC_ROOT / "pledge_rover"]:
         alt_file = alt_dir / clean_path
         if alt_file.is_file():
             return FileResponse(alt_file)

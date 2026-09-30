@@ -6,7 +6,7 @@ import PromoterProfile from './pages/PromoterProfile.jsx';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/pledge">
       <div className="min-h-screen flex flex-col font-sans">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">

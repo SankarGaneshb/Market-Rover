@@ -57,3 +57,10 @@ To maintain build stability, all code changes MUST adhere to these GoA rules:
 4. **Proxy & Auth Compliance**:
    - **Nginx**: Never use `proxy_set_header Host $host;` when proxying from an Nginx container to a `.run.app` service, as it causes SNI mismatches (502 Bad Gateway).
    - **OAuth**: Always use `urllib.parse.urlencode()` for generating OAuth Redirect URIs instead of string concatenation or `.quote()`, to ensure strict Google security compliance.
+5. **Cost Governance & Zero-Cost GCP Architecture**:
+   - **Secret Manager**: Keep active secret versions strictly $\le 6$ (Free Tier limit). Always destroy disabled/obsolete secret versions (`gcloud secrets versions destroy`).
+   - **Cloud Storage (GCS) Staging Purge**: Always maintain a 1-day auto-delete lifecycle policy on `*_cloudbuild` staging buckets and clear soft-delete retention. Source history is permanently backed up via GitHub Git history, compiled images in Artifact Registry, and live zero-downtime rollbacks via Cloud Run Revisions.
+6. **Frontend & Asset Integrity (Deep Health)**:
+   - Every integrated frontend SPA (`market_rover`, `hil_rover`, `investbrand`, `pledge_rover`) MUST pass deep asset verification via `python scripts/verify_frontend_health.py` and `pytest tests/test_frontend_integrity.py`.
+   - Never rely solely on HTTP 200 status codes: the verification MUST confirm the root DOM mount element (`<div id="root">`), parse and validate that every referenced `<script src="...">` and `<link rel="stylesheet">` asset exists on disk, returns HTTP 200 with non-empty content, and is NOT returning an erroneous fallback HTML string.
+   - Guard against browser script MIME-type crashes by ensuring non-existent static assets return HTTP 404 JSON rather than SPA fallback HTML.

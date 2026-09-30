@@ -28,9 +28,10 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-asyncio
 
-      - name: Startup Integrity Check
+      - name: Startup & Frontend Integrity Check (GoA)
         run: |
           python -c "import server; print('[OK] Unified server loaded successfully')"
+          python scripts/verify_frontend_health.py
 
       - uses: google-github-actions/auth@v2
         with:
@@ -78,3 +79,7 @@ jobs:
             fi
           done
           echo "Registry cleanup complete. Storage usage optimal!"
+
+      - name: Proactive Zero-Cost Quota Audit
+        run: |
+          python scripts/cost_guard.py
