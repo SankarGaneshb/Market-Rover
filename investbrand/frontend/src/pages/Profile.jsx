@@ -150,8 +150,9 @@ export default function Profile() {
                     key={idx}
                     className={`relative w-[240px] sm:w-[280px] lg:w-auto rounded-3xl transition-all duration-700 overflow-hidden group/hero flex flex-col justify-between aspect-[3/4] lg:aspect-auto lg:h-full ${isLocked
                       ? 'bg-[#050608]/90 border-t border-l border-white/5 border-b-2 border-r-2 border-black shadow-[15px_15px_30px_-10px_rgba(0,0,0,0.9)] opacity-90'
-                      : `bg-[#0f1219]/90 border-t-2 border-l-2 border-white/30 border-b-2 border-r-2 border-black/80 shadow-[20px_20px_50px_-10px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.2)] hover:-translate-y-4 hover:scale-[1.03] hover:bg-[#151923] hover:border-white/50 hover:shadow-[30px_40px_80px_-20px_rgba(0,0,0,1),0_0_80px_${level.accent}33] z-10 hover:z-30 cursor-pointer`
-                      } ${isCurrent ? `ring-2 ring-[${level.accent}] shadow-[20px_30px_70px_rgba(0,0,0,1),0_0_100px_${level.accent}44] -translate-y-2 lg:-translate-y-3 z-20` : ''}`}
+                      : 'bg-[#0f1219]/90 border-t-2 border-l-2 border-white/30 border-b-2 border-r-2 border-black/80 shadow-[20px_20px_50px_-10px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.2)] hover:-translate-y-4 hover:scale-[1.03] hover:bg-[#151923] hover:border-white/50 z-10 hover:z-30 cursor-pointer'
+                      } ${isCurrent ? '-translate-y-2 lg:-translate-y-3 z-20 ring-2' : ''}`}
+                    style={isCurrent ? { borderColor: level.accent, boxShadow: `20px 30px 70px rgba(0,0,0,1), 0 0 100px ${level.accent}44` } : {}}
                   >
                     {/* Deep Cinematic Spotlight */}
                     <div
