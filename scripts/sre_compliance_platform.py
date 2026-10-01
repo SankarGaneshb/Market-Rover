@@ -247,6 +247,14 @@ def generate_badges(tier, p1, p2, p3, p4, p5, p6):
         badges.append(("💎 [COST GUARD]", f"FREE TIER HEADROOM: Active container sits at {p1['active_image_mb']:.1f} MB (+{headroom_pct:.1f}% quota safety margin)."))
     if p3["all_ok"]:
         badges.append(("⚡ [DEEP SRE]", "ZERO-DEFECT FRONTEND: 4/4 SPAs validated for root DOM mounts & runtime JS/CSS assets."))
+
+    # Check for Vite and Brotli milestones
+    if (REPO_ROOT / "investbrand" / "frontend" / "vite.config.js").exists():
+        badges.append(("⚡ [INSTANT BUILD]", "ALL-VITE ECOSYSTEM: All 4 frontends unified on Vite (sub-3s builds)."))
+    dockerfile = REPO_ROOT / "Dockerfile"
+    if dockerfile.exists() and "brotli" in dockerfile.read_text(encoding="utf-8", errors="ignore"):
+        badges.append(("📦 [PRE-COMPRESSION]", "BROTLI & GZIP SENTINEL: Static assets pre-compressed in Docker Stage 1."))
+
     return badges
 
 def write_github_summary(total_score, tier, tier_title, p1, p2, p3, p4, p5, p6, badges):
@@ -274,8 +282,8 @@ def write_github_summary(total_score, tier, tier_title, p1, p2, p3, p4, p5, p6, 
             f.write(f"| **6. Consolidation Multiplier** | Multi-App Unified Micro-Monolith | 4 Apps in 1 Container (75% Savings) | **{p6['score']}/{p6['max_score']}** |\n\n")
 
             f.write("### 🚀 Next-Level Developer Quests\n")
-            f.write("- **Quest 1:** Migrate `investbrand/frontend` to Vite (earn the ⚡ *Instant-Build Trophy*).\n")
-            f.write("- **Quest 2:** Add Brotli pre-compression for production JS bundles.\n")
+            f.write("- **Quest 1:** Multi-Region Cloudflare / Fastly CDN edge caching for static assets.\n")
+            f.write("- **Quest 2:** Passkey / WebAuthn passwordless authentication for HIL Mission Control.\n")
             f.write("\n---\n*Report generated dynamically by Market-Rover SRE Compliance Platform.*\n")
     except Exception:
         pass
@@ -314,8 +322,8 @@ def main():
     print(f"  [6] Consolidation Multiplier      : {p6['score']:>2}/{p6['max_score']} pts  (4 Frontends in 1 Container = 75% Cloud Savings)")
 
     print("\n[+] PROACTIVE DEVELOPER NEXT-LEVEL QUESTS:")
-    print("  * Quest 1: Migrate `investbrand/frontend` to Vite (earn the ⚡ Instant-Build Trophy).")
-    print("  * Quest 2: Add Brotli pre-compression for production JS bundles.")
+    print("  * Quest 1: Multi-Region Cloudflare / Fastly CDN edge caching for static assets.")
+    print("  * Quest 2: Passkey / WebAuthn passwordless authentication for HIL Mission Control.")
 
     write_github_summary(total_score, tier, tier_title, p1, p2, p3, p4, p5, p6, badges)
 

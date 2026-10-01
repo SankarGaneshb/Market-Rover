@@ -1,6 +1,13 @@
 import os
 import sys
 import argparse
+from pathlib import Path
+
+# Ensure repository root is on sys.path
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from rover_tools.hil_client import notify_hil
 
 def main():
@@ -8,7 +15,7 @@ def main():
     parser.add_argument("--pr-number", required=True, help="GitHub PR Number")
     parser.add_argument("--pr-title", required=True, help="GitHub PR Title")
     parser.add_argument("--pr-url", required=True, help="GitHub PR URL")
-    parser.add_argument("--update-type", required=True, help="Dependabot update type (major/minor/patch)")
+    parser.add_argument("--update-type", default="unknown", help="Dependabot update type (major/minor/patch)")
     parser.add_argument("--is-auto-merged", action="store_true", help="Whether the PR was auto-merged")
 
     args = parser.parse_args()
@@ -16,13 +23,15 @@ def main():
     agent_name = "SRE Support (Dependency Guard)"
     task_name = f"Dependabot PR #{args.pr_number}"
 
+    update_type = args.update_type or "unknown"
     status = "APPROVED" if args.is_auto_merged else "PENDING"
 
     instructions = (
         f"Dependabot has proposed an update: {args.pr_title}\n"
-        f"Update Type: {args.update_type.upper()}\n"
+        f"Update Type: {update_type.upper()}\n"
         f"PR Link: {args.pr_url}\n"
     )
+
 
     if args.is_auto_merged:
         instructions += "\n[ACTION] This PR has been AUTO-APPROVED and MERGED as per policy (Minor/Patch)."

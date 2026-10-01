@@ -1,8 +1,9 @@
-import requests
 import os
 import json
 import logging
 from datetime import datetime
+import urllib.request
+import urllib.error
 
 # Global HIL Configuration
 HIL_ROVER_URL = os.environ.get("HIL_ROVER_URL", "https://hil-rover-9514347926.us-central1.run.app")
@@ -10,6 +11,7 @@ HIL_ROVER_URL = os.environ.get("HIL_ROVER_URL", "https://hil-rover-9514347926.us
 def notify_hil(agent_name, task_name, instructions, data=None, status="PENDING"):
     """
     Standardized hook to phone home to HIL-Rover Mission Control.
+    Uses standard library urllib to avoid external dependency requirements.
     """
     url = f"{HIL_ROVER_URL}/api/requests"
     payload = {
@@ -22,10 +24,15 @@ def notify_hil(agent_name, task_name, instructions, data=None, status="PENDING")
     }
 
     try:
-        response = requests.post(url, json=payload, timeout=10)
-        response.raise_for_status()
-        logging.info(f"HIL_LINK: Successfully escalated '{task_name}' to Mission Control.")
-        return response.json()
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            response_data = resp.read().decode("utf-8")
+            logging.info(f"HIL_LINK: Successfully escalated '{task_name}' to Mission Control.")
+            return json.loads(response_data) if response_data else {"status": "ok"}
     except Exception as e:
         logging.warning(f"HIL_LINK_FAILURE: Could not reach Mission Control for {task_name}: {e}")
         return None

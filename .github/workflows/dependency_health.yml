@@ -34,20 +34,21 @@ jobs:
       - name: Auto-Approve and Merge Safe Updates (Minor/Patch)
         if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
         run: |
-          gh pr review --approve "$PR_URL"
-          gh pr merge --auto --merge "$PR_URL"
+          gh pr review --approve "$PR_URL" || true
+          gh pr merge --auto --squash "$PR_URL" || true
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify HIL Mission Control (Dependency Governance Bridge)
+        if: always()
         run: |
           python scripts/notify_dependabot_to_hil.py \
             --pr-number "${{ github.event.pull_request.number }}" \
             --pr-title "${{ github.event.pull_request.title }}" \
             --pr-url "${{ github.event.pull_request.html_url }}" \
-            --update-type "${{ steps.metadata.outputs.update-type }}" \
-            ${{ steps.metadata.outputs.update-type != 'version-update:semver-major' && '--is-auto-merged' || '' }}
+            --update-type "${{ steps.metadata.outputs.update-type || 'unknown' }}" \
+            ${{ (steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch') && '--is-auto-merged' || '' }} || true
         env:
           PYTHONPATH: .
           HIL_ROVER_URL: ${{ secrets.HIL_ROVER_URL }}
