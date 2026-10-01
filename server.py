@@ -213,14 +213,33 @@ for frontend_name, route_path in [
         mount_path = f"{route_path}/static" if route_path else "/static"
         app.mount(mount_path, StaticFiles(directory=str(static_dir)), name=f"static_{frontend_name}")
 
+import mimetypes
+
 ASSET_EXTENSIONS = {
     ".js", ".css", ".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp",
     ".ico", ".json", ".map", ".woff", ".woff2", ".ttf", ".eot"
 }
 
+def serve_file_with_compression(target_file: Path, request: Request = None) -> FileResponse:
+    """Serves a static file, utilizing Brotli or Gzip pre-compressed versions if available and requested."""
+    if request:
+        accept = request.headers.get("accept-encoding", "").lower()
+        content_type, _ = mimetypes.guess_type(str(target_file))
+        content_type = content_type or "application/octet-stream"
+
+        br_file = target_file.with_name(target_file.name + ".br")
+        if "br" in accept and br_file.is_file():
+            return FileResponse(br_file, headers={"Content-Encoding": "br", "Content-Type": content_type})
+
+        gz_file = target_file.with_name(target_file.name + ".gz")
+        if "gzip" in accept and gz_file.is_file():
+            return FileResponse(gz_file, headers={"Content-Encoding": "gzip", "Content-Type": content_type})
+
+    return FileResponse(target_file)
+
 @app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    """Catch-all SPA router serving compiled React/Vite frontends."""
+async def serve_spa(full_path: str, request: Request):
+    """Catch-all SPA router serving compiled React/Vite frontends with pre-compression support."""
     clean_path = full_path.strip("/")
     if clean_path == "api" or clean_path.startswith("api/"):
         return JSONResponse(status_code=404, content={"error": "API route not found"})
@@ -242,13 +261,13 @@ async def serve_spa(full_path: str):
     if sub_file:
         target_file = frontend_dir / sub_file
         if target_file.is_file():
-            return FileResponse(target_file)
+            return serve_file_with_compression(target_file, request)
 
     # 2. Defense-in-depth: check if asset exists under any satellite static bundle
     for alt_dir in [STATIC_ROOT / "investbrand", STATIC_ROOT / "market_rover", STATIC_ROOT / "hil_rover", STATIC_ROOT / "pledge_rover"]:
         alt_file = alt_dir / clean_path
         if alt_file.is_file():
-            return FileResponse(alt_file)
+            return serve_file_with_compression(alt_file, request)
 
     # 3. Guard against MIME errors: if a static asset was requested and not found, 404 immediately
     ext = Path(clean_path).suffix.lower()
@@ -258,11 +277,11 @@ async def serve_spa(full_path: str):
     # 4. SPA client-side routing fallback: serve index.html
     index_file = frontend_dir / "index.html"
     if index_file.is_file():
-        return FileResponse(index_file)
+        return serve_file_with_compression(index_file, request)
 
     root_index = STATIC_ROOT / "market_rover" / "index.html"
     if root_index.is_file():
-        return FileResponse(root_index)
+        return serve_file_with_compression(root_index, request)
 
     return {
         "message": "Market-Rover Unified Gateway",

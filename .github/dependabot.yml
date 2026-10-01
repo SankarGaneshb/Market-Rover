@@ -5,12 +5,36 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
-    # Allow updating 'requirements.txt'
+    open-pull-requests-limit: 5
 
   # Maintain GitHub Actions versions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
+
+  # Maintain Frontend SPA dependencies (4 SPAs)
+  - package-ecosystem: "npm"
+    directory: "/market_rover/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/hil_rover/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/investbrand/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/pledge_rover/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

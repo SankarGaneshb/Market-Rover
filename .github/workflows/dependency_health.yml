@@ -1,0 +1,85 @@
+name: Dependency Health & Security Sentinel
+
+on:
+  schedule:
+    # Bi-weekly automated security audit (1st and 15th of every month at 04:00 UTC)
+    - cron: '0 4 1,15 * *'
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot-automation:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Dependabot Metadata Analysis
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Auto-Approve and Merge Safe Updates (Minor/Patch)
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify HIL Mission Control (Dependency Governance Bridge)
+        run: |
+          python scripts/notify_dependabot_to_hil.py \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --pr-title "${{ github.event.pull_request.title }}" \
+            --pr-url "${{ github.event.pull_request.html_url }}" \
+            --update-type "${{ steps.metadata.outputs.update-type }}" \
+            ${{ steps.metadata.outputs.update-type != 'version-update:semver-major' && '--is-auto-merged' || '' }}
+        env:
+          PYTHONPATH: .
+          HIL_ROVER_URL: ${{ secrets.HIL_ROVER_URL }}
+
+  biweekly-vulnerability-audit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Python Production Vulnerability Audit (pip-audit)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+          pip-audit -r requirements-prod.txt || echo "[WARN] Python dependency advisory detected"
+
+      - name: Multi-SPA Frontend Vulnerability Audit (npm audit)
+        run: |
+          for dir in market_rover/frontend hil_rover/frontend investbrand/frontend pledge_rover/frontend; do
+            if [ -d "$dir" ]; then
+              echo "==> Auditing $dir for high/critical vulnerabilities..."
+              npm audit --prefix "$dir" --audit-level=high || echo "[WARN] High/critical npm advisory detected in $dir"
+            fi
+          done

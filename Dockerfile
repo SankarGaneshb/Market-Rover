@@ -14,7 +14,7 @@ RUN cd /app/market_rover/frontend && npm install --include=dev --legacy-peer-dep
 COPY hil_rover/frontend /app/hil_rover/frontend
 RUN cd /app/hil_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
-# 3. Build InvestBrand Frontend (React CRA scoped to /investbrand/)
+# 3. Build InvestBrand Frontend (Vite SPA scoped to /investbrand/)
 COPY investbrand/frontend /app/investbrand/frontend
 RUN cd /app/investbrand/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
@@ -22,13 +22,17 @@ RUN cd /app/investbrand/frontend && npm install --include=dev --legacy-peer-deps
 COPY pledge_rover/frontend /app/pledge_rover/frontend
 RUN cd /app/pledge_rover/frontend && npm install --include=dev --legacy-peer-deps && npm run build
 
-# Organize all compiled static bundles under /app/static and prune sourcemaps
+# Organize all compiled static bundles under /app/static, prune sourcemaps, and pre-compress with Brotli & Gzip
 RUN mkdir -p /app/static/market_rover /app/static/hil_rover /app/static/investbrand /app/static/pledge_rover && \
     cp -r /app/market_rover/frontend/dist/* /app/static/market_rover/ && \
     cp -r /app/hil_rover/frontend/dist/* /app/static/hil_rover/ && \
-    cp -r /app/investbrand/frontend/build/* /app/static/investbrand/ || true && \
-    cp -r /app/pledge_rover/frontend/dist/* /app/static/pledge_rover/ || true && \
-    find /app/static -name "*.map" -delete || true
+    cp -r /app/investbrand/frontend/dist/* /app/static/investbrand/ && \
+    cp -r /app/pledge_rover/frontend/dist/* /app/static/pledge_rover/ && \
+    find /app/static -name "*.map" -delete || true && \
+    apk add --no-cache brotli gzip && \
+    find /app/static -type f \( -name "*.js" -o -name "*.css" -o -name "*.svg" -o -name "*.json" \) \
+      -exec gzip -9 -k {} \; \
+      -exec brotli -q 11 -k {} \;
 
 # ==============================================================================
 # Stage 2: Unified Production Python Application Runtime (Ultra-Lean)
