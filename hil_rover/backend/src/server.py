@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -17,6 +17,8 @@ from urllib.parse import quote_plus
 
 # HIL-Rover Version: 4.3.0 — PostgreSQL persistence (investbrand-db:hil_rover)
 app = FastAPI(title="HIL Rover API")
+api_router = APIRouter()
+router = api_router
 
 DIST_PATH = os.environ.get("HIL_FRONTEND_PATH", "../frontend/dist")
 
@@ -137,7 +139,7 @@ class HILDecision(BaseModel):
 
 
 
-@app.post("/api/sre/audit")
+@api_router.post("/api/sre/audit")
 async def trigger_sre_audit():
     try:
         from scripts.sre_sentinel import run_sre_sentinel
@@ -221,7 +223,7 @@ async def _run_sys_command(db_name: str, sql: str):
         await conn.close()
 
 
-@app.post("/api/provision")
+@api_router.post("/api/provision")
 async def provision_infrastructure():
     """
     SRE Provisioning Force-Multiplier: Ensures all Rover databases exist.
@@ -246,7 +248,7 @@ async def provision_infrastructure():
 # ── Static stat endpoints (no DB needed) ──────────────────────────────────────
 
 
-@app.get("/api/health-stats")
+@api_router.get("/api/health-stats")
 async def get_health_stats():
     return {
         "status": "healthy",
@@ -265,7 +267,7 @@ async def get_health_stats():
     }
 
 
-@app.get("/api/brain-manifest")
+@api_router.get("/api/brain-manifest")
 async def get_brain_manifest():
     return {
         "agents": [
@@ -288,7 +290,7 @@ async def get_brain_manifest():
     }
 
 
-@app.get("/api/kpi-leaderboard")
+@api_router.get("/api/kpi-leaderboard")
 async def get_kpi_leaderboard():
     pool = await get_pool()
     sre_score = 98
@@ -410,7 +412,7 @@ async def _flush_fallback_queue():
         pass
 
 
-@app.get("/api/requests")
+@api_router.get("/api/requests")
 async def get_all_requests():
     try:
         pool = await get_pool()
@@ -428,7 +430,7 @@ async def get_all_requests():
         return _get_from_sqlite_fallback()
 
 
-@app.post("/api/requests")
+@api_router.post("/api/requests")
 async def create_request(request: Request):
     try:
         data = await request.json()
@@ -463,7 +465,7 @@ async def create_request(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.post("/api/alerts/gcp")
+@api_router.post("/api/alerts/gcp")
 async def handle_gcp_alert(request: Request):
     """
     Bridge between GCP Monitoring Webhooks and HIL Rover requests.
@@ -518,7 +520,7 @@ async def handle_gcp_alert(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-@app.post("/api/requests/{request_id}/process")
+@api_router.post("/api/requests/{request_id}/process")
 async def process_request(request_id: str, decision: HILDecision):
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -588,7 +590,7 @@ async def _handle_dependabot_merge(req: asyncpg.Record):
         print(f"[HIL REACTOR] Unexpected error during merge handover: {e}")
 
 
-@app.get("/api/stats")
+@api_router.get("/api/stats")
 async def get_stats():
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -618,11 +620,14 @@ async def get_stats():
     }
 
 
-@app.get("/health")
+@api_router.get("/health")
 async def health():
     return {"status": "healthy"}
 
-# ── Static assets + SPA catch-all ─────────────────────────────────────────────
+# Include API router in HIL app
+app.include_router(api_router)
+
+# ── Static assets + SPA catch-all (Standalone App only) ───────────────────────────
 
 if os.path.exists(os.path.join(DIST_PATH, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(DIST_PATH, "assets")), name="assets")

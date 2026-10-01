@@ -54,8 +54,7 @@ from investbrand.backend.router import router as investbrand_router
 
 # 5. Import HIL Rover App / Router
 try:
-    from hil_rover.backend.src.server import app as hil_app
-    hil_router = hil_app.router
+    from hil_rover.backend.src.server import api_router as hil_router
 except Exception as e:
     logger.warning(f"Could not import HIL Rover router: {e}")
     hil_router = None
@@ -191,7 +190,7 @@ app.include_router(investbrand_router, prefix="/api")
 app.include_router(pledge_router, prefix="/api")
 app.include_router(ownerise_router, prefix="/api/ownerise")
 if hil_router:
-    app.include_router(hil_router, prefix="/api")
+    app.include_router(hil_router, prefix="")
 
 # --- Static Frontend SPA Mounting ---
 STATIC_ROOT = REPO_ROOT / "static"

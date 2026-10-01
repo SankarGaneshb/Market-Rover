@@ -420,16 +420,14 @@ from rover_tools.hil_client import notify_hil
 
 def test_notify_hil():
     """Verify notify_hil client post and exception handling."""
-    with patch("requests.post") as mock_post:
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {"status": "received", "id": "req_123"}
-        mock_post.return_value = mock_resp
-
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = json.dumps({"status": "received", "id": "req_123"}).encode("utf-8")
+    mock_resp.__enter__.return_value = mock_resp
+    with patch("urllib.request.urlopen", return_value=mock_resp):
         res = notify_hil("SRE Sentinel", "Self-Test", "Instructions text")
         assert res["status"] == "received"
 
-    with patch("requests.post", side_effect=Exception("Connection refused")):
+    with patch("urllib.request.urlopen", side_effect=Exception("Connection refused")):
         res_none = notify_hil("SRE", "Test", "Msg")
         assert res_none is None
 
