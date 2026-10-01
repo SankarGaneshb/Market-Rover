@@ -98,15 +98,31 @@ export default function Navbar({ googleClientId }) {
                </div>
              ) : null}
 
+             {/* 1-Click Instant Access */}
+             <button
+               onClick={async () => {
+                 try {
+                   await login('guest', 'guest');
+                   navigate('/play');
+                 } catch (err) {
+                   navigate('/');
+                 }
+               }}
+               className="px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all hover:scale-105 active:scale-95"
+               title="Instant 1-Click Access"
+             >
+               ⚡ Play Now
+             </button>
+
              {/* Simple Icon Fallbacks for other Social Media in Navbar */}
-             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#1877F2]/20 text-slate-400 hover:text-[#1877F2] transition-colors" title="Facebook Login">
-                <Facebook size={18} fill="currentColor" />
+             <button onClick={() => navigate('/')} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#1877F2]/20 text-slate-400 hover:text-[#1877F2] transition-colors" title="Facebook Login">
+                <Facebook size={16} fill="currentColor" />
              </button>
-             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#0A66C2]/20 text-slate-400 hover:text-[#0A66C2] transition-colors" title="LinkedIn Login">
-                <Linkedin size={18} fill="currentColor" />
+             <button onClick={() => navigate('/')} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#0A66C2]/20 text-slate-400 hover:text-[#0A66C2] transition-colors" title="LinkedIn Login">
+                <Linkedin size={16} fill="currentColor" />
              </button>
-             <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="GitHub Login">
-                <Github size={18} />
+             <button onClick={() => navigate('/')} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="GitHub Login">
+                <Github size={16} />
              </button>
           </div>
         )}
