@@ -50,8 +50,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install lean production Python dependencies
 COPY requirements-prod.txt /app/requirements-prod.txt
 RUN pip install --no-cache-dir --compile -r requirements-prod.txt && \
-    # Uninstall heavy unused transitive packages (saves ~220MB) \
-    pip uninstall -y scipy kubernetes pyarrow onnxruntime chromadb chromadb_rust_bindings lance pymupdf pdfminer pypdf pypdfium2 docling_parse docutils rapidocr selenium jieba 2>/dev/null || true && \
+    # Uninstall heavy unused transitive packages (saves ~340MB) \
+    pip uninstall -y scipy kubernetes pyarrow onnxruntime chromadb chromadb_rust_bindings lance lancedb pylance pymupdf pdfminer pypdf pypdfium2 docling_parse docutils rapidocr selenium jieba 2>/dev/null || true && \
     pip cache purge 2>/dev/null || true && \
     # Strip binary debug symbols from compiled C-extensions (.so) \
     find /usr/local/lib/python3.13/site-packages -name "*.so" -exec strip --strip-unneeded {} + 2>/dev/null || true && \
