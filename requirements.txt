@@ -5,10 +5,10 @@
 -r requirements-prod.txt
 
 # Frontend UI & Streamlit Dashboard Suite
-streamlit>=1.52.0
+streamlit>=1.65.0
 streamlit-authenticator>=0.4.2
-streamlit-oauth>=0.1.11
-plotly>=6.5.0
-matplotlib>=3.10.8
+streamlit-oauth>=0.1.14
+plotly>=7.1.0
+matplotlib>=3.11.2
 seaborn>=0.13.2
-Pillow>=11.3.0
+Pillow>=12.3.0
