@@ -1,10 +1,11 @@
-# ========================================================
-# Synthesized by Rover-Slim: Development & Test Dependencies
-# ========================================================
-
--r requirements-prod.txt
-
-streamlit>=1.52.0
-plotly>=6.5.0
-matplotlib>=3.10.8
-seaborn>=0.13.2
+pytest>=7.0.0
+pytest-cov>=4.0.0
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.0.0
+safety>=2.0.0
+mock>=5.0.0
+pytest-benchmark>=4.0.0
+pytest-asyncio>=0.20.0
+pytest-mock>=3.10.0
+Faker>=18.0.0

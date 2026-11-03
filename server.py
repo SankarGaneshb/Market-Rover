@@ -20,9 +20,6 @@ from dotenv import load_dotenv
 # Load environment variables immediately
 load_dotenv()
 
-# Inject ChromaDB bypass to prevent CrewAI startup crashes if chromadb is removed
-import chromadb_bypass
-
 import uvicorn
 import logging
 from fastapi import FastAPI, Request
