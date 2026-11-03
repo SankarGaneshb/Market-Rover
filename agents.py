@@ -54,6 +54,7 @@ from config import MAX_ITERATIONS, MAX_EXECUTION_TIME, GOOGLE_API_KEY, PRIMARY_L
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
+from typing import Any, Dict
 
 logger = get_logger(__name__)
 
@@ -62,8 +63,8 @@ _flash_llm = None
 _pro_llm = None
 _lite_llm = None
 
-def _create_llm(model_name: str, temp: float = 0.3):
-    """Internal helper to create LLM instance."""
+def _create_raw_llm(model_name: str, temp: float = 0.3):
+    """Low-level helper to instantiate CrewAI LLM."""
     if not GOOGLE_API_KEY:
         logger.error("GOOGLE_API_KEY not found in environment variables or Secret Manager.")
         raise ValueError("GOOGLE_API_KEY not found.")
@@ -94,6 +95,57 @@ def _create_llm(model_name: str, temp: float = 0.3):
         logger.error(f"Failed to initialize Gemini LLM ({clean_model_name}): {e}")
         track_error("llm_initialization")
         raise
+
+
+def _wrap_llm_with_runtime_fallback(base_llm: Any, fallback_model_name: str, temp: float = 0.3) -> Any:
+    """
+    Wraps CrewAI's LLM.call method to intercept runtime 429/503/Quota errors
+    and automatically cascade to the fallback model mid-flight.
+    """
+    if not hasattr(base_llm, "call") or not callable(getattr(base_llm, "call")):
+        return base_llm
+
+    orig_call = base_llm.call
+    fallback_cache = {}
+
+    def resilient_call(*args, **kwargs):
+        try:
+            return orig_call(*args, **kwargs)
+        except Exception as e:
+            err_msg = str(e).lower()
+            # Detect transient API exhaustion / rate limits / service overloads
+            transient_triggers = ["429", "503", "502", "resource_exhausted", "quota", "overloaded", "rate_limit", "rate limit"]
+            if any(term in err_msg for term in transient_triggers):
+                logger.warning(
+                    f"[WARN] Runtime LLM failure on {getattr(base_llm, 'model', 'primary')} ({e}). "
+                    f"Initiating dynamic failover cascade to {fallback_model_name}..."
+                )
+                try:
+                    if fallback_model_name not in fallback_cache:
+                        fallback_cache[fallback_model_name] = _create_raw_llm(fallback_model_name, temp=temp)
+                    fb_llm = fallback_cache[fallback_model_name]
+                    return fb_llm.call(*args, **kwargs)
+                except Exception as fb_err:
+                    logger.error(
+                        f"[ERROR] Fallback model ({fallback_model_name}) also failed ({fb_err}). "
+                        f"Attempting final failover to lite model {LITE_LLM_MODEL}..."
+                    )
+                    if LITE_LLM_MODEL not in fallback_cache:
+                        fallback_cache[LITE_LLM_MODEL] = _create_raw_llm(LITE_LLM_MODEL, temp=0.1)
+                    lite_llm = fallback_cache[LITE_LLM_MODEL]
+                    return lite_llm.call(*args, **kwargs)
+            raise e
+
+    base_llm.call = resilient_call
+    return base_llm
+
+
+def _create_llm(model_name: str, temp: float = 0.3):
+    """Internal helper to create LLM instance with dynamic runtime fallback cascade."""
+    base_llm = _create_raw_llm(model_name, temp=temp)
+    # Determine the next fallback tier in the cascade
+    target_fallback = FALLBACK_LLM_MODEL if model_name != FALLBACK_LLM_MODEL else LITE_LLM_MODEL
+    return _wrap_llm_with_runtime_fallback(base_llm, target_fallback, temp=temp)
 
 def get_flash_llm():
     """Create and cache the Gemini Flash LLM with Fallback Model Cascade."""

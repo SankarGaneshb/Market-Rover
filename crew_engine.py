@@ -65,17 +65,43 @@ class MarketRoverCrew:
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
         )
 
-    def _audit_token_usage(self, result: Any, session_id: Any) -> None:
+    def _audit_token_usage(self, result: Any, session_id: Any) -> Optional[int]:
         """Audit token usage against MAX_AGENT_TOKENS_PER_RUN guardrail."""
         token_usage = getattr(result, "token_usage", None) or getattr(self.crew, "usage_metrics", None)
         if token_usage:
             total_tokens = getattr(token_usage, "total_tokens", 0) if not isinstance(token_usage, dict) else token_usage.get("total_tokens", 0)
             if total_tokens > MAX_AGENT_TOKENS_PER_RUN:
                 logger.warning(
-                    f"⚠️ Token budget ceiling exceeded: Used {total_tokens} tokens (Limit: {MAX_AGENT_TOKENS_PER_RUN})."
+                    f"⚠️ Token budget ceiling exceeded: Used {total_tokens} tokens (Limit: {MAX_AGENT_TOKENS_PER_RUN}). "
+                    "Downstream optional tasks shed."
+                )
+            elif total_tokens > int(MAX_AGENT_TOKENS_PER_RUN * 0.85):
+                logger.warning(
+                    f"⚠️ Token consumption approaching ceiling: Used {total_tokens}/{MAX_AGENT_TOKENS_PER_RUN} tokens (85% reached)."
                 )
             else:
                 logger.info(f"📊 Token Consumption: {total_tokens}/{MAX_AGENT_TOKENS_PER_RUN} tokens (Healthy)")
+            return total_tokens
+        return None
+
+    def _escalate_to_hil(self, session_id: Any, error: Exception) -> None:
+        """Automated incident escalation to HIL-Rover Mission Control on unrecoverable failures."""
+        try:
+            from rover_tools.hil_client import notify_hil
+            notify_hil(
+                agent_name="MarketRoverCrew",
+                task_name="CrewExecutionError",
+                instructions=f"Unrecoverable crew failure: {str(error)[:250]}. Requires SRE triage.",
+                data={
+                    "session_id": str(session_id),
+                    "error": str(error),
+                    "max_parallel_stocks": self.max_parallel_stocks,
+                    "num_agents": len(self.agents)
+                },
+                status="PENDING"
+            )
+        except Exception:
+            logger.debug("HIL auto-escalation skipped")
 
     @retry_operation(max_retries=3, delay=5.0, exceptions=(ValueError, Exception))
     def run(self):
@@ -168,6 +194,8 @@ class MarketRoverCrew:
                 )
             except Exception:
                 logger.debug("Failed to persist crew error detail")
+
+            self._escalate_to_hil(session_id, e)
             raise
 
     async def run_async(self):
@@ -245,6 +273,8 @@ class MarketRoverCrew:
                 )
             except Exception:
                 logger.debug("Failed to persist crew error detail")
+
+            self._escalate_to_hil(session_id, e)
             raise
 
     def get_crew_info(self):
