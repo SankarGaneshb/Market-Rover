@@ -50,7 +50,7 @@ except ImportError as e:
     # Define stubs for critical missing tools if needed, or rely on them being optional
     # For now, we assume most are needed but we'd rather warn than crash during collection.
 
-from config import MAX_ITERATIONS, GOOGLE_API_KEY, PRIMARY_LLM_MODEL, FALLBACK_LLM_MODEL, LITE_LLM_MODEL
+from config import MAX_ITERATIONS, MAX_EXECUTION_TIME, GOOGLE_API_KEY, PRIMARY_LLM_MODEL, FALLBACK_LLM_MODEL, LITE_LLM_MODEL
 from utils.logger import get_logger
 from utils.metrics import track_error
 import os
@@ -134,23 +134,33 @@ def get_lite_llm():
 # Legacy accessor for compatibility
 get_gemini_llm = get_pro_llm
 
+try:
+    from rover_tools.tool_guard import shield_crewai_tool
+except ImportError:
+    def shield_crewai_tool(t, **kwargs):
+        return t
+
 
 def ensure_crewai_tools(tools_list):
-    """Ensure all tools passed to CrewAI Agent are valid BaseTool instances or @tool decorated."""
+    """Ensure all tools passed to CrewAI Agent are valid BaseTool instances or @tool decorated, with error shielding and output length pruning."""
     valid_tools = []
     for t in tools_list:
         if t is None:
             continue
+        candidate = None
         if hasattr(t, "name") or hasattr(t, "_run") or type(t).__name__ in ("StructuredTool", "Tool", "BaseTool"):
-            valid_tools.append(t)
+            candidate = t
         elif callable(t):
             try:
                 from crewai.tools import tool
-                valid_tools.append(tool(t))
+                candidate = tool(t)
             except Exception:
-                valid_tools.append(t)
+                candidate = t
         else:
-            valid_tools.append(t)
+            candidate = t
+
+        if candidate is not None:
+            valid_tools.append(shield_crewai_tool(candidate))
     return valid_tools
 
 
@@ -168,6 +178,7 @@ def create_portfolio_manager_agent():
         tools=ensure_crewai_tools([read_portfolio, calculate_portfolio_risk_tool]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm # Explicitly set to prevent OpenAI fallback
@@ -204,6 +215,7 @@ def create_news_scraper_agent():
         ]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -228,6 +240,7 @@ def create_sentiment_analyzer_agent():
         tools=ensure_crewai_tools([analyze_retail_sentiment_tool]),  # Uses LLM reasoning and retail sentiment tool
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -257,6 +270,7 @@ def create_market_context_agent():
         ]),
         verbose=True,
         max_iter=3,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -277,6 +291,7 @@ def create_report_generator_agent():
         tools=ensure_crewai_tools([fetch_historical_context_tool]),
         verbose=True,
         max_iter=3, # Ultra strict limit for rate limiting
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -313,6 +328,7 @@ def create_shadow_analyst_agent():
         ]),
         verbose=True,
         max_iter=5, # Strict limit to prevent loops
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -334,6 +350,7 @@ def create_visualizer_agent():
         tools=ensure_crewai_tools([generate_market_snapshot, generate_sector_heatmap_tool]),
         verbose=True,
         max_iter=MAX_ITERATIONS,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -371,6 +388,7 @@ def create_traditional_timing_agent():
         tools=ensure_crewai_tools([fetch_subha_muhurtham_tool, analyze_traditional_calendar_tool]),
         verbose=True,
         max_iter=3,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm
@@ -395,6 +413,7 @@ def create_sre_support_agent():
         tools=ensure_crewai_tools([propose_system_remediation]),
         verbose=True,
         max_iter=3,
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=llm,
         function_calling_llm=llm

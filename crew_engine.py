@@ -23,7 +23,7 @@ except Exception:
 
 from agents import AgentFactory
 from tasks import TaskFactory
-from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY
+from config import MAX_ITERATIONS, MAX_PARALLEL_STOCKS, RATE_LIMIT_DELAY, MAX_AGENT_TOKENS_PER_RUN
 from typing import Optional, Callable
 import asyncio
 
@@ -64,6 +64,18 @@ class MarketRoverCrew:
             max_rpm=20,  # Rate limiting for API calls
             manager_llm=None,  # Disable manager LLM to avoid OpenAI requirement
         )
+
+    def _audit_token_usage(self, result: Any, session_id: Any) -> None:
+        """Audit token usage against MAX_AGENT_TOKENS_PER_RUN guardrail."""
+        token_usage = getattr(result, "token_usage", None) or getattr(self.crew, "usage_metrics", None)
+        if token_usage:
+            total_tokens = getattr(token_usage, "total_tokens", 0) if not isinstance(token_usage, dict) else token_usage.get("total_tokens", 0)
+            if total_tokens > MAX_AGENT_TOKENS_PER_RUN:
+                logger.warning(
+                    f"⚠️ Token budget ceiling exceeded: Used {total_tokens} tokens (Limit: {MAX_AGENT_TOKENS_PER_RUN})."
+                )
+            else:
+                logger.info(f"📊 Token Consumption: {total_tokens}/{MAX_AGENT_TOKENS_PER_RUN} tokens (Healthy)")
 
     @retry_operation(max_retries=3, delay=5.0, exceptions=(ValueError, Exception))
     def run(self):
@@ -111,6 +123,7 @@ class MarketRoverCrew:
             logger.info("%s", "\n" + "=" * 60)
             logger.info("✅ Analysis Complete!")
 
+            self._audit_token_usage(result, session_id)
             track_workflow_end(session_id, "success")
 
             # Vismera Telemetry Hook: WORKFLOW_END
@@ -189,6 +202,7 @@ class MarketRoverCrew:
             logger.info("%s", "\n" + "=" * 60)
             logger.info("✅ Analysis Complete!")
 
+            self._audit_token_usage(result, session_id)
             track_workflow_end(session_id, "success")
 
             # Vismera Telemetry Hook: WORKFLOW_END

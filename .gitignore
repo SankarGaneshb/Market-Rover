@@ -91,3 +91,5 @@ reports/test_user/
 # Agent local configs
 .agent/*.json
 .agent/mcp_config.json
+.rover-slim/
+scratch_mock/

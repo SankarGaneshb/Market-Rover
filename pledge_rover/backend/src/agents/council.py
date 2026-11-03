@@ -3,6 +3,13 @@ from crewai import Agent, Task, Crew, Process
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field
 
+try:
+    from config import MAX_ITERATIONS, MAX_EXECUTION_TIME, PRIMARY_LLM_MODEL
+except ImportError:
+    MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "3"))
+    MAX_EXECUTION_TIME = int(os.getenv("MAX_EXECUTION_TIME", "60"))
+    PRIMARY_LLM_MODEL = os.getenv("PRIMARY_LLM_MODEL", "gemini-3.8-flash")
+
 # Define Output Schema for The Council
 class CouncilOutput(BaseModel):
     promoter_symbol: str = Field(description="The BSE/NSE symbol of the promoter or holding company")
@@ -18,7 +25,7 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
 
     # Initialize Google Gemini LLM (Required to avoid OpenAI 401 fallback)
     gemini_llm = ChatGoogleGenerativeAI(
-        model="gemini-3-flash-preview",
+        model=PRIMARY_LLM_MODEL,
         verbose=True,
         temperature=0.3,
         google_api_key=os.getenv("GOOGLE_API_KEY")
@@ -41,6 +48,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Extract exact pledging data from raw SAST & LODR disclosures.',
         backstory='An expert in reading XBRL and PDF tables. You find the Pledgor, the Pledgee, and the exact percentage encumbered without hallucinating.',
         verbose=True,
+        max_iter=min(MAX_ITERATIONS, 3),
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=gemini_llm
     )
@@ -51,6 +60,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Map the entity network and identify shell companies or obscure NBFCs.',
         backstory='You maintain the Shadow Tracker. You look at the Pledgee (the lender) and determine if it is a Tier-1 Bank (safe) or a related party/obscure NBFC (red flag).',
         verbose=True,
+        max_iter=min(MAX_ITERATIONS, 3),
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=gemini_llm
     )
@@ -61,6 +72,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Synthesize the deterministic Survival Score (0-100) and Skin in the Game % into a risk thesis.',
         backstory='You rely on hard math. You see the provided time-series Survival Score and 75%-normalized Skin in the Game metric. You explain *what the math means* regarding margin call proximity and contagion risk.',
         verbose=True,
+        max_iter=min(MAX_ITERATIONS, 3),
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=gemini_llm
     )
@@ -71,6 +84,8 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         goal='Analyze the true intent behind the pledge by weighing The Actuary\'s math against the context.',
         backstory='You never trust the surface data. You debate The Actuary. If the math says "Survival Pledging", you explain the dire reality. You finalize the ultimate governance score.',
         verbose=True,
+        max_iter=min(MAX_ITERATIONS, 3),
+        max_execution_time=MAX_EXECUTION_TIME,
         allow_delegation=False,
         llm=gemini_llm
     )
@@ -105,12 +120,29 @@ def create_council_crew(filing_text: str, computed_metrics: dict = None):
         agents=[harvester, genealogist, actuary, skeptic],
         tasks=[extract_task, trace_task, quantify_task, debate_task],
         process=Process.sequential,
-        verbose=True
+        verbose=True,
+        max_rpm=15
     )
 
     return crew
 
 async def run_council(filing_text: str, computed_metrics: dict = None):
-    crew = create_council_crew(filing_text, computed_metrics)
-    result = crew.kickoff()
-    return result
+    try:
+        crew = create_council_crew(filing_text, computed_metrics)
+        result = crew.kickoff()
+        return result
+    except Exception as e:
+        # Deterministic Safe Floor Fallback
+        skin = (computed_metrics or {}).get("skin_in_the_game", 50.0)
+        survival = (computed_metrics or {}).get("survival_score", 50.0)
+        gov_score = round(min(10.0, max(1.0, (float(skin) * 0.05) + (float(survival) * 0.05))), 1)
+        sentiment = "Growth" if float(survival) >= 65 else ("Survival" if float(survival) >= 40 else "High Contagion Risk")
+        return CouncilOutput(
+            promoter_symbol=str((computed_metrics or {}).get("symbol", "PORTFOLIO")),
+            governance_score=gov_score,
+            final_sentiment=sentiment,
+            debate_summary=(
+                f"Deterministic quantitative fallback applied ({type(e).__name__}). "
+                f"Anchored on Survival Score {survival}/100 and Skin in the Game {skin}%."
+            )
+        )

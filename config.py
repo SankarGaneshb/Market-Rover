@@ -65,6 +65,7 @@ LITE_LLM_MODEL = os.getenv("LITE_LLM_MODEL", "gemini-3.5-flash-lite")
 
 # System Settings
 MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))
+MAX_EXECUTION_TIME = int(os.getenv("MAX_EXECUTION_TIME", "120"))  # Maximum seconds per agent execution guard
 LOOKBACK_DAYS = int(os.getenv("LOOKBACK_DAYS", "7"))
 PORTFOLIO_FILE = os.getenv("PORTFOLIO_FILE", "Portfolio.csv")
 
